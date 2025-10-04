@@ -1,33 +1,39 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API-referens'
+description: 'Sajn API dokumentation'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Välkommen till Sajn API
 
-## Welcome
+Sajn API ger dig programmatisk tillgång till alla funktioner i Sajn-plattformen. Med vårt API kan du skapa, hantera och signera dokument, samt administrera kontakter, företag och anpassade fält.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Autentisering
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+Alla API-anrop kräver autentisering via API-nyckel som skickas i `Authorization`-headern:
 
-## Authentication
-
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+```bash
+curl -H "Authorization: your-api-key" https://app.sajn.se/api/v1/documents
 ```
+
+## Bas-URL
+
+```
+https://app.sajn.se/api/v1
+```
+
+## Huvudfunktioner
+
+### Dokument
+Skapa, hämta, uppdatera och ta bort dokument. Hantera signeringsprocessen och ladda ner signerade dokument.
+
+### Kontakter
+Hantera din kontaktlista för att enkelt lägga till signerare till dokument.
+
+### Företag
+Skapa och hantera företagsinformation.
+
+### Taggar
+Organisera dina dokument med anpassade taggar.
+
+### Anpassade fält
+Skapa och hantera anpassade fält för dina dokument.

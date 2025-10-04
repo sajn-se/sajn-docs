@@ -11,7 +11,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Dokumentation",
         "groups": [
           {
             "group": "Getting started",
@@ -48,21 +48,23 @@
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API",
         "groups": [
           {
             "group": "API documentation",
             "pages": [
               "api-reference/introduction"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Ändringslogg",
+        "groups": [
           {
-            "group": "Endpoint examples",
+            "group": "Version history",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "changelog"
             ]
           }
         ]
@@ -116,5 +118,6 @@
       "github": "https://github.com/mintlify",
       "linkedin": "https://linkedin.com/company/mintlify"
     }
-  }
+  },
+  "openapi": "api-reference/openapi.json"
 }
