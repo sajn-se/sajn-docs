@@ -1,1489 +1,1809 @@
 {
     "openapi": "3.0.2",
     "paths": {
-        "/api/v1": {
-            "get": {
-                "summary": "API root endpoint - health check och version information",
-                "tags": [],
-                "parameters": [],
-                "operationId": "root",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
+      "/api/v1": {
+        "get": {
+          "description": "Check API health status and get version information. This endpoint does not require authentication.",
+          "summary": "Health check",
+          "tags": [],
+          "parameters": [],
+          "operationId": "root",
+          "responses": {
+            "200": {
+              "description": "Health check response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Health check response"
+                  }
                 }
+              }
             }
-        },
-        "/api/v1/documents": {
-            "get": {
-                "summary": "Hämta alla dokument",
-                "tags": [],
-                "parameters": [],
-                "operationId": "getDocuments",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "summary": "Skapa ett nytt dokument.",
-                "tags": [],
-                "parameters": [],
-                "operationId": "createDocument",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}": {
-            "get": {
-                "summary": "Hämta ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "getDocument",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "summary": "Uppdatera ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "updateDocument",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "summary": "Ta bort ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "deleteDocument",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}/download": {
-            "get": {
-                "summary": "Hämta ett signerat dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "downloadSignedDocument",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}/send": {
-            "post": {
-                "description": "Anteckningar:\n\n`signatureType` - vilken signeringstyp som måste användas för att signera dokument. Notera att BANKID ",
-                "summary": "Skicka ett dokument för signering.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "sendDocument",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}/signers": {
-            "post": {
-                "summary": "Lägg till en deltagare i ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "createSigner",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "500",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}/signers/{signerId}": {
-            "patch": {
-                "summary": "Uppdatera en deltagare i ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "signerId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "updateSigner",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "500",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "summary": "Ta bort en deltagare från ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "signerId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "deleteSigner",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "500",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/contacts": {
-            "get": {
-                "summary": "Hämta alla kontakter.",
-                "tags": [],
-                "parameters": [],
-                "operationId": "getContacts",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [],
-                "parameters": [],
-                "operationId": "createContact",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/contacts/{id}": {
-            "get": {
-                "summary": "Hämta en kontakt.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "getContact",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "updateContact",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "deleteContact",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/companies": {
-            "get": {
-                "summary": "Hämta alla företag.",
-                "tags": [],
-                "parameters": [],
-                "operationId": "getCompanies",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "summary": "Skapa ett nytt företag.",
-                "tags": [],
-                "parameters": [],
-                "operationId": "createCompany",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "409",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/companies/{id}": {
-            "get": {
-                "summary": "Hämta ett företag.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "getCompany",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}/fields": {
-            "post": {
-                "summary": "Skapa en sektion i ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "createField",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}/fields/{fieldId}": {
-            "patch": {
-                "summary": "Uppdatera en sektion i ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "fieldId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "updateField",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "summary": "Ta bort en sektion i ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "fieldId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "deleteField",
-                "responses": {
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/tags": {
-            "get": {
-                "summary": "Hämta alla taggar.",
-                "tags": [],
-                "parameters": [],
-                "operationId": "getTags",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "summary": "Skapa en ny tagg.",
-                "tags": [],
-                "parameters": [],
-                "operationId": "createTag",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "409",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/tags/{id}": {
-            "patch": {
-                "summary": "Uppdatera en tagg.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "updateTag",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}/tags": {
-            "post": {
-                "summary": "Lägg till en tagg till ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "addTagToDocument",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/documents/{id}/tags/{tagId}": {
-            "delete": {
-                "summary": "Ta bort en tagg från ett dokument.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "tagId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "removeTagFromDocument",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/custom-fields": {
-            "get": {
-                "summary": "Hämta alla anpassade fält.",
-                "tags": [],
-                "parameters": [],
-                "operationId": "getCustomFields",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "summary": "Skapa ett nytt anpassat fält.",
-                "tags": [],
-                "parameters": [],
-                "operationId": "createCustomField",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/custom-fields/{id}": {
-            "get": {
-                "summary": "Hämta ett anpassat fält.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "getCustomField",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "summary": "Uppdatera ett anpassat fält.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "updateCustomField",
-                "requestBody": {
-                    "description": "Body",
-                    "content": {
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "summary": "Ta bort ett anpassat fält.",
-                "tags": [],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "operationId": "deleteCustomField",
-                "responses": {
-                    "200": {
-                        "description": "200",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "401",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "404",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
+          }
         }
+      },
+      "/api/v1/documents": {
+        "get": {
+          "description": "Retrieve a paginated list of all documents in your organization.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including signers.\n\n**Pagination:** Use 'page' and 'perPage' query parameters to control pagination.",
+          "summary": "List all documents",
+          "tags": [],
+          "parameters": [],
+          "operationId": "getDocuments",
+          "responses": {
+            "200": {
+              "description": "Paginated list of documents",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Paginated list of documents"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "description": "Create a new document in DRAFT status. You can optionally include signers during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
+          "summary": "Create a new document",
+          "tags": [],
+          "parameters": [],
+          "operationId": "createDocument",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}": {
+        "get": {
+          "description": "Retrieve detailed information about a specific document including all signers, tags, and custom field values.\n\nThe response includes:\n- Document metadata (subject, message, signing order, etc.)\n- All document signers with their status\n- Applied tags\n- Custom field values\n- Document timestamps (created, updated, completed, archived)",
+          "summary": "Get a document by ID",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "getDocument",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "description": "Update document properties. Only DRAFT documents can have all fields updated. Sent documents have restrictions.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `documentMeta` - Metadata including subject, message, signing order, distribution method, etc.\n- `customFields` - Custom field values\n\n**Note:** Some fields like signing order cannot be modified after the document is sent.",
+          "summary": "Update a document",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "updateDocument",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "description": "Soft delete a document. The document is marked as deleted but not permanently removed from the database.\n\n**Note:** Deleted documents are not included in list responses but can be retrieved by ID if you have the document ID.",
+          "summary": "Delete a document",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "deleteDocument",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}/download": {
+        "get": {
+          "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `downloadOriginalDocument` (boolean): If true, downloads the original unsigned document. If false (default), downloads the signed/sealed version.\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- For signed documents: Document must be in COMPLETED status\n- For original documents: Available for all document statuses",
+          "summary": "Download signed document",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "downloadSignedDocument",
+          "responses": {
+            "200": {
+              "description": "Document download response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Document download response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}/send": {
+        "post": {
+          "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Delivery Methods:**\n- `EMAIL` - Send signing invitations via email\n- `SMS` - Send signing links via SMS (requires phone numbers)\n- `NONE` - Don't send notifications (use signing URLs directly)\n\n**Signature Types:**\n- `DRAWING` - Free-hand signature drawing\n- `BANKID` - Swedish BankID electronic signature (requires integration)\n- `MANUAL` - Manual signature (for in-person signing)\n\n**Custom Message:** Optional custom message included in the invitation.\n\n**Prerequisites:** Document must have at least one signer before sending.",
+          "summary": "Send document for signing",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "sendDocument",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Send document request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}/signers": {
+        "post": {
+          "description": "Add a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer with a unique signing URL and token.",
+          "summary": "Add a signer to document",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "createSigner",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Create signer request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}/signers/{signerId}": {
+        "patch": {
+          "description": "Update signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n\n**Restrictions:** Cannot update after signer has signed the document.",
+          "summary": "Update a signer",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signerId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "updateSigner",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "description": "Remove a signer from a document. This operation is only allowed for DRAFT documents.\n\n**Note:** Once a document is sent, signers cannot be removed. You must cancel the document first.",
+          "summary": "Remove a signer from document",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signerId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "deleteSigner",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/contacts": {
+        "get": {
+          "description": "Retrieve a paginated list of all contacts in your organization.\n\nContacts are individuals that can be added as signers to documents. Each contact can optionally be associated with a company.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.",
+          "summary": "List all contacts",
+          "tags": [],
+          "parameters": [],
+          "operationId": "getContacts",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n- `lastName` - Contact's last name\n\n**Optional Fields:**\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `ssn` - Swedish personal number (for BankID)\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
+          "summary": "Create a new contact",
+          "tags": [],
+          "parameters": [],
+          "operationId": "createContact",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Create contact request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/contacts/{id}": {
+        "get": {
+          "description": "Retrieve detailed information about a specific contact including associated company information.",
+          "summary": "Get a contact by ID",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "getContact",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "description": "Update contact information. All fields are optional.\n\n**Note:** Updating a contact does not affect existing document signers. Changes only apply to new documents.",
+          "summary": "Update a contact",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "updateContact",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Update contact request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "description": "Soft delete a contact. The contact is marked as deleted but existing document signers remain unaffected.",
+          "summary": "Delete a contact",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "deleteContact",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/companies": {
+        "get": {
+          "description": "Retrieve a list of all companies in your organization.\n\nCompanies can be associated with contacts to track organizational relationships.",
+          "summary": "List all companies",
+          "tags": [],
+          "parameters": [],
+          "operationId": "getCompanies",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "description": "Create a new company in your organization.\n\n**Required Fields:**\n- `name` - Company name\n\n**Optional Fields:**\n- `orgNumber` - Organization number (must be unique if provided)\n- `country` - Country name\n\n**Note:** If a company with the same organization number exists, a 409 Conflict error is returned.",
+          "summary": "Create a new company",
+          "tags": [],
+          "parameters": [],
+          "operationId": "createCompany",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/companies/{id}": {
+        "get": {
+          "description": "Retrieve detailed information about a company including all associated contacts.",
+          "summary": "Get a company by ID",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "getCompany",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}/fields": {
+        "post": {
+          "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.",
+          "summary": "Create a document field",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "createField",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}/fields/{fieldId}": {
+        "patch": {
+          "description": "Update a document field's properties. Only DRAFT documents can have fields updated.\n\n**Updatable Properties:**\n- `type` - Field type (cannot change if field has data)\n- `position` - Field order/position\n- `fieldMeta` - Field-specific metadata",
+          "summary": "Update a document field",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "fieldId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "updateField",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "description": "Remove a field from a document. Only allowed for DRAFT documents.",
+          "summary": "Delete a document field",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "fieldId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "deleteField",
+          "responses": {
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/tags": {
+        "get": {
+          "description": "Retrieve a paginated list of all tags in your organization.\n\nTags help organize and categorize documents, templates, and contacts.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.",
+          "summary": "List all tags",
+          "tags": [],
+          "parameters": [],
+          "operationId": "getTags",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "description": "Create a new tag for organizing documents, templates, or contacts.\n\n**Required Fields:**\n- `name` - Tag name (must be unique)\n- `availableFor` - Where tag can be used: DOCUMENT, TEMPLATE, or CONTACT\n\n**Optional Fields:**\n- `color` - Hex color code (e.g., #FF5733)",
+          "summary": "Create a new tag",
+          "tags": [],
+          "parameters": [],
+          "operationId": "createTag",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Create tag request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/tags/{id}": {
+        "patch": {
+          "description": "Update tag properties. All fields are optional.",
+          "summary": "Update a tag",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "updateTag",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}/tags": {
+        "post": {
+          "description": "Associate a tag with a document.\n\n**Note:** Tag must be configured for DOCUMENT use (availableFor includes 'DOCUMENT').",
+          "summary": "Add tag to document",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "addTagToDocument",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/documents/{id}/tags/{tagId}": {
+        "delete": {
+          "description": "Remove a tag association from a document.",
+          "summary": "Remove tag from document",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tagId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "removeTagFromDocument",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/custom-fields": {
+        "get": {
+          "description": "Retrieve a paginated list of custom field definitions.\n\nCustom fields allow you to add additional structured data to documents or contacts.\n\n**Query Parameters:**\n- `page` - Page number\n- `perPage` - Items per page\n- `type` - Filter by type (DOCUMENT or CONTACT)",
+          "summary": "List all custom fields",
+          "tags": [],
+          "parameters": [],
+          "operationId": "getCustomFields",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "description": "Create a new custom field definition.\n\n**Required Fields:**\n- `name` - Field name\n- `type` - DOCUMENT or CONTACT\n- `inputType` - Input type (TEXT, NUMBER, DATE, CHECKBOX, SELECT, TEXTAREA)\n\n**Optional Fields:**\n- `defaultValue` - Default value for the field\n- `required` - Whether field is required (default: false)\n- `options` - For SELECT type, comma-separated options",
+          "summary": "Create a custom field definition",
+          "tags": [],
+          "parameters": [],
+          "operationId": "createCustomField",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Create custom field request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/custom-fields/{id}": {
+        "get": {
+          "description": "Retrieve detailed information about a custom field definition.",
+          "summary": "Get a custom field by ID",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "getCustomField",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "description": "Update custom field properties. All fields are optional.\n\n**Note:** Changing field type may affect existing data.",
+          "summary": "Update a custom field definition",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "updateCustomField",
+          "requestBody": {
+            "description": "Body",
+            "content": {
+              "application/json": {
+                "schema": {
+  
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "description": "Delete a custom field definition.\n\n**Warning:** This will remove all values associated with this field from all documents/contacts.",
+          "summary": "Delete a custom field definition",
+          "tags": [],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "operationId": "deleteCustomField",
+          "responses": {
+            "200": {
+              "description": "200",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Error response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Error response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "info": {
-        "title": "Sajn API",
-        "version": "1.0.0",
-        "description": "Sajn API"
+      "title": "sajn API",
+      "version": "1.0.0",
+      "description": "# sajn Digital Signing API\n\nWelcome to the sajn API documentation. This RESTful API allows you to integrate digital document signing capabilities into your applications.\n\n## Overview\n\nsajn is a Swedish digital document signing platform that enables you to:\n- Create and manage digital documents\n- Add signers and participants to documents\n- Send documents for signing via email or SMS\n- Track document status and signatures\n- Manage contacts and companies\n- Organize documents with tags and custom fields\n\n## Authentication\n\nAll API requests require authentication using an API key. Include your API key in the Authorization header:\n\n```\nAuthorization: Bearer YOUR_API_KEY\n```\n\nYou can generate API keys from your organization settings in the sajn dashboard.\n\n## Rate Limiting\n\nAPI requests are rate limited to ensure service stability:\n- 100 requests per minute per API key\n- 1000 requests per hour per API key\n\nRate limit headers are included in all responses.\n\n## Pagination\n\nList endpoints support pagination with the following query parameters:\n- `page` - Page number (default: 1)\n- `perPage` - Items per page (default: 10, max: 100)\n\n## Webhooks\n\nConfigure webhooks to receive real-time notifications about document events:\n- `DOCUMENT_CREATED` - When a document is created\n- `DOCUMENT_SENT` - When a document is sent for signing\n- `DOCUMENT_OPENED` - When a signer opens a document\n- `DOCUMENT_SIGNED` - When a signer signs a document\n- `DOCUMENT_COMPLETED` - When all signers have signed\n- `DOCUMENT_REJECTED` - When a signer rejects a document\n\n## Error Handling\n\nThe API uses standard HTTP status codes and returns error details in JSON format:\n\n```json\n{\n  \"message\": \"Error description\"\n}\n```\n\nCommon status codes:\n- 200: Success\n- 400: Bad Request - Invalid parameters\n- 401: Unauthorized - Invalid or missing API key\n- 404: Not Found - Resource doesn't exist\n- 409: Conflict - Resource already exists\n- 500: Internal Server Error\n\n## Support\n\nFor API support, documentation, or questions:\n- Email: support@sajn.se\n- Documentation: https://docs.sajn.se\n- Status: https://status.sajn.se",
+      "contact": {
+        "name": "sajn Support",
+        "email": "hej@sajn.se",
+        "url": "https://sajn.se/support"
+      },
+      "license": {
+        "name": "Policy",
+        "url": "https://sajn.se/allmanna-villkor"
+      }
     },
+    "servers": [
+      {
+        "url": "https://app.sajn.se",
+        "description": "Production server"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Health",
+        "description": "API health and version information"
+      },
+      {
+        "name": "Documents",
+        "description": "Create, manage, and send documents for signing"
+      },
+      {
+        "name": "Signers",
+        "description": "Manage document signers and participants"
+      },
+      {
+        "name": "Contacts",
+        "description": "Manage contacts and contact information"
+      },
+      {
+        "name": "Companies",
+        "description": "Manage companies and organizations"
+      },
+      {
+        "name": "Fields",
+        "description": "Manage document fields and sections"
+      },
+      {
+        "name": "Tags",
+        "description": "Organize documents with tags"
+      },
+      {
+        "name": "Custom Fields",
+        "description": "Define and manage custom fields for documents"
+      }
+    ],
     "components": {
-        "securitySchemes": {
-            "authorization": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "Authorization"
-            }
+      "securitySchemes": {
+        "authorization": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "Authorization",
+          "description": "API key for authentication. Format: `Bearer YOUR_API_KEY`"
         }
+      }
     },
     "security": [
-        {
-            "authorization": []
-        }
+      {
+        "authorization": []
+      }
     ]
-}
+  }
