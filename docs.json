@@ -49,11 +49,89 @@
       },
       {
         "tab": "API",
+        "openapi": "api-reference/openapi.json",
         "groups": [
           {
             "group": "API documentation",
             "pages": [
               "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Documents",
+            "pages": [
+              "GET /api/v1/documents",
+              "POST /api/v1/documents",
+              "GET /api/v1/documents/{id}",
+              "PATCH /api/v1/documents/{id}",
+              "DELETE /api/v1/documents/{id}",
+              "GET /api/v1/documents/{id}/download",
+              "POST /api/v1/documents/{id}/send"
+            ]
+          },
+          {
+            "group": "Document Fields",
+            "pages": [
+              "POST /api/v1/documents/{id}/fields",
+              "PATCH /api/v1/documents/{id}/fields/{fieldId}",
+              "DELETE /api/v1/documents/{id}/fields/{fieldId}"
+            ]
+          },
+          {
+            "group": "Document Signers",
+            "pages": [
+              "POST /api/v1/documents/{id}/signers",
+              "PATCH /api/v1/documents/{id}/signers/{signerId}",
+              "DELETE /api/v1/documents/{id}/signers/{signerId}"
+            ]
+          },
+          {
+            "group": "Document Tags",
+            "pages": [
+              "POST /api/v1/documents/{id}/tags",
+              "DELETE /api/v1/documents/{id}/tags/{tagId}"
+            ]
+          },
+          {
+            "group": "Contacts",
+            "pages": [
+              "GET /api/v1/contacts",
+              "POST /api/v1/contacts",
+              "GET /api/v1/contacts/{id}",
+              "PATCH /api/v1/contacts/{id}",
+              "DELETE /api/v1/contacts/{id}"
+            ]
+          },
+          {
+            "group": "Companies",
+            "pages": [
+              "GET /api/v1/companies",
+              "POST /api/v1/companies",
+              "GET /api/v1/companies/{id}"
+            ]
+          },
+          {
+            "group": "Tags",
+            "pages": [
+              "GET /api/v1/tags",
+              "POST /api/v1/tags",
+              "PATCH /api/v1/tags/{id}"
+            ]
+          },
+          {
+            "group": "Custom Fields",
+            "pages": [
+              "GET /api/v1/custom-fields",
+              "POST /api/v1/custom-fields",
+              "GET /api/v1/custom-fields/{id}",
+              "PATCH /api/v1/custom-fields/{id}",
+              "DELETE /api/v1/custom-fields/{id}"
+            ]
+          },
+          {
+            "group": "System",
+            "pages": [
+              "GET /api/v1"
             ]
           }
         ]
