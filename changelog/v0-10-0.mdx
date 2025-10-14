@@ -1,18 +1,63 @@
 ---
-title: "Version 0.10.0"
-description: "Initial release"
+title: 'Version 0.10.0'
+description: 'Initial API release'
 ---
 
-**Released:** October 4, 2024
+# Changelog
 
-## Added
-- Initial release
+## Version 0.10.0 - January 2025
 
-## Changed
-- No changes in this version
+### Features
 
-## Fixed
-- No fixes in this version
+**API v1 Launch**
+- Complete REST API with full OpenAPI 3.0 specification
+- TypeScript support with auto-generated types
+- Comprehensive authentication with API keys
 
-## Deprecated
-- No deprecations in this version
+**Document Management**
+- Create, update, and send documents programmatically
+- Support for multiple document types (SIGNABLE, ACCEPTABLE)
+- Flexible signing workflows (parallel and sequential)
+- Custom fields and tags for organization
+- Document expiration and lifecycle management
+
+**Signer Management**
+- Add and manage document signers via API
+- Support for different signer roles (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)
+- Track read and signing status for each signer
+- Sequential signing with configurable order
+
+**Identity Verification (sajn ID)**
+- Swedish BankID integration for identity verification
+- SSN-based and name-based verification methods
+- Email and SMS delivery channels
+- Complete audit trails for compliance
+
+**Webhooks**
+- Real-time event notifications
+- Support for all document lifecycle events
+- Secure webhook signature verification
+- Automatic retry logic for failed deliveries
+
+**Multi-tenant Architecture**
+- Organization-level API keys
+- Role-based access control
+- Secure data isolation
+
+### Improvements
+
+- Enhanced rate limiting with clear headers
+- Better error messages with detailed descriptions
+- Improved API documentation with examples
+- Pagination support for list endpoints
+
+### Developer Experience
+
+- OpenAPI 3.0 specification available at `/api/v1/openapi`
+- Full TypeScript types and SDK support
+- Comprehensive guides and tutorials
+- Interactive API reference documentation
+
+---
+
+For support or questions, contact [hej@sajn.se](mailto:hej@sajn.se)

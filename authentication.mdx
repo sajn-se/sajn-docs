@@ -1,0 +1,132 @@
+---
+title: Authentication
+description: 'Learn how to authenticate with the sajn API'
+---
+
+# Authentication
+
+The sajn API uses API keys to authenticate requests. All API requests must include your API key in the `Authorization` header.
+
+## Getting Your API Key
+
+1. Log in to your sajn account at [app.sajn.se](https://app.sajn.se)
+2. Navigate to **Organization Settings** > **API Keys**
+3. Click **Create API Key**
+4. Copy your API key and store it securely
+
+<Warning>
+  Never share your API key or commit it to version control. Treat it like a password.
+</Warning>
+
+## Making Authenticated Requests
+
+Include your API key in the `Authorization` header as a Bearer token:
+
+```bash
+curl https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Example with Different Languages
+
+<CodeGroup>
+
+```javascript Node.js
+const axios = require('axios');
+
+const response = await axios.get('https://app.sajn.se/api/v1/documents', {
+  headers: {
+    'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
+  }
+});
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://app.sajn.se/api/v1/documents',
+    headers={'Authorization': f'Bearer {os.environ["SAJN_API_KEY"]}'}
+)
+```
+
+```php PHP
+<?php
+$ch = curl_init('https://app.sajn.se/api/v1/documents');
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . getenv('SAJN_API_KEY')
+]);
+$response = curl_exec($ch);
+```
+
+```go Go
+package main
+
+import (
+    "net/http"
+    "os"
+)
+
+func main() {
+    client := &http.Client{}
+    req, _ := http.NewRequest("GET", "https://app.sajn.se/api/v1/documents", nil)
+    req.Header.Add("Authorization", "Bearer " + os.Getenv("SAJN_API_KEY"))
+    resp, _ := client.Do(req)
+}
+```
+
+</CodeGroup>
+
+## API Key Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Store securely">
+    Store API keys in environment variables or secure credential management systems, never in code.
+  </Accordion>
+
+  <Accordion title="Rotate regularly">
+    Rotate your API keys periodically to minimize the impact of potential compromises.
+  </Accordion>
+
+  <Accordion title="Use separate keys">
+    Use different API keys for development, staging, and production environments.
+  </Accordion>
+
+  <Accordion title="Monitor usage">
+    Regularly review API key usage in your sajn dashboard to detect unauthorized access.
+  </Accordion>
+</AccordionGroup>
+
+## Error Responses
+
+If authentication fails, you'll receive a `401 Unauthorized` response:
+
+```json
+{
+  "message": "Invalid or missing API key"
+}
+```
+
+Common authentication errors:
+
+| Error | Description |
+|-------|-------------|
+| `401 Unauthorized` | API key is missing, invalid, or expired |
+| `403 Forbidden` | API key doesn't have permission for this resource |
+
+## Rate Limiting
+
+API requests are rate limited per API key:
+
+- **100 requests per minute**
+- **1000 requests per hour**
+
+Rate limit information is included in response headers:
+
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640000000
+```
+
+When you exceed the rate limit, you'll receive a `429 Too Many Requests` response.

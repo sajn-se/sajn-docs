@@ -1,0 +1,284 @@
+---
+title: Sending Documents for Signing
+description: 'Guide to sending documents and managing the signing process'
+---
+
+# Sending Documents for Signing
+
+Learn how to send documents to signers and manage the signing workflow.
+
+## Prerequisites
+
+Before sending a document:
+
+1. Document must be in `DRAFT` status
+2. At least one signer must be added
+3. Signers must have valid email addresses (for EMAIL) or phone numbers (for SMS)
+
+## Basic Send
+
+Send a document via email with default settings:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/{documentId}/send \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "deliveryMethod": "EMAIL",
+    "signatureType": "DRAWING"
+  }'
+```
+
+## Delivery Methods
+
+### Email Distribution
+
+Send signing invitations via email:
+
+```json
+{
+  "deliveryMethod": "EMAIL",
+  "signatureType": "DRAWING",
+  "customMessage": "Please sign this document at your earliest convenience."
+}
+```
+
+### SMS Distribution
+
+Send signing links via SMS (requires phone numbers on signers):
+
+```json
+{
+  "deliveryMethod": "SMS",
+  "signatureType": "DRAWING"
+}
+```
+
+### No Automatic Distribution
+
+Get signing URLs without sending notifications:
+
+```json
+{
+  "deliveryMethod": "NONE",
+  "signatureType": "DRAWING"
+}
+```
+
+Use this when you want to distribute URLs through your own channels.
+
+## Signature Types
+
+### Drawing Signature
+
+Free-hand signature drawing:
+
+```json
+{
+  "signatureType": "DRAWING"
+}
+```
+
+### BankID Signature
+
+Swedish BankID electronic signature (requires SSN on signers):
+
+```json
+{
+  "signatureType": "BANKID"
+}
+```
+
+### Manual Signature
+
+For in-person signing:
+
+```json
+{
+  "signatureType": "MANUAL"
+}
+```
+
+## Custom Messages
+
+Add a personal message to the signing invitation:
+
+```json
+{
+  "deliveryMethod": "EMAIL",
+  "signatureType": "DRAWING",
+  "customMessage": "Hi John, please review and sign the updated employment contract. Let me know if you have any questions!"
+}
+```
+
+## Signing Workflows
+
+### Parallel Signing
+
+All signers can sign simultaneously (default):
+
+```json
+// Document metadata
+{
+  "documentMeta": {
+    "signingOrder": "PARALLEL"
+  }
+}
+
+// When sending
+{
+  "deliveryMethod": "EMAIL",
+  "signatureType": "DRAWING"
+}
+```
+
+All signers receive invitations immediately.
+
+### Sequential Signing
+
+Signers must sign in order:
+
+```json
+// Document metadata (set when creating/updating document)
+{
+  "documentMeta": {
+    "signingOrder": "SEQUENTIAL"
+  }
+}
+
+// Signers with order
+[
+  {
+    "name": "Manager",
+    "email": "manager@company.com",
+    "signingOrder": 1
+  },
+  {
+    "name": "Employee",
+    "email": "employee@company.com",
+    "signingOrder": 2
+  }
+]
+
+// When sending
+{
+  "deliveryMethod": "EMAIL",
+  "signatureType": "DRAWING"
+}
+```
+
+Only the first signer receives the invitation. Others receive theirs after the previous signer completes.
+
+## Tracking Status
+
+After sending, monitor document and signer status:
+
+```bash
+GET /api/v1/documents/{documentId}
+```
+
+Response shows individual signer progress:
+
+```json
+{
+  "id": "doc_123",
+  "status": "PENDING",
+  "signers": [
+    {
+      "name": "John Doe",
+      "readStatus": "OPENED",
+      "signingStatus": "NOT_SIGNED",
+      "signedAt": null
+    },
+    {
+      "name": "Jane Manager",
+      "readStatus": "READ",
+      "signingStatus": "SIGNED",
+      "signedAt": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+## Resending Invitations
+
+If a signer didn't receive or lost their invitation, update and resend:
+
+```bash
+# Update signer email if needed
+PATCH /api/v1/documents/{docId}/signers/{signerId}
+
+# Resend the document
+POST /api/v1/documents/{docId}/send
+```
+
+## Document Completion
+
+When all signers have signed:
+
+1. Document status changes to `COMPLETED`
+2. Final sealed document is generated
+3. All parties receive completion notification (if configured)
+4. Webhooks fire `DOCUMENT_COMPLETED` event
+
+Download the completed document:
+
+```bash
+GET /api/v1/documents/{documentId}/download
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Test before sending">
+    Use `deliveryMethod: "NONE"` to get signing URLs for testing before sending to real signers.
+  </Accordion>
+
+  <Accordion title="Clear instructions">
+    Always include a custom message explaining what the document is and why it needs signing.
+  </Accordion>
+
+  <Accordion title="Sequential for approvals">
+    Use sequential signing when manager approval is needed before employee signatures.
+  </Accordion>
+
+  <Accordion title="Set expiration">
+    Set reasonable expiration dates (7-30 days) to maintain urgency.
+  </Accordion>
+
+  <Accordion title="Monitor progress">
+    Use webhooks or polling to track signing progress and send reminders if needed.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Signer Didn't Receive Email
+
+1. Check spam/junk folders
+2. Verify email address is correct
+3. Update email address if needed
+4. Resend the document
+
+### Wrong Signing Order
+
+If you need to change signing order:
+
+1. Cancel the current document
+2. Create a new document with correct order
+3. Send the new document
+
+### Document Stuck in SENDING
+
+If document is stuck in `SENDING` status, contact support at hej@sajn.se.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Get real-time signing notifications
+  </Card>
+  <Card title="Document Concepts" icon="file" href="/concepts/documents">
+    Learn more about document workflows
+  </Card>
+</CardGroup>

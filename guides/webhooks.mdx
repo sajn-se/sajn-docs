@@ -1,0 +1,254 @@
+---
+title: Webhooks
+description: 'Receive real-time notifications about document events'
+---
+
+# Webhooks
+
+Webhooks allow you to receive real-time HTTP notifications when events occur in your sajn account.
+
+## Overview
+
+When an event occurs (e.g., a document is signed), sajn sends an HTTP POST request to your configured webhook URL with details about the event.
+
+## Supported Events
+
+| Event | Description |
+|-------|-------------|
+| `DOCUMENT_CREATED` | A new document was created |
+| `DOCUMENT_SENT` | A document was sent to signers |
+| `DOCUMENT_OPENED` | A signer opened a document |
+| `DOCUMENT_SIGNED` | A signer signed a document |
+| `DOCUMENT_COMPLETED` | All signers have signed |
+| `DOCUMENT_REJECTED` | A signer rejected a document |
+
+## Webhook Payload
+
+Each webhook request includes:
+
+```json
+{
+  "event": "DOCUMENT_SIGNED",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "organizationId": "org_123",
+  "data": {
+    "documentId": "doc_456",
+    "documentName": "Employment Contract",
+    "externalId": "contract_2024_001",
+    "signerId": "signer_789",
+    "signerEmail": "john@example.com",
+    "signerName": "John Doe",
+    "signedAt": "2024-01-15T10:30:00Z",
+    "signatureType": "DRAWING"
+  }
+}
+```
+
+## Configuring Webhooks
+
+### Via Dashboard
+
+1. Log in to [app.sajn.se](https://app.sajn.se)
+2. Navigate to **Organization Settings** > **Webhooks**
+3. Click **Add Webhook**
+4. Enter your webhook URL
+5. Select which events to receive
+6. Save
+
+### Via API
+
+Configure webhooks programmatically:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "webhookUrl": "https://your-domain.com/webhooks/sajn",
+    "events": [
+      "DOCUMENT_SIGNED",
+      "DOCUMENT_COMPLETED",
+      "DOCUMENT_REJECTED"
+    ],
+    "secret": "your_webhook_secret"
+  }'
+```
+
+## Implementing a Webhook Endpoint
+
+### Node.js Example
+
+```javascript
+const express = require('express');
+const crypto = require('crypto');
+
+const app = express();
+app.use(express.json());
+
+app.post('/webhooks/sajn', (req, res) => {
+  // Verify webhook signature
+  const signature = req.headers['x-sajn-signature'];
+  const expectedSignature = crypto
+    .createHmac('sha256', process.env.WEBHOOK_SECRET)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+
+  if (signature !== expectedSignature) {
+    return res.status(401).send('Invalid signature');
+  }
+
+  // Process the webhook
+  const { event, data } = req.body;
+
+  switch (event) {
+    case 'DOCUMENT_SIGNED':
+      console.log(`Document ${data.documentId} signed by ${data.signerName}`);
+      // Update your database, send notifications, etc.
+      break;
+
+    case 'DOCUMENT_COMPLETED':
+      console.log(`Document ${data.documentId} fully executed`);
+      // Trigger downstream processes
+      break;
+  }
+
+  // Respond quickly
+  res.status(200).send('OK');
+});
+
+app.listen(3000);
+```
+
+### Python Example
+
+```python
+from flask import Flask, request, abort
+import hmac
+import hashlib
+import json
+
+app = Flask(__name__)
+
+@app.route('/webhooks/sajn', methods=['POST'])
+def webhook():
+    # Verify signature
+    signature = request.headers.get('X-Sajn-Signature')
+    body = request.get_data()
+    expected = hmac.new(
+        bytes(os.environ['WEBHOOK_SECRET'], 'utf-8'),
+        body,
+        hashlib.sha256
+    ).hexdigest()
+
+    if signature != expected:
+        abort(401)
+
+    # Process webhook
+    payload = request.json
+    event = payload['event']
+    data = payload['data']
+
+    if event == 'DOCUMENT_SIGNED':
+        print(f"Document {data['documentId']} signed")
+
+    return 'OK', 200
+```
+
+## Verifying Webhooks
+
+Always verify webhook signatures to ensure requests come from sajn:
+
+1. Get the `X-Sajn-Signature` header
+2. Compute HMAC-SHA256 of the request body using your webhook secret
+3. Compare signatures
+
+```javascript
+const crypto = require('crypto');
+
+function verifyWebhook(body, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(body))
+    .digest('hex');
+
+  return signature === expectedSignature;
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Respond quickly">
+    Return a 200 response within 5 seconds. Process the webhook asynchronously if needed.
+  </Accordion>
+
+  <Accordion title="Verify signatures">
+    Always verify webhook signatures to prevent spoofing attacks.
+  </Accordion>
+
+  <Accordion title="Handle retries">
+    Make your endpoint idempotent - sajn will retry failed webhooks up to 3 times.
+  </Accordion>
+
+  <Accordion title="Use HTTPS">
+    Always use HTTPS webhook URLs to encrypt webhook data in transit.
+  </Accordion>
+
+  <Accordion title="Monitor failures">
+    Set up monitoring to alert you when webhooks fail consistently.
+  </Accordion>
+</AccordionGroup>
+
+## Retry Logic
+
+If your webhook endpoint returns a non-2xx status or times out:
+
+1. First retry after 1 minute
+2. Second retry after 5 minutes
+3. Third retry after 15 minutes
+
+After 3 failed attempts, the webhook is marked as failed and you'll receive an alert.
+
+## Troubleshooting
+
+### Webhooks Not Receiving
+
+- Check webhook URL is correct and publicly accessible
+- Verify HTTPS certificate is valid
+- Check firewall/security group settings
+- Look for webhook failures in dashboard
+
+### Signature Verification Failing
+
+- Ensure you're using the correct webhook secret
+- Verify you're hashing the raw request body
+- Check character encoding (should be UTF-8)
+
+### Duplicate Webhooks
+
+This is normal! Your endpoint should be idempotent to handle duplicate events gracefully.
+
+## Testing Webhooks
+
+Use tools like [webhook.site](https://webhook.site) or [ngrok](https://ngrok.com) to test webhook integration during development.
+
+Example with ngrok:
+
+```bash
+# Start ngrok tunnel
+ngrok http 3000
+
+# Use the ngrok URL as your webhook URL
+https://abc123.ngrok.io/webhooks/sajn
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore webhook API endpoints
+  </Card>
+  <Card title="Event Reference" icon="bell" href="/concepts/documents">
+    Learn about all document events
+  </Card>
+</CardGroup>

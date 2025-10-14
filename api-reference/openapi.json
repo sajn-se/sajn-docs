@@ -30,10 +30,13 @@
                     "status": {
                       "description": "API status",
                       "type": "string",
-                      "const": "ok"
+                      "enum": [
+                        "ok"
+                      ]
                     },
                     "timestamp": {
-                      "description": "Current server timestamp"
+                      "description": "Current server timestamp",
+                      "type": "string"
                     },
                     "version": {
                       "description": "API version number",
@@ -121,23 +124,11 @@
                           },
                           "externalId": {
                             "description": "Your external reference ID for this document",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "expiresAt": {
-                            "description": "Date and time when the document expires",
-                            "anyOf": [
-                              {},
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "description": "Date and time when the document expires"
                           },
                           "name": {
                             "description": "Document name/title",
@@ -149,152 +140,80 @@
                           },
                           "documentMeta": {
                             "description": "Document metadata including subject, message, signing order, etc.",
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "subject": {
-                                    "description": "Email subject line when sending document",
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "message": {
-                                    "description": "Custom message included in signing invitation",
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "signingOrder": {
-                                    "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "enum": [
-                                          "PARALLEL",
-                                          "SEQUENTIAL"
-                                        ]
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "defaultSignatureType": {
-                                    "description": "Default signature type: DRAWING, BANKID, or MANUAL",
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "enum": [
-                                          "DRAWING",
-                                          "BANKID",
-                                          "MANUAL"
-                                        ]
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "distributionMethod": {
-                                    "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "enum": [
-                                          "EMAIL",
-                                          "SMS",
-                                          "NONE"
-                                        ]
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "forceReadFullDocument": {
-                                    "description": "Whether signers must read the entire document before signing",
-                                    "anyOf": [
-                                      {
-                                        "type": "boolean"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "showCommentsToSigners": {
-                                    "description": "Whether to show document comments to signers",
-                                    "anyOf": [
-                                      {
-                                        "type": "boolean"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "preferredLanguage": {
-                                    "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "enum": [
-                                          "sv",
-                                          "en"
-                                        ]
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "validFrom": {
-                                    "description": "Date from which the document becomes valid",
-                                    "anyOf": [
-                                      {},
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "validTo": {
-                                    "description": "Date until which the document remains valid",
-                                    "anyOf": [
-                                      {},
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "value": {
-                                    "description": "Monetary value of the document (for contracts)",
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  }
-                                },
-                                "additionalProperties": false
+                            "type": "object",
+                            "properties": {
+                              "subject": {
+                                "description": "Email subject line when sending document",
+                                "type": "string",
+                                "nullable": true
                               },
-                              {
-                                "type": "null"
+                              "message": {
+                                "description": "Custom message included in signing invitation",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "signingOrder": {
+                                "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                                "type": "string",
+                                "enum": [
+                                  "PARALLEL",
+                                  "SEQUENTIAL"
+                                ],
+                                "nullable": true
+                              },
+                              "defaultSignatureType": {
+                                "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                                "type": "string",
+                                "enum": [
+                                  "DRAWING",
+                                  "BANKID",
+                                  "MANUAL"
+                                ],
+                                "nullable": true
+                              },
+                              "distributionMethod": {
+                                "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
+                                "type": "string",
+                                "enum": [
+                                  "EMAIL",
+                                  "SMS",
+                                  "NONE"
+                                ],
+                                "nullable": true
+                              },
+                              "forceReadFullDocument": {
+                                "description": "Whether signers must read the entire document before signing",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "showCommentsToSigners": {
+                                "description": "Whether to show document comments to signers",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "preferredLanguage": {
+                                "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                                "type": "string",
+                                "enum": [
+                                  "sv",
+                                  "en"
+                                ],
+                                "nullable": true
+                              },
+                              "validFrom": {
+                                "description": "Date from which the document becomes valid"
+                              },
+                              "validTo": {
+                                "description": "Date until which the document remains valid"
+                              },
+                              "value": {
+                                "description": "Monetary value of the document (for contracts)",
+                                "type": "string",
+                                "nullable": true
                               }
-                            ]
+                            },
+                            "additionalProperties": false,
+                            "nullable": true
                           },
                           "createdAt": {
                             "description": "Date and time when the document was created"
@@ -303,13 +222,7 @@
                             "description": "Date and time when the document was last updated"
                           },
                           "completedAt": {
-                            "description": "Date and time when all signers completed signing",
-                            "anyOf": [
-                              {},
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "description": "Date and time when all signers completed signing"
                           }
                         },
                         "required": [
@@ -410,23 +323,11 @@
                   },
                   "externalId": {
                     "description": "Your external reference ID for tracking this document",
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "nullable": true
                   },
                   "expiresAt": {
-                    "description": "Expiration date for the document",
-                    "anyOf": [
-                      {},
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "description": "Expiration date for the document"
                   },
                   "type": {
                     "description": "Document type: SIGNABLE (default), ACCEPTABLE, or ARCHIVE_IMPORTED",
@@ -439,14 +340,8 @@
                   },
                   "templateId": {
                     "description": "Template ID to create document from. Template fields will be copied to the document.",
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "nullable": true
                   },
                   "signers": {
                     "description": "Array of signers to add to the document during creation",
@@ -502,14 +397,8 @@
                           "minLength": 1
                         },
                         "value": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -543,23 +432,11 @@
                     },
                     "externalId": {
                       "description": "Your external reference ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "expiresAt": {
-                      "description": "Document expiration date",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Document expiration date"
                     },
                     "signers": {
                       "description": "Array of created signers with their signing URLs and tokens",
@@ -577,16 +454,10 @@
                           },
                           "email": {
                             "description": "Signer email address",
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "format": "email",
-                                "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "format": "email",
+                            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                            "nullable": true
                           },
                           "token": {
                             "description": "Unique signing token for this signer",
@@ -604,14 +475,8 @@
                           },
                           "signingOrder": {
                             "description": "Signing order (for sequential signing)",
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "number",
+                            "nullable": true
                           },
                           "signingUrl": {
                             "description": "Complete signing URL for this signer",
@@ -722,23 +587,11 @@
                     },
                     "externalId": {
                       "description": "Your external reference ID for this document",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "expiresAt": {
-                      "description": "Date and time when the document expires",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when the document expires"
                     },
                     "name": {
                       "description": "Document name/title",
@@ -750,152 +603,80 @@
                     },
                     "documentMeta": {
                       "description": "Document metadata including subject, message, signing order, etc.",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "subject": {
-                              "description": "Email subject line when sending document",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "message": {
-                              "description": "Custom message included in signing invitation",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "signingOrder": {
-                              "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "PARALLEL",
-                                    "SEQUENTIAL"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "defaultSignatureType": {
-                              "description": "Default signature type: DRAWING, BANKID, or MANUAL",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "DRAWING",
-                                    "BANKID",
-                                    "MANUAL"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "distributionMethod": {
-                              "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "EMAIL",
-                                    "SMS",
-                                    "NONE"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "forceReadFullDocument": {
-                              "description": "Whether signers must read the entire document before signing",
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "showCommentsToSigners": {
-                              "description": "Whether to show document comments to signers",
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "preferredLanguage": {
-                              "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "sv",
-                                    "en"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "validFrom": {
-                              "description": "Date from which the document becomes valid",
-                              "anyOf": [
-                                {},
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "validTo": {
-                              "description": "Date until which the document remains valid",
-                              "anyOf": [
-                                {},
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "value": {
-                              "description": "Monetary value of the document (for contracts)",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "subject": {
+                          "description": "Email subject line when sending document",
+                          "type": "string",
+                          "nullable": true
                         },
-                        {
-                          "type": "null"
+                        "message": {
+                          "description": "Custom message included in signing invitation",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "signingOrder": {
+                          "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                          "type": "string",
+                          "enum": [
+                            "PARALLEL",
+                            "SEQUENTIAL"
+                          ],
+                          "nullable": true
+                        },
+                        "defaultSignatureType": {
+                          "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                          "type": "string",
+                          "enum": [
+                            "DRAWING",
+                            "BANKID",
+                            "MANUAL"
+                          ],
+                          "nullable": true
+                        },
+                        "distributionMethod": {
+                          "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
+                          "type": "string",
+                          "enum": [
+                            "EMAIL",
+                            "SMS",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "forceReadFullDocument": {
+                          "description": "Whether signers must read the entire document before signing",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "showCommentsToSigners": {
+                          "description": "Whether to show document comments to signers",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "preferredLanguage": {
+                          "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                          "type": "string",
+                          "enum": [
+                            "sv",
+                            "en"
+                          ],
+                          "nullable": true
+                        },
+                        "validFrom": {
+                          "description": "Date from which the document becomes valid"
+                        },
+                        "validTo": {
+                          "description": "Date until which the document remains valid"
+                        },
+                        "value": {
+                          "description": "Monetary value of the document (for contracts)",
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "additionalProperties": false,
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when the document was created"
@@ -904,13 +685,7 @@
                       "description": "Date and time when the document was last updated"
                     },
                     "completedAt": {
-                      "description": "Date and time when all signers completed signing",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when all signers completed signing"
                     },
                     "signers": {
                       "type": "array",
@@ -927,16 +702,10 @@
                           },
                           "email": {
                             "description": "Signer email address",
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "format": "email",
-                                "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "format": "email",
+                            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                            "nullable": true
                           },
                           "name": {
                             "description": "Signer full name",
@@ -944,80 +713,38 @@
                           },
                           "phone": {
                             "description": "Signer phone number (for SMS notifications)",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "companyName": {
                             "description": "Company name",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "companyRole": {
                             "description": "Role/title within the company",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "companyOrgNumber": {
                             "description": "Company organization number",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalId": {
                             "description": "Your external reference ID for this signer",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "companyId": {
                             "description": "Linked company ID",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "ssn": {
                             "description": "Swedish personal number (personnummer) - required for BankID signing",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "role": {
                             "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
@@ -1031,27 +758,15 @@
                           },
                           "signingOrder": {
                             "description": "Order for sequential signing (null for parallel)",
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "number",
+                            "nullable": true
                           },
                           "token": {
                             "description": "Unique signing token",
                             "type": "string"
                           },
                           "signedAt": {
-                            "description": "Date and time when the signer signed (null if not signed)",
-                            "anyOf": [
-                              {},
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "description": "Date and time when the signer signed (null if not signed)"
                           },
                           "readStatus": {
                             "description": "Read status: NOT_OPENED, OPENED, or READ",
@@ -1138,14 +853,8 @@
                             ]
                           },
                           "value": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -1316,14 +1025,8 @@
                           "minLength": 1
                         },
                         "value": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -1353,23 +1056,11 @@
                     },
                     "externalId": {
                       "description": "Your external reference ID for this document",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "expiresAt": {
-                      "description": "Date and time when the document expires",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when the document expires"
                     },
                     "name": {
                       "description": "Document name/title",
@@ -1381,152 +1072,80 @@
                     },
                     "documentMeta": {
                       "description": "Document metadata including subject, message, signing order, etc.",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "subject": {
-                              "description": "Email subject line when sending document",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "message": {
-                              "description": "Custom message included in signing invitation",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "signingOrder": {
-                              "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "PARALLEL",
-                                    "SEQUENTIAL"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "defaultSignatureType": {
-                              "description": "Default signature type: DRAWING, BANKID, or MANUAL",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "DRAWING",
-                                    "BANKID",
-                                    "MANUAL"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "distributionMethod": {
-                              "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "EMAIL",
-                                    "SMS",
-                                    "NONE"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "forceReadFullDocument": {
-                              "description": "Whether signers must read the entire document before signing",
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "showCommentsToSigners": {
-                              "description": "Whether to show document comments to signers",
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "preferredLanguage": {
-                              "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "sv",
-                                    "en"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "validFrom": {
-                              "description": "Date from which the document becomes valid",
-                              "anyOf": [
-                                {},
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "validTo": {
-                              "description": "Date until which the document remains valid",
-                              "anyOf": [
-                                {},
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "value": {
-                              "description": "Monetary value of the document (for contracts)",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "subject": {
+                          "description": "Email subject line when sending document",
+                          "type": "string",
+                          "nullable": true
                         },
-                        {
-                          "type": "null"
+                        "message": {
+                          "description": "Custom message included in signing invitation",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "signingOrder": {
+                          "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                          "type": "string",
+                          "enum": [
+                            "PARALLEL",
+                            "SEQUENTIAL"
+                          ],
+                          "nullable": true
+                        },
+                        "defaultSignatureType": {
+                          "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                          "type": "string",
+                          "enum": [
+                            "DRAWING",
+                            "BANKID",
+                            "MANUAL"
+                          ],
+                          "nullable": true
+                        },
+                        "distributionMethod": {
+                          "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
+                          "type": "string",
+                          "enum": [
+                            "EMAIL",
+                            "SMS",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "forceReadFullDocument": {
+                          "description": "Whether signers must read the entire document before signing",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "showCommentsToSigners": {
+                          "description": "Whether to show document comments to signers",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "preferredLanguage": {
+                          "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                          "type": "string",
+                          "enum": [
+                            "sv",
+                            "en"
+                          ],
+                          "nullable": true
+                        },
+                        "validFrom": {
+                          "description": "Date from which the document becomes valid"
+                        },
+                        "validTo": {
+                          "description": "Date until which the document remains valid"
+                        },
+                        "value": {
+                          "description": "Monetary value of the document (for contracts)",
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "additionalProperties": false,
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when the document was created"
@@ -1535,13 +1154,7 @@
                       "description": "Date and time when the document was last updated"
                     },
                     "completedAt": {
-                      "description": "Date and time when all signers completed signing",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when all signers completed signing"
                     }
                   },
                   "required": [
@@ -1638,23 +1251,11 @@
                     },
                     "externalId": {
                       "description": "Your external reference ID for this document",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "expiresAt": {
-                      "description": "Date and time when the document expires",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when the document expires"
                     },
                     "name": {
                       "description": "Document name/title",
@@ -1666,152 +1267,80 @@
                     },
                     "documentMeta": {
                       "description": "Document metadata including subject, message, signing order, etc.",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "subject": {
-                              "description": "Email subject line when sending document",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "message": {
-                              "description": "Custom message included in signing invitation",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "signingOrder": {
-                              "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "PARALLEL",
-                                    "SEQUENTIAL"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "defaultSignatureType": {
-                              "description": "Default signature type: DRAWING, BANKID, or MANUAL",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "DRAWING",
-                                    "BANKID",
-                                    "MANUAL"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "distributionMethod": {
-                              "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "EMAIL",
-                                    "SMS",
-                                    "NONE"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "forceReadFullDocument": {
-                              "description": "Whether signers must read the entire document before signing",
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "showCommentsToSigners": {
-                              "description": "Whether to show document comments to signers",
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "preferredLanguage": {
-                              "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "sv",
-                                    "en"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "validFrom": {
-                              "description": "Date from which the document becomes valid",
-                              "anyOf": [
-                                {},
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "validTo": {
-                              "description": "Date until which the document remains valid",
-                              "anyOf": [
-                                {},
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "value": {
-                              "description": "Monetary value of the document (for contracts)",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "subject": {
+                          "description": "Email subject line when sending document",
+                          "type": "string",
+                          "nullable": true
                         },
-                        {
-                          "type": "null"
+                        "message": {
+                          "description": "Custom message included in signing invitation",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "signingOrder": {
+                          "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                          "type": "string",
+                          "enum": [
+                            "PARALLEL",
+                            "SEQUENTIAL"
+                          ],
+                          "nullable": true
+                        },
+                        "defaultSignatureType": {
+                          "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                          "type": "string",
+                          "enum": [
+                            "DRAWING",
+                            "BANKID",
+                            "MANUAL"
+                          ],
+                          "nullable": true
+                        },
+                        "distributionMethod": {
+                          "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
+                          "type": "string",
+                          "enum": [
+                            "EMAIL",
+                            "SMS",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "forceReadFullDocument": {
+                          "description": "Whether signers must read the entire document before signing",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "showCommentsToSigners": {
+                          "description": "Whether to show document comments to signers",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "preferredLanguage": {
+                          "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                          "type": "string",
+                          "enum": [
+                            "sv",
+                            "en"
+                          ],
+                          "nullable": true
+                        },
+                        "validFrom": {
+                          "description": "Date from which the document becomes valid"
+                        },
+                        "validTo": {
+                          "description": "Date until which the document remains valid"
+                        },
+                        "value": {
+                          "description": "Monetary value of the document (for contracts)",
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "additionalProperties": false,
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when the document was created"
@@ -1820,13 +1349,7 @@
                       "description": "Date and time when the document was last updated"
                     },
                     "completedAt": {
-                      "description": "Date and time when all signers completed signing",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when all signers completed signing"
                     }
                   },
                   "required": [
@@ -2070,23 +1593,11 @@
                     },
                     "externalId": {
                       "description": "Your external reference ID for this document",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "expiresAt": {
-                      "description": "Date and time when the document expires",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when the document expires"
                     },
                     "name": {
                       "description": "Document name/title",
@@ -2098,152 +1609,80 @@
                     },
                     "documentMeta": {
                       "description": "Document metadata including subject, message, signing order, etc.",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "subject": {
-                              "description": "Email subject line when sending document",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "message": {
-                              "description": "Custom message included in signing invitation",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "signingOrder": {
-                              "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "PARALLEL",
-                                    "SEQUENTIAL"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "defaultSignatureType": {
-                              "description": "Default signature type: DRAWING, BANKID, or MANUAL",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "DRAWING",
-                                    "BANKID",
-                                    "MANUAL"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "distributionMethod": {
-                              "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "EMAIL",
-                                    "SMS",
-                                    "NONE"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "forceReadFullDocument": {
-                              "description": "Whether signers must read the entire document before signing",
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "showCommentsToSigners": {
-                              "description": "Whether to show document comments to signers",
-                              "anyOf": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "preferredLanguage": {
-                              "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "enum": [
-                                    "sv",
-                                    "en"
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "validFrom": {
-                              "description": "Date from which the document becomes valid",
-                              "anyOf": [
-                                {},
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "validTo": {
-                              "description": "Date until which the document remains valid",
-                              "anyOf": [
-                                {},
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "value": {
-                              "description": "Monetary value of the document (for contracts)",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "subject": {
+                          "description": "Email subject line when sending document",
+                          "type": "string",
+                          "nullable": true
                         },
-                        {
-                          "type": "null"
+                        "message": {
+                          "description": "Custom message included in signing invitation",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "signingOrder": {
+                          "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                          "type": "string",
+                          "enum": [
+                            "PARALLEL",
+                            "SEQUENTIAL"
+                          ],
+                          "nullable": true
+                        },
+                        "defaultSignatureType": {
+                          "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                          "type": "string",
+                          "enum": [
+                            "DRAWING",
+                            "BANKID",
+                            "MANUAL"
+                          ],
+                          "nullable": true
+                        },
+                        "distributionMethod": {
+                          "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
+                          "type": "string",
+                          "enum": [
+                            "EMAIL",
+                            "SMS",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "forceReadFullDocument": {
+                          "description": "Whether signers must read the entire document before signing",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "showCommentsToSigners": {
+                          "description": "Whether to show document comments to signers",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "preferredLanguage": {
+                          "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                          "type": "string",
+                          "enum": [
+                            "sv",
+                            "en"
+                          ],
+                          "nullable": true
+                        },
+                        "validFrom": {
+                          "description": "Date from which the document becomes valid"
+                        },
+                        "validTo": {
+                          "description": "Date until which the document remains valid"
+                        },
+                        "value": {
+                          "description": "Monetary value of the document (for contracts)",
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "additionalProperties": false,
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when the document was created"
@@ -2252,13 +1691,7 @@
                       "description": "Date and time when the document was last updated"
                     },
                     "completedAt": {
-                      "description": "Date and time when all signers completed signing",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when all signers completed signing"
                     }
                   },
                   "required": [
@@ -2369,14 +1802,8 @@
                   },
                   "signingOrder": {
                     "description": "Signing order for sequential signing (ignored for parallel)",
-                    "anyOf": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "number",
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -2406,16 +1833,10 @@
                     },
                     "email": {
                       "description": "Signer email address",
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "format": "email",
-                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                      "nullable": true
                     },
                     "name": {
                       "description": "Signer full name",
@@ -2423,80 +1844,38 @@
                     },
                     "phone": {
                       "description": "Signer phone number (for SMS notifications)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyName": {
                       "description": "Company name",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyRole": {
                       "description": "Role/title within the company",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyOrgNumber": {
                       "description": "Company organization number",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalId": {
                       "description": "Your external reference ID for this signer",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyId": {
                       "description": "Linked company ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "ssn": {
                       "description": "Swedish personal number (personnummer) - required for BankID signing",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "role": {
                       "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
@@ -2510,27 +1889,15 @@
                     },
                     "signingOrder": {
                       "description": "Order for sequential signing (null for parallel)",
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "token": {
                       "description": "Unique signing token",
                       "type": "string"
                     },
                     "signedAt": {
-                      "description": "Date and time when the signer signed (null if not signed)",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when the signer signed (null if not signed)"
                     },
                     "readStatus": {
                       "description": "Read status: NOT_OPENED, OPENED, or READ",
@@ -2738,14 +2105,8 @@
                     ]
                   },
                   "signingOrder": {
-                    "anyOf": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "number",
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -2774,16 +2135,10 @@
                     },
                     "email": {
                       "description": "Signer email address",
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "format": "email",
-                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                      "nullable": true
                     },
                     "name": {
                       "description": "Signer full name",
@@ -2791,80 +2146,38 @@
                     },
                     "phone": {
                       "description": "Signer phone number (for SMS notifications)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyName": {
                       "description": "Company name",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyRole": {
                       "description": "Role/title within the company",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyOrgNumber": {
                       "description": "Company organization number",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalId": {
                       "description": "Your external reference ID for this signer",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyId": {
                       "description": "Linked company ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "ssn": {
                       "description": "Swedish personal number (personnummer) - required for BankID signing",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "role": {
                       "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
@@ -2878,27 +2191,15 @@
                     },
                     "signingOrder": {
                       "description": "Order for sequential signing (null for parallel)",
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "token": {
                       "description": "Unique signing token",
                       "type": "string"
                     },
                     "signedAt": {
-                      "description": "Date and time when the signer signed (null if not signed)",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when the signer signed (null if not signed)"
                     },
                     "readStatus": {
                       "description": "Read status: NOT_OPENED, OPENED, or READ",
@@ -3075,16 +2376,10 @@
                     },
                     "email": {
                       "description": "Signer email address",
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "format": "email",
-                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                      "nullable": true
                     },
                     "name": {
                       "description": "Signer full name",
@@ -3092,80 +2387,38 @@
                     },
                     "phone": {
                       "description": "Signer phone number (for SMS notifications)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyName": {
                       "description": "Company name",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyRole": {
                       "description": "Role/title within the company",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyOrgNumber": {
                       "description": "Company organization number",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalId": {
                       "description": "Your external reference ID for this signer",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "companyId": {
                       "description": "Linked company ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "ssn": {
                       "description": "Swedish personal number (personnummer) - required for BankID signing",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "role": {
                       "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
@@ -3179,27 +2432,15 @@
                     },
                     "signingOrder": {
                       "description": "Order for sequential signing (null for parallel)",
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "number",
+                      "nullable": true
                     },
                     "token": {
                       "description": "Unique signing token",
                       "type": "string"
                     },
                     "signedAt": {
-                      "description": "Date and time when the signer signed (null if not signed)",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "Date and time when the signer signed (null if not signed)"
                     },
                     "readStatus": {
                       "description": "Read status: NOT_OPENED, OPENED, or READ",
@@ -3391,25 +2632,13 @@
                           },
                           "email": {
                             "description": "Contact email address",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "phone": {
                             "description": "Contact phone number",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "firstName": {
                             "description": "Contact first name",
@@ -3421,25 +2650,13 @@
                           },
                           "ssn": {
                             "description": "Swedish personal number (personnummer)",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "externalId": {
                             "description": "Your external reference ID",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "createdAt": {
                             "description": "Date and time when contact was created"
@@ -3449,57 +2666,33 @@
                           },
                           "companyRole": {
                             "description": "Role/title within the associated company",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "company": {
                             "description": "Associated company information",
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "description": "Company ID",
-                                    "type": "string"
-                                  },
-                                  "name": {
-                                    "description": "Company name",
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "orgNumber": {
-                                    "description": "Company organization number",
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "id"
-                                ],
-                                "additionalProperties": false
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "Company ID",
+                                "type": "string"
                               },
-                              {
-                                "type": "null"
+                              "name": {
+                                "description": "Company name",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "orgNumber": {
+                                "description": "Company organization number",
+                                "type": "string",
+                                "nullable": true
                               }
-                            ]
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -3649,25 +2842,13 @@
                     },
                     "email": {
                       "description": "Contact email address",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "phone": {
                       "description": "Contact phone number",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "firstName": {
                       "description": "Contact first name",
@@ -3679,25 +2860,13 @@
                     },
                     "ssn": {
                       "description": "Swedish personal number (personnummer)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalId": {
                       "description": "Your external reference ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when contact was created"
@@ -3707,57 +2876,33 @@
                     },
                     "companyRole": {
                       "description": "Role/title within the associated company",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "company": {
                       "description": "Associated company information",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "description": "Company ID",
-                              "type": "string"
-                            },
-                            "name": {
-                              "description": "Company name",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "orgNumber": {
-                              "description": "Company organization number",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "required": [
-                            "id"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Company ID",
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "name": {
+                          "description": "Company name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "orgNumber": {
+                          "description": "Company organization number",
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -3856,25 +3001,13 @@
                     },
                     "email": {
                       "description": "Contact email address",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "phone": {
                       "description": "Contact phone number",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "firstName": {
                       "description": "Contact first name",
@@ -3886,25 +3019,13 @@
                     },
                     "ssn": {
                       "description": "Swedish personal number (personnummer)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalId": {
                       "description": "Your external reference ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when contact was created"
@@ -3914,57 +3035,33 @@
                     },
                     "companyRole": {
                       "description": "Role/title within the associated company",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "company": {
                       "description": "Associated company information",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "description": "Company ID",
-                              "type": "string"
-                            },
-                            "name": {
-                              "description": "Company name",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "orgNumber": {
-                              "description": "Company organization number",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "required": [
-                            "id"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Company ID",
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "name": {
+                          "description": "Company name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "orgNumber": {
+                          "description": "Company organization number",
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -4105,25 +3202,13 @@
                     },
                     "email": {
                       "description": "Contact email address",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "phone": {
                       "description": "Contact phone number",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "firstName": {
                       "description": "Contact first name",
@@ -4135,25 +3220,13 @@
                     },
                     "ssn": {
                       "description": "Swedish personal number (personnummer)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalId": {
                       "description": "Your external reference ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when contact was created"
@@ -4163,57 +3236,33 @@
                     },
                     "companyRole": {
                       "description": "Role/title within the associated company",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "company": {
                       "description": "Associated company information",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "description": "Company ID",
-                              "type": "string"
-                            },
-                            "name": {
-                              "description": "Company name",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "orgNumber": {
-                              "description": "Company organization number",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "required": [
-                            "id"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Company ID",
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "name": {
+                          "description": "Company name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "orgNumber": {
+                          "description": "Company organization number",
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -4310,25 +3359,13 @@
                     },
                     "email": {
                       "description": "Contact email address",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "phone": {
                       "description": "Contact phone number",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "firstName": {
                       "description": "Contact first name",
@@ -4340,25 +3377,13 @@
                     },
                     "ssn": {
                       "description": "Swedish personal number (personnummer)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "externalId": {
                       "description": "Your external reference ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when contact was created"
@@ -4368,57 +3393,33 @@
                     },
                     "companyRole": {
                       "description": "Role/title within the associated company",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "company": {
                       "description": "Associated company information",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "description": "Company ID",
-                              "type": "string"
-                            },
-                            "name": {
-                              "description": "Company name",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "orgNumber": {
-                              "description": "Company organization number",
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "required": [
-                            "id"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Company ID",
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "name": {
+                          "description": "Company name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "orgNumber": {
+                          "description": "Company organization number",
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -4512,34 +3513,16 @@
                             "type": "string"
                           },
                           "name": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "orgNumber": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "country": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -4634,34 +3617,16 @@
                       "type": "string"
                     },
                     "name": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "orgNumber": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "country": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -4772,243 +3737,129 @@
                   "type": "object",
                   "properties": {
                     "company": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "orgNumber": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "country": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "parties": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string"
-                                  },
-                                  "email": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "phone": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "ssn": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "firstName": {
-                                    "type": "string"
-                                  },
-                                  "lastName": {
-                                    "type": "string"
-                                  },
-                                  "createdAt": {},
-                                  "updatedAt": {},
-                                  "addressLine1": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "addressLine2": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "city": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "country": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "state": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "zipCode": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "companyRole": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "externalId": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "company": {
-                                    "anyOf": [
-                                      {
-                                        "type": "array",
-                                        "items": {
-                                          "type": "object",
-                                          "properties": {
-                                            "id": {
-                                              "type": "string"
-                                            },
-                                            "name": {
-                                              "anyOf": [
-                                                {
-                                                  "type": "string"
-                                                },
-                                                {
-                                                  "type": "null"
-                                                }
-                                              ]
-                                            },
-                                            "orgNumber": {
-                                              "anyOf": [
-                                                {
-                                                  "type": "string"
-                                                },
-                                                {
-                                                  "type": "null"
-                                                }
-                                              ]
-                                            },
-                                            "country": {
-                                              "anyOf": [
-                                                {
-                                                  "type": "string"
-                                                },
-                                                {
-                                                  "type": "null"
-                                                }
-                                              ]
-                                            }
-                                          },
-                                          "required": [
-                                            "id"
-                                          ],
-                                          "additionalProperties": false
-                                        }
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "firstName",
-                                  "lastName",
-                                  "createdAt",
-                                  "updatedAt",
-                                  "company"
-                                ],
-                                "additionalProperties": false
-                              }
-                            }
-                          },
-                          "required": [
-                            "id"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "name": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "orgNumber": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "country": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "parties": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "phone": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "ssn": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "firstName": {
+                                "type": "string"
+                              },
+                              "lastName": {
+                                "type": "string"
+                              },
+                              "createdAt": {},
+                              "updatedAt": {},
+                              "addressLine1": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "addressLine2": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "city": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "country": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "state": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "zipCode": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "companyRole": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "externalId": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "company": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "orgNumber": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "country": {
+                                      "type": "string",
+                                      "nullable": true
+                                    }
+                                  },
+                                  "required": [
+                                    "id"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "firstName",
+                              "lastName",
+                              "createdAt",
+                              "updatedAt",
+                              "company"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
-                      ]
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "additionalProperties": false
@@ -5119,7 +3970,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "TEXT"
+                                "enum": [
+                                  "TEXT"
+                                ]
                               },
                               "content": {
                                 "type": "string"
@@ -5135,7 +3988,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PDF"
+                                "enum": [
+                                  "PDF"
+                                ]
                               },
                               "value": {
                                 "type": "string"
@@ -5154,7 +4009,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "FORM"
+                                "enum": [
+                                  "FORM"
+                                ]
                               },
                               "columns": {
                                 "type": "number",
@@ -5206,7 +4063,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "input"
+                                              "enum": [
+                                                "input"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -5231,7 +4090,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "text"
+                                              "enum": [
+                                                "text"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -5256,7 +4117,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "select"
+                                              "enum": [
+                                                "select"
+                                              ]
                                             },
                                             "options": {
                                               "type": "array",
@@ -5296,7 +4159,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "datepicker"
+                                              "enum": [
+                                                "datepicker"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -5331,7 +4196,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PRODUCT_TABLE"
+                                "enum": [
+                                  "PRODUCT_TABLE"
+                                ]
                               },
                               "name": {
                                 "type": "string"
@@ -5341,9 +4208,6 @@
                               },
                               "columns": {
                                 "type": "object",
-                                "propertyNames": {
-                                  "type": "string"
-                                },
                                 "additionalProperties": {
                                   "type": "object",
                                   "properties": {
@@ -5434,7 +4298,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "TABLE"
+                                "enum": [
+                                  "TABLE"
+                                ]
                               },
                               "columns": {
                                 "type": "array",
@@ -5556,7 +4422,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TEXT"
+                                  "enum": [
+                                    "TEXT"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -5572,7 +4440,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PDF"
+                                  "enum": [
+                                    "PDF"
+                                  ]
                                 },
                                 "value": {
                                   "type": "string"
@@ -5591,7 +4461,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "FORM"
+                                  "enum": [
+                                    "FORM"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "number",
@@ -5643,7 +4515,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "input"
+                                                "enum": [
+                                                  "input"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -5668,7 +4542,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "text"
+                                                "enum": [
+                                                  "text"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -5693,7 +4569,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "select"
+                                                "enum": [
+                                                  "select"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -5733,7 +4611,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "datepicker"
+                                                "enum": [
+                                                  "datepicker"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -5768,7 +4648,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PRODUCT_TABLE"
+                                  "enum": [
+                                    "PRODUCT_TABLE"
+                                  ]
                                 },
                                 "name": {
                                   "type": "string"
@@ -5778,9 +4660,6 @@
                                 },
                                 "columns": {
                                   "type": "object",
-                                  "propertyNames": {
-                                    "type": "string"
-                                  },
                                   "additionalProperties": {
                                     "type": "object",
                                     "properties": {
@@ -5871,7 +4750,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TABLE"
+                                  "enum": [
+                                    "TABLE"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "array",
@@ -6100,7 +4981,9 @@
                         "properties": {
                           "type": {
                             "type": "string",
-                            "const": "TEXT"
+                            "enum": [
+                              "TEXT"
+                            ]
                           },
                           "content": {
                             "type": "string"
@@ -6116,7 +4999,9 @@
                         "properties": {
                           "type": {
                             "type": "string",
-                            "const": "PDF"
+                            "enum": [
+                              "PDF"
+                            ]
                           },
                           "value": {
                             "type": "string"
@@ -6135,7 +5020,9 @@
                         "properties": {
                           "type": {
                             "type": "string",
-                            "const": "FORM"
+                            "enum": [
+                              "FORM"
+                            ]
                           },
                           "columns": {
                             "type": "number",
@@ -6187,7 +5074,9 @@
                                         },
                                         "type": {
                                           "type": "string",
-                                          "const": "input"
+                                          "enum": [
+                                            "input"
+                                          ]
                                         },
                                         "value": {
                                           "type": "string"
@@ -6212,7 +5101,9 @@
                                         },
                                         "type": {
                                           "type": "string",
-                                          "const": "text"
+                                          "enum": [
+                                            "text"
+                                          ]
                                         },
                                         "value": {
                                           "type": "string"
@@ -6237,7 +5128,9 @@
                                         },
                                         "type": {
                                           "type": "string",
-                                          "const": "select"
+                                          "enum": [
+                                            "select"
+                                          ]
                                         },
                                         "options": {
                                           "type": "array",
@@ -6277,7 +5170,9 @@
                                         },
                                         "type": {
                                           "type": "string",
-                                          "const": "datepicker"
+                                          "enum": [
+                                            "datepicker"
+                                          ]
                                         },
                                         "value": {
                                           "type": "string"
@@ -6312,7 +5207,9 @@
                         "properties": {
                           "type": {
                             "type": "string",
-                            "const": "PRODUCT_TABLE"
+                            "enum": [
+                              "PRODUCT_TABLE"
+                            ]
                           },
                           "name": {
                             "type": "string"
@@ -6322,9 +5219,6 @@
                           },
                           "columns": {
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {
                               "type": "object",
                               "properties": {
@@ -6415,7 +5309,9 @@
                         "properties": {
                           "type": {
                             "type": "string",
-                            "const": "TABLE"
+                            "enum": [
+                              "TABLE"
+                            ]
                           },
                           "columns": {
                             "type": "array",
@@ -7497,14 +6393,8 @@
                           },
                           "defaultValue": {
                             "description": "Default value for this field",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "required": {
                             "description": "Whether this field is required",
@@ -7512,14 +6402,8 @@
                           },
                           "options": {
                             "description": "Comma-separated options for SELECT type fields",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "createdAt": {
                             "description": "Date and time when custom field was created"
@@ -7631,14 +6515,8 @@
                   },
                   "defaultValue": {
                     "description": "Default value for this field",
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "nullable": true
                   },
                   "required": {
                     "description": "Whether this field is required (default: false)",
@@ -7647,14 +6525,8 @@
                   },
                   "options": {
                     "description": "Comma-separated options for SELECT type fields",
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -7708,14 +6580,8 @@
                     },
                     "defaultValue": {
                       "description": "Default value for this field",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "required": {
                       "description": "Whether this field is required",
@@ -7723,14 +6589,8 @@
                     },
                     "options": {
                       "description": "Comma-separated options for SELECT type fields",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when custom field was created"
@@ -7865,14 +6725,8 @@
                     },
                     "defaultValue": {
                       "description": "Default value for this field",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "required": {
                       "description": "Whether this field is required",
@@ -7880,14 +6734,8 @@
                     },
                     "options": {
                       "description": "Comma-separated options for SELECT type fields",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when custom field was created"
@@ -8005,27 +6853,15 @@
                     ]
                   },
                   "defaultValue": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "nullable": true
                   },
                   "required": {
                     "type": "boolean"
                   },
                   "options": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string",
+                    "nullable": true
                   }
                 },
                 "additionalProperties": false
@@ -8073,14 +6909,8 @@
                     },
                     "defaultValue": {
                       "description": "Default value for this field",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "required": {
                       "description": "Whether this field is required",
@@ -8088,14 +6918,8 @@
                     },
                     "options": {
                       "description": "Comma-separated options for SELECT type fields",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when custom field was created"
@@ -8249,14 +7073,8 @@
                     },
                     "defaultValue": {
                       "description": "Default value for this field",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "required": {
                       "description": "Whether this field is required",
@@ -8264,14 +7082,8 @@
                     },
                     "options": {
                       "description": "Comma-separated options for SELECT type fields",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "Date and time when custom field was created"
@@ -8465,25 +7277,13 @@
                           },
                           "email": {
                             "description": "Email address (if using EMAIL channel)",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "phone": {
                             "description": "Phone number (if using SMS channel)",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "channel": {
                             "description": "Delivery channel used",
@@ -8508,25 +7308,13 @@
                           },
                           "reference": {
                             "description": "Reference/external ID",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "note": {
                             "description": "Internal note",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "locale": {
                             "description": "Locale for messages",
@@ -8536,24 +7324,12 @@
                             "description": "When the verification token expires"
                           },
                           "usedAt": {
-                            "description": "When the verification was completed",
-                            "anyOf": [
-                              {},
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "description": "When the verification was completed"
                           },
                           "failureReason": {
                             "description": "Reason for failure (if status is FAILED)",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "createdAt": {
                             "description": "When the verification was created"
@@ -8563,83 +7339,59 @@
                           },
                           "contact": {
                             "description": "Linked contact information",
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string"
-                                  },
-                                  "firstName": {
-                                    "type": "string"
-                                  },
-                                  "lastName": {
-                                    "type": "string"
-                                  },
-                                  "email": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "phone": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "firstName",
-                                  "lastName"
-                                ],
-                                "additionalProperties": false
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
                               },
-                              {
-                                "type": "null"
+                              "firstName": {
+                                "type": "string"
+                              },
+                              "lastName": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "phone": {
+                                "type": "string",
+                                "nullable": true
                               }
-                            ]
+                            },
+                            "required": [
+                              "id",
+                              "firstName",
+                              "lastName"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           },
                           "createdBy": {
                             "description": "User who created this verification",
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string"
-                                  },
-                                  "firstName": {
-                                    "type": "string"
-                                  },
-                                  "lastName": {
-                                    "type": "string"
-                                  },
-                                  "email": {
-                                    "type": "string"
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "firstName",
-                                  "lastName",
-                                  "email"
-                                ],
-                                "additionalProperties": false
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
                               },
-                              {
-                                "type": "null"
+                              "firstName": {
+                                "type": "string"
+                              },
+                              "lastName": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string"
                               }
-                            ]
+                            },
+                            "required": [
+                              "id",
+                              "firstName",
+                              "lastName",
+                              "email"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -8736,7 +7488,9 @@
                       },
                       {
                         "type": "string",
-                        "const": ""
+                        "enum": [
+                          ""
+                        ]
                       }
                     ]
                   },
@@ -8748,7 +7502,9 @@
                       },
                       {
                         "type": "string",
-                        "const": ""
+                        "enum": [
+                          ""
+                        ]
                       }
                     ]
                   },
@@ -8816,25 +7572,13 @@
                     },
                     "email": {
                       "description": "Email address (if using EMAIL channel)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "phone": {
                       "description": "Phone number (if using SMS channel)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "channel": {
                       "description": "Delivery channel used",
@@ -8859,25 +7603,13 @@
                     },
                     "reference": {
                       "description": "Reference/external ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "note": {
                       "description": "Internal note",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "locale": {
                       "description": "Locale for messages",
@@ -8887,24 +7619,12 @@
                       "description": "When the verification token expires"
                     },
                     "usedAt": {
-                      "description": "When the verification was completed",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "When the verification was completed"
                     },
                     "failureReason": {
                       "description": "Reason for failure (if status is FAILED)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "When the verification was created"
@@ -8922,83 +7642,59 @@
                     },
                     "contact": {
                       "description": "Linked contact information",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string"
-                            },
-                            "firstName": {
-                              "type": "string"
-                            },
-                            "lastName": {
-                              "type": "string"
-                            },
-                            "email": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "phone": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "firstName",
-                            "lastName"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "phone": {
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     },
                     "createdBy": {
                       "description": "User who created this verification",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string"
-                            },
-                            "firstName": {
-                              "type": "string"
-                            },
-                            "lastName": {
-                              "type": "string"
-                            },
-                            "email": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "firstName",
-                            "lastName",
-                            "email"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
                         }
-                      ]
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     },
                     "audits": {
                       "description": "Audit log entries for this verification",
@@ -9020,54 +7716,27 @@
                           "data": {
                             "description": "Event-specific data",
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {}
                           },
                           "name": {
                             "description": "Name of person who triggered this event",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "email": {
                             "description": "Email of person who triggered this event",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "ipAddress": {
                             "description": "IP address of request",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "userAgent": {
                             "description": "User agent of request",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -9081,18 +7750,9 @@
                     },
                     "data": {
                       "description": "Verification data (e.g., BankID response)",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "object",
+                      "additionalProperties": {},
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -9224,25 +7884,13 @@
                     },
                     "email": {
                       "description": "Email address (if using EMAIL channel)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "phone": {
                       "description": "Phone number (if using SMS channel)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "channel": {
                       "description": "Delivery channel used",
@@ -9267,25 +7915,13 @@
                     },
                     "reference": {
                       "description": "Reference/external ID",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "note": {
                       "description": "Internal note",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "locale": {
                       "description": "Locale for messages",
@@ -9295,24 +7931,12 @@
                       "description": "When the verification token expires"
                     },
                     "usedAt": {
-                      "description": "When the verification was completed",
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "description": "When the verification was completed"
                     },
                     "failureReason": {
                       "description": "Reason for failure (if status is FAILED)",
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "string",
+                      "nullable": true
                     },
                     "createdAt": {
                       "description": "When the verification was created"
@@ -9330,83 +7954,59 @@
                     },
                     "contact": {
                       "description": "Linked contact information",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string"
-                            },
-                            "firstName": {
-                              "type": "string"
-                            },
-                            "lastName": {
-                              "type": "string"
-                            },
-                            "email": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "phone": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "firstName",
-                            "lastName"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "phone": {
+                          "type": "string",
+                          "nullable": true
                         }
-                      ]
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     },
                     "createdBy": {
                       "description": "User who created this verification",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string"
-                            },
-                            "firstName": {
-                              "type": "string"
-                            },
-                            "lastName": {
-                              "type": "string"
-                            },
-                            "email": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "firstName",
-                            "lastName",
-                            "email"
-                          ],
-                          "additionalProperties": false
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
                         }
-                      ]
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     },
                     "audits": {
                       "description": "Audit log entries for this verification",
@@ -9428,54 +8028,27 @@
                           "data": {
                             "description": "Event-specific data",
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {}
                           },
                           "name": {
                             "description": "Name of person who triggered this event",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "email": {
                             "description": "Email of person who triggered this event",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "ipAddress": {
                             "description": "IP address of request",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           },
                           "userAgent": {
                             "description": "User agent of request",
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -9489,18 +8062,9 @@
                     },
                     "data": {
                       "description": "Verification data (e.g., BankID response)",
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                      "type": "object",
+                      "additionalProperties": {},
+                      "nullable": true
                     }
                   },
                   "required": [

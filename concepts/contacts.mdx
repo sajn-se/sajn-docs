@@ -1,0 +1,210 @@
+---
+title: Contacts
+description: 'Managing contacts and companies in sajn'
+---
+
+# Contacts
+
+Contacts represent individuals that you frequently send documents to. Managing contacts makes it easier to create signers and track signing history.
+
+## Creating Contacts
+
+Create a contact with basic information:
+
+```json
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "phone": "+46701234567",
+  "ssn": "197001011234"
+}
+```
+
+### Contact Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `firstName` | Yes | Contact's first name |
+| `lastName` | Yes | Contact's last name |
+| `email` | No | Email address |
+| `phone` | No | Phone number for SMS |
+| `ssn` | No | Swedish personal number |
+| `companyId` | No | Associated company ID |
+| `companyRole` | No | Role within the company |
+| `externalId` | No | Your system's identifier |
+
+<Note>
+  At least one of `email` or `phone` is recommended for sending documents.
+</Note>
+
+## Companies
+
+Companies allow you to organize contacts by their organizations:
+
+```json
+{
+  "name": "Acme Corporation",
+  "orgNumber": "556123-4567",
+  "country": "Sweden"
+}
+```
+
+### Linking Contacts to Companies
+
+When creating or updating a contact, link them to a company:
+
+```json
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@acme.com",
+  "companyId": "company_123",
+  "companyRole": "CEO"
+}
+```
+
+## Using Contacts as Signers
+
+When adding signers to documents, reference the contact ID:
+
+```json
+{
+  "contactId": "contact_123",
+  "role": "SIGNER",
+  "signingOrder": 1
+}
+```
+
+The signer will automatically inherit information from the contact.
+
+## Benefits of Using Contacts
+
+<CardGroup cols={2}>
+  <Card title="Consistency" icon="check-double">
+    Ensure consistent information across all documents
+  </Card>
+  <Card title="Quick Setup" icon="bolt">
+    Add signers faster by referencing existing contacts
+  </Card>
+  <Card title="History" icon="clock-rotate-left">
+    Track all documents a contact has been involved with
+  </Card>
+  <Card title="Updates" icon="pen">
+    Update contact info in one place for future documents
+  </Card>
+</CardGroup>
+
+## Contact Management
+
+### Searching Contacts
+
+Use the API to search and filter contacts:
+
+```bash
+GET /api/v1/contacts?page=1&perPage=20
+```
+
+### Updating Contacts
+
+```bash
+PATCH /api/v1/contacts/{id}
+```
+
+<Info>
+  Updating a contact doesn't affect existing document signers - changes only apply to new documents.
+</Info>
+
+### Deleting Contacts
+
+Soft delete contacts to keep historical data intact:
+
+```bash
+DELETE /api/v1/contacts/{id}
+```
+
+Deleted contacts are hidden from lists but document references remain valid.
+
+## Company Management
+
+### Listing Companies
+
+```bash
+GET /api/v1/companies
+```
+
+### Getting Company Details
+
+Retrieve a company with all associated contacts:
+
+```bash
+GET /api/v1/companies/{id}
+```
+
+Response includes:
+
+```json
+{
+  "company": {
+    "id": "company_123",
+    "name": "Acme Corporation",
+    "orgNumber": "556123-4567",
+    "parties": [
+      {
+        "id": "contact_1",
+        "firstName": "John",
+        "lastName": "Doe"
+      }
+    ]
+  }
+}
+```
+
+## External IDs
+
+Use external IDs to link contacts to records in your own systems:
+
+```json
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "externalId": "customer_456"
+}
+```
+
+This makes it easy to:
+- Sync with your CRM
+- Match contacts with your database records
+- Integrate with existing workflows
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Deduplicate before creating">
+    Check if a contact already exists before creating a new one to avoid duplicates.
+  </Accordion>
+
+  <Accordion title="Keep information current">
+    Regularly update contact information to ensure delivery success.
+  </Accordion>
+
+  <Accordion title="Use companies for B2B">
+    When working with business clients, create companies and link contacts for better organization.
+  </Accordion>
+
+  <Accordion title="External IDs for integration">
+    Always set external IDs when integrating with other systems for easy lookups.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Signers" icon="users" href="/concepts/signers">
+    Learn about adding contacts as signers
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/GET%20/api/v1/contacts">
+    Explore the Contacts API
+  </Card>
+</CardGroup>

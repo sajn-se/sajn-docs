@@ -1,0 +1,318 @@
+---
+title: Identity Verification
+description: 'Verify identities using sajn ID and BankID'
+---
+
+# Identity Verification with sajn ID
+
+Use sajn ID to verify customer identities using Swedish BankID before granting access to services or completing transactions.
+
+## Overview
+
+sajn ID provides two verification methods:
+
+- **SSN-based**: Verifies identity AND Swedish personal number
+- **Name-based**: Verifies identity and name match without requiring SSN
+
+## Quick Start
+
+Create and send a verification request:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/sajn-id \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "channel": "EMAIL",
+    "sendImmediately": true
+  }'
+```
+
+The user receives an email with a verification link and completes BankID authentication.
+
+## Use Cases
+
+### Customer Onboarding
+
+Verify identity during account creation:
+
+```json
+{
+  "fullName": "John Doe",
+  "ssn": "197001011234",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "reference": "customer_signup_2024_001",
+  "note": "New customer registration",
+  "sendImmediately": true
+}
+```
+
+### Age Verification
+
+Verify someone is 18+ without collecting SSN:
+
+```json
+{
+  "fullName": "Jane Smith",
+  "email": "jane@example.com",
+  "channel": "EMAIL",
+  "reference": "age_verification",
+  "note": "18+ age check for alcohol purchase",
+  "sendImmediately": true
+}
+```
+
+### Pre-Contract Verification
+
+Verify identity before allowing document signing:
+
+```json
+{
+  "fullName": "John Doe",
+  "ssn": "197001011234",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "contactId": "contact_123",
+  "reference": "pre_contract_verification",
+  "note": "ID check before loan agreement",
+  "sendImmediately": true
+}
+```
+
+## SSN-Based vs Name-Based
+
+### When to Use SSN-Based
+
+Use SSN-based verification when you:
+- Need to verify the exact person (e.g., financial services)
+- Are legally required to collect and verify SSN
+- Need to match against government databases
+
+```json
+{
+  "fullName": "John Doe",
+  "ssn": "197001011234",
+  "email": "john@example.com",
+  "channel": "EMAIL"
+}
+```
+
+### When to Use Name-Based
+
+Use name-based verification when you:
+- Only need to verify identity, not specific SSN
+- Want to respect privacy (GDPR-friendly)
+- Just need age verification
+
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "channel": "EMAIL"
+}
+```
+
+## Verification Flow
+
+1. **Create verification** via API
+2. **User receives link** via email or SMS
+3. **User clicks link** and opens verification page
+4. **User authenticates** with BankID app
+5. **Verification completes** and you receive webhook notification
+6. **Retrieve results** via API
+
+## Checking Verification Status
+
+Poll for status updates:
+
+```bash
+GET /api/v1/sajn-id/{verificationId}
+```
+
+Response when pending:
+
+```json
+{
+  "id": "verify_123",
+  "status": "SENT",
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "usedAt": null
+}
+```
+
+Response when completed:
+
+```json
+{
+  "id": "verify_123",
+  "status": "VERIFIED",
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "usedAt": "2024-01-15T10:30:00Z",
+  "data": {
+    "completionData": {
+      "user": {
+        "personalNumber": "197001011234",
+        "name": "John Doe",
+        "givenName": "John",
+        "surname": "Doe"
+      }
+    }
+  }
+}
+```
+
+## Webhook Integration
+
+Receive real-time notifications:
+
+```json
+{
+  "event": "SAJN_ID_VERIFIED",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "data": {
+    "verificationId": "verify_123",
+    "fullName": "John Doe",
+    "status": "VERIFIED",
+    "reference": "customer_signup_2024_001"
+  }
+}
+```
+
+## Linking to Contacts
+
+Link verifications to existing contacts for audit trail:
+
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "contactId": "contact_123"
+}
+```
+
+This creates a permanent record in the contact's history.
+
+## Implementation Example
+
+Complete verification workflow:
+
+```javascript
+// Step 1: Create verification
+const verification = await fetch('https://app.sajn.se/api/v1/sajn-id', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    fullName: 'John Doe',
+    email: 'john@example.com',
+    channel: 'EMAIL',
+    reference: 'signup_123',
+    sendImmediately: true
+  })
+}).then(r => r.json());
+
+// Step 2: Poll for completion (or use webhooks)
+const checkStatus = async (verificationId) => {
+  const status = await fetch(
+    `https://app.sajn.se/api/v1/sajn-id/${verificationId}`,
+    {
+      headers: { 'Authorization': `Bearer ${API_KEY}` }
+    }
+  ).then(r => r.json());
+
+  if (status.status === 'VERIFIED') {
+    // Verification successful
+    console.log('Verified:', status.data);
+    return true;
+  } else if (status.status === 'FAILED' || status.status === 'EXPIRED') {
+    // Verification failed
+    console.log('Failed:', status.failureReason);
+    return false;
+  }
+
+  // Still pending, check again later
+  return null;
+};
+```
+
+## Security & Privacy
+
+<AccordionGroup>
+  <Accordion title="SSN encryption">
+    SSNs are encrypted at rest and only accessible to authorized users.
+  </Accordion>
+
+  <Accordion title="Single-use tokens">
+    Verification tokens are single-use and expire after completion or timeout.
+  </Accordion>
+
+  <Accordion title="Audit logs">
+    Complete audit trail tracks every step of the verification process.
+  </Accordion>
+
+  <Accordion title="GDPR compliance">
+    Name-based verification minimizes personal data collection per GDPR principles.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Clear Purpose" icon="bullseye">
+    Use the `note` field to document why verification is needed for compliance.
+  </Card>
+  <Card title="Reference IDs" icon="link">
+    Always include a reference to link verification to your workflow.
+  </Card>
+  <Card title="Minimal Data" icon="shield">
+    Use name-based verification when SSN isn't legally required.
+  </Card>
+  <Card title="Webhooks" icon="webhook">
+    Use webhooks instead of polling for better user experience.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+### Verification Not Received
+
+- Check spam/junk folders
+- Verify email/phone is correct
+- Check verification wasn't already used
+- Look for delivery failures in dashboard
+
+### BankID Failed
+
+Common reasons:
+- User canceled authentication
+- BankID app not responding
+- Wrong personal number provided
+- BankID account issues
+
+The user can retry by clicking the link again.
+
+### Name Mismatch
+
+If name-based verification fails due to mismatch:
+- Double-check spelling in request
+- Ask user for their exact registered name
+- Consider SSN-based verification for certainty
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="sajn ID Concept" icon="shield-check" href="/concepts/sajn-id">
+    Learn more about sajn ID
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/POST%20/api/v1/sajn-id">
+    Explore the sajn ID API
+  </Card>
+</CardGroup>

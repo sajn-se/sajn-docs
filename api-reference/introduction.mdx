@@ -1,39 +1,134 @@
 ---
-title: 'API-referens'
-description: 'Sajn API dokumentation'
+title: API Introduction
+description: 'Welcome to the sajn API'
 ---
 
-## Välkommen till Sajn API
+# API Introduction
 
-Sajn API ger dig programmatisk tillgång till alla funktioner i Sajn-plattformen. Med vårt API kan du skapa, hantera och signera dokument, samt administrera kontakter, företag och anpassade fält.
+The sajn API allows you to programmatically create, send, and manage digital document signing workflows. Built with modern standards, our REST API provides full TypeScript support and comprehensive documentation.
 
-## Autentisering
+## Base URL
 
-Alla API-anrop kräver autentisering via API-nyckel som skickas i `Authorization`-headern:
-
-```bash
-curl -H "Authorization: your-api-key" https://app.sajn.se/api/v1/documents
-```
-
-## Bas-URL
+All API requests should be made to:
 
 ```
 https://app.sajn.se/api/v1
 ```
 
-## Huvudfunktioner
+## Authentication
 
-### Dokument
-Skapa, hämta, uppdatera och ta bort dokument. Hantera signeringsprocessen och ladda ner signerade dokument.
+All API requests require authentication using an API key. Include your API key in the `Authorization` header:
 
-### Kontakter
-Hantera din kontaktlista för att enkelt lägga till signerare till dokument.
+```bash
+curl https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
 
-### Företag
-Skapa och hantera företagsinformation.
+Get your API key from **Organization Settings > API Keys** in the [sajn dashboard](https://app.sajn.se).
 
-### Taggar
-Organisera dina dokument med anpassade taggar.
+## Rate Limits
 
-### Anpassade fält
-Skapa och hantera anpassade fält för dina dokument.
+- **100 requests per minute** per API key
+- **1000 requests per hour** per API key
+
+Rate limit headers are included in all responses:
+
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640000000
+```
+
+## Response Format
+
+All responses are returned in JSON format with appropriate HTTP status codes.
+
+### Success Response
+
+```json
+{
+  "id": "doc_123",
+  "name": "Employment Contract",
+  "status": "DRAFT",
+  "createdAt": "2024-01-15T10:00:00Z"
+}
+```
+
+### Error Response
+
+```json
+{
+  "message": "Document not found"
+}
+```
+
+## HTTP Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Success |
+| `400` | Bad Request - Invalid parameters |
+| `401` | Unauthorized - Invalid or missing API key |
+| `404` | Not Found - Resource doesn't exist |
+| `409` | Conflict - Resource already exists |
+| `429` | Too Many Requests - Rate limit exceeded |
+| `500` | Internal Server Error |
+
+## Pagination
+
+List endpoints support pagination with query parameters:
+
+```bash
+GET /api/v1/documents?page=1&perPage=20
+```
+
+Response includes pagination info:
+
+```json
+{
+  "documents": [...],
+  "totalPages": 5
+}
+```
+
+## Timestamps
+
+All timestamps are returned in ISO 8601 format with UTC timezone:
+
+```json
+{
+  "createdAt": "2024-01-15T10:30:00Z",
+  "updatedAt": "2024-01-15T11:45:00Z"
+}
+```
+
+## Webhooks
+
+Receive real-time notifications about document events. See the [Webhooks Guide](/guides/webhooks) for details.
+
+## SDKs and Tools
+
+- **TypeScript**: Full type safety with our OpenAPI specification
+- **OpenAPI Spec**: Available at `/api/v1/openapi`
+- **Postman**: Import our OpenAPI spec into Postman
+
+## Support
+
+Need help? Contact us at [hej@sajn.se](mailto:hej@sajn.se)
+
+## Quick Links
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get started in 5 minutes
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn about API authentication
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Set up real-time notifications
+  </Card>
+  <Card title="Core Concepts" icon="lightbulb" href="/concepts/documents">
+    Understand sajn fundamentals
+  </Card>
+</CardGroup>

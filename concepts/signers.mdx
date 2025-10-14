@@ -1,0 +1,213 @@
+---
+title: Signers
+description: 'Understanding signers and participants in sajn'
+---
+
+# Signers
+
+Signers are individuals who need to interact with a document. Each signer has a unique role and can track their progress through the signing process.
+
+## Signer Roles
+
+sajn supports four different signer roles:
+
+### SIGNER
+The primary role - must sign the document for it to be completed.
+
+```json
+{
+  "role": "SIGNER",
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+```
+
+### ORGANIZER
+The person who organized the document. Receives notifications but doesn't need to sign.
+
+### REVIEWER
+Reviews the document and can leave comments, but doesn't need to sign.
+
+### ACCEPTOR
+For acceptance-type documents - accepts rather than signs the document.
+
+## Signer Information
+
+Each signer has the following information:
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "+46701234567",
+  "ssn": "197001011234",
+  "companyName": "Acme Corp",
+  "companyRole": "CEO",
+  "companyOrgNumber": "556123-4567",
+  "companyId": "company_id_123",
+  "role": "SIGNER",
+  "signingOrder": 1
+}
+```
+
+### Required Fields
+
+- **name**: Signer's full name
+- Either **email** OR **phone** (depending on distribution method)
+- **role**: Signer role (defaults to SIGNER)
+
+### Optional Fields
+
+- **phone**: For SMS notifications
+- **ssn**: Swedish personal number (required for BankID signing)
+- **companyName**, **companyRole**, **companyOrgNumber**: Company information
+- **companyId**: Link to existing company in sajn
+- **signingOrder**: Order for sequential signing
+
+## Signing Order
+
+When using sequential signing (`signingOrder: "SEQUENTIAL"`), assign each signer a number:
+
+```json
+{
+  "signers": [
+    {
+      "name": "Manager",
+      "email": "manager@company.com",
+      "role": "SIGNER",
+      "signingOrder": 1
+    },
+    {
+      "name": "Employee",
+      "email": "employee@company.com",
+      "role": "SIGNER",
+      "signingOrder": 2
+    }
+  ]
+}
+```
+
+The manager must sign first before the employee can access the document.
+
+<Note>
+  For parallel signing, `signingOrder` is optional and will be ignored.
+</Note>
+
+## Signer Status
+
+Track each signer's progress through two status fields:
+
+### Read Status
+
+| Status | Description |
+|--------|-------------|
+| `NOT_OPENED` | Signer hasn't opened the document yet |
+| `OPENED` | Signer opened the document |
+| `READ` | Signer read the entire document |
+
+### Signing Status
+
+| Status | Description |
+|--------|-------------|
+| `NOT_SIGNED` | Signer hasn't signed yet |
+| `SIGNED` | Signer has signed the document |
+| `REJECTED` | Signer rejected the document |
+
+## Signing URLs and Tokens
+
+Each signer gets a unique, secure URL and token:
+
+```json
+{
+  "signerId": "signer_123",
+  "token": "abc123...",
+  "signingUrl": "https://app.sajn.se/sign/doc_123?token=abc123..."
+}
+```
+
+<Warning>
+  Never share signing URLs publicly. Each URL is tied to a specific signer and should only be sent to that individual.
+</Warning>
+
+## Linking Contacts
+
+Signers are typically linked to contacts in your sajn account:
+
+```json
+{
+  "contactId": "contact_123",
+  "role": "SIGNER"
+}
+```
+
+This automatically populates signer information from the contact and tracks signing history.
+
+## BankID Integration
+
+For BankID signatures, the signer must provide their Swedish personal number (SSN):
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "ssn": "197001011234",
+  "role": "SIGNER"
+}
+```
+
+When sending the document, specify BankID as the signature type:
+
+```json
+{
+  "deliveryMethod": "EMAIL",
+  "signatureType": "BANKID"
+}
+```
+
+## Notifications
+
+Signers receive notifications based on the distribution method:
+
+- **EMAIL**: Receives signing invitation via email
+- **SMS**: Receives signing link via SMS
+- **NONE**: No automatic notification (you handle distribution)
+
+## Updating Signers
+
+Signers can be updated before they sign:
+
+```bash
+PATCH /api/v1/documents/{id}/signers/{signerId}
+```
+
+<Warning>
+  Once a signer has signed, their information cannot be modified.
+</Warning>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Accurate Information" icon="check">
+    Ensure signer information is accurate before sending - corrections after sending are limited.
+  </Card>
+  <Card title="Clear Communication" icon="envelope">
+    Use the custom message field to provide context about what they're signing.
+  </Card>
+  <Card title="Appropriate Roles" icon="user-tag">
+    Use REVIEWER for people who need visibility but not signing authority.
+  </Card>
+  <Card title="Sequential for Approval" icon="list-ol">
+    Use sequential signing for approval workflows where order matters.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Contacts" icon="address-book" href="/concepts/contacts">
+    Learn about managing contacts
+  </Card>
+  <Card title="Send for Signing" icon="paper-plane" href="/guides/send-for-signing">
+    Guide to sending documents
+  </Card>
+</CardGroup>

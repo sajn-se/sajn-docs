@@ -1,0 +1,209 @@
+---
+title: Creating Documents
+description: 'Detailed guide on creating and configuring documents'
+---
+
+# Creating Documents
+
+Learn how to create documents with various configurations for different use cases.
+
+## Basic Document Creation
+
+Create a simple document in draft status:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contract - John Doe",
+    "type": "SIGNABLE"
+  }'
+```
+
+Response:
+
+```json
+{
+  "documentId": "doc_123abc",
+  "externalId": null,
+  "expiresAt": null,
+  "signers": []
+}
+```
+
+## Adding Signers During Creation
+
+Include signers when creating the document:
+
+```json
+{
+  "name": "Employment Contract",
+  "type": "SIGNABLE",
+  "signers": [
+    {
+      "name": "John Doe",
+      "email": "john@example.com",
+      "role": "SIGNER",
+      "signingOrder": 1
+    },
+    {
+      "name": "Jane Manager",
+      "email": "jane@example.com",
+      "role": "SIGNER",
+      "signingOrder": 2
+    }
+  ]
+}
+```
+
+The response includes signing URLs for each signer:
+
+```json
+{
+  "documentId": "doc_123",
+  "signers": [
+    {
+      "signerId": "signer_1",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "token": "token_abc",
+      "signingUrl": "https://app.sajn.se/sign/doc_123?token=token_abc"
+    }
+  ]
+}
+```
+
+## Setting Document Metadata
+
+Configure signing workflow and notifications:
+
+```json
+{
+  "name": "Service Agreement",
+  "type": "SIGNABLE",
+  "documentMeta": {
+    "subject": "Please sign the service agreement",
+    "message": "Thank you for choosing our services. Please review and sign the attached agreement.",
+    "signingOrder": "SEQUENTIAL",
+    "defaultSignatureType": "DRAWING",
+    "distributionMethod": "EMAIL",
+    "forceReadFullDocument": true,
+    "preferredLanguage": "sv"
+  }
+}
+```
+
+## Setting Expiration
+
+Make the document expire after 30 days:
+
+```json
+{
+  "name": "Time-Sensitive Agreement",
+  "expiresAt": "2024-12-31T23:59:59Z"
+}
+```
+
+## Using External IDs
+
+Link to your own system:
+
+```json
+{
+  "name": "Contract #12345",
+  "externalId": "contract_12345_from_my_crm"
+}
+```
+
+## Creating from Templates
+
+Use a template to pre-populate fields:
+
+```json
+{
+  "name": "Employment Contract - John Doe",
+  "templateId": "template_abc123"
+}
+```
+
+## Adding Custom Fields
+
+Include custom field values during creation:
+
+```json
+{
+  "name": "Project Agreement",
+  "customFields": [
+    {
+      "customInputId": "field_project_name",
+      "value": "Website Redesign"
+    },
+    {
+      "customInputId": "field_budget",
+      "value": "50000"
+    }
+  ]
+}
+```
+
+## Complete Example: Business Contract
+
+Here's a complete example creating a business contract with all features:
+
+```json
+{
+  "name": "Service Agreement - Acme Corp",
+  "type": "SIGNABLE",
+  "externalId": "agreement_2024_001",
+  "expiresAt": "2024-02-15T23:59:59Z",
+  "documentMeta": {
+    "subject": "Service Agreement for Your Review",
+    "message": "Please review and sign this service agreement. Contact us if you have any questions.",
+    "signingOrder": "SEQUENTIAL",
+    "defaultSignatureType": "DRAWING",
+    "distributionMethod": "EMAIL",
+    "forceReadFullDocument": true,
+    "showCommentsToSigners": true,
+    "preferredLanguage": "sv",
+    "validFrom": "2024-01-01T00:00:00Z",
+    "validTo": "2024-12-31T23:59:59Z",
+    "value": "500000"
+  },
+  "signers": [
+    {
+      "name": "Jane Manager",
+      "email": "jane@company.com",
+      "role": "SIGNER",
+      "signingOrder": 1
+    },
+    {
+      "name": "John Client",
+      "email": "john@acme.com",
+      "role": "SIGNER",
+      "signingOrder": 2
+    }
+  ],
+  "customFields": [
+    {
+      "customInputId": "project_name",
+      "value": "Digital Transformation"
+    },
+    {
+      "customInputId": "department",
+      "value": "IT"
+    }
+  ]
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Send for Signing" icon="paper-plane" href="/guides/send-for-signing">
+    Learn how to send documents to signers
+  </Card>
+  <Card title="Document Fields" icon="list" href="/api-reference/POST%20/api/v1/documents/{id}/fields">
+    Add form fields and content sections
+  </Card>
+</CardGroup>

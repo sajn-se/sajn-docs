@@ -1,0 +1,278 @@
+---
+title: sajn ID
+description: 'Identity verification with Swedish BankID'
+---
+
+# sajn ID - Identity Verification
+
+sajn ID enables secure identity verification using Swedish BankID, allowing you to verify the identity of individuals before granting access to services or completing transactions.
+
+## Overview
+
+sajn ID provides two verification methods:
+
+1. **SSN-based verification**: Verifies both identity and Swedish personal number (personnummer)
+2. **Name-based verification**: Verifies identity and name match without requiring SSN
+
+## How It Works
+
+```mermaid
+graph LR
+    A[Create Verification] --> B[Send to Recipient]
+    B --> C[Recipient Opens Link]
+    C --> D[BankID Authentication]
+    D --> E[Verification Complete]
+```
+
+### Verification Lifecycle
+
+| Status | Description |
+|--------|-------------|
+| `CREATED` | Verification created but not sent |
+| `SENT` | Verification sent to recipient |
+| `OPENED` | Recipient opened verification link |
+| `VERIFIED` | Successfully verified |
+| `FAILED` | Verification failed |
+| `EXPIRED` | Verification link expired |
+| `CANCELED` | Verification was canceled |
+
+## Creating a Verification
+
+### SSN-Based Verification
+
+Verify both identity and SSN:
+
+```json
+{
+  "fullName": "John Doe",
+  "ssn": "197001011234",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "reference": "customer_onboarding_123",
+  "sendImmediately": true
+}
+```
+
+### Name-Based Verification
+
+Verify identity without SSN requirement:
+
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "reference": "age_verification_456",
+  "sendImmediately": true
+}
+```
+
+## Delivery Channels
+
+### EMAIL
+Send verification link via email:
+
+```json
+{
+  "channel": "EMAIL",
+  "email": "john@example.com"
+}
+```
+
+### SMS
+Send verification link via SMS:
+
+```json
+{
+  "channel": "SMS",
+  "phone": "+46701234567"
+}
+```
+
+## Verification Data
+
+After successful verification, retrieve the BankID response data:
+
+```json
+{
+  "id": "verify_123",
+  "status": "VERIFIED",
+  "fullName": "John Doe",
+  "usedAt": "2024-01-15T10:30:00Z",
+  "data": {
+    "completionData": {
+      "user": {
+        "personalNumber": "197001011234",
+        "name": "John Doe",
+        "givenName": "John",
+        "surname": "Doe"
+      },
+      "device": {
+        "ipAddress": "192.0.2.1"
+      }
+    }
+  }
+}
+```
+
+<Note>
+  Sensitive information like SSN is encrypted and only accessible to authorized users.
+</Note>
+
+## Use Cases
+
+### Customer Onboarding
+Verify customer identity during account creation:
+
+```json
+{
+  "fullName": "John Doe",
+  "ssn": "197001011234",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "reference": "account_signup",
+  "note": "New customer registration",
+  "sendImmediately": true
+}
+```
+
+### Age Verification
+Verify age without collecting SSN:
+
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "reference": "age_check",
+  "note": "18+ age verification",
+  "sendImmediately": true
+}
+```
+
+### Contract Signing Prerequisites
+Verify identity before allowing document signing:
+
+```json
+{
+  "fullName": "John Doe",
+  "ssn": "197001011234",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "contactId": "contact_123",
+  "reference": "pre_signing_verification",
+  "sendImmediately": true
+}
+```
+
+## Linking to Contacts
+
+Link verifications to existing contacts:
+
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "channel": "EMAIL",
+  "contactId": "contact_123"
+}
+```
+
+This creates an audit trail connecting the verification to the contact's profile.
+
+## Audit Logs
+
+Every verification includes a complete audit log:
+
+```json
+{
+  "audits": [
+    {
+      "type": "ID_CREATED",
+      "createdAt": "2024-01-15T10:00:00Z"
+    },
+    {
+      "type": "ID_SENT",
+      "createdAt": "2024-01-15T10:01:00Z",
+      "data": {
+        "channel": "EMAIL"
+      }
+    },
+    {
+      "type": "ID_OPENED",
+      "createdAt": "2024-01-15T10:15:00Z",
+      "ipAddress": "192.0.2.1"
+    },
+    {
+      "type": "ID_VERIFIED",
+      "createdAt": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+## Expiration
+
+Verification links expire after a set period (default: 7 days). Set custom expiration:
+
+```json
+{
+  "tokenExpiresAt": "2024-01-22T23:59:59Z"
+}
+```
+
+## Billing
+
+<Info>
+  Creating a sajn ID verification counts toward your monthly sajn ID quota and is billed according to your plan.
+</Info>
+
+Each successful verification is tracked as a billable event, regardless of whether it completes successfully or fails.
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Token security">
+    Verification tokens are single-use and expire after completion or timeout.
+  </Accordion>
+
+  <Accordion title="SSN encryption">
+    SSNs are encrypted at rest and only accessible to authorized users with proper permissions.
+  </Accordion>
+
+  <Accordion title="Audit trail">
+    Complete audit logs track every step of the verification process for compliance.
+  </Accordion>
+
+  <Accordion title="BankID security">
+    Leverages BankID's robust security infrastructure for identity verification.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Clear Purpose" icon="bullseye">
+    Use the `note` field to document why verification is needed
+  </Card>
+  <Card title="Reference IDs" icon="link">
+    Always include a reference to link verification to your workflow
+  </Card>
+  <Card title="Appropriate Method" icon="scale-balanced">
+    Use SSN-based only when legally required; prefer name-based for privacy
+  </Card>
+  <Card title="Immediate Sending" icon="paper-plane">
+    Set `sendImmediately: true` for better user experience
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Identity Verification Guide" icon="shield-check" href="/guides/identity-verification">
+    Step-by-step guide to implementing ID checks
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/POST%20/api/v1/sajn-id">
+    Explore the sajn ID API
+  </Card>
+</CardGroup>
