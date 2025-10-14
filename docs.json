@@ -3,46 +3,57 @@
   "theme": "mint",
   "name": "sajn",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#2563EB",
+    "light": "#3B82F6",
+    "dark": "#1D4ED8"
   },
   "favicon": "/favicon.ico",
+  "logo": {
+    "light": "/logo/sajn-logo.png",
+    "dark": "/logo/sajn-logo-white.png"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:hej@sajn.se"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Sign in",
+      "href": "https://app.sajn.se"
+    }
+  },
   "navigation": {
     "tabs": [
       {
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
               "index",
               "quickstart",
-              "development"
+              "authentication"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "concepts/documents",
+              "concepts/signers",
+              "concepts/contacts",
+              "concepts/sajn-id"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Guides",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "guides/create-document",
+              "guides/send-for-signing",
+              "guides/webhooks",
+              "guides/identity-verification"
             ]
           }
         ]
@@ -52,9 +63,17 @@
         "openapi": "api-reference/openapi.json",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Introduction",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/introduction",
+              "api-reference/authentication",
+              "api-reference/errors"
+            ]
+          },
+          {
+            "group": "System",
+            "pages": [
+              "GET /api/v1"
             ]
           },
           {
@@ -70,19 +89,19 @@
             ]
           },
           {
-            "group": "Document Fields",
-            "pages": [
-              "POST /api/v1/documents/{id}/fields",
-              "PATCH /api/v1/documents/{id}/fields/{fieldId}",
-              "DELETE /api/v1/documents/{id}/fields/{fieldId}"
-            ]
-          },
-          {
             "group": "Document Signers",
             "pages": [
               "POST /api/v1/documents/{id}/signers",
               "PATCH /api/v1/documents/{id}/signers/{signerId}",
               "DELETE /api/v1/documents/{id}/signers/{signerId}"
+            ]
+          },
+          {
+            "group": "Document Fields",
+            "pages": [
+              "POST /api/v1/documents/{id}/fields",
+              "PATCH /api/v1/documents/{id}/fields/{fieldId}",
+              "DELETE /api/v1/documents/{id}/fields/{fieldId}"
             ]
           },
           {
@@ -129,9 +148,11 @@
             ]
           },
           {
-            "group": "System",
+            "group": "sajn ID",
             "pages": [
-              "GET /api/v1"
+              "GET /api/v1/sajn-id",
+              "POST /api/v1/sajn-id",
+              "GET /api/v1/sajn-id/{id}"
             ]
           }
         ]
@@ -140,9 +161,9 @@
         "tab": "Changelog",
         "groups": [
           {
-            "group": "Version history",
+            "group": "Version History",
             "pages": [
-              "changelog/v0-10-0"
+              "changelog/latest"
             ]
           }
         ]
@@ -151,50 +172,36 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Dashboard",
+          "href": "https://app.sajn.se",
+          "icon": "square-terminal"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Support",
+          "href": "mailto:hej@sajn.se",
+          "icon": "envelope"
+        },
+        {
+          "anchor": "Status",
+          "href": "https://status.sajn.se",
+          "icon": "chart-line"
         }
       ]
     }
   },
-  "logo": {
-    "light": "/logo/sajn-logo.png",
-    "dark": "/logo/sajn-logo-white.png"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Help",
-        "href": "mailto:hej@sajn.se"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "sajn in",
-      "href": "https://app.sajn.se"
-    }
-  },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/sajn"
     }
   },
   "openapi": "api-reference/openapi.json"
