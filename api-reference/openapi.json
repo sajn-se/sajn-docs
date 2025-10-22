@@ -2814,7 +2814,7 @@
         }
       },
       "post": {
-        "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n- `lastName` - Contact's last name\n\n**Optional Fields:**\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `ssn` - Swedish personal number (for BankID)\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
+        "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n- `lastName` - Contact's last name\n\n**Optional Fields:**\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `ssn` - Swedish personal number (for BankID)\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
         "summary": "Create a new contact",
         "tags": [],
         "parameters": [
@@ -2859,6 +2859,10 @@
                   },
                   "ssn": {
                     "description": "Swedish personal number (personnummer)",
+                    "type": "string"
+                  },
+                  "externalId": {
+                    "description": "Your external reference ID for this contact",
                     "type": "string"
                   },
                   "companyId": {
@@ -3425,6 +3429,10 @@
                   },
                   "ssn": {
                     "description": "Swedish personal number (personnummer)",
+                    "type": "string"
+                  },
+                  "externalId": {
+                    "description": "Your external reference ID for this contact",
                     "type": "string"
                   },
                   "companyId": {
