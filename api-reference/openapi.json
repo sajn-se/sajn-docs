@@ -35,8 +35,7 @@
                       ]
                     },
                     "timestamp": {
-                      "description": "Current server timestamp",
-                      "type": "string"
+                      "description": "Current server timestamp"
                     },
                     "version": {
                       "description": "API version number",
@@ -3014,6 +3013,208 @@
         }
       }
     },
+    "/api/v1/contacts-search": {
+      "get": {
+        "description": "Search for contacts by email, phone number, or external ID.\n\n**Query Parameters (at least one required):**\n- `email` - Search by exact email address match\n- `phone` - Search by exact phone number match\n- `externalId` - Search by exact external ID match\n\n**Response:** Returns an array of matching contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization.",
+        "summary": "Search contacts",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Search by contact email address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "email",
+                  "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                }
+              }
+            }
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "Search by contact phone number",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "query",
+            "description": "Search by external reference ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "operationId": "searchContacts",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contacts": {
+                      "description": "Array of matching contacts",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "Unique contact identifier",
+                            "type": "string"
+                          },
+                          "email": {
+                            "description": "Contact email address",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "phone": {
+                            "description": "Contact phone number",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "firstName": {
+                            "description": "Contact first name",
+                            "type": "string"
+                          },
+                          "lastName": {
+                            "description": "Contact last name",
+                            "type": "string"
+                          },
+                          "ssn": {
+                            "description": "Swedish personal number (personnummer)",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "externalId": {
+                            "description": "Your external reference ID",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "createdAt": {
+                            "description": "Date and time when contact was created"
+                          },
+                          "updatedAt": {
+                            "description": "Date and time when contact was last updated"
+                          },
+                          "companyRole": {
+                            "description": "Role/title within the associated company",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "company": {
+                            "description": "Associated company information",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "Company ID",
+                                "type": "string"
+                              },
+                              "name": {
+                                "description": "Company name",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "orgNumber": {
+                                "description": "Company organization number",
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "firstName",
+                          "lastName",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "contacts"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/contacts/{id}": {
       "get": {
         "description": "Retrieve detailed information about a specific contact including associated company information.",
@@ -3531,208 +3732,6 @@
         }
       }
     },
-    "/api/v1/contacts/search": {
-      "get": {
-        "description": "Search for contacts by email, phone number, or external ID.\n\n**Query Parameters (at least one required):**\n- `email` - Search by exact email address match\n- `phone` - Search by exact phone number match\n- `externalId` - Search by exact external ID match\n\n**Response:** Returns an array of matching contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization.",
-        "summary": "Search contacts",
-        "tags": [],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Bearer token for API authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "email",
-            "in": "query",
-            "description": "Search by contact email address",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string",
-                  "format": "email",
-                  "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                }
-              }
-            }
-          },
-          {
-            "name": "phone",
-            "in": "query",
-            "description": "Search by contact phone number",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          {
-            "name": "externalId",
-            "in": "query",
-            "description": "Search by external reference ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "operationId": "searchContacts",
-        "responses": {
-          "200": {
-            "description": "200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "contacts": {
-                      "description": "Array of matching contacts",
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "description": "Unique contact identifier",
-                            "type": "string"
-                          },
-                          "email": {
-                            "description": "Contact email address",
-                            "type": "string",
-                            "nullable": true
-                          },
-                          "phone": {
-                            "description": "Contact phone number",
-                            "type": "string",
-                            "nullable": true
-                          },
-                          "firstName": {
-                            "description": "Contact first name",
-                            "type": "string"
-                          },
-                          "lastName": {
-                            "description": "Contact last name",
-                            "type": "string"
-                          },
-                          "ssn": {
-                            "description": "Swedish personal number (personnummer)",
-                            "type": "string",
-                            "nullable": true
-                          },
-                          "externalId": {
-                            "description": "Your external reference ID",
-                            "type": "string",
-                            "nullable": true
-                          },
-                          "createdAt": {
-                            "description": "Date and time when contact was created"
-                          },
-                          "updatedAt": {
-                            "description": "Date and time when contact was last updated"
-                          },
-                          "companyRole": {
-                            "description": "Role/title within the associated company",
-                            "type": "string",
-                            "nullable": true
-                          },
-                          "company": {
-                            "description": "Associated company information",
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "description": "Company ID",
-                                "type": "string"
-                              },
-                              "name": {
-                                "description": "Company name",
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "orgNumber": {
-                                "description": "Company organization number",
-                                "type": "string",
-                                "nullable": true
-                              }
-                            },
-                            "required": [
-                              "id"
-                            ],
-                            "additionalProperties": false,
-                            "nullable": true
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "firstName",
-                          "lastName",
-                          "createdAt",
-                          "updatedAt"
-                        ],
-                        "additionalProperties": false
-                      }
-                    }
-                  },
-                  "required": [
-                    "contacts"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/companies": {
       "get": {
         "description": "Retrieve a list of all companies in your organization.\n\nCompanies can be associated with contacts to track organizational relationships.",
@@ -3957,220 +3956,7 @@
         }
       }
     },
-    "/api/v1/companies/{id}": {
-      "get": {
-        "description": "Retrieve detailed information about a company including all associated contacts.",
-        "summary": "Get a company by ID",
-        "tags": [],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Bearer token for API authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "operationId": "getCompany",
-        "responses": {
-          "200": {
-            "description": "200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "company": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "name": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "orgNumber": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "country": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "parties": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string"
-                              },
-                              "email": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "phone": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "ssn": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "firstName": {
-                                "type": "string"
-                              },
-                              "lastName": {
-                                "type": "string"
-                              },
-                              "createdAt": {
-                                "type": "string"
-                              },
-                              "updatedAt": {
-                                "type": "string"
-                              },
-                              "addressLine1": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "addressLine2": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "city": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "country": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "state": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "zipCode": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "companyRole": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "externalId": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "company": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "id": {
-                                      "type": "string"
-                                    },
-                                    "name": {
-                                      "type": "string",
-                                      "nullable": true
-                                    },
-                                    "orgNumber": {
-                                      "type": "string",
-                                      "nullable": true
-                                    },
-                                    "country": {
-                                      "type": "string",
-                                      "nullable": true
-                                    }
-                                  },
-                                  "required": [
-                                    "id"
-                                  ],
-                                  "additionalProperties": false
-                                },
-                                "nullable": true
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "firstName",
-                              "lastName",
-                              "createdAt",
-                              "updatedAt",
-                              "company"
-                            ],
-                            "additionalProperties": false
-                          }
-                        }
-                      },
-                      "required": [
-                        "id"
-                      ],
-                      "additionalProperties": false,
-                      "nullable": true
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/companies/search": {
+    "/api/v1/companies-search": {
       "get": {
         "description": "Search for companies by organization number or name.\n\n**Query Parameters (at least one required):**\n- `orgNumber` - Search by exact organization number match\n- `name` - Search by exact company name match (case-insensitive)\n\n**Response:** Returns an array of matching companies with their associated contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization.",
         "summary": "Search companies",
@@ -4382,6 +4168,219 @@
             }
           },
           "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/companies/{id}": {
+      "get": {
+        "description": "Retrieve detailed information about a company including all associated contacts.",
+        "summary": "Get a company by ID",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getCompany",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "company": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "orgNumber": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "country": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "parties": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "phone": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "ssn": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "firstName": {
+                                "type": "string"
+                              },
+                              "lastName": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "type": "string"
+                              },
+                              "updatedAt": {
+                                "type": "string"
+                              },
+                              "addressLine1": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "addressLine2": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "city": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "country": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "state": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "zipCode": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "companyRole": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "externalId": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "company": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "orgNumber": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "country": {
+                                      "type": "string",
+                                      "nullable": true
+                                    }
+                                  },
+                                  "required": [
+                                    "id"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "firstName",
+                              "lastName",
+                              "createdAt",
+                              "updatedAt",
+                              "company"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
             "description": "Error response",
             "content": {
               "application/json": {
