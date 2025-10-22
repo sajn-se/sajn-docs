@@ -71,7 +71,7 @@
           {
             "group": "System",
             "pages": [
-              "GET /api/v1"
+              "GET /api/v1/health"
             ]
           },
           {
@@ -115,6 +115,7 @@
               "GET /api/v1/contacts",
               "POST /api/v1/contacts",
               "GET /api/v1/contacts/{id}",
+              "GET /api/v1/contacts/search",
               "PATCH /api/v1/contacts/{id}",
               "DELETE /api/v1/contacts/{id}"
             ]
@@ -124,7 +125,8 @@
             "pages": [
               "GET /api/v1/companies",
               "POST /api/v1/companies",
-              "GET /api/v1/companies/{id}"
+              "GET /api/v1/companies/{id}",
+              "GET /api/v1/companies/search"
             ]
           },
           {
