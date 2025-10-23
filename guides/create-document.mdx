@@ -127,6 +127,38 @@ Use a template to pre-populate fields:
 }
 ```
 
+### Template Workflow with Form Fields
+
+When creating documents from templates that contain FORM fields with keys, you can fill those fields programmatically. Here's the complete workflow:
+
+1. **Create document from template** (this creates a copy of template fields)
+2. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:{fieldKey}`
+3. **Send for signing**: `POST /api/v1/documents/{docId}/send`
+
+**Example:**
+
+```bash
+# Step 1: Create from template
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Employment Contract", "templateId": "template_abc123"}'
+
+# Step 2: Fill a form field by its key
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/key:employee_name \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"fieldMeta": {"type": "input", "value": "John Doe"}}'
+
+# Step 3: Send for signing
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/send \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"deliveryMethod": "EMAIL", "signatureType": "BANKID"}'
+```
+
+For more details on updating fields, see [Update Document Field](/api-reference/PATCH%20/api/v1/documents/{id}/fields/{fieldId}).
+
 ## Adding Custom Fields
 
 Include custom field values during creation:
@@ -200,10 +232,16 @@ Here's a complete example creating a business contract with all features:
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="File Uploads" icon="file-arrow-up" href="/guides/file-uploads">
+    Upload PDF files to add to your documents
+  </Card>
   <Card title="Send for Signing" icon="paper-plane" href="/guides/send-for-signing">
     Learn how to send documents to signers
   </Card>
   <Card title="Document Fields" icon="list" href="/api-reference/POST%20/api/v1/documents/{id}/fields">
     Add form fields and content sections
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/POST%20/api/v1/documents">
+    Complete API reference for creating documents
   </Card>
 </CardGroup>

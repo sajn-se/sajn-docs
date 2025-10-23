@@ -1,0 +1,713 @@
+---
+title: Templates and Forms
+description: 'Complete guide to creating documents from templates and filling form fields'
+---
+
+# Templates and Forms
+
+Learn how to create documents from templates and dynamically fill form fields using the sajn API.
+
+## Overview
+
+Templates in sajn allow you to create reusable document structures with pre-configured form fields. This guide covers:
+
+1. **Creating documents from templates** - Use existing templates as document foundation
+2. **Filling form fields** - Update form field values using field keys
+3. **Sending templated documents** - Complete the workflow by sending for signatures
+
+## Template-Based Document Creation
+
+### Step 1: Create Document from Template
+
+Create a new document using an existing template as the foundation:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contract - Andreas Enem",
+    "templateId": "template_abc123",
+    "type": "SIGNABLE"
+  }'
+```
+
+Response:
+```json
+{
+  "documentId": "doc_xyz789",
+  "externalId": null,
+  "expiresAt": null,
+  "signers": []
+}
+```
+
+### Key Parameters
+
+- **`name`** - Document title (will override template name)
+- **`templateId`** - ID of the template to use as foundation
+- **`type`** - Document type (usually `SIGNABLE` for templates)
+- **`externalId`** - Optional external reference ID
+- **`expiresAt`** - Optional expiration date
+
+## Filling Form Fields
+
+### Understanding Field Keys
+
+Templates contain form fields with unique **keys** that identify each input field. These keys allow you to programmatically update field values.
+
+Common field key examples:
+- `name` - Person's full name
+- `phone` - Phone number
+- `email` - Email address
+- `address` - Street address
+- `startDate` - Employment start date
+
+### Step 2: Update Form Fields by Key
+
+Use field keys to update specific form field values:
+
+#### Update Name Field
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_xyz789/fields/key:name \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldMeta": {
+      "type": "input",
+      "value": "Andreas Enem"
+    }
+  }'
+```
+
+#### Update Phone Field
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_xyz789/fields/key:phone \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldMeta": {
+      "type": "input", 
+      "value": "0767767712"
+    }
+  }'
+```
+
+#### Update Email Field
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_xyz789/fields/key:email \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldMeta": {
+      "type": "input",
+      "value": "andreas@example.com"
+    }
+  }'
+```
+
+### Field Types and Values
+
+Different field types accept different value formats:
+
+#### Text Input Fields
+```json
+{
+  "fieldMeta": {
+    "type": "input",
+    "value": "Text value here"
+  }
+}
+```
+
+#### Number Fields
+```json
+{
+  "fieldMeta": {
+    "type": "input",
+    "value": "25000"
+  }
+}
+```
+
+#### Date Fields
+```json
+{
+  "fieldMeta": {
+    "type": "input",
+    "value": "2024-03-15"
+  }
+}
+```
+
+#### Checkbox Fields
+```json
+{
+  "fieldMeta": {
+    "type": "checkbox",
+    "value": "true"
+  }
+}
+```
+
+#### Select/Dropdown Fields
+```json
+{
+  "fieldMeta": {
+    "type": "select",
+    "value": "Option 1"
+  }
+}
+```
+
+## Complete Workflow Example
+
+Here's a complete example of creating a document from template, filling fields, and sending for signing:
+
+### JavaScript Implementation
+
+```javascript
+const createAndFillTemplate = async (templateId, formData, signers) => {
+  const apiKey = 'YOUR_API_KEY';
+  const baseUrl = 'https://app.sajn.se/api/v1';
+  
+  try {
+    // Step 1: Create document from template
+    const createResponse = await fetch(`${baseUrl}/documents`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: formData.documentName,
+        templateId: templateId,
+        type: 'SIGNABLE'
+      })
+    });
+    
+    const document = await createResponse.json();
+    const documentId = document.documentId;
+    
+    // Step 2: Fill form fields
+    const fieldUpdates = Object.entries(formData.fields).map(async ([key, value]) => {
+      return fetch(`${baseUrl}/documents/${documentId}/fields/key:${key}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fieldMeta: {
+            type: 'input',
+            value: value
+          }
+        })
+      });
+    });
+    
+    await Promise.all(fieldUpdates);
+    
+    // Step 3: Add signers
+    const signerUpdates = signers.map(async (signer) => {
+      return fetch(`${baseUrl}/documents/${documentId}/signers`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(signer)
+      });
+    });
+    
+    await Promise.all(signerUpdates);
+    
+    // Step 4: Send for signing
+    const sendResponse = await fetch(`${baseUrl}/documents/${documentId}/send`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        deliveryMethod: 'EMAIL',
+        signatureType: 'BANKID'
+      })
+    });
+    
+    const sentDocument = await sendResponse.json();
+    
+    console.log('Document created and sent:', sentDocument);
+    return sentDocument;
+    
+  } catch (error) {
+    console.error('Error creating templated document:', error);
+    throw error;
+  }
+};
+
+// Usage example
+const formData = {
+  documentName: 'Employment Contract - Andreas Enem',
+  fields: {
+    name: 'Andreas Enem',
+    phone: '0767767712',
+    email: 'andreas@example.com',
+    position: 'Senior Developer',
+    salary: '75000',
+    startDate: '2024-04-01'
+  }
+};
+
+const signers = [
+  {
+    name: 'Andreas Enem',
+    email: 'andreas@example.com',
+    role: 'SIGNER',
+    signingOrder: 1
+  },
+  {
+    name: 'HR Manager',
+    email: 'hr@company.com',
+    role: 'SIGNER',
+    signingOrder: 2
+  }
+];
+
+await createAndFillTemplate('template_abc123', formData, signers);
+```
+
+## Step 3: Send for Signing
+
+After filling all form fields, send the document for signatures:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/send \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "deliveryMethod": "EMAIL",
+    "signatureType": "BANKID"
+  }'
+```
+
+### Send Options
+
+- **`deliveryMethod`** - How to notify signers: `EMAIL`, `SMS`, or `NONE`
+- **`signatureType`** - Default signature method: `BANKID`, `DRAWING`, or `MANUAL`
+- **`customMessage`** - Optional custom message to signers
+
+## Advanced Field Operations
+
+### Bulk Field Updates
+
+Update multiple fields efficiently:
+
+```javascript
+const updateMultipleFields = async (documentId, fieldUpdates) => {
+  const updatePromises = Object.entries(fieldUpdates).map(([key, value]) => {
+    return fetch(`/api/v1/documents/${documentId}/fields/key:${key}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fieldMeta: {
+          type: 'input',
+          value: value
+        }
+      })
+    });
+  });
+  
+  const results = await Promise.all(updatePromises);
+  return results;
+};
+
+// Usage
+await updateMultipleFields('doc_xyz789', {
+  name: 'Andreas Enem',
+  phone: '0767767712',
+  email: 'andreas@example.com',
+  department: 'Engineering'
+});
+```
+
+### Conditional Field Updates
+
+Update fields based on conditions:
+
+```javascript
+const updateConditionalFields = async (documentId, userData) => {
+  const updates = {};
+  
+  // Always update basic info
+  updates.name = userData.fullName;
+  updates.email = userData.email;
+  
+  // Conditionally update phone if provided
+  if (userData.phone) {
+    updates.phone = userData.phone;
+  }
+  
+  // Update employment fields for employees
+  if (userData.type === 'employee') {
+    updates.position = userData.jobTitle;
+    updates.salary = userData.salary.toString();
+    updates.startDate = userData.startDate;
+  }
+  
+  // Update contractor fields for contractors
+  if (userData.type === 'contractor') {
+    updates.hourlyRate = userData.hourlyRate.toString();
+    updates.contractEnd = userData.contractEndDate;
+  }
+  
+  return updateMultipleFields(documentId, updates);
+};
+```
+
+## Template Field Discovery
+
+### Get Template Fields
+
+Discover what fields are available in a template:
+
+```bash
+curl -X GET https://app.sajn.se/api/v1/documents/doc_xyz789 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The response includes field information with keys:
+
+```json
+{
+  "fields": [
+    {
+      "id": "field_123",
+      "type": "FORM",
+      "fieldMeta": {
+        "type": "FORM",
+        "fields": [
+          {
+            "key": "name",
+            "type": "input",
+            "label": "Full Name",
+            "required": true
+          },
+          {
+            "key": "phone", 
+            "type": "input",
+            "label": "Phone Number",
+            "required": false
+          },
+          {
+            "key": "startDate",
+            "type": "date",
+            "label": "Start Date",
+            "required": true
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+### Extract Field Keys
+
+```javascript
+const extractFieldKeys = (document) => {
+  const keys = [];
+  
+  document.fields.forEach(field => {
+    if (field.type === 'FORM' && field.fieldMeta?.fields) {
+      field.fieldMeta.fields.forEach(formField => {
+        keys.push({
+          key: formField.key,
+          label: formField.label,
+          type: formField.type,
+          required: formField.required
+        });
+      });
+    }
+  });
+  
+  return keys;
+};
+
+// Usage
+const document = await getDocument('doc_xyz789');
+const availableFields = extractFieldKeys(document);
+console.log('Available fields:', availableFields);
+```
+
+## Error Handling
+
+### Common Errors
+
+#### Field Key Not Found
+```json
+{
+  "message": "Fält med nyckel \"invalidKey\" hittades inte."
+}
+```
+**Solution**: Verify the field key exists in the template
+
+#### Invalid Field Value
+```json
+{
+  "message": "Ogiltigt värde för fälttyp"
+}
+```
+**Solution**: Check value format matches field type (date, number, etc.)
+
+#### Template Not Found
+```json
+{
+  "message": "Template not found"
+}
+```
+**Solution**: Verify template ID is correct and accessible
+
+### Robust Error Handling
+
+```javascript
+const safeFieldUpdate = async (documentId, key, value) => {
+  try {
+    const response = await fetch(`/api/v1/documents/${documentId}/fields/key:${key}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fieldMeta: {
+          type: 'input',
+          value: value
+        }
+      })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Failed to update field ${key}: ${error.message}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error updating field ${key}:`, error);
+    // Continue with other fields instead of failing completely
+    return null;
+  }
+};
+```
+
+## Best Practices
+
+### 1. Field Validation
+```javascript
+const validateFieldValue = (fieldType, value) => {
+  switch (fieldType) {
+    case 'email':
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    case 'phone':
+      return /^\+?[\d\s-()]+$/.test(value);
+    case 'date':
+      return !isNaN(Date.parse(value));
+    default:
+      return value && value.toString().length > 0;
+  }
+};
+```
+
+### 2. Batch Processing
+```javascript
+const BATCH_SIZE = 5;
+
+const updateFieldsInBatches = async (documentId, fieldUpdates) => {
+  const entries = Object.entries(fieldUpdates);
+  const results = [];
+  
+  for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+    const batch = entries.slice(i, i + BATCH_SIZE);
+    const batchPromises = batch.map(([key, value]) => 
+      safeFieldUpdate(documentId, key, value)
+    );
+    
+    const batchResults = await Promise.all(batchPromises);
+    results.push(...batchResults);
+    
+    // Small delay between batches to avoid rate limiting
+    if (i + BATCH_SIZE < entries.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  
+  return results;
+};
+```
+
+### 3. Progress Tracking
+```javascript
+const updateFieldsWithProgress = async (documentId, fieldUpdates, onProgress) => {
+  const entries = Object.entries(fieldUpdates);
+  const total = entries.length;
+  let completed = 0;
+  
+  const results = await Promise.all(
+    entries.map(async ([key, value]) => {
+      try {
+        const result = await safeFieldUpdate(documentId, key, value);
+        completed++;
+        onProgress?.(completed, total, key);
+        return result;
+      } catch (error) {
+        completed++;
+        onProgress?.(completed, total, key, error);
+        return null;
+      }
+    })
+  );
+  
+  return results;
+};
+
+// Usage with progress callback
+await updateFieldsWithProgress('doc_xyz789', fieldData, (completed, total, key, error) => {
+  if (error) {
+    console.log(`Failed to update ${key}: ${error.message}`);
+  } else {
+    console.log(`Updated ${key} (${completed}/${total})`);
+  }
+});
+```
+
+## Integration Examples
+
+### React Form Integration
+
+```tsx
+import { useState } from 'react';
+
+const TemplateForm = ({ templateId, onComplete }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    position: '',
+    salary: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      // Create document from template
+      const document = await createFromTemplate(templateId, formData);
+      
+      // Fill form fields
+      await updateFormFields(document.documentId, formData);
+      
+      // Send for signing
+      await sendForSigning(document.documentId);
+      
+      onComplete(document);
+    } catch (error) {
+      console.error('Form submission failed:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Full Name"
+        value={formData.name}
+        onChange={(e) => setFormData({...formData, name: e.target.value})}
+        required
+      />
+      <input
+        type="tel"
+        placeholder="Phone Number"
+        value={formData.phone}
+        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+      />
+      <input
+        type="email"
+        placeholder="Email Address"
+        value={formData.email}
+        onChange={(e) => setFormData({...formData, email: e.target.value})}
+        required
+      />
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Creating Document...' : 'Create Document'}
+      </button>
+    </form>
+  );
+};
+```
+
+### Node.js Server Integration
+
+```javascript
+const express = require('express');
+const app = express();
+
+app.post('/api/create-employment-contract', async (req, res) => {
+  try {
+    const { employeeData, templateId } = req.body;
+    
+    // Create document from template
+    const document = await fetch('https://app.sajn.se/api/v1/documents', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.SAJN_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: `Employment Contract - ${employeeData.name}`,
+        templateId: templateId
+      })
+    }).then(r => r.json());
+    
+    // Fill form fields
+    const fieldMappings = {
+      name: employeeData.fullName,
+      phone: employeeData.phoneNumber,
+      email: employeeData.emailAddress,
+      position: employeeData.jobTitle,
+      salary: employeeData.annualSalary.toString(),
+      startDate: employeeData.startDate,
+      department: employeeData.department
+    };
+    
+    await updateDocumentFields(document.documentId, fieldMappings);
+    
+    res.json({
+      success: true,
+      documentId: document.documentId,
+      message: 'Employment contract created successfully'
+    });
+    
+  } catch (error) {
+    console.error('Contract creation failed:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create employment contract'
+    });
+  }
+});
+```
+
+## Next Steps
+
+- [Creating Documents](/guides/create-document) - Learn about document creation
+- [Send for Signing](/guides/send-for-signing) - Complete the signing workflow
+- [Document Fields API](/api-reference/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Field update reference
+- [File Uploads](/guides/file-uploads) - Add PDF attachments to templates

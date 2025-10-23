@@ -301,7 +301,7 @@
         }
       },
       "post": {
-        "description": "Create a new document in DRAFT status. You can optionally include signers during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
+        "description": "Create a new document in DRAFT status. You can optionally include signers during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint)\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add signers** if not already included: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Example workflow:**\n```json\n# Step 1: Create document from template\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\"\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{\n  \"deliveryMethod\": \"EMAIL\",\n  \"signatureType\": \"BANKID\"\n}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
         "summary": "Create a new document",
         "tags": [],
         "parameters": [
@@ -885,6 +885,12 @@
                           "value"
                         ],
                         "additionalProperties": false
+                      }
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
                       }
                     }
                   },
@@ -3017,7 +3023,7 @@
         }
       }
     },
-    "/api/v1/contacts-search": {
+    "/api/v1/contacts/search": {
       "get": {
         "description": "Search for contacts by email, phone number, or external ID.\n\n**Query Parameters (at least one required):**\n- `email` - Search by exact email address match\n- `phone` - Search by exact phone number match\n- `externalId` - Search by exact external ID match\n\n**Response:** Returns an array of matching contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization.",
         "summary": "Search contacts",
@@ -3964,7 +3970,7 @@
         }
       }
     },
-    "/api/v1/companies-search": {
+    "/api/v1/companies/search": {
       "get": {
         "description": "Search for companies by organization number or name.\n\n**Query Parameters (at least one required):**\n- `orgNumber` - Search by exact organization number match\n- `name` - Search by exact company name match (case-insensitive)\n\n**Response:** Returns an array of matching companies with their associated contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization.",
         "summary": "Search companies",
@@ -4034,96 +4040,77 @@
                             "type": "string",
                             "nullable": true
                           },
-                          "parties": {
+                          "contacts": {
                             "type": "array",
                             "items": {
                               "type": "object",
                               "properties": {
                                 "id": {
+                                  "description": "Unique contact identifier",
                                   "type": "string"
                                 },
                                 "email": {
+                                  "description": "Contact email address",
                                   "type": "string",
                                   "nullable": true
                                 },
                                 "phone": {
-                                  "type": "string",
-                                  "nullable": true
-                                },
-                                "ssn": {
+                                  "description": "Contact phone number",
                                   "type": "string",
                                   "nullable": true
                                 },
                                 "firstName": {
+                                  "description": "Contact first name",
                                   "type": "string"
                                 },
                                 "lastName": {
+                                  "description": "Contact last name",
                                   "type": "string"
                                 },
-                                "createdAt": {
-                                  "type": "string"
-                                },
-                                "updatedAt": {
-                                  "type": "string"
-                                },
-                                "addressLine1": {
-                                  "type": "string",
-                                  "nullable": true
-                                },
-                                "addressLine2": {
-                                  "type": "string",
-                                  "nullable": true
-                                },
-                                "city": {
-                                  "type": "string",
-                                  "nullable": true
-                                },
-                                "country": {
-                                  "type": "string",
-                                  "nullable": true
-                                },
-                                "state": {
-                                  "type": "string",
-                                  "nullable": true
-                                },
-                                "zipCode": {
-                                  "type": "string",
-                                  "nullable": true
-                                },
-                                "companyRole": {
+                                "ssn": {
+                                  "description": "Swedish personal number (personnummer)",
                                   "type": "string",
                                   "nullable": true
                                 },
                                 "externalId": {
+                                  "description": "Your external reference ID",
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "createdAt": {
+                                  "description": "Date and time when contact was created"
+                                },
+                                "updatedAt": {
+                                  "description": "Date and time when contact was last updated"
+                                },
+                                "companyRole": {
+                                  "description": "Role/title within the associated company",
                                   "type": "string",
                                   "nullable": true
                                 },
                                 "company": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "object",
-                                    "properties": {
-                                      "id": {
-                                        "type": "string"
-                                      },
-                                      "name": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "orgNumber": {
-                                        "type": "string",
-                                        "nullable": true
-                                      },
-                                      "country": {
-                                        "type": "string",
-                                        "nullable": true
-                                      }
+                                  "description": "Associated company information",
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "description": "Company ID",
+                                      "type": "string"
                                     },
-                                    "required": [
-                                      "id"
-                                    ],
-                                    "additionalProperties": false
+                                    "name": {
+                                      "description": "Company name",
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "orgNumber": {
+                                      "description": "Company organization number",
+                                      "type": "string",
+                                      "nullable": true
+                                    }
                                   },
+                                  "required": [
+                                    "id"
+                                  ],
+                                  "additionalProperties": false,
                                   "nullable": true
                                 }
                               },
@@ -4132,8 +4119,7 @@
                                 "firstName",
                                 "lastName",
                                 "createdAt",
-                                "updatedAt",
-                                "company"
+                                "updatedAt"
                               ],
                               "additionalProperties": false
                             }
@@ -4250,96 +4236,77 @@
                           "type": "string",
                           "nullable": true
                         },
-                        "parties": {
+                        "contacts": {
                           "type": "array",
                           "items": {
                             "type": "object",
                             "properties": {
                               "id": {
+                                "description": "Unique contact identifier",
                                 "type": "string"
                               },
                               "email": {
+                                "description": "Contact email address",
                                 "type": "string",
                                 "nullable": true
                               },
                               "phone": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "ssn": {
+                                "description": "Contact phone number",
                                 "type": "string",
                                 "nullable": true
                               },
                               "firstName": {
+                                "description": "Contact first name",
                                 "type": "string"
                               },
                               "lastName": {
+                                "description": "Contact last name",
                                 "type": "string"
                               },
-                              "createdAt": {
-                                "type": "string"
-                              },
-                              "updatedAt": {
-                                "type": "string"
-                              },
-                              "addressLine1": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "addressLine2": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "city": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "country": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "state": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "zipCode": {
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "companyRole": {
+                              "ssn": {
+                                "description": "Swedish personal number (personnummer)",
                                 "type": "string",
                                 "nullable": true
                               },
                               "externalId": {
+                                "description": "Your external reference ID",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "createdAt": {
+                                "description": "Date and time when contact was created"
+                              },
+                              "updatedAt": {
+                                "description": "Date and time when contact was last updated"
+                              },
+                              "companyRole": {
+                                "description": "Role/title within the associated company",
                                 "type": "string",
                                 "nullable": true
                               },
                               "company": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "id": {
-                                      "type": "string"
-                                    },
-                                    "name": {
-                                      "type": "string",
-                                      "nullable": true
-                                    },
-                                    "orgNumber": {
-                                      "type": "string",
-                                      "nullable": true
-                                    },
-                                    "country": {
-                                      "type": "string",
-                                      "nullable": true
-                                    }
+                                "description": "Associated company information",
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "description": "Company ID",
+                                    "type": "string"
                                   },
-                                  "required": [
-                                    "id"
-                                  ],
-                                  "additionalProperties": false
+                                  "name": {
+                                    "description": "Company name",
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "orgNumber": {
+                                    "description": "Company organization number",
+                                    "type": "string",
+                                    "nullable": true
+                                  }
                                 },
+                                "required": [
+                                  "id"
+                                ],
+                                "additionalProperties": false,
                                 "nullable": true
                               }
                             },
@@ -4348,8 +4315,7 @@
                               "firstName",
                               "lastName",
                               "createdAt",
-                              "updatedAt",
-                              "company"
+                              "updatedAt"
                             ],
                             "additionalProperties": false
                           }
@@ -5423,7 +5389,7 @@
     },
     "/api/v1/documents/{id}/fields/{fieldId}": {
       "patch": {
-        "description": "Update a document field's properties. Only DRAFT documents can have fields updated.\n\n**Field Identifier:**\n- `fieldId` - Can be either database ID or key-based reference (prefix with `key:`)\n- Example: `/api/v1/documents/{docId}/fields/key:recipient-name`\n\n**Updatable Properties:**\n- `type` - Field type (cannot change if field has data)\n- `position` - Field order/position\n- `fieldMeta` - Field-specific metadata\n- `key` - Unique key identifier for API access\n\n**Key-Based Updates:**\nFor FORM fields with subfield keys, use `key:your-field-key` as the fieldId to update a specific subfield by its key instead of database ID.",
+        "description": "Update a document field's properties. Only DRAFT documents can have fields updated.\n\n**Field Identifier:**\n- `fieldId` - Can be either database ID or key-based reference (prefix with `key:`)\n- Example: `/api/v1/documents/{docId}/fields/key:recipient-name`\n\n**Updatable Properties:**\n- `type` - Field type (cannot change if field has data)\n- `position` - Field order/position\n- `fieldMeta` - Field-specific metadata\n- `key` - Unique key identifier for API access\n\n**Regular Field Updates (by ID):**\nPass the full field structure including type and complete fieldMeta for that field type.\n\n**Example - Update TEXT field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"TEXT\",\n  \"fieldMeta\": {\n    \"type\": \"TEXT\",\n    \"content\": \"<p>Updated content</p>\"\n  }\n}\n```\n\n**Example - Update FORM field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"FORM\",\n  \"fieldMeta\": {\n    \"type\": \"FORM\",\n    \"columns\": 2,\n    \"fields\": [...]\n  }\n}\n```\n\n**Key-Based Updates for FORM Subfields:**\nFor FORM fields with subfield keys, use `key:your-field-key` as the fieldId to update a specific subfield by its key.\n\nWhen updating a FORM subfield by key, only pass the `fieldMeta` property with the subfield's metadata structure. All other properties (type, position, key) are ignored.\n\n**Example - Update FORM subfield value:**\n```json\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\n    \"type\": \"input\",\n    \"value\": \"Andreas\"\n  }\n}\n```\n\nThis will update only the `value` property of the subfield with key \"name\", preserving all other properties like label, placeholder, and description.",
         "summary": "Update a document field",
         "tags": [],
         "parameters": [
@@ -5462,6 +5428,7 @@
                 "type": "object",
                 "properties": {
                   "type": {
+                    "description": "Field type",
                     "type": "string",
                     "enum": [
                       "TEXT",
@@ -5472,434 +5439,16 @@
                     ]
                   },
                   "position": {
+                    "description": "Field position/order",
                     "type": "number"
                   },
                   "key": {
+                    "description": "Unique key identifier for API access",
                     "type": "string",
                     "pattern": "^[a-z0-9_-]*$"
                   },
                   "fieldMeta": {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "TEXT"
-                            ]
-                          },
-                          "content": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "type"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "PDF"
-                            ]
-                          },
-                          "value": {
-                            "type": "string"
-                          },
-                          "numPages": {
-                            "type": "number"
-                          }
-                        },
-                        "required": [
-                          "type"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "FORM"
-                            ]
-                          },
-                          "columns": {
-                            "type": "number",
-                            "minimum": 1
-                          },
-                          "fields": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "string",
-                                  "minLength": 1
-                                },
-                                "key": {
-                                  "type": "string",
-                                  "pattern": "^[a-z0-9_-]*$"
-                                },
-                                "type": {
-                                  "type": "string",
-                                  "enum": [
-                                    "input",
-                                    "text",
-                                    "select",
-                                    "datepicker"
-                                  ]
-                                },
-                                "row": {
-                                  "type": "number",
-                                  "minimum": 0
-                                },
-                                "column": {
-                                  "type": "number",
-                                  "minimum": 0
-                                },
-                                "fieldMeta": {
-                                  "anyOf": [
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "label": {
-                                          "type": "string"
-                                        },
-                                        "placeholder": {
-                                          "type": "string"
-                                        },
-                                        "description": {
-                                          "type": "string"
-                                        },
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "input"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type"
-                                      ],
-                                      "additionalProperties": false
-                                    },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "label": {
-                                          "type": "string"
-                                        },
-                                        "placeholder": {
-                                          "type": "string"
-                                        },
-                                        "description": {
-                                          "type": "string"
-                                        },
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "text"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type"
-                                      ],
-                                      "additionalProperties": false
-                                    },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "label": {
-                                          "type": "string"
-                                        },
-                                        "placeholder": {
-                                          "type": "string"
-                                        },
-                                        "description": {
-                                          "type": "string"
-                                        },
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "select"
-                                          ]
-                                        },
-                                        "options": {
-                                          "type": "array",
-                                          "items": {
-                                            "type": "object",
-                                            "properties": {
-                                              "value": {
-                                                "type": "string"
-                                              }
-                                            },
-                                            "required": [
-                                              "value"
-                                            ],
-                                            "additionalProperties": false
-                                          }
-                                        },
-                                        "defaultValue": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type"
-                                      ],
-                                      "additionalProperties": false
-                                    },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "label": {
-                                          "type": "string"
-                                        },
-                                        "placeholder": {
-                                          "type": "string"
-                                        },
-                                        "description": {
-                                          "type": "string"
-                                        },
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "datepicker"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type"
-                                      ],
-                                      "additionalProperties": false
-                                    }
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "row",
-                                "column"
-                              ],
-                              "additionalProperties": false
-                            }
-                          }
-                        },
-                        "required": [
-                          "type",
-                          "columns",
-                          "fields"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "PRODUCT_TABLE"
-                            ]
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "enableName": {
-                            "type": "boolean"
-                          },
-                          "columns": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "type": "string"
-                                },
-                                "originalName": {
-                                  "type": "string"
-                                },
-                                "enabled": {
-                                  "type": "boolean"
-                                },
-                                "key": {
-                                  "type": "string"
-                                },
-                                "settings": {
-                                  "type": "object",
-                                  "properties": {
-                                    "decimalPlaces": {
-                                      "type": "number"
-                                    },
-                                    "oneTimePayment": {
-                                      "type": "boolean"
-                                    },
-                                    "pricePrefix": {
-                                      "type": "string"
-                                    },
-                                    "priceSuffix": {
-                                      "type": "string"
-                                    }
-                                  },
-                                  "additionalProperties": false
-                                }
-                              },
-                              "required": [
-                                "name",
-                                "originalName",
-                                "enabled",
-                                "key",
-                                "settings"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "products": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "string"
-                                },
-                                "name": {
-                                  "type": "string"
-                                },
-                                "description": {
-                                  "type": "string"
-                                },
-                                "price": {
-                                  "type": "number"
-                                },
-                                "unit": {
-                                  "type": "string"
-                                },
-                                "discount": {
-                                  "type": "number"
-                                },
-                                "quantity": {
-                                  "type": "number"
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "name"
-                              ],
-                              "additionalProperties": false
-                            }
-                          }
-                        },
-                        "required": [
-                          "type",
-                          "name",
-                          "columns",
-                          "products"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "TABLE"
-                            ]
-                          },
-                          "columns": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "string"
-                                },
-                                "name": {
-                                  "type": "string"
-                                },
-                                "type": {
-                                  "type": "string",
-                                  "enum": [
-                                    "text",
-                                    "number"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "name",
-                                "type"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "rows": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "string"
-                                },
-                                "cells": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "object",
-                                    "properties": {
-                                      "columnId": {
-                                        "type": "string"
-                                      },
-                                      "value": {
-                                        "anyOf": [
-                                          {
-                                            "type": "string"
-                                          },
-                                          {
-                                            "type": "number"
-                                          }
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "columnId",
-                                      "value"
-                                    ],
-                                    "additionalProperties": false
-                                  }
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "cells"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "showHeaders": {
-                            "type": "boolean"
-                          }
-                        },
-                        "required": [
-                          "type",
-                          "columns",
-                          "rows"
-                        ],
-                        "additionalProperties": false
-                      }
-                    ]
+                    "description": "Field-specific metadata. For FORM subfield updates via key: prefix, pass the subfield metadata structure with properties like type and value (e.g., {\"type\": \"input\", \"value\": \"new value\"})."
                   }
                 },
                 "additionalProperties": false
@@ -8611,6 +8160,124 @@
             }
           },
           "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/upload/presigned-url": {
+      "post": {
+        "description": "Generate a presigned URL for uploading PDF files directly to S3.\n\n**Upload Flow:**\n1. Call this endpoint with the filename to get a presigned URL and S3 key\n2. Upload your PDF file directly to the presigned URL using a PUT request\n3. Use the returned S3 key when creating or updating document fields\n\n**File Requirements:**\n- Only PDF files are accepted (filename must end with .pdf)\n- Files are automatically organized by your organization ID for security\n\n**Response Fields:**\n- `url` - Presigned URL for direct upload to S3 (expires in 1 hour)\n- `key` - S3 key to use in document field metadata\n- `cloudFrontUrl` - CDN URL for accessing the file after upload\n\n**Example Usage:**\n```\n// 1. Get presigned URL\nPOST /api/v1/documents/upload/presigned-url\n{ \"fileName\": \"contract.pdf\" }\n\n// 2. Upload file directly to S3\nPUT <presigned-url>\nContent-Type: application/pdf\n<file-content>\n\n// 3. Use key in document field\nPATCH /api/v1/documents/:id/fields/:fieldId\n{ \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"<s3-key>\", \"numPages\": -1 } }\n```\n\n**Security:** Files are organized by organization ID and isolated from other organizations' data.",
+        "summary": "Get presigned URL for file upload",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getPresignedUploadUrl",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Request for getting presigned upload URL",
+                "type": "object",
+                "properties": {
+                  "fileName": {
+                    "description": "Name of the file to upload (must be a PDF file)",
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "fileName"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Presigned upload URL response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Presigned upload URL response",
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "description": "Presigned URL for uploading the file directly to S3",
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "key": {
+                      "description": "S3 key for the uploaded file (use this in document fields)",
+                      "type": "string"
+                    },
+                    "cloudFrontUrl": {
+                      "description": "CloudFront URL for accessing the file after upload",
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "url",
+                    "key",
+                    "cloudFrontUrl"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
             "description": "Error response",
             "content": {
               "application/json": {

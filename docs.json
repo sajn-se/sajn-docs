@@ -51,6 +51,8 @@
             "group": "Guides",
             "pages": [
               "guides/create-document",
+              "guides/templates-and-forms",
+              "guides/file-uploads",
               "guides/send-for-signing",
               "guides/webhooks",
               "guides/identity-verification"
@@ -83,7 +85,8 @@
               "PATCH /api/v1/documents/{id}",
               "DELETE /api/v1/documents/{id}",
               "GET /api/v1/documents/{id}/download",
-              "POST /api/v1/documents/{id}/send"
+              "POST /api/v1/documents/{id}/send",
+              "POST /api/v1/documents/upload/presigned-url"
             ]
           },
           {
