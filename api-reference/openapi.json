@@ -301,7 +301,7 @@
         }
       },
       "post": {
-        "description": "Create a new document in DRAFT status. You can optionally include signers during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint)\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add signers** if not already included: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Example workflow:**\n```json\n# Step 1: Create document from template\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\"\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{\n  \"deliveryMethod\": \"EMAIL\",\n  \"signatureType\": \"BANKID\"\n}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
+        "description": "Create a new document in DRAFT status. You can optionally include signers, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - optionally include `documentMeta.defaultSignatureType` during creation\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add signers** if not already included: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** You can set the signature type either during document creation (via `documentMeta.defaultSignatureType`) or later via the update endpoint.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with signature type\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"documentMeta\": {\n    \"defaultSignatureType\": \"BANKID\"\n  }\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{\n  \"deliveryMethod\": \"EMAIL\"\n}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
         "summary": "Create a new document",
         "tags": [],
         "parameters": [
@@ -351,6 +351,78 @@
                     "description": "Template ID to create document from. Template fields will be copied to the document.",
                     "type": "string",
                     "nullable": true
+                  },
+                  "responsibleUserId": {
+                    "description": "User ID of the person responsible for this document. Must be a member of your organization.",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "documentMeta": {
+                    "description": "Document metadata including subject, message, signing order, signature type, etc.",
+                    "type": "object",
+                    "properties": {
+                      "subject": {
+                        "description": "Email subject line when sending document",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Custom message included in signing invitation",
+                        "type": "string"
+                      },
+                      "signingOrder": {
+                        "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                        "type": "string",
+                        "enum": [
+                          "PARALLEL",
+                          "SEQUENTIAL"
+                        ]
+                      },
+                      "defaultSignatureType": {
+                        "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                        "type": "string",
+                        "enum": [
+                          "DRAWING",
+                          "BANKID",
+                          "MANUAL"
+                        ]
+                      },
+                      "distributionMethod": {
+                        "description": "How to send the document: EMAIL, SMS, or NONE",
+                        "type": "string",
+                        "enum": [
+                          "EMAIL",
+                          "SMS",
+                          "NONE"
+                        ]
+                      },
+                      "forceReadFullDocument": {
+                        "description": "Whether signers must read the entire document before signing",
+                        "type": "boolean"
+                      },
+                      "showChatToSigners": {
+                        "description": "Whether to show document chat to signers",
+                        "type": "boolean"
+                      },
+                      "preferredLanguage": {
+                        "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                        "type": "string",
+                        "enum": [
+                          "sv",
+                          "en"
+                        ]
+                      },
+                      "validFrom": {
+                        "description": "Date from which the document becomes valid"
+                      },
+                      "validTo": {
+                        "description": "Date until which the document remains valid"
+                      },
+                      "value": {
+                        "description": "Monetary value of the document (for contracts)",
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
                   },
                   "signers": {
                     "description": "Array of signers to add to the document during creation",
@@ -952,7 +1024,7 @@
         }
       },
       "patch": {
-        "description": "Update document properties. Only DRAFT documents can have all fields updated. Sent documents have restrictions.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `documentMeta` - Metadata including subject, message, signing order, distribution method, etc.\n- `customFields` - Custom field values\n\n**Note:** Some fields like signing order cannot be modified after the document is sent.",
+        "description": "Update document properties. Only DRAFT documents can have all fields updated. Sent documents have restrictions.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `responsibleUserId` - User ID of responsible team member (must be in your organization)\n- `documentMeta` - Metadata including subject, message, signing order, distribution method, signature type, etc.\n- `customFields` - Custom field values\n\n**Note:** Some fields like signing order cannot be modified after the document is sent.",
         "summary": "Update a document",
         "tags": [],
         "parameters": [
@@ -989,6 +1061,10 @@
                     "type": "string"
                   },
                   "expiresAt": {},
+                  "responsibleUserId": {
+                    "description": "User ID of the person responsible for this document. Must be a member of your organization.",
+                    "type": "string"
+                  },
                   "documentMeta": {
                     "type": "object",
                     "properties": {
@@ -1560,7 +1636,7 @@
     },
     "/api/v1/documents/{id}/send": {
       "post": {
-        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Delivery Methods:**\n- `EMAIL` - Send signing invitations via email\n- `SMS` - Send signing links via SMS (requires phone numbers)\n- `NONE` - Don't send notifications (use signing URLs directly)\n\n**Signature Types:**\n- `DRAWING` - Free-hand signature drawing\n- `BANKID` - Swedish BankID electronic signature (requires integration)\n- `MANUAL` - Manual signature (for in-person signing)\n\n**Custom Message:** Optional custom message included in the invitation.\n\n**Prerequisites:** Document must have at least one signer before sending.",
+        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Delivery Methods:**\n- `EMAIL` - Send signing invitations via email\n- `SMS` - Send signing links via SMS (requires phone numbers)\n- `NONE` - Don't send notifications (use signing URLs directly)\n\n**Custom Message:** Optional custom message included in the invitation.\n\n**Signature Type:** The signature type is determined by the document's `documentMeta.defaultSignatureType` setting. Set this via the update document endpoint before sending:\n- `DRAWING` - Free-hand signature drawing (SES - Simple Electronic Signature)\n- `BANKID` - Swedish BankID electronic signature (AES - Advanced Electronic Signature)\n- `MANUAL` - Manual signature (for in-person signing)\n\n**Prerequisites:** Document must have at least one signer and a signature type configured before sending.",
         "summary": "Send document for signing",
         "tags": [],
         "parameters": [
@@ -1603,15 +1679,6 @@
                   "customMessage": {
                     "description": "Optional custom message to include in the signing invitation",
                     "type": "string"
-                  },
-                  "signatureType": {
-                    "description": "Required signature type: DRAWING, BANKID, or MANUAL",
-                    "type": "string",
-                    "enum": [
-                      "DRAWING",
-                      "BANKID",
-                      "MANUAL"
-                    ]
                   }
                 },
                 "required": [
@@ -3067,7 +3134,7 @@
           {
             "name": "externalId",
             "in": "query",
-            "description": "Search by external reference ID",
+            "description": "Search by external reference ID (can be passed as string or number)",
             "content": {
               "application/json": {
                 "schema": {
@@ -8185,7 +8252,7 @@
     },
     "/api/v1/documents/upload/presigned-url": {
       "post": {
-        "description": "Generate a presigned URL for uploading PDF files directly to S3.\n\n**Upload Flow:**\n1. Call this endpoint with the filename to get a presigned URL and S3 key\n2. Upload your PDF file directly to the presigned URL using a PUT request\n3. Use the returned S3 key when creating or updating document fields\n\n**File Requirements:**\n- Only PDF files are accepted (filename must end with .pdf)\n- Files are automatically organized by your organization ID for security\n\n**Response Fields:**\n- `url` - Presigned URL for direct upload to S3 (expires in 1 hour)\n- `key` - S3 key to use in document field metadata\n- `cloudFrontUrl` - CDN URL for accessing the file after upload\n\n**Example Usage:**\n```\n// 1. Get presigned URL\nPOST /api/v1/documents/upload/presigned-url\n{ \"fileName\": \"contract.pdf\" }\n\n// 2. Upload file directly to S3\nPUT <presigned-url>\nContent-Type: application/pdf\n<file-content>\n\n// 3. Use key in document field\nPATCH /api/v1/documents/:id/fields/:fieldId\n{ \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"<s3-key>\", \"numPages\": -1 } }\n```\n\n**Security:** Files are organized by organization ID and isolated from other organizations' data.",
+        "description": "Generate a presigned URL for uploading PDF files directly to S3.\n\n**Upload Flow:**\n1. Call this endpoint with the filename to get a presigned URL and S3 key\n2. Upload your PDF file directly to the presigned URL using a PUT request\n3. Use the returned S3 key when creating or updating document fields\n\n**File Requirements:**\n- Only PDF files are accepted (filename must end with .pdf)\n- Files are automatically organized by your organization ID for security\n\n**Response Fields:**\n- `url` - Presigned URL for direct upload to S3 (expires in 1 hour)\n- `key` - S3 key to use in document field metadata\n\n**Example Usage:**\n```\n// 1. Get presigned URL\nPOST /api/v1/documents/upload/presigned-url\n{ \"fileName\": \"contract.pdf\" }\n\n// 2. Upload file directly to S3\nPUT <presigned-url>\nContent-Type: application/pdf\n<file-content>\n\n// 3. Use key in document field\nPATCH /api/v1/documents/:id/fields/:fieldId\n{ \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"<s3-key>\", \"numPages\": -1 } }\n```\n\n**Security:** Files are organized by organization ID and isolated from other organizations' data.",
         "summary": "Get presigned URL for file upload",
         "tags": [],
         "parameters": [
@@ -8239,17 +8306,11 @@
                     "key": {
                       "description": "S3 key for the uploaded file (use this in document fields)",
                       "type": "string"
-                    },
-                    "cloudFrontUrl": {
-                      "description": "CloudFront URL for accessing the file after upload",
-                      "type": "string",
-                      "format": "uri"
                     }
                   },
                   "required": [
                     "url",
-                    "key",
-                    "cloudFrontUrl"
+                    "key"
                   ],
                   "additionalProperties": false
                 }
