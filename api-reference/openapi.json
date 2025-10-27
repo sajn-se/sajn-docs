@@ -301,7 +301,7 @@
         }
       },
       "post": {
-        "description": "Create a new document in DRAFT status. You can optionally include signers, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - optionally include `documentMeta.defaultSignatureType` during creation\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add signers** if not already included: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** You can set the signature type either during document creation (via `documentMeta.defaultSignatureType`) or later via the update endpoint.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with signature type\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"documentMeta\": {\n    \"defaultSignatureType\": \"BANKID\"\n  }\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{\n  \"deliveryMethod\": \"EMAIL\"\n}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
+        "description": "Create a new document in DRAFT status. You can optionally include signers, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Signers:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify signer details\n\n**Signer Examples:**\n```json\n{\n  \"signers\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2\n    }\n  ]\n}\n```\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - optionally include signers and `documentMeta.defaultSignatureType` during creation\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more signers** if needed: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** You can set the signature type either during document creation (via `documentMeta.defaultSignatureType`) or later via the update endpoint.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with signers\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"documentMeta\": {\n    \"defaultSignatureType\": \"BANKID\"\n  },\n  \"signers\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{\n  \"deliveryMethod\": \"EMAIL\"\n}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
         "summary": "Create a new document",
         "tags": [],
         "parameters": [
@@ -425,46 +425,80 @@
                     "additionalProperties": false
                   },
                   "signers": {
-                    "description": "Array of signers to add to the document during creation",
+                    "description": "Array of signers to add to the document during creation. Provide either contactId to reference existing contacts, or name and email to manually specify signer details.",
                     "default": [],
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "description": "Signer full name",
-                          "type": "string",
-                          "minLength": 1
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "contactId": {
+                              "description": "ID of existing contact to add as signer",
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "role": {
+                              "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
+                              "default": "SIGNER",
+                              "type": "string",
+                              "enum": [
+                                "SIGNER",
+                                "ORGANIZER",
+                                "REVIEWER",
+                                "ACCEPTOR"
+                              ]
+                            },
+                            "signingOrder": {
+                              "description": "Order for sequential signing (1, 2, 3, etc.). Ignored for parallel signing.",
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "contactId",
+                            "role"
+                          ],
+                          "additionalProperties": false
                         },
-                        "email": {
-                          "description": "Signer email address",
-                          "type": "string",
-                          "minLength": 1,
-                          "format": "email",
-                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                        },
-                        "role": {
-                          "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
-                          "default": "SIGNER",
-                          "type": "string",
-                          "enum": [
-                            "SIGNER",
-                            "ORGANIZER",
-                            "REVIEWER",
-                            "ACCEPTOR"
-                          ]
-                        },
-                        "signingOrder": {
-                          "description": "Order for sequential signing (1, 2, 3, etc.). Ignored for parallel signing.",
-                          "type": "number"
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "Signer full name",
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "email": {
+                              "description": "Signer email address",
+                              "type": "string",
+                              "minLength": 1,
+                              "format": "email",
+                              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                            },
+                            "role": {
+                              "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
+                              "default": "SIGNER",
+                              "type": "string",
+                              "enum": [
+                                "SIGNER",
+                                "ORGANIZER",
+                                "REVIEWER",
+                                "ACCEPTOR"
+                              ]
+                            },
+                            "signingOrder": {
+                              "description": "Order for sequential signing (1, 2, 3, etc.). Ignored for parallel signing.",
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "email",
+                            "role"
+                          ],
+                          "additionalProperties": false
                         }
-                      },
-                      "required": [
-                        "name",
-                        "email",
-                        "role"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "customFields": {
@@ -942,7 +976,8 @@
                               "PHONE",
                               "URL",
                               "BOOLEAN",
-                              "SELECT"
+                              "SELECT",
+                              "JSON"
                             ]
                           },
                           "value": {
@@ -4447,7 +4482,7 @@
     },
     "/api/v1/documents/{id}/fields": {
       "post": {
-        "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.",
+        "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
         "summary": "Create a document field",
         "tags": [],
         "parameters": [
@@ -4483,6 +4518,7 @@
                         "type": "string",
                         "enum": [
                           "TEXT",
+                          "HTML",
                           "FORM",
                           "PDF",
                           "PRODUCT_TABLE",
@@ -4505,6 +4541,24 @@
                                 "type": "string",
                                 "enum": [
                                   "TEXT"
+                                ]
+                              },
+                              "content": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "HTML"
                                 ]
                               },
                               "content": {
@@ -4937,6 +4991,7 @@
                           "type": "string",
                           "enum": [
                             "TEXT",
+                            "HTML",
                             "FORM",
                             "PDF",
                             "PRODUCT_TABLE",
@@ -4959,6 +5014,24 @@
                                   "type": "string",
                                   "enum": [
                                     "TEXT"
+                                  ]
+                                },
+                                "content": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "HTML"
                                   ]
                                 },
                                 "content": {
@@ -5456,7 +5529,7 @@
     },
     "/api/v1/documents/{id}/fields/{fieldId}": {
       "patch": {
-        "description": "Update a document field's properties. Only DRAFT documents can have fields updated.\n\n**Field Identifier:**\n- `fieldId` - Can be either database ID or key-based reference (prefix with `key:`)\n- Example: `/api/v1/documents/{docId}/fields/key:recipient-name`\n\n**Updatable Properties:**\n- `type` - Field type (cannot change if field has data)\n- `position` - Field order/position\n- `fieldMeta` - Field-specific metadata\n- `key` - Unique key identifier for API access\n\n**Regular Field Updates (by ID):**\nPass the full field structure including type and complete fieldMeta for that field type.\n\n**Example - Update TEXT field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"TEXT\",\n  \"fieldMeta\": {\n    \"type\": \"TEXT\",\n    \"content\": \"<p>Updated content</p>\"\n  }\n}\n```\n\n**Example - Update FORM field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"FORM\",\n  \"fieldMeta\": {\n    \"type\": \"FORM\",\n    \"columns\": 2,\n    \"fields\": [...]\n  }\n}\n```\n\n**Key-Based Updates for FORM Subfields:**\nFor FORM fields with subfield keys, use `key:your-field-key` as the fieldId to update a specific subfield by its key.\n\nWhen updating a FORM subfield by key, only pass the `fieldMeta` property with the subfield's metadata structure. All other properties (type, position, key) are ignored.\n\n**Example - Update FORM subfield value:**\n```json\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\n    \"type\": \"input\",\n    \"value\": \"Andreas\"\n  }\n}\n```\n\nThis will update only the `value` property of the subfield with key \"name\", preserving all other properties like label, placeholder, and description.",
+        "description": "Update a document field's properties. Only DRAFT documents can have fields updated.\n\n**Field Identifier:**\n- `fieldId` - Can be either database ID or key-based reference (prefix with `key:`)\n- Example: `/api/v1/documents/{docId}/fields/key:recipient-name`\n\n**Updatable Properties:**\n- `type` - Field type (cannot change if field has data)\n- `position` - Field order/position\n- `fieldMeta` - Field-specific metadata\n- `key` - Unique key identifier for API access\n\n**Regular Field Updates (by ID):**\nPass the full field structure including type and complete fieldMeta for that field type.\n\n**Example - Update TEXT field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"TEXT\",\n  \"fieldMeta\": {\n    \"type\": \"TEXT\",\n    \"content\": \"<p>Updated content</p>\"\n  }\n}\n```\n\n**Example - Update HTML field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1 style='color: #003366'>Contract Title</h1><img src='https://example.com/logo.png' alt='Company Logo' style='max-width: 200px' /><p>Custom styled content with <span style='color: red'>highlighted text</span></p></div>\"\n  }\n}\n```\n\n**Example - Update FORM field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"FORM\",\n  \"fieldMeta\": {\n    \"type\": \"FORM\",\n    \"columns\": 2,\n    \"fields\": [...]\n  }\n}\n```\n\n**Key-Based Updates for FORM Subfields:**\nFor FORM fields with subfield keys, use `key:your-field-key` as the fieldId to update a specific subfield by its key.\n\nWhen updating a FORM subfield by key, only pass the `fieldMeta` property with the subfield's metadata structure. All other properties (type, position, key) are ignored.\n\n**Example - Update FORM subfield value:**\n```json\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\n    \"type\": \"input\",\n    \"value\": \"Andreas\"\n  }\n}\n```\n\nThis will update only the `value` property of the subfield with key \"name\", preserving all other properties like label, placeholder, and description.",
         "summary": "Update a document field",
         "tags": [],
         "parameters": [
@@ -5499,6 +5572,7 @@
                     "type": "string",
                     "enum": [
                       "TEXT",
+                      "HTML",
                       "FORM",
                       "PDF",
                       "PRODUCT_TABLE",
@@ -6510,7 +6584,8 @@
                               "PHONE",
                               "URL",
                               "BOOLEAN",
-                              "SELECT"
+                              "SELECT",
+                              "JSON"
                             ]
                           },
                           "defaultValue": {
@@ -6632,7 +6707,8 @@
                       "PHONE",
                       "URL",
                       "BOOLEAN",
-                      "SELECT"
+                      "SELECT",
+                      "JSON"
                     ]
                   },
                   "defaultValue": {
@@ -6697,7 +6773,8 @@
                         "PHONE",
                         "URL",
                         "BOOLEAN",
-                        "SELECT"
+                        "SELECT",
+                        "JSON"
                       ]
                     },
                     "defaultValue": {
@@ -6842,7 +6919,8 @@
                         "PHONE",
                         "URL",
                         "BOOLEAN",
-                        "SELECT"
+                        "SELECT",
+                        "JSON"
                       ]
                     },
                     "defaultValue": {
@@ -6971,7 +7049,8 @@
                       "PHONE",
                       "URL",
                       "BOOLEAN",
-                      "SELECT"
+                      "SELECT",
+                      "JSON"
                     ]
                   },
                   "defaultValue": {
@@ -7026,7 +7105,8 @@
                         "PHONE",
                         "URL",
                         "BOOLEAN",
-                        "SELECT"
+                        "SELECT",
+                        "JSON"
                       ]
                     },
                     "defaultValue": {
@@ -7190,7 +7270,8 @@
                         "PHONE",
                         "URL",
                         "BOOLEAN",
-                        "SELECT"
+                        "SELECT",
+                        "JSON"
                       ]
                     },
                     "defaultValue": {
