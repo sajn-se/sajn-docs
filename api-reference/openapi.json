@@ -201,16 +201,6 @@
                                 ],
                                 "nullable": true
                               },
-                              "validFrom": {
-                                "description": "Date from which the document becomes valid",
-                                "type": "string",
-                                "nullable": true
-                              },
-                              "validTo": {
-                                "description": "Date until which the document remains valid",
-                                "type": "string",
-                                "nullable": true
-                              },
                               "value": {
                                 "description": "Monetary value of the document (for contracts)",
                                 "type": "string",
@@ -411,15 +401,33 @@
                           "en"
                         ]
                       },
-                      "validFrom": {
-                        "description": "Date from which the document becomes valid"
-                      },
-                      "validTo": {
-                        "description": "Date until which the document remains valid"
-                      },
                       "value": {
                         "description": "Monetary value of the document (for contracts)",
                         "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "documentStyle": {
+                    "description": "Document styling configuration including orientation, padding, and background color",
+                    "type": "object",
+                    "properties": {
+                      "orientation": {
+                        "description": "Document orientation: PORTRAIT (default, 816x1054px) or LANDSCAPE (1054x816px)",
+                        "type": "string",
+                        "enum": [
+                          "PORTRAIT",
+                          "LANDSCAPE"
+                        ]
+                      },
+                      "paddingEnabled": {
+                        "description": "Whether to show padding around document content. When false, content fills entire page edge-to-edge (default: true)",
+                        "type": "boolean"
+                      },
+                      "backgroundColor": {
+                        "description": "Background color for the document in hex format (e.g., #ffffff for white, #000000 for black). Default: #ffffff",
+                        "type": "string",
+                        "pattern": "^#[0-9A-Fa-f]{6}$"
                       }
                     },
                     "additionalProperties": false
@@ -782,16 +790,6 @@
                           ],
                           "nullable": true
                         },
-                        "validFrom": {
-                          "description": "Date from which the document becomes valid",
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "validTo": {
-                          "description": "Date until which the document remains valid",
-                          "type": "string",
-                          "nullable": true
-                        },
                         "value": {
                           "description": "Monetary value of the document (for contracts)",
                           "type": "string",
@@ -977,7 +975,8 @@
                               "URL",
                               "BOOLEAN",
                               "SELECT",
-                              "JSON"
+                              "JSON",
+                              "TEXTAREA"
                             ]
                           },
                           "value": {
@@ -1145,10 +1144,32 @@
                           "en"
                         ]
                       },
-                      "validFrom": {},
-                      "validTo": {},
                       "value": {
                         "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "documentStyle": {
+                    "description": "Document styling configuration including orientation, padding, and background color",
+                    "type": "object",
+                    "properties": {
+                      "orientation": {
+                        "description": "Document orientation: PORTRAIT (default, 816x1054px) or LANDSCAPE (1054x816px)",
+                        "type": "string",
+                        "enum": [
+                          "PORTRAIT",
+                          "LANDSCAPE"
+                        ]
+                      },
+                      "paddingEnabled": {
+                        "description": "Whether to show padding around document content. When false, content fills entire page edge-to-edge (default: true)",
+                        "type": "boolean"
+                      },
+                      "backgroundColor": {
+                        "description": "Background color for the document in hex format (e.g., #ffffff for white, #000000 for black). Default: #ffffff",
+                        "type": "string",
+                        "pattern": "^#[0-9A-Fa-f]{6}$"
                       }
                     },
                     "additionalProperties": false
@@ -1270,16 +1291,6 @@
                             "sv",
                             "en"
                           ],
-                          "nullable": true
-                        },
-                        "validFrom": {
-                          "description": "Date from which the document becomes valid",
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "validTo": {
-                          "description": "Date until which the document remains valid",
-                          "type": "string",
                           "nullable": true
                         },
                         "value": {
@@ -1473,16 +1484,6 @@
                             "sv",
                             "en"
                           ],
-                          "nullable": true
-                        },
-                        "validFrom": {
-                          "description": "Date from which the document becomes valid",
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "validTo": {
-                          "description": "Date until which the document remains valid",
-                          "type": "string",
                           "nullable": true
                         },
                         "value": {
@@ -1814,16 +1815,6 @@
                             "sv",
                             "en"
                           ],
-                          "nullable": true
-                        },
-                        "validFrom": {
-                          "description": "Date from which the document becomes valid",
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "validTo": {
-                          "description": "Date until which the document remains valid",
-                          "type": "string",
                           "nullable": true
                         },
                         "value": {
@@ -6585,7 +6576,8 @@
                               "URL",
                               "BOOLEAN",
                               "SELECT",
-                              "JSON"
+                              "JSON",
+                              "TEXTAREA"
                             ]
                           },
                           "defaultValue": {
@@ -6708,7 +6700,8 @@
                       "URL",
                       "BOOLEAN",
                       "SELECT",
-                      "JSON"
+                      "JSON",
+                      "TEXTAREA"
                     ]
                   },
                   "defaultValue": {
@@ -6774,7 +6767,8 @@
                         "URL",
                         "BOOLEAN",
                         "SELECT",
-                        "JSON"
+                        "JSON",
+                        "TEXTAREA"
                       ]
                     },
                     "defaultValue": {
@@ -6920,7 +6914,8 @@
                         "URL",
                         "BOOLEAN",
                         "SELECT",
-                        "JSON"
+                        "JSON",
+                        "TEXTAREA"
                       ]
                     },
                     "defaultValue": {
@@ -7050,7 +7045,8 @@
                       "URL",
                       "BOOLEAN",
                       "SELECT",
-                      "JSON"
+                      "JSON",
+                      "TEXTAREA"
                     ]
                   },
                   "defaultValue": {
@@ -7106,7 +7102,8 @@
                         "URL",
                         "BOOLEAN",
                         "SELECT",
-                        "JSON"
+                        "JSON",
+                        "TEXTAREA"
                       ]
                     },
                     "defaultValue": {
@@ -7271,7 +7268,8 @@
                         "URL",
                         "BOOLEAN",
                         "SELECT",
-                        "JSON"
+                        "JSON",
+                        "TEXTAREA"
                       ]
                     },
                     "defaultValue": {

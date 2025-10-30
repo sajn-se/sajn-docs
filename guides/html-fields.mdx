@@ -5,7 +5,7 @@ description: 'Create custom-styled document sections with HTML and CSS (API-only
 
 # HTML Fields
 
-Learn how to create beautifully styled document sections using HTML fields with custom CSS styling. HTML fields are API-only and provide advanced formatting control beyond the standard TEXT field.
+HTML fields enable you to create custom-styled document sections using HTML and CSS. These API-only fields provide advanced formatting control beyond the standard TEXT field, allowing precise control over document appearance.
 
 ## Overview
 
@@ -18,12 +18,12 @@ HTML fields allow you to add custom-styled content to documents with full contro
 
 ### Key Features
 
-✅ **API-Only Access** - Not visible in the UI editor, only via REST API
-✅ **Automatic Sanitization** - HTML is sanitized server-side for security
-✅ **Safe Subset of HTML** - Only formatting tags allowed (no scripts or links)
-✅ **Inline CSS Styling** - Full control over colors, fonts, spacing, borders
-✅ **Image Support** - HTTP/HTTPS URLs and base64 data URIs
-✅ **PDF-Ready** - Renders perfectly in generated PDF documents
+- **API-Only Access** - Not visible in the UI editor, only via REST API
+- **Automatic Sanitization** - HTML is sanitized server-side for security
+- **Safe Subset of HTML** - Only formatting tags allowed (no scripts or links)
+- **Inline CSS Styling** - Full control over colors, fonts, spacing, borders
+- **Image Support** - HTTP/HTTPS URLs and base64 data URIs
+- **PDF-Ready** - Renders perfectly in generated PDF documents
 
 ### When to Use HTML Fields
 
@@ -86,6 +86,133 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/fields \
   }'
 ```
 
+## Document Style Settings
+
+Documents support layout and appearance configuration through the `documentStyle` parameter. This controls document-level settings like orientation, padding, and background color.
+
+### Configuring Document Styles
+
+When creating or updating a document, you can specify layout and style settings:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Professional Agreement",
+    "type": "SIGNABLE",
+    "documentStyle": {
+      "orientation": "PORTRAIT",
+      "paddingEnabled": true,
+      "backgroundColor": "#ffffff"
+    }
+  }'
+```
+
+### Supported Properties
+
+The `documentStyle` object supports the following properties:
+
+**orientation** (string)
+- `PORTRAIT` - Default orientation (816x1054px)
+- `LANDSCAPE` - Landscape orientation (1054x816px)
+
+**paddingEnabled** (boolean)
+- `true` - Shows padding around document content (default)
+- `false` - Content fills entire page edge-to-edge
+
+**backgroundColor** (string)
+- Background color in hex format (e.g., `#ffffff`, `#f8f9fa`)
+- Default: `#ffffff` (white)
+- Must be a valid 6-character hex color
+
+### Example: Landscape Document with Custom Background
+
+```javascript
+const createLandscapeDocument = async () => {
+  const response = await fetch('https://app.sajn.se/api/v1/documents', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: 'Wide Format Contract',
+      type: 'SIGNABLE',
+      documentStyle: {
+        orientation: 'LANDSCAPE',
+        paddingEnabled: false,
+        backgroundColor: '#f5f5f5'
+      }
+    })
+  });
+
+  return response.json();
+};
+```
+
+### Example: Edge-to-Edge Content
+
+For designs that need to fill the entire page (like branded headers with full-width backgrounds):
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Full-Width Design",
+    "type": "SIGNABLE",
+    "documentStyle": {
+      "paddingEnabled": false,
+      "backgroundColor": "#003366"
+    }
+  }'
+```
+
+### Updating Document Styles
+
+You can update document styles after creation:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_xyz789 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documentStyle": {
+      "orientation": "LANDSCAPE",
+      "backgroundColor": "#f0f0f0"
+    }
+  }'
+```
+
+### Combining with HTML Field Styles
+
+The `documentStyle` settings control the document canvas, while HTML field inline styles control content appearance. Use them together:
+
+- **documentStyle** - Document orientation, page padding, page background
+- **HTML inline styles** - Text colors, fonts, spacing, borders, content layout
+
+```javascript
+// Create document with dark background and no padding
+const document = await createDocument({
+  name: 'Modern Contract',
+  documentStyle: {
+    paddingEnabled: false,
+    backgroundColor: '#1a1a1a'
+  }
+});
+
+// Add HTML field with light-colored content
+const htmlContent = `
+  <div style="padding: 40px; color: #ffffff;">
+    <h1 style="color: #4fc3f7;">Contract Title</h1>
+    <p style="line-height: 1.6;">Contract content with custom styling...</p>
+  </div>
+`;
+
+await addHTMLField(document.id, htmlContent);
+```
+
 ## Allowed HTML Tags
 
 HTML fields support a safe subset of HTML tags for formatting and layout:
@@ -120,7 +247,7 @@ HTML fields support a safe subset of HTML tags for formatting and layout:
 - `<blockquote>` - Quoted text
 - `<pre>`, `<code>` - Code blocks
 
-### ❌ Not Allowed
+### Not Allowed
 
 The following tags are automatically removed for security:
 - `<a>` - Links (security risk)
@@ -252,13 +379,13 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/fields \
 
 HTML fields are automatically sanitized server-side for security:
 
-### ✅ Safe & Allowed
+### Safe & Allowed
 - Formatting tags (`<p>`, `<div>`, `<span>`, headings)
 - Inline CSS styles (colors, fonts, spacing)
 - Images from HTTP/HTTPS/data URIs
 - Tables, lists, and basic structure
 
-### ❌ Blocked & Removed
+### Blocked & Removed
 - `<script>` tags - JavaScript removed
 - `<a>` tags - Links removed (phishing protection)
 - `<iframe>` tags - No embedded content
