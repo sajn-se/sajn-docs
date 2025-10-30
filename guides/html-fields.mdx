@@ -423,7 +423,7 @@ HTML fields are automatically sanitized server-side for security:
 const createBrandedHeader = (companyName, logoUrl) => {
   return `
     <div style="
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-color: #667eea;
       padding: 40px;
       text-align: center;
       border-radius: 8px 8px 0 0;
@@ -864,7 +864,7 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_xyz789/fields/field_abc12
     "type": "HTML",
     "fieldMeta": {
       "type": "HTML",
-      "content": "<div style=\"text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\"><h1 style=\"color: white; margin: 0;\">Updated Header</h1></div>"
+      "content": "<div style=\"text-align: center; padding: 40px; background-color: #667eea;\"><h1 style=\"color: white; margin: 0;\">Updated Header</h1></div>"
     }
   }'
 ```
