@@ -163,12 +163,13 @@
                                 "nullable": true
                               },
                               "defaultSignatureType": {
-                                "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                                "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                                 "type": "string",
                                 "enum": [
                                   "DRAWING",
                                   "BANKID",
-                                  "MANUAL"
+                                  "MANUAL",
+                                  "SMS_DRAWING"
                                 ],
                                 "nullable": true
                               },
@@ -368,12 +369,13 @@
                         ]
                       },
                       "defaultSignatureType": {
-                        "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                        "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                         "type": "string",
                         "enum": [
                           "DRAWING",
                           "BANKID",
-                          "MANUAL"
+                          "MANUAL",
+                          "SMS_DRAWING"
                         ]
                       },
                       "distributionMethod": {
@@ -497,6 +499,14 @@
                             "signingOrder": {
                               "description": "Order for sequential signing (1, 2, 3, etc.). Ignored for parallel signing.",
                               "type": "number"
+                            },
+                            "companyName": {
+                              "description": "Company name (required if companyOrgNumber is provided)",
+                              "type": "string"
+                            },
+                            "companyOrgNumber": {
+                              "description": "Company organization number (required if companyName is provided)",
+                              "type": "string"
                             }
                           },
                           "required": [
@@ -606,6 +616,29 @@
                           "signingUrl": {
                             "description": "Complete signing URL for this signer",
                             "type": "string"
+                          },
+                          "type": {
+                            "description": "Signer type: INDIVIDUAL or COMPANY",
+                            "type": "string",
+                            "enum": [
+                              "INDIVIDUAL",
+                              "COMPANY"
+                            ]
+                          },
+                          "companyName": {
+                            "description": "Company name (for company signers)",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "companyOrgNumber": {
+                            "description": "Company organization number (for company signers)",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "contactId": {
+                            "description": "Contact ID if this signer was created from an existing contact",
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -613,7 +646,8 @@
                           "name",
                           "token",
                           "role",
-                          "signingUrl"
+                          "signingUrl",
+                          "type"
                         ],
                         "additionalProperties": false
                       }
@@ -752,12 +786,13 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                           "type": "string",
                           "enum": [
                             "DRAWING",
                             "BANKID",
-                            "MANUAL"
+                            "MANUAL",
+                            "SMS_DRAWING"
                           ],
                           "nullable": true
                         },
@@ -1120,7 +1155,8 @@
                         "enum": [
                           "DRAWING",
                           "BANKID",
-                          "MANUAL"
+                          "MANUAL",
+                          "SMS_DRAWING"
                         ]
                       },
                       "distributionMethod": {
@@ -1255,12 +1291,13 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                           "type": "string",
                           "enum": [
                             "DRAWING",
                             "BANKID",
-                            "MANUAL"
+                            "MANUAL",
+                            "SMS_DRAWING"
                           ],
                           "nullable": true
                         },
@@ -1448,12 +1485,13 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                           "type": "string",
                           "enum": [
                             "DRAWING",
                             "BANKID",
-                            "MANUAL"
+                            "MANUAL",
+                            "SMS_DRAWING"
                           ],
                           "nullable": true
                         },
@@ -1779,12 +1817,13 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, BANKID, or MANUAL",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                           "type": "string",
                           "enum": [
                             "DRAWING",
                             "BANKID",
-                            "MANUAL"
+                            "MANUAL",
+                            "SMS_DRAWING"
                           ],
                           "nullable": true
                         },

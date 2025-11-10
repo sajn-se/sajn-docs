@@ -65,10 +65,45 @@ The response includes signing URLs for each signer:
   "signers": [
     {
       "signerId": "signer_1",
+      "type": "INDIVIDUAL",
       "name": "John Doe",
       "email": "john@example.com",
       "token": "token_abc",
-      "signingUrl": "https://app.sajn.se/sign/doc_123?token=token_abc"
+      "signingUrl": "https://app.sajn.se/sign/doc_123?token=token_abc",
+      "contactId": null
+    }
+  ]
+}
+```
+
+## Company Signers and SMS Signatures
+
+Create documents with company signers and SMS drawing signatures:
+
+```json
+{
+  "name": "Business Contract",
+  "type": "SIGNABLE",
+  "documentMeta": {
+    "defaultSignatureType": "SMS_DRAWING",
+    "distributionMethod": "SMS"
+  },
+  "signers": [
+    {
+      "type": "INDIVIDUAL",
+      "name": "John Doe",
+      "phone": "+46701234567",
+      "role": "SIGNER",
+      "signingOrder": 1
+    },
+    {
+      "type": "COMPANY",
+      "name": "Jane Smith",
+      "email": "jane@company.com",
+      "companyName": "Acme Corp",
+      "companyOrgNumber": "556123-4567",
+      "role": "SIGNER",
+      "signingOrder": 2
     }
   ]
 }

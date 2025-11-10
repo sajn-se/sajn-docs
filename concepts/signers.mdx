@@ -7,6 +7,16 @@ description: 'Understanding signers and participants in sajn'
 
 Signers are individuals who need to interact with a document. Each signer has a unique role and can track their progress through the signing process.
 
+## Signer Types
+
+Signers can be either individuals or companies:
+
+### INDIVIDUAL
+Regular person signing on their own behalf.
+
+### COMPANY  
+Company representative signing on behalf of their organization. Requires company information.
+
 ## Signer Roles
 
 sajn supports four different signer roles:
@@ -37,14 +47,26 @@ Each signer has the following information:
 
 ```json
 {
+  "type": "INDIVIDUAL",
   "name": "John Doe",
   "email": "john@example.com",
   "phone": "+46701234567",
   "ssn": "197001011234",
+  "role": "SIGNER",
+  "signingOrder": 1,
+  "contactId": "contact_123"
+}
+```
+
+For company signers:
+
+```json
+{
+  "type": "COMPANY",
+  "name": "John Doe",
+  "email": "john@example.com",
   "companyName": "Acme Corp",
-  "companyRole": "CEO",
   "companyOrgNumber": "556123-4567",
-  "companyId": "company_id_123",
   "role": "SIGNER",
   "signingOrder": 1
 }
@@ -52,16 +74,20 @@ Each signer has the following information:
 
 ### Required Fields
 
+- **type**: Signer type (`INDIVIDUAL` or `COMPANY`)
 - **name**: Signer's full name
 - Either **email** OR **phone** (depending on distribution method)
 - **role**: Signer role (defaults to SIGNER)
+
+For company signers, also required:
+- **companyName**: Company name
+- **companyOrgNumber**: Company organization number
 
 ### Optional Fields
 
 - **phone**: For SMS notifications
 - **ssn**: Swedish personal number (required for BankID signing)
-- **companyName**, **companyRole**, **companyOrgNumber**: Company information
-- **companyId**: Link to existing company in sajn
+- **contactId**: Link to existing contact in sajn
 - **signingOrder**: Order for sequential signing
 
 ## Signing Order
@@ -120,8 +146,12 @@ Each signer gets a unique, secure URL and token:
 ```json
 {
   "signerId": "signer_123",
+  "type": "INDIVIDUAL",
+  "name": "John Doe",
+  "email": "john@example.com",
   "token": "abc123...",
-  "signingUrl": "https://app.sajn.se/sign/doc_123?token=abc123..."
+  "signingUrl": "https://app.sajn.se/sign/doc_123?token={abc123}...",
+  "contactId": "contact_123"
 }
 ```
 

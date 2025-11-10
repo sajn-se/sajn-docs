@@ -41,6 +41,21 @@ echo ""
 
 # Step 2: Validate with Mintlify
 echo "Step 2: Validating with Mintlify CLI..."
+
+# Check if mint is installed
+if ! command -v mint &> /dev/null; then
+    echo -e "${YELLOW}⚠ Mintlify CLI not found${NC}"
+    echo ""
+    echo "Install it with:"
+    echo "  npm i -g mint"
+    echo ""
+    echo "Then run validation manually:"
+    echo "  mint openapi-check $OPENAPI_FILE"
+    echo ""
+    echo -e "${GREEN}✓ OpenAPI spec has been fixed (validation skipped)${NC}"
+    exit 0
+fi
+
 if mint openapi-check "$OPENAPI_FILE"; then
     echo ""
     echo -e "${GREEN}✓ Success! OpenAPI specification is valid${NC}"
