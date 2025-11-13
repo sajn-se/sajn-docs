@@ -40,6 +40,27 @@ Use TEXT fields when you need:
 
 ## Creating HTML Fields
 
+### Field Properties
+
+When creating an HTML field, you can specify the following properties:
+
+**type** (string, required)
+- Must be `"HTML"`
+
+**position** (number, optional)
+- Determines the order fields appear in the document (0-based index)
+- If omitted, the field is appended to the end
+- Use to control field ordering when creating multiple fields
+
+**key** (string, optional)
+- Unique key identifier for API access
+- Must match pattern: `^[a-z0-9_-]*$` (lowercase letters, numbers, underscores, hyphens)
+- Allows referencing the field via API using `key:` prefix (e.g., `/api/v1/documents/{docId}/fields/key:header-section`)
+
+**fieldMeta** (object, required)
+- **type** (string, required) - Must be `"HTML"`
+- **content** (string, required) - The HTML content string
+
 ### Basic Example
 
 Create a document with an HTML field containing styled content:
@@ -59,7 +80,26 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/fields \
   }'
 ```
 
-### Complete Example
+**Response:**
+```json
+{
+  "fields": [
+    {
+      "fieldId": "field_456xyz",
+      "type": "HTML",
+      "position": 0,
+      "fieldMeta": {
+        "type": "HTML",
+        "content": "<div style=\"text-align: center; padding: 20px;\"><h1 style=\"color: #003366; font-size: 28px; margin-bottom: 10px;\">Service Agreement</h1><p style=\"color: #666; font-size: 14px;\">Effective Date: January 1, 2024</p></div>"
+      }
+    }
+  ]
+}
+```
+
+The response includes a `fieldId` for each created field, which you can use to reference the field in subsequent API calls (e.g., updating or deleting the field).
+
+### Complete Example with All Properties
 
 ```bash
 # Step 1: Create document
@@ -71,19 +111,99 @@ curl -X POST https://app.sajn.se/api/v1/documents \
     "type": "SIGNABLE"
   }'
 
-# Step 2: Add HTML field
+# Step 2: Add HTML field with position and key
 curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/fields \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "fields": [{
       "type": "HTML",
+      "position": 0,
+      "key": "header-section",
       "fieldMeta": {
         "type": "HTML",
         "content": "<div style=\"background-color: #f8f9fa; padding: 30px; border-bottom: 3px solid #003366;\"><h1 style=\"color: #003366; margin: 0; font-size: 32px;\">Professional Service Agreement</h1><p style=\"color: #666; margin-top: 10px; font-size: 14px;\">Between Company AB and Client Ltd</p></div>"
       }
     }]
   }'
+```
+
+**Response:**
+```json
+{
+  "fields": [
+    {
+      "fieldId": "field_456xyz",
+      "type": "HTML",
+      "position": 0,
+      "key": "header-section",
+      "fieldMeta": {
+        "type": "HTML",
+        "content": "<div style=\"background-color: #f8f9fa; padding: 30px; border-bottom: 3px solid #003366;\"><h1 style=\"color: #003366; margin: 0; font-size: 32px;\">Professional Service Agreement</h1><p style=\"color: #666; margin-top: 10px; font-size: 14px;\">Between Company AB and Client Ltd</p></div>"
+      }
+    }
+  ]
+}
+```
+
+### Multiple Fields with Position Control
+
+When creating multiple HTML fields, use `position` to control their order:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fields": [
+      {
+        "type": "HTML",
+        "position": 0,
+        "key": "header",
+        "fieldMeta": {
+          "type": "HTML",
+          "content": "<div style=\"text-align: center; padding: 20px;\"><h1>Document Header</h1></div>"
+        }
+      },
+      {
+        "type": "HTML",
+        "position": 1,
+        "key": "footer",
+        "fieldMeta": {
+          "type": "HTML",
+          "content": "<div style=\"text-align: center; padding: 20px; border-top: 1px solid #ccc;\"><p>Document Footer</p></div>"
+        }
+      }
+    ]
+  }'
+```
+
+**Response:**
+```json
+{
+  "fields": [
+    {
+      "fieldId": "field_789abc",
+      "type": "HTML",
+      "position": 0,
+      "key": "header",
+      "fieldMeta": {
+        "type": "HTML",
+        "content": "<div style=\"text-align: center; padding: 20px;\"><h1>Document Header</h1></div>"
+      }
+    },
+    {
+      "fieldId": "field_789def",
+      "type": "HTML",
+      "position": 1,
+      "key": "footer",
+      "fieldMeta": {
+        "type": "HTML",
+        "content": "<div style=\"text-align: center; padding: 20px; border-top: 1px solid #ccc;\"><p>Document Footer</p></div>"
+      }
+    }
+  ]
+}
 ```
 
 ## Document Style Settings
