@@ -22,7 +22,7 @@ This approach provides several benefits:
 
 ## Getting a Presigned Upload URL
 
-Request a presigned URL from the [Upload Presigned URL endpoint](/api-reference/POST%20/api/v1/documents/upload/presigned-url):
+Request a presigned URL from the [Upload Presigned URL endpoint](/api/POST%20/api/v1/documents/upload/presigned-url):
 
 ### Request
 
@@ -74,7 +74,7 @@ After successful upload, use the S3 key in document field metadata. You can eith
 
 ### Create New PDF Field
 
-Use the [Create Document Field](/api-reference/POST%20/api/v1/documents/{id}/fields) endpoint to add the uploaded PDF:
+Use the [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) endpoint to add the uploaded PDF:
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
@@ -93,7 +93,7 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
 
 ### Update Existing PDF Field
 
-Use the [Update Document Field](/api-reference/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) endpoint to replace an existing PDF:
+Use the [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) endpoint to replace an existing PDF:
 
 ```bash
 curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456 \
@@ -396,7 +396,7 @@ const uploadPdfToDocument = async (documentId, filePath, apiKey) => {
 - [Webhooks](/guides/webhooks) - Get notified when documents are signed
 
 ### API Reference
-- [Upload Presigned URL](/api-reference/POST%20/api/v1/documents/upload/presigned-url) - Get secure upload URLs
-- [Create Document Field](/api-reference/POST%20/api/v1/documents/{id}/fields) - Add fields to documents
-- [Update Document Field](/api-reference/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Modify existing fields
-- [Create Document](/api-reference/POST%20/api/v1/documents) - Create new documents
+- [Upload Presigned URL](/api/POST%20/api/v1/documents/upload/presigned-url) - Get secure upload URLs
+- [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) - Add fields to documents
+- [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Modify existing fields
+- [Create Document](/api/POST%20/api/v1/documents) - Create new documents

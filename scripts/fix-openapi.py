@@ -14,7 +14,7 @@ Fixes applied:
 Usage:
     python3 scripts/fix-openapi.py [path-to-openapi.json]
 
-If no path is provided, defaults to: api-reference/openapi.json
+If no path is provided, defaults to: api/openapi.json
 """
 
 import json
@@ -139,7 +139,7 @@ def fix_openapi_spec(file_path):
 
 def main():
     # Default path
-    default_path = Path("api-reference/openapi.json")
+    default_path = Path("api/openapi.json")
 
     # Get path from command line or use default
     if len(sys.argv) > 1:

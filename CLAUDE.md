@@ -26,10 +26,10 @@ mint update
 ## Project Structure
 
 - **docs.json**: Central configuration file defining navigation, theme, colors, and OpenAPI integration
-- **api-reference/openapi.json**: OpenAPI specification that auto-generates API documentation pages
+- **api/openapi.json**: OpenAPI specification that auto-generates API documentation pages
 - **MDX files**: Documentation content with YAML frontmatter and Mintlify components
 - **Key directories**:
-  - `api-reference/`: API documentation and OpenAPI spec
+  - `api/`: API documentation and OpenAPI spec
   - `concepts/`, `guides/`: Conceptual and procedural documentation (referenced in docs.json but files may need creation)
   - `essentials/`: General Mintlify documentation templates
   - `changelog/`: Version history
@@ -77,7 +77,7 @@ The site uses Mintlify-specific MDX components:
 
 ## OpenAPI Integration
 
-The API Reference tab is powered by `api-reference/openapi.json`. When updating the API:
+The API Reference tab is powered by `api/openapi.json`. When updating the API:
 1. Modify the OpenAPI spec in openapi.json
 2. Ensure endpoint paths match the navigation structure in docs.json
 3. The format uses HTTP method + path (e.g., `"GET /api/v1/documents"`) in the navigation

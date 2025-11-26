@@ -8,7 +8,7 @@
 # Usage:
 #   ./scripts/validate-openapi.sh [path-to-openapi.json]
 #
-# If no path is provided, defaults to: api-reference/openapi.json
+# If no path is provided, defaults to: api/openapi.json
 
 set -e
 
@@ -19,7 +19,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Default path
-OPENAPI_FILE="${1:-api-reference/openapi.json}"
+OPENAPI_FILE="${1:-api/openapi.json}"
 
 echo "🔧 OpenAPI Validation & Fixer"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

@@ -29,7 +29,7 @@ This directory contains utility scripts for maintaining the sajn documentation s
 ./scripts/validate-openapi.sh [path-to-openapi.json]
 ```
 
-Default path: `api-reference/openapi.json`
+Default path: `api/openapi.json`
 
 ---
 
@@ -82,7 +82,7 @@ python3 scripts/fix-openapi.py path/to/your/openapi.json
 
 ### After Updating OpenAPI Spec
 
-1. Edit your `api-reference/openapi.json` file
+1. Edit your `api/openapi.json` file
 2. Run the validation script:
    ```bash
    ./scripts/validate-openapi.sh
