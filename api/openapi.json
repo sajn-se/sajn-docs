@@ -163,13 +163,14 @@
                                 "nullable": true
                               },
                               "defaultSignatureType": {
-                                "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
+                                "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
                                 "type": "string",
                                 "enum": [
                                   "DRAWING",
                                   "BANKID",
                                   "MANUAL",
-                                  "SMS_DRAWING"
+                                  "SMS_DRAWING",
+                                  "CLICK_TO_SIGN"
                                 ],
                                 "nullable": true
                               },
@@ -369,7 +370,7 @@
                         ]
                       },
                       "defaultSignatureType": {
-                        "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
+                        "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
                         "type": "string",
                         "enum": [
                           "DRAWING",
@@ -786,7 +787,7 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
                           "type": "string",
                           "enum": [
                             "DRAWING",
@@ -1291,7 +1292,7 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
                           "type": "string",
                           "enum": [
                             "DRAWING",
@@ -1485,7 +1486,7 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
                           "type": "string",
                           "enum": [
                             "DRAWING",
@@ -1710,7 +1711,7 @@
     },
     "/api/v1/documents/{id}/send": {
       "post": {
-        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Delivery Methods:**\n- `EMAIL` - Send signing invitations via email\n- `SMS` - Send signing links via SMS (requires phone numbers)\n- `NONE` - Don't send notifications (use signing URLs directly)\n\n**Custom Message:** Optional custom message included in the invitation.\n\n**Signature Type:** The signature type is determined by the document's `documentMeta.defaultSignatureType` setting. Set this via the update document endpoint before sending:\n- `DRAWING` - Free-hand signature drawing (SES - Simple Electronic Signature)\n- `BANKID` - Swedish BankID electronic signature (AES - Advanced Electronic Signature)\n- `MANUAL` - Manual signature (for in-person signing)\n\n**Prerequisites:** Document must have at least one signer and a signature type configured before sending.",
+        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Delivery Methods:**\n- `EMAIL` - Send signing invitations via email\n- `SMS` - Send signing links via SMS (requires phone numbers)\n- `NONE` - Don't send notifications (use signing URLs directly)\n\n**Custom Message:** Optional custom message included in the invitation.\n\n**Signature Type:** The signature type is determined by the document's `documentMeta.defaultSignatureType` setting. Set this via the update document endpoint before sending:\n- `DRAWING` - Free-hand signature drawing (SES - Simple Electronic Signature)\n- `BANKID` - Swedish BankID electronic signature (AES - Advanced Electronic Signature)\n- `MANUAL` - Manual signature (for in-person signing)\n- `CLICK_TO_SIGN` - Click-to-sign signature (SES - Simple Electronic Signature)\n\n**Prerequisites:** Document must have at least one signer and a signature type configured before sending.",
         "summary": "Send document for signing",
         "tags": [],
         "parameters": [
@@ -1817,7 +1818,7 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
                           "type": "string",
                           "enum": [
                             "DRAWING",

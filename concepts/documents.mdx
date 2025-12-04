@@ -96,9 +96,10 @@ Documents can have rich metadata to control the signing process:
   </Accordion>
 
   <Accordion title="defaultSignatureType">
-    **DRAWING**: Free-hand signature
-    **BANKID**: Swedish BankID electronic signature
-    **MANUAL**: Manual signature (for in-person signing)
+    **DRAWING**: Free-hand signature (SES)
+    **SMS_DRAWING**: SMS + Free-hand signature (SES)
+    **BANKID**: Swedish BankID electronic signature (AES)
+    **CLICK_TO_SIGN**: Click-to-sign signature (SES)
   </Accordion>
 
   <Accordion title="forceReadFullDocument">
