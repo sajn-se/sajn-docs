@@ -163,7 +163,7 @@
                                 "nullable": true
                               },
                               "defaultSignatureType": {
-                                "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
+                                "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                                 "type": "string",
                                 "enum": [
                                   "DRAWING",
@@ -195,11 +195,14 @@
                                 "nullable": true
                               },
                               "preferredLanguage": {
-                                "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                                "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
                                 "type": "string",
                                 "enum": [
                                   "sv",
-                                  "en"
+                                  "en",
+                                  "no",
+                                  "da",
+                                  "fi"
                                 ],
                                 "nullable": true
                               },
@@ -370,13 +373,14 @@
                         ]
                       },
                       "defaultSignatureType": {
-                        "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
+                        "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                         "type": "string",
                         "enum": [
                           "DRAWING",
                           "BANKID",
                           "MANUAL",
-                          "SMS_DRAWING"
+                          "SMS_DRAWING",
+                          "CLICK_TO_SIGN"
                         ]
                       },
                       "distributionMethod": {
@@ -397,11 +401,14 @@
                         "type": "boolean"
                       },
                       "preferredLanguage": {
-                        "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                        "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
                         "type": "string",
                         "enum": [
                           "sv",
-                          "en"
+                          "en",
+                          "no",
+                          "da",
+                          "fi"
                         ]
                       },
                       "value": {
@@ -787,13 +794,14 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                           "type": "string",
                           "enum": [
                             "DRAWING",
                             "BANKID",
                             "MANUAL",
-                            "SMS_DRAWING"
+                            "SMS_DRAWING",
+                            "CLICK_TO_SIGN"
                           ],
                           "nullable": true
                         },
@@ -818,11 +826,14 @@
                           "nullable": true
                         },
                         "preferredLanguage": {
-                          "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                          "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
                           "type": "string",
                           "enum": [
                             "sv",
-                            "en"
+                            "en",
+                            "no",
+                            "da",
+                            "fi"
                           ],
                           "nullable": true
                         },
@@ -1157,7 +1168,8 @@
                           "DRAWING",
                           "BANKID",
                           "MANUAL",
-                          "SMS_DRAWING"
+                          "SMS_DRAWING",
+                          "CLICK_TO_SIGN"
                         ]
                       },
                       "distributionMethod": {
@@ -1178,7 +1190,10 @@
                         "type": "string",
                         "enum": [
                           "sv",
-                          "en"
+                          "en",
+                          "no",
+                          "da",
+                          "fi"
                         ]
                       },
                       "value": {
@@ -1292,13 +1307,14 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                           "type": "string",
                           "enum": [
                             "DRAWING",
                             "BANKID",
                             "MANUAL",
-                            "SMS_DRAWING"
+                            "SMS_DRAWING",
+                            "CLICK_TO_SIGN"
                           ],
                           "nullable": true
                         },
@@ -1323,11 +1339,14 @@
                           "nullable": true
                         },
                         "preferredLanguage": {
-                          "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                          "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
                           "type": "string",
                           "enum": [
                             "sv",
-                            "en"
+                            "en",
+                            "no",
+                            "da",
+                            "fi"
                           ],
                           "nullable": true
                         },
@@ -1486,13 +1505,14 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                           "type": "string",
                           "enum": [
                             "DRAWING",
                             "BANKID",
                             "MANUAL",
-                            "SMS_DRAWING"
+                            "SMS_DRAWING",
+                            "CLICK_TO_SIGN"
                           ],
                           "nullable": true
                         },
@@ -1517,11 +1537,14 @@
                           "nullable": true
                         },
                         "preferredLanguage": {
-                          "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                          "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
                           "type": "string",
                           "enum": [
                             "sv",
-                            "en"
+                            "en",
+                            "no",
+                            "da",
+                            "fi"
                           ],
                           "nullable": true
                         },
@@ -1711,7 +1734,7 @@
     },
     "/api/v1/documents/{id}/send": {
       "post": {
-        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Delivery Methods:**\n- `EMAIL` - Send signing invitations via email\n- `SMS` - Send signing links via SMS (requires phone numbers)\n- `NONE` - Don't send notifications (use signing URLs directly)\n\n**Custom Message:** Optional custom message included in the invitation.\n\n**Signature Type:** The signature type is determined by the document's `documentMeta.defaultSignatureType` setting. Set this via the update document endpoint before sending:\n- `DRAWING` - Free-hand signature drawing (SES - Simple Electronic Signature)\n- `BANKID` - Swedish BankID electronic signature (AES - Advanced Electronic Signature)\n- `MANUAL` - Manual signature (for in-person signing)\n- `CLICK_TO_SIGN` - Click-to-sign signature (SES - Simple Electronic Signature)\n\n**Prerequisites:** Document must have at least one signer and a signature type configured before sending.",
+        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Delivery Methods:**\n- `EMAIL` - Send signing invitations via email\n- `SMS` - Send signing links via SMS (requires phone numbers)\n- `NONE` - Don't send notifications (use signing URLs directly)\n\n**Custom Message:** Optional custom message included in the invitation.\n\n**Signature Type:** The signature type is determined by the document's `documentMeta.defaultSignatureType` setting. Set this via the update document endpoint before sending:\n- `DRAWING` - Free-hand signature drawing (SES - Simple Electronic Signature)\n- `BANKID` - Swedish BankID electronic signature (AES - Advanced Electronic Signature)\n- `MANUAL` - Manual signature (for in-person signing)\n\n**Prerequisites:** Document must have at least one signer and a signature type configured before sending.",
         "summary": "Send document for signing",
         "tags": [],
         "parameters": [
@@ -1818,13 +1841,14 @@
                           "nullable": true
                         },
                         "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, MANUAL, or CLICK_TO_SIGN",
+                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
                           "type": "string",
                           "enum": [
                             "DRAWING",
                             "BANKID",
                             "MANUAL",
-                            "SMS_DRAWING"
+                            "SMS_DRAWING",
+                            "CLICK_TO_SIGN"
                           ],
                           "nullable": true
                         },
@@ -1849,11 +1873,14 @@
                           "nullable": true
                         },
                         "preferredLanguage": {
-                          "description": "Preferred language for the signing interface: sv (Swedish) or en (English)",
+                          "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
                           "type": "string",
                           "enum": [
                             "sv",
-                            "en"
+                            "en",
+                            "no",
+                            "da",
+                            "fi"
                           ],
                           "nullable": true
                         },
@@ -2188,6 +2215,201 @@
             }
           },
           "500": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "Retrieve all signers for a document WITHOUT signing URLs.\n\nThis endpoint returns signer information for display purposes. Signing URLs are not included for security reasons.\n\nTo get a signer's signing URL (which creates an audit log entry), use the GET /documents/:id/signers/:signerId endpoint.",
+        "summary": "List all signers for a document",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getSigners",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "signers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "Unique signer identifier",
+                            "type": "string"
+                          },
+                          "documentId": {
+                            "description": "Document ID this signer belongs to",
+                            "type": "string"
+                          },
+                          "email": {
+                            "description": "Signer email address",
+                            "type": "string",
+                            "format": "email",
+                            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                            "nullable": true
+                          },
+                          "name": {
+                            "description": "Signer full name",
+                            "type": "string"
+                          },
+                          "phone": {
+                            "description": "Signer phone number (for SMS notifications)",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "companyName": {
+                            "description": "Company name",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "companyRole": {
+                            "description": "Role/title within the company",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "companyOrgNumber": {
+                            "description": "Company organization number",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "externalId": {
+                            "description": "Your external reference ID for this signer",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "companyId": {
+                            "description": "Linked company ID",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "ssn": {
+                            "description": "Swedish personal number (personnummer) - required for BankID signing",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "role": {
+                            "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
+                            "type": "string",
+                            "enum": [
+                              "SIGNER",
+                              "ORGANIZER",
+                              "REVIEWER",
+                              "ACCEPTOR"
+                            ]
+                          },
+                          "signingOrder": {
+                            "description": "Order for sequential signing (null for parallel)",
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "signedAt": {
+                            "description": "Date and time when the signer signed (null if not signed)",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "readStatus": {
+                            "description": "Read status: NOT_OPENED, OPENED, or READ",
+                            "type": "string",
+                            "enum": [
+                              "NOT_OPENED",
+                              "OPENED",
+                              "READ"
+                            ]
+                          },
+                          "signingStatus": {
+                            "description": "Signing status: NOT_SIGNED, SIGNED, or REJECTED",
+                            "type": "string",
+                            "enum": [
+                              "NOT_SIGNED",
+                              "SIGNED",
+                              "REJECTED"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "documentId",
+                          "name",
+                          "role",
+                          "signedAt",
+                          "readStatus",
+                          "signingStatus"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "signers"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
             "description": "Error response",
             "content": {
               "application/json": {
@@ -2735,6 +2957,207 @@
             }
           },
           "500": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "Retrieve a specific signer including their signing URL.\n\n**Security Note:** This endpoint creates an audit log entry each time a signing URL is accessed. Use this endpoint when you need the signing URL to share with the signer.\n\n**Response includes:**\n- Signer details (name, email, phone, company info)\n- Signing status (NOT_SIGNED, SIGNED, REJECTED)\n- Read status (NOT_OPENED, OPENED, READ)\n- Complete signing URL with token",
+        "summary": "Get a signer with signing URL",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "signerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getSigner",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "Unique signer identifier",
+                      "type": "string"
+                    },
+                    "documentId": {
+                      "description": "Document ID this signer belongs to",
+                      "type": "string"
+                    },
+                    "email": {
+                      "description": "Signer email address",
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                      "nullable": true
+                    },
+                    "name": {
+                      "description": "Signer full name",
+                      "type": "string"
+                    },
+                    "phone": {
+                      "description": "Signer phone number (for SMS notifications)",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "companyName": {
+                      "description": "Company name",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "companyRole": {
+                      "description": "Role/title within the company",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "companyOrgNumber": {
+                      "description": "Company organization number",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "externalId": {
+                      "description": "Your external reference ID for this signer",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "companyId": {
+                      "description": "Linked company ID",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "ssn": {
+                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "role": {
+                      "description": "Signer role: SIGNER, ORGANIZER, REVIEWER, or ACCEPTOR",
+                      "type": "string",
+                      "enum": [
+                        "SIGNER",
+                        "ORGANIZER",
+                        "REVIEWER",
+                        "ACCEPTOR"
+                      ]
+                    },
+                    "signingOrder": {
+                      "description": "Order for sequential signing (null for parallel)",
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "token": {
+                      "description": "Unique signing token",
+                      "type": "string"
+                    },
+                    "signedAt": {
+                      "description": "Date and time when the signer signed (null if not signed)",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "readStatus": {
+                      "description": "Read status: NOT_OPENED, OPENED, or READ",
+                      "type": "string",
+                      "enum": [
+                        "NOT_OPENED",
+                        "OPENED",
+                        "READ"
+                      ]
+                    },
+                    "signingStatus": {
+                      "description": "Signing status: NOT_SIGNED, SIGNED, or REJECTED",
+                      "type": "string",
+                      "enum": [
+                        "NOT_SIGNED",
+                        "SIGNED",
+                        "REJECTED"
+                      ]
+                    },
+                    "signingUrl": {
+                      "description": "Complete signing URL for this signer",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "documentId",
+                    "name",
+                    "role",
+                    "token",
+                    "signedAt",
+                    "readStatus",
+                    "signingStatus",
+                    "signingUrl"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
             "description": "Error response",
             "content": {
               "application/json": {
@@ -4564,7 +4987,7 @@
                         "pattern": "^[a-z0-9_-]*$"
                       },
                       "fieldMeta": {
-                        "anyOf": [
+                        "oneOf": [
                           {
                             "type": "object",
                             "properties": {
@@ -4666,7 +5089,7 @@
                                       "minimum": 0
                                     },
                                     "fieldMeta": {
-                                      "anyOf": [
+                                      "oneOf": [
                                         {
                                           "type": "object",
                                           "properties": {
@@ -4855,6 +5278,12 @@
                                         },
                                         "priceSuffix": {
                                           "type": "string"
+                                        },
+                                        "defaultMomsRate": {
+                                          "type": "number"
+                                        },
+                                        "showMomsBreakdown": {
+                                          "type": "boolean"
                                         }
                                       },
                                       "additionalProperties": false
@@ -4894,6 +5323,9 @@
                                       "type": "number"
                                     },
                                     "quantity": {
+                                      "type": "number"
+                                    },
+                                    "moms": {
                                       "type": "number"
                                     }
                                   },
@@ -5037,7 +5469,7 @@
                           "pattern": "^[a-z0-9_-]*$"
                         },
                         "fieldMeta": {
-                          "anyOf": [
+                          "oneOf": [
                             {
                               "type": "object",
                               "properties": {
@@ -5139,7 +5571,7 @@
                                         "minimum": 0
                                       },
                                       "fieldMeta": {
-                                        "anyOf": [
+                                        "oneOf": [
                                           {
                                             "type": "object",
                                             "properties": {
@@ -5328,6 +5760,12 @@
                                           },
                                           "priceSuffix": {
                                             "type": "string"
+                                          },
+                                          "defaultMomsRate": {
+                                            "type": "number"
+                                          },
+                                          "showMomsBreakdown": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "additionalProperties": false
@@ -5367,6 +5805,9 @@
                                         "type": "number"
                                       },
                                       "quantity": {
+                                        "type": "number"
+                                      },
+                                      "moms": {
                                         "type": "number"
                                       }
                                     },
