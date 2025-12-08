@@ -86,8 +86,15 @@
               "PATCH /api/v1/documents/{id}",
               "DELETE /api/v1/documents/{id}",
               "GET /api/v1/documents/{id}/download",
-              "POST /api/v1/documents/{id}/send",
-              "POST /api/v1/documents/upload/presigned-url"
+              "POST /api/v1/documents/{id}/send"
+            ]
+          },
+          {
+            "group": "Files",
+            "pages": [
+              "GET /api/v1/files",
+              "POST /api/v1/files/presigned-url",
+              "GET /api/v1/files/{id}"
             ]
           },
           {

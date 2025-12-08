@@ -8810,10 +8810,10 @@
         }
       }
     },
-    "/api/v1/documents/upload/presigned-url": {
+    "/api/v1/files/presigned-url": {
       "post": {
-        "description": "Generate a presigned URL for uploading PDF files directly to S3.\n\n**Upload Flow:**\n1. Call this endpoint with the filename to get a presigned URL and S3 key\n2. Upload your PDF file directly to the presigned URL using a PUT request\n3. Use the returned S3 key when creating or updating document fields\n\n**File Requirements:**\n- Only PDF files are accepted (filename must end with .pdf)\n- Files are automatically organized by your organization ID for security\n\n**Response Fields:**\n- `url` - Presigned URL for direct upload to S3 (expires in 1 hour)\n- `key` - S3 key to use in document field metadata\n\n**Example Usage:**\n```\n// 1. Get presigned URL\nPOST /api/v1/documents/upload/presigned-url\n{ \"fileName\": \"contract.pdf\" }\n\n// 2. Upload file directly to S3\nPUT <presigned-url>\nContent-Type: application/pdf\n<file-content>\n\n// 3. Use key in document field\nPATCH /api/v1/documents/:id/fields/:fieldId\n{ \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"<s3-key>\", \"numPages\": -1 } }\n```\n\n**Security:** Files are organized by organization ID and isolated from other organizations' data.",
-        "summary": "Get presigned URL for file upload",
+        "description": "Create a file record and get a presigned URL for uploading.\n\n**Upload Flow:**\n1. Call this endpoint with file details to create a file record and get presigned URL\n2. Upload your file directly to the presigned URL using a PUT request\n3. The file is ready to use once uploaded\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Response Fields:**\n- `fileId` - Unique identifier for the created file\n- `url` - Presigned URL for direct upload to S3 (expires in 1 hour)\n- `key` - S3 key for the file\n\n**Example Upload:**\n```\n// 1. Get presigned URL\nPOST /api/v1/files/presigned-url\n{ \"fileName\": \"document.pdf\", \"mimeType\": \"application/pdf\", \"visibility\": \"PRIVATE\", \"size\": 1024000 }\n\n// 2. Upload file directly to S3\nPUT <presigned-url>\nContent-Type: application/pdf\n<file-content>\n```",
+        "summary": "Create file and get presigned upload URL",
         "tags": [],
         "parameters": [
           {
@@ -8826,23 +8826,64 @@
             }
           }
         ],
-        "operationId": "getPresignedUploadUrl",
+        "operationId": "getFilePresignedUrl",
         "requestBody": {
           "description": "Body",
           "content": {
             "application/json": {
               "schema": {
-                "description": "Request for getting presigned upload URL",
+                "description": "Request for creating a file and getting presigned upload URL",
                 "type": "object",
                 "properties": {
                   "fileName": {
-                    "description": "Name of the file to upload (must be a PDF file)",
+                    "description": "Name of the file to upload",
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "mimeType": {
+                    "description": "MIME type of the file",
+                    "type": "string",
+                    "enum": [
+                      "application/pdf",
+                      "application/msword",
+                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                      "application/vnd.ms-excel",
+                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                      "application/vnd.ms-powerpoint",
+                      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                      "video/mp4",
+                      "video/quicktime",
+                      "video/x-msvideo",
+                      "video/webm",
+                      "image/jpeg",
+                      "image/png",
+                      "image/gif",
+                      "image/webp",
+                      "image/svg+xml"
+                    ]
+                  },
+                  "visibility": {
+                    "description": "File visibility: PRIVATE (requires signed URL) or PUBLIC (direct access)",
+                    "default": "PRIVATE",
+                    "type": "string",
+                    "enum": [
+                      "PRIVATE",
+                      "PUBLIC"
+                    ]
+                  },
+                  "size": {
+                    "description": "File size in bytes",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 104857600
                   }
                 },
                 "required": [
-                  "fileName"
+                  "fileName",
+                  "mimeType",
+                  "visibility",
+                  "size"
                 ],
                 "additionalProperties": false
               }
@@ -8851,24 +8892,29 @@
         },
         "responses": {
           "200": {
-            "description": "Presigned upload URL response",
+            "description": "Presigned upload URL response with file ID",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Presigned upload URL response",
+                  "description": "Presigned upload URL response with file ID",
                   "type": "object",
                   "properties": {
+                    "fileId": {
+                      "description": "Unique file identifier",
+                      "type": "string"
+                    },
                     "url": {
-                      "description": "Presigned URL for uploading the file directly to S3",
+                      "description": "Presigned URL for uploading the file (valid for 1 hour)",
                       "type": "string",
                       "format": "uri"
                     },
                     "key": {
-                      "description": "S3 key for the uploaded file (use this in document fields)",
+                      "description": "S3 key for the uploaded file",
                       "type": "string"
                     }
                   },
                   "required": [
+                    "fileId",
                     "url",
                     "key"
                   ],
@@ -8921,6 +8967,457 @@
           }
         }
       }
+    },
+    "/api/v1/files/{id}": {
+      "get": {
+        "description": "Retrieve file information and access URL.\n\n**URL Generation:**\n- For `PRIVATE` files: Returns a fresh signed URL (valid for 60 minutes)\n- For `PUBLIC` files: Returns the permanent CloudFront URL\n\n**Response includes:**\n- File metadata (filename, size, MIME type)\n- Visibility setting\n- Access URL\n- Upload information",
+        "summary": "Get file by ID",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getFile",
+        "responses": {
+          "200": {
+            "description": "File information with access URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "File information with access URL",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "Unique file identifier",
+                      "type": "string"
+                    },
+                    "filename": {
+                      "description": "Original filename",
+                      "type": "string"
+                    },
+                    "mimeType": {
+                      "description": "MIME type of the file",
+                      "type": "string"
+                    },
+                    "size": {
+                      "description": "File size in bytes",
+                      "type": "number"
+                    },
+                    "visibility": {
+                      "description": "File visibility",
+                      "type": "string",
+                      "enum": [
+                        "PRIVATE",
+                        "PUBLIC"
+                      ]
+                    },
+                    "url": {
+                      "description": "URL to access the file (signed URL for private, direct URL for public)",
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "createdAt": {
+                      "description": "Date and time when file was uploaded"
+                    },
+                    "updatedAt": {
+                      "description": "Date and time when file was last updated"
+                    },
+                    "uploadedBy": {
+                      "description": "User who uploaded the file",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "filename",
+                    "mimeType",
+                    "size",
+                    "visibility",
+                    "url",
+                    "createdAt",
+                    "updatedAt",
+                    "uploadedBy"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a file from storage and database.\n\n**Warning:** This operation is irreversible. The file will be permanently deleted from both S3 and the database.",
+        "summary": "Delete a file",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "deleteFile",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delete file response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Delete file response",
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "description": "Whether the deletion was successful",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files": {
+      "get": {
+        "description": "Retrieve a paginated list of files in your organization.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.\n\n**Filtering:** Optionally filter by visibility (PRIVATE or PUBLIC).\n\n**Response:**\n- Files are sorted by creation date (newest first)\n- Each file includes an access URL (signed for private, direct for public)",
+        "summary": "List files",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination (default: 1)",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": 1,
+                  "type": "number",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "description": "Number of items per page (default: 10, max: 100)",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": 10,
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            }
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "description": "Filter by visibility",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "PRIVATE",
+                    "PUBLIC"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "operationId": "getFiles",
+        "responses": {
+          "200": {
+            "description": "Paginated list of files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Paginated list of files",
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "description": "Array of files",
+                      "type": "array",
+                      "items": {
+                        "description": "File information with access URL",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "Unique file identifier",
+                            "type": "string"
+                          },
+                          "filename": {
+                            "description": "Original filename",
+                            "type": "string"
+                          },
+                          "mimeType": {
+                            "description": "MIME type of the file",
+                            "type": "string"
+                          },
+                          "size": {
+                            "description": "File size in bytes",
+                            "type": "number"
+                          },
+                          "visibility": {
+                            "description": "File visibility",
+                            "type": "string",
+                            "enum": [
+                              "PRIVATE",
+                              "PUBLIC"
+                            ]
+                          },
+                          "url": {
+                            "description": "URL to access the file (signed URL for private, direct URL for public)",
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "createdAt": {
+                            "description": "Date and time when file was uploaded"
+                          },
+                          "updatedAt": {
+                            "description": "Date and time when file was last updated"
+                          },
+                          "uploadedBy": {
+                            "description": "User who uploaded the file",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "firstName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "lastName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "email": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "firstName",
+                              "lastName",
+                              "email"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "filename",
+                          "mimeType",
+                          "size",
+                          "visibility",
+                          "url",
+                          "createdAt",
+                          "updatedAt",
+                          "uploadedBy"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "totalPages": {
+                      "description": "Total number of pages available",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "files",
+                    "totalPages"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "info": {
@@ -8930,11 +9427,11 @@
     "contact": {
       "name": "sajn Support",
       "email": "hej@sajn.se",
-      "url": "https://sajn.se/support"
+      "url": "https://www.sajn.se/support"
     },
     "license": {
       "name": "Policy",
-      "url": "https://sajn.se/allmanna-villkor"
+      "url": "https://www.sajn.se/allmanna-villkor"
     }
   },
   "servers": [
