@@ -9232,7 +9232,7 @@
     },
     "/api/v1/files": {
       "get": {
-        "description": "Retrieve a paginated list of files in your organization.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.\n\n**Filtering:** Optionally filter by visibility (PRIVATE or PUBLIC).\n\n**Response:**\n- Files are sorted by creation date (newest first)\n- Each file includes an access URL (signed for private, direct for public)",
+        "description": "Retrieve a paginated list of files in your organization.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.\n\n**Filtering:** Optionally filter by visibility (PRIVATE or PUBLIC).\n\n**Response:**\n- Files are sorted by creation date (newest first)\n- Use the 'getFile' endpoint to retrieve file access URLs",
         "summary": "List files",
         "tags": [],
         "parameters": [
@@ -9307,7 +9307,7 @@
                       "description": "Array of files",
                       "type": "array",
                       "items": {
-                        "description": "File information with access URL",
+                        "description": "File information without access URL",
                         "type": "object",
                         "properties": {
                           "id": {
@@ -9333,11 +9333,6 @@
                               "PRIVATE",
                               "PUBLIC"
                             ]
-                          },
-                          "url": {
-                            "description": "URL to access the file (signed URL for private, direct URL for public)",
-                            "type": "string",
-                            "format": "uri"
                           },
                           "createdAt": {
                             "description": "Date and time when file was uploaded"
@@ -9379,7 +9374,6 @@
                           "mimeType",
                           "size",
                           "visibility",
-                          "url",
                           "createdAt",
                           "updatedAt",
                           "uploadedBy"
