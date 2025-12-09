@@ -8877,13 +8877,19 @@
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 104857600
+                  },
+                  "checksumSHA256": {
+                    "description": "Base64-encoded SHA-256 checksum of the file. Calculate this client-side and include in x-amz-checksum-sha256 header when uploading.",
+                    "type": "string",
+                    "minLength": 1
                   }
                 },
                 "required": [
                   "fileName",
                   "mimeType",
                   "visibility",
-                  "size"
+                  "size",
+                  "checksumSHA256"
                 ],
                 "additionalProperties": false
               }
