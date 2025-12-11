@@ -8810,10 +8810,10 @@
         }
       }
     },
-    "/api/v1/files/presigned-url": {
-      "post": {
-        "description": "Create a file record and get a presigned URL for uploading.\n\n**Upload Flow:**\n1. Call this endpoint with file details to create a file record and get presigned URL\n2. Upload your file directly to the presigned URL using a PUT request\n3. The file is ready to use once uploaded\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Response Fields:**\n- `fileId` - Unique identifier for the created file\n- `url` - Presigned URL for direct upload to S3 (expires in 1 hour)\n- `key` - S3 key for the file\n\n**Example Upload:**\n```\n// 1. Get presigned URL\nPOST /api/v1/files/presigned-url\n{ \"fileName\": \"document.pdf\", \"mimeType\": \"application/pdf\", \"visibility\": \"PRIVATE\", \"size\": 1024000 }\n\n// 2. Upload file directly to S3\nPUT <presigned-url>\nContent-Type: application/pdf\n<file-content>\n```",
-        "summary": "Create file and get presigned upload URL",
+    "/api/v1/putFile": {
+      "put": {
+        "description": "Upload a file directly to sajn storage.\n\n**Important:** This endpoint uses `https://upload.sajn.se` as the base URL, not `https://app.sajn.se`.\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Example Upload:**\n```bash\n# Private file (default)\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/document.pdf\"\n\n# Public file\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/image.png\" \\\n  -F \"visibility=PUBLIC\"\n```",
+        "summary": "Upload file",
         "tags": [],
         "parameters": [
           {
@@ -8826,42 +8826,19 @@
             }
           }
         ],
-        "operationId": "getFilePresignedUrl",
+        "operationId": "putFile",
         "requestBody": {
-          "description": "Body",
+          "description": "Multipart form data with file and optional visibility",
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "description": "Request for creating a file and getting presigned upload URL",
+                "description": "File upload request",
                 "type": "object",
                 "properties": {
-                  "fileName": {
-                    "description": "Name of the file to upload",
+                  "file": {
+                    "description": "The file to upload. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG",
                     "type": "string",
-                    "minLength": 1,
-                    "maxLength": 255
-                  },
-                  "mimeType": {
-                    "description": "MIME type of the file",
-                    "type": "string",
-                    "enum": [
-                      "application/pdf",
-                      "application/msword",
-                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                      "application/vnd.ms-excel",
-                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                      "application/vnd.ms-powerpoint",
-                      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                      "video/mp4",
-                      "video/quicktime",
-                      "video/x-msvideo",
-                      "video/webm",
-                      "image/jpeg",
-                      "image/png",
-                      "image/gif",
-                      "image/webp",
-                      "image/svg+xml"
-                    ]
+                    "format": "binary"
                   },
                   "visibility": {
                     "description": "File visibility: PRIVATE (requires signed URL) or PUBLIC (direct access)",
@@ -8871,25 +8848,10 @@
                       "PRIVATE",
                       "PUBLIC"
                     ]
-                  },
-                  "size": {
-                    "description": "File size in bytes",
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 104857600
-                  },
-                  "checksumSHA256": {
-                    "description": "Base64-encoded SHA-256 checksum of the file. Calculate this client-side and include in x-amz-checksum-sha256 header when uploading.",
-                    "type": "string",
-                    "minLength": 1
                   }
                 },
                 "required": [
-                  "fileName",
-                  "mimeType",
-                  "visibility",
-                  "size",
-                  "checksumSHA256"
+                  "file"
                 ],
                 "additionalProperties": false
               }
@@ -8898,31 +8860,55 @@
         },
         "responses": {
           "200": {
-            "description": "Presigned upload URL response with file ID",
+            "description": "File uploaded successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Presigned upload URL response with file ID",
+                  "description": "File upload response",
                   "type": "object",
                   "properties": {
-                    "fileId": {
-                      "description": "Unique file identifier",
-                      "type": "string"
-                    },
-                    "url": {
-                      "description": "Presigned URL for uploading the file (valid for 1 hour)",
-                      "type": "string",
-                      "format": "uri"
-                    },
                     "key": {
-                      "description": "S3 key for the uploaded file",
+                      "description": "Storage key for the uploaded file",
                       "type": "string"
+                    },
+                    "file": {
+                      "description": "File metadata",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Unique file identifier",
+                          "type": "string"
+                        },
+                        "filename": {
+                          "description": "Original filename",
+                          "type": "string"
+                        },
+                        "mimeType": {
+                          "description": "MIME type of the file",
+                          "type": "string"
+                        },
+                        "size": {
+                          "description": "File size in bytes",
+                          "type": "integer"
+                        },
+                        "hash": {
+                          "description": "SHA-256 hash of the file",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "filename",
+                        "mimeType",
+                        "size",
+                        "hash"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
-                    "fileId",
-                    "url",
-                    "key"
+                    "key",
+                    "file"
                   ],
                   "additionalProperties": false
                 }

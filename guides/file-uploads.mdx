@@ -1,76 +1,96 @@
 ---
 title: File Uploads
-description: 'Complete guide to uploading files for document fields using presigned URLs'
+description: 'Complete guide to uploading files using the direct upload API'
 ---
 
 # File Uploads
 
-Learn how to securely upload PDF files to sajn using presigned URLs for use in document fields.
+Learn how to securely upload files to sajn for use in document fields.
 
 ## Overview
 
-sajn uses a secure two-step upload process:
+sajn provides a simple direct upload endpoint for files:
 
-1. **Get presigned URL** - Request a secure upload URL from the API
-2. **Upload directly to S3** - Upload your file directly to cloud storage
-3. **Use the S3 key** - Reference the uploaded file in document fields
+1. **Upload the file** - Send the file directly to the upload API
+2. **Use the storage key** - Reference the uploaded file in document fields
 
-This approach provides several benefits:
-- **Security**: Files are organized by your organization ID
-- **Performance**: Direct uploads to S3 bypass our servers
-- **Reliability**: Leverages AWS S3's robust infrastructure
+<Note>
+**Important:** File uploads use a different base URL: `https://upload.sajn.se`
 
-## Getting a Presigned Upload URL
+This is separate from the main API at `https://app.sajn.se`.
+</Note>
 
-Request a presigned URL from the [Upload Presigned URL endpoint](/api/POST%20/api/v1/documents/upload/presigned-url):
+### Benefits
+- **Simple**: Single-step upload process
+- **Secure**: Files are organized by your organization ID
+- **Fast**: Direct upload to cloud storage
+- **Reliable**: Leverages robust cloud infrastructure
+
+## Uploading Files
+
+Send a PUT request to the [Upload File endpoint](/api/PUT%20/api/v1/putFile):
 
 ### Request
 
 ```bash
-curl -X POST https://app.sajn.se/api/v1/documents/upload/presigned-url \
+curl -X PUT https://upload.sajn.se/api/v1/putFile \
   -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fileName": "contract.pdf"
-  }'
+  -F "file=@contract.pdf"
 ```
 
 ### Response
 
 ```json
 {
-  "url": "https://s3.amazonaws.com/sajn/d/org_123/abc123def/contract.pdf?X-Amz-Algorithm=...",
-  "key": "d/org_123/abc123def/contract.pdf",
-  "cloudFrontUrl": "https://cdn.sajn.se/d/org_123/abc123def/contract.pdf"
+  "key": "f/org_123/abc123def/contract.pdf",
+  "file": {
+    "id": "file_abc123",
+    "filename": "contract.pdf",
+    "mimeType": "application/pdf",
+    "size": 102400,
+    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
 }
 ```
 
 ### Response Fields
 
-- **`url`** - Presigned S3 URL for uploading (expires in 1 hour)
-- **`key`** - S3 key to reference in document fields
-- **`cloudFrontUrl`** - CDN URL for accessing the file after upload
+- **`key`** - Storage key to reference in document fields
+- **`file.id`** - Unique file identifier
+- **`file.filename`** - Original filename
+- **`file.mimeType`** - MIME type of the file
+- **`file.size`** - File size in bytes
+- **`file.hash`** - SHA-256 hash for integrity verification
 
-## Uploading the File
+## File Visibility
 
-Use the presigned URL to upload your PDF file directly to S3:
+Control who can access your uploaded files:
+
+### Private Files (Default)
 
 ```bash
-curl -X PUT "https://s3.amazonaws.com/sajn/d/org_123/abc123def/contract.pdf?X-Amz-Algorithm=..." \
-  -H "Content-Type: application/pdf" \
-  --data-binary @contract.pdf
+curl -X PUT https://upload.sajn.se/api/v1/putFile \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@document.pdf" \
+  -F "visibility=PRIVATE"
 ```
 
-### Important Notes
+Private files require signed URLs for access (valid for 60 minutes).
 
-- Use **PUT** method (not POST)
-- Set **Content-Type** to `application/pdf`
-- Upload the raw file content (binary data)
-- The presigned URL expires in **1 hour**
+### Public Files
+
+```bash
+curl -X PUT https://upload.sajn.se/api/v1/putFile \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@image.png" \
+  -F "visibility=PUBLIC"
+```
+
+Public files are accessible via direct CloudFront URL.
 
 ## Using Uploaded Files in Documents
 
-After successful upload, use the S3 key in document field metadata. You can either create a new PDF field or update an existing one:
+After successful upload, use the storage key in document field metadata. You can either create a new PDF field or update an existing one:
 
 ### Create New PDF Field
 
@@ -85,7 +105,7 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
     "position": 0,
     "fieldMeta": {
       "type": "PDF",
-      "value": "d/org_123/abc123def/contract.pdf",
+      "value": "f/org_123/abc123def/contract.pdf",
       "numPages": -1
     }
   }'
@@ -102,7 +122,7 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456 \
   -d '{
     "fieldMeta": {
       "type": "PDF",
-      "value": "d/org_123/abc123def/contract.pdf",
+      "value": "f/org_123/abc123def/contract.pdf",
       "numPages": -1
     }
   }'
@@ -112,49 +132,39 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456 \
 
 Here's a complete example of uploading a file and adding it to a document:
 
-### Step 1: Get Presigned URL
+### JavaScript Example
 
 ```javascript
-const getPresignedUrl = async (fileName) => {
-  const response = await fetch('https://app.sajn.se/api/v1/documents/upload/presigned-url', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer YOUR_API_KEY',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ fileName })
-  });
-  
-  return await response.json();
-};
-```
+const UPLOAD_BASE_URL = 'https://upload.sajn.se';
+const API_BASE_URL = 'https://app.sajn.se';
 
-### Step 2: Upload File
+// Step 1: Upload file
+const uploadFile = async (file, apiKey, visibility = 'PRIVATE') => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('visibility', visibility);
 
-```javascript
-const uploadFile = async (presignedUrl, file) => {
-  const response = await fetch(presignedUrl, {
+  const response = await fetch(`${UPLOAD_BASE_URL}/api/v1/putFile`, {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/pdf'
+      'Authorization': `Bearer ${apiKey}`
     },
-    body: file
+    body: formData
   });
-  
+
   if (!response.ok) {
     throw new Error(`Upload failed: ${response.statusText}`);
   }
+
+  return await response.json();
 };
-```
 
-### Step 3: Add to Document
-
-```javascript
-const addFileToDocument = async (documentId, s3Key) => {
-  const response = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}/fields`, {
+// Step 2: Add to document
+const addFileToDocument = async (documentId, storageKey, apiKey) => {
+  const response = await fetch(`${API_BASE_URL}/api/v1/documents/${documentId}/fields`, {
     method: 'POST',
     headers: {
-      'Authorization': 'Bearer YOUR_API_KEY',
+      'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
@@ -162,31 +172,26 @@ const addFileToDocument = async (documentId, s3Key) => {
       position: 0,
       fieldMeta: {
         type: 'PDF',
-        value: s3Key,
+        value: storageKey,
         numPages: -1
       }
     })
   });
-  
+
   return await response.json();
 };
-```
 
-### Complete Function
-
-```javascript
-const uploadAndAddToDocument = async (documentId, file) => {
+// Complete workflow
+const uploadAndAddToDocument = async (documentId, file, apiKey) => {
   try {
-    // Step 1: Get presigned URL
-    const { url, key } = await getPresignedUrl(file.name);
-    
-    // Step 2: Upload file
-    await uploadFile(url, file);
-    
-    // Step 3: Add to document
-    const field = await addFileToDocument(documentId, key);
-    
-    console.log('File uploaded and added to document:', field);
+    // Upload file
+    const { key, file: fileInfo } = await uploadFile(file, apiKey);
+    console.log('File uploaded:', fileInfo.filename, `(${fileInfo.size} bytes)`);
+
+    // Add to document
+    const field = await addFileToDocument(documentId, key, apiKey);
+    console.log('File added to document:', field);
+
     return field;
   } catch (error) {
     console.error('Upload failed:', error);
@@ -199,34 +204,39 @@ const uploadAndAddToDocument = async (documentId, file) => {
 
 ### Supported Formats
 
-- **PDF files only** - Filename must end with `.pdf`
-- **Maximum size**: 50MB per file
-- **Content-Type**: Must be `application/pdf`
+- **Documents**: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX
+- **Images**: JPG, PNG, GIF, WEBP, SVG
+- **Video**: MP4, MOV, AVI, WEBM
+
+### Limits
+
+- **Maximum size**: 100 MB per file
+- **Content-Type**: Automatically detected from file
 
 ### Security
 
 - Files are automatically organized by **organization ID**
 - Each upload gets a **unique folder ID** for isolation
-- Presigned URLs **expire after 1 hour**
-- Only authenticated API users can generate upload URLs
+- Only authenticated API users can upload files
+- File hash provided for integrity verification
 
 ## Path Structure
 
 Uploaded files follow this path structure:
 
 ```
-d/{organizationId}/{uniqueFolderId}/{filename}.pdf
+f/{organizationId}/{uniqueFolderId}/{filename}
 ```
 
 Example:
 ```
-d/org_abc123/def456ghi/employment-contract.pdf
+f/org_abc123/def456ghi/employment-contract.pdf
 ```
 
-- **`d/`** - Documents prefix
+- **`f/`** - Files prefix
 - **`organizationId`** - Your organization identifier
-- **`uniqueFolderId`** - Random 32-character identifier
-- **`filename.pdf`** - Slugified version of your filename
+- **`uniqueFolderId`** - Random identifier for isolation
+- **`filename`** - Slugified version of your filename
 
 ## Error Handling
 
@@ -235,22 +245,18 @@ d/org_abc123/def456ghi/employment-contract.pdf
 #### Invalid File Type
 ```json
 {
-  "message": "Endast PDF-filer är tillåtna"
+  "message": "File type not allowed"
 }
 ```
-**Solution**: Ensure filename ends with `.pdf`
-
-#### Expired Presigned URL
-```bash
-HTTP 403 Forbidden
-```
-**Solution**: Request a new presigned URL (they expire after 1 hour)
+**Solution**: Ensure file type is one of the supported formats.
 
 #### File Too Large
-```bash
-HTTP 400 Bad Request
+```json
+{
+  "message": "File size exceeds limit"
+}
 ```
-**Solution**: Ensure file is under 50MB limit
+**Solution**: Ensure file is under 100MB limit.
 
 #### Missing Authentication
 ```json
@@ -258,15 +264,15 @@ HTTP 400 Bad Request
   "message": "API token was not provided"
 }
 ```
-**Solution**: Include valid `Authorization: Bearer` header
+**Solution**: Include valid `Authorization: Bearer` header.
 
 ### Best Practices
 
-1. **Check file size** before requesting presigned URL
+1. **Check file size** before uploading
 2. **Validate file type** on client-side first
 3. **Handle upload errors** gracefully with retries
-4. **Store S3 keys securely** for later reference
-5. **Use unique filenames** to avoid conflicts
+4. **Store storage keys** for later reference
+5. **Use unique filenames** to avoid confusion
 
 ## Integration Examples
 
@@ -275,64 +281,70 @@ HTTP 400 Bad Request
 ```tsx
 import { useState } from 'react';
 
-const FileUploader = ({ documentId, onUploadComplete }) => {
+const UPLOAD_URL = 'https://upload.sajn.se/api/v1/putFile';
+const API_URL = 'https://app.sajn.se/api/v1';
+
+const FileUploader = ({ documentId, apiKey, onUploadComplete }) => {
   const [uploading, setUploading] = useState(false);
-  
-  const handleFileUpload = async (file) => {
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Only PDF files are allowed');
-      return;
-    }
-    
+  const [error, setError] = useState(null);
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
     setUploading(true);
-    
+    setError(null);
+
     try {
-      // Get presigned URL
-      const presignedResponse = await fetch('/api/documents/upload/presigned-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileName: file.name })
-      });
-      
-      const { url, key } = await presignedResponse.json();
-      
       // Upload file
-      await fetch(url, {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadResponse = await fetch(UPLOAD_URL, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/pdf' },
-        body: file
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+        body: formData
       });
-      
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const { key } = await uploadResponse.json();
+
       // Add to document
-      await fetch(`/api/documents/${documentId}/fields`, {
+      const fieldResponse = await fetch(`${API_URL}/documents/${documentId}/fields`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           type: 'PDF',
           position: 0,
-          fieldMeta: {
-            type: 'PDF',
-            value: key,
-            numPages: -1
-          }
+          fieldMeta: { type: 'PDF', value: key, numPages: -1 }
         })
       });
-      
-      onUploadComplete(key);
-    } catch (error) {
-      console.error('Upload failed:', error);
+
+      const field = await fieldResponse.json();
+      onUploadComplete(field);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setUploading(false);
     }
   };
-  
+
   return (
-    <input
-      type="file"
-      accept=".pdf"
-      onChange={(e) => handleFileUpload(e.target.files[0])}
-      disabled={uploading}
-    />
+    <div>
+      <input
+        type="file"
+        onChange={handleFileUpload}
+        disabled={uploading}
+      />
+      {uploading && <p>Uploading...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+    </div>
   );
 };
 ```
@@ -341,33 +353,39 @@ const FileUploader = ({ documentId, onUploadComplete }) => {
 
 ```javascript
 const fs = require('fs');
-const fetch = require('node-fetch');
+const path = require('path');
+const FormData = require('form-data');
 
-const uploadPdfToDocument = async (documentId, filePath, apiKey) => {
+const UPLOAD_URL = 'https://upload.sajn.se/api/v1/putFile';
+const API_URL = 'https://app.sajn.se/api/v1';
+
+const uploadFileToDocument = async (documentId, filePath, apiKey) => {
   const fileName = path.basename(filePath);
-  const fileContent = fs.readFileSync(filePath);
-  
-  // Get presigned URL
-  const presignedResponse = await fetch('https://app.sajn.se/api/v1/documents/upload/presigned-url', {
-    method: 'POST',
+  const fileStream = fs.createReadStream(filePath);
+
+  // Create form data
+  const formData = new FormData();
+  formData.append('file', fileStream, fileName);
+
+  // Upload file
+  const uploadResponse = await fetch(UPLOAD_URL, {
+    method: 'PUT',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
+      ...formData.getHeaders()
     },
-    body: JSON.stringify({ fileName })
+    body: formData
   });
-  
-  const { url, key } = await presignedResponse.json();
-  
-  // Upload file
-  await fetch(url, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/pdf' },
-    body: fileContent
-  });
-  
+
+  if (!uploadResponse.ok) {
+    throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+  }
+
+  const { key, file } = await uploadResponse.json();
+  console.log(`Uploaded: ${file.filename} (${file.size} bytes)`);
+
   // Add to document
-  const fieldResponse = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}/fields`, {
+  const fieldResponse = await fetch(`${API_URL}/documents/${documentId}/fields`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
@@ -383,9 +401,14 @@ const uploadPdfToDocument = async (documentId, filePath, apiKey) => {
       }
     })
   });
-  
+
   return await fieldResponse.json();
 };
+
+// Usage
+uploadFileToDocument('doc_123', './contract.pdf', 'your-api-key')
+  .then(field => console.log('Added to document:', field))
+  .catch(err => console.error('Error:', err));
 ```
 
 ## Related Resources
@@ -396,7 +419,7 @@ const uploadPdfToDocument = async (documentId, filePath, apiKey) => {
 - [Webhooks](/guides/webhooks) - Get notified when documents are signed
 
 ### API Reference
-- [Upload Presigned URL](/api/POST%20/api/v1/documents/upload/presigned-url) - Get secure upload URLs
+- [Upload File](/api/PUT%20/api/v1/putFile) - Upload files directly
 - [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) - Add fields to documents
 - [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Modify existing fields
 - [Create Document](/api/POST%20/api/v1/documents) - Create new documents

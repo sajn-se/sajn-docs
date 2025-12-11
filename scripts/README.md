@@ -33,6 +33,22 @@ Default path: `api/openapi.json`
 
 ---
 
+#### `add-putfile-endpoint.py`
+**Python script** that adds the putFile endpoint to the OpenAPI spec.
+
+The `PUT /api/v1/putFile` endpoint is hosted on `upload.sajn.se` (not `app.sajn.se`) and is not auto-generated from the main API. This script ensures it's always present in the docs.
+
+**What it does:**
+- Removes old `/api/v1/files/presigned-url` endpoint if present
+- Adds the `/api/v1/putFile` endpoint with full documentation
+
+**Usage:**
+```bash
+python3 scripts/add-putfile-endpoint.py [path-to-openapi.json]
+```
+
+---
+
 #### `fix-openapi.py`
 **Python script** that fixes OpenAPI 3.0.2 compatibility issues for Mintlify.
 
@@ -82,14 +98,16 @@ python3 scripts/fix-openapi.py path/to/your/openapi.json
 
 ### After Updating OpenAPI Spec
 
-1. Edit your `api/openapi.json` file
-2. Run the validation script:
+1. Copy the new OpenAPI spec from your API to `api/openapi.json`
+2. Run the validation script (this will automatically add the putFile endpoint and fix issues):
    ```bash
    ./scripts/validate-openapi.sh
    ```
 3. If validation passes, you're ready to commit
 4. Preview locally with `mint dev`
 5. Commit and push to deploy
+
+**Note:** The `putFile` endpoint is hosted on `upload.sajn.se` and is not part of the main API's OpenAPI spec. The validation script automatically adds it.
 
 ### CI/CD Integration (Optional)
 

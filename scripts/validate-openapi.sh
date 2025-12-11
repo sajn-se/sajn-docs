@@ -34,13 +34,18 @@ fi
 echo "📁 File: $OPENAPI_FILE"
 echo ""
 
-# Step 1: Fix common issues
-echo "Step 1: Fixing common OpenAPI issues..."
+# Step 1: Add putFile endpoint (hosted on upload.sajn.se)
+echo "Step 1: Adding putFile endpoint..."
+python3 scripts/add-putfile-endpoint.py "$OPENAPI_FILE"
+echo ""
+
+# Step 2: Fix common issues
+echo "Step 2: Fixing common OpenAPI issues..."
 python3 scripts/fix-openapi.py "$OPENAPI_FILE"
 echo ""
 
-# Step 2: Validate with Mintlify
-echo "Step 2: Validating with Mintlify CLI..."
+# Step 3: Validate with Mintlify
+echo "Step 3: Validating with Mintlify CLI..."
 
 # Check if mint is installed
 if ! command -v mint &> /dev/null; then
