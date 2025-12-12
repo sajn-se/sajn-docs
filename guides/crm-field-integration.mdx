@@ -1,0 +1,683 @@
+---
+title: "CRM Field Integration"
+description: "Guide to syncing document fields between sajn and your CRM system"
+---
+
+# CRM Field Integration
+
+Learn how to integrate sajn document fields with your CRM system, enabling you to create documents with editable fields, store field references, and update content directly from your CRM.
+
+## Overview
+
+This guide covers a common integration pattern where you:
+
+1. **Create a document with fields** - Add TEXT or FORM fields to a document
+2. **Store field references in your CRM** - Save field IDs or keys for later access
+3. **Update fields from your CRM** - Sync changes back to sajn when CRM data changes
+
+This pattern is useful for:
+- Contracts that pull customer data from your CRM
+- Proposals with pricing that updates based on CRM deals
+- Agreements with terms that vary per customer record
+
+## Understanding Field Identifiers
+
+sajn provides two ways to reference fields when updating:
+
+### Field ID
+A unique identifier returned when creating a field. Use this when you need to reference specific field instances.
+
+```
+/api/v1/documents/{docId}/fields/field_abc123
+```
+
+### Field Key
+A custom identifier you assign when creating a field. Use this for a more readable, semantic approach.
+
+```
+/api/v1/documents/{docId}/fields/key:customer-name
+```
+
+<Note>
+Field keys must match the pattern `^[a-z0-9_-]*$` (lowercase letters, numbers, underscores, and hyphens only).
+</Note>
+
+## Step 1: Create Document with Fields
+
+### Create the Document
+
+First, create a document that will contain your fields:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Service Agreement - Acme Corp",
+    "type": "SIGNABLE",
+    "externalId": "crm_deal_12345"
+  }'
+```
+
+Response:
+```json
+{
+  "documentId": "doc_xyz789",
+  "externalId": "crm_deal_12345",
+  "signers": []
+}
+```
+
+<Note>
+Use `externalId` to store your CRM record ID. This makes it easy to find the sajn document from your CRM later.
+</Note>
+
+### Add TEXT Fields
+
+TEXT fields contain rich text content that you can update programmatically:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+      "type": "TEXT",
+      "position": 0,
+      "key": "introduction",
+      "fieldMeta": {
+        "type": "TEXT",
+        "content": "This Service Agreement is entered into by Acme Corp."
+      }
+    },
+    {
+      "type": "TEXT",
+      "position": 1,
+      "key": "terms",
+      "fieldMeta": {
+        "type": "TEXT",
+        "content": "Standard terms and conditions apply."
+      }
+    }
+  ]'
+```
+
+Response:
+```json
+[
+  {
+    "id": "field_abc123",
+    "type": "TEXT",
+    "position": 0,
+    "key": "introduction"
+  },
+  {
+    "id": "field_def456",
+    "type": "TEXT",
+    "position": 1,
+    "key": "terms"
+  }
+]
+```
+
+### Add FORM Fields
+
+FORM fields contain input elements that signers can fill out, or that you can pre-fill:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+      "type": "FORM",
+      "position": 2,
+      "key": "customer-details",
+      "fieldMeta": {
+        "type": "FORM",
+        "columns": 2,
+        "fields": [
+          {
+            "key": "customer-name",
+            "type": "input",
+            "row": 0,
+            "column": 0,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Customer Name",
+              "placeholder": "Enter customer name",
+              "value": ""
+            }
+          },
+          {
+            "key": "customer-email",
+            "type": "input",
+            "row": 0,
+            "column": 1,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Customer Email",
+              "placeholder": "Enter email address",
+              "value": ""
+            }
+          },
+          {
+            "key": "contract-value",
+            "type": "input",
+            "row": 1,
+            "column": 0,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Contract Value",
+              "placeholder": "Enter amount",
+              "value": ""
+            }
+          },
+          {
+            "key": "start-date",
+            "type": "input",
+            "row": 1,
+            "column": 1,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Start Date",
+              "placeholder": "YYYY-MM-DD",
+              "value": ""
+            }
+          }
+        ]
+      }
+    }
+  ]'
+```
+
+## Step 2: Store Field References in Your CRM
+
+After creating fields, store the references in your CRM so you can update them later.
+
+### Recommended Data Model
+
+```javascript
+// CRM record structure for sajn integration
+const crmDealRecord = {
+  // Your existing CRM fields
+  dealId: 'crm_deal_12345',
+  customerName: 'Acme Corp',
+  customerEmail: 'john@acme.com',
+  dealValue: 50000,
+  startDate: '2024-06-01',
+
+  // sajn integration fields
+  sajn: {
+    documentId: 'doc_xyz789',
+    status: 'DRAFT',
+    fields: {
+      // Map CRM field names to sajn field keys
+      customerName: 'customer-name',
+      customerEmail: 'customer-email',
+      dealValue: 'contract-value',
+      startDate: 'start-date',
+      introduction: 'introduction',
+      terms: 'terms'
+    }
+  }
+};
+```
+
+### Why Use Keys Instead of IDs?
+
+Using field keys (like `customer-name`) instead of field IDs (like `field_abc123`) offers advantages:
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| **Field Keys** | Readable, no storage needed, survives document recreation | Must define keys when creating fields |
+| **Field IDs** | Works with any field, including those without keys | Must store IDs, IDs change if document is recreated |
+
+<Note>
+We recommend using field keys for most integrations. They're more maintainable and you don't need to store additional IDs in your CRM.
+</Note>
+
+## Step 3: Update Fields from Your CRM
+
+When data changes in your CRM, update the corresponding sajn fields.
+
+<Warning>
+Fields can only be updated when the document status is `DRAFT`. Once a document is sent for signing, fields cannot be modified.
+</Warning>
+
+### Update TEXT Fields
+
+Update text content using the field key:
+
+```javascript
+const updateTextField = async (documentId, fieldKey, newContent) => {
+  const response = await fetch(
+    `https://app.sajn.se/api/v1/documents/${documentId}/fields/key:${fieldKey}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${process.env.SAJN_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        type: 'TEXT',
+        fieldMeta: {
+          type: 'TEXT',
+          content: newContent
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to update field: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
+// Example: Update introduction text
+await updateTextField(
+  'doc_xyz789',
+  'introduction',
+  'This Service Agreement is entered into by Acme Corp, represented by John Smith.'
+);
+```
+
+### Update FORM Fields
+
+Update form input values using the subfield key:
+
+```javascript
+const updateFormField = async (documentId, fieldKey, newValue) => {
+  const response = await fetch(
+    `https://app.sajn.se/api/v1/documents/${documentId}/fields/key:${fieldKey}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${process.env.SAJN_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fieldMeta: {
+          type: 'input',
+          value: newValue
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to update field: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
+// Example: Update customer name field
+await updateFormField('doc_xyz789', 'customer-name', 'Acme Corporation');
+```
+
+### Batch Update Multiple Fields
+
+Update all CRM-mapped fields at once:
+
+```javascript
+const syncCrmToSajn = async (crmRecord) => {
+  const { sajn, customerName, customerEmail, dealValue, startDate } = crmRecord;
+  const { documentId, fields } = sajn;
+
+  // Map CRM values to sajn field updates
+  const updates = [
+    { key: fields.customerName, value: customerName },
+    { key: fields.customerEmail, value: customerEmail },
+    { key: fields.dealValue, value: dealValue.toString() },
+    { key: fields.startDate, value: startDate }
+  ];
+
+  // Update all fields in parallel
+  const results = await Promise.all(
+    updates.map(({ key, value }) =>
+      updateFormField(documentId, key, value)
+    )
+  );
+
+  console.log(`Synced ${results.length} fields to sajn document ${documentId}`);
+  return results;
+};
+```
+
+## Complete Integration Example
+
+Here's a complete example of a CRM integration service:
+
+```javascript
+class SajnCrmIntegration {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseUrl = 'https://app.sajn.se/api/v1';
+  }
+
+  async request(endpoint, options = {}) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...options,
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || `API error: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  // Create a new document linked to a CRM deal
+  async createDocumentForDeal(deal) {
+    // Step 1: Create the document
+    const document = await this.request('/documents', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: `Service Agreement - ${deal.customerName}`,
+        type: 'SIGNABLE',
+        externalId: deal.dealId
+      })
+    });
+
+    // Step 2: Add fields
+    const fields = await this.request(`/documents/${document.documentId}/fields`, {
+      method: 'POST',
+      body: JSON.stringify([
+        {
+          type: 'TEXT',
+          position: 0,
+          key: 'header',
+          fieldMeta: {
+            type: 'TEXT',
+            content: `# Service Agreement\n\nPrepared for ${deal.customerName}`
+          }
+        },
+        {
+          type: 'FORM',
+          position: 1,
+          key: 'deal-details',
+          fieldMeta: {
+            type: 'FORM',
+            columns: 2,
+            fields: [
+              {
+                key: 'customer-name',
+                type: 'input',
+                row: 0,
+                column: 0,
+                fieldMeta: {
+                  type: 'input',
+                  label: 'Customer Name',
+                  value: deal.customerName
+                }
+              },
+              {
+                key: 'customer-email',
+                type: 'input',
+                row: 0,
+                column: 1,
+                fieldMeta: {
+                  type: 'input',
+                  label: 'Email',
+                  value: deal.customerEmail
+                }
+              },
+              {
+                key: 'contract-value',
+                type: 'input',
+                row: 1,
+                column: 0,
+                fieldMeta: {
+                  type: 'input',
+                  label: 'Contract Value',
+                  value: deal.dealValue.toString()
+                }
+              },
+              {
+                key: 'start-date',
+                type: 'input',
+                row: 1,
+                column: 1,
+                fieldMeta: {
+                  type: 'input',
+                  label: 'Start Date',
+                  value: deal.startDate
+                }
+              }
+            ]
+          }
+        }
+      ])
+    });
+
+    // Return mapping for CRM storage
+    return {
+      documentId: document.documentId,
+      fields: {
+        header: 'header',
+        customerName: 'customer-name',
+        customerEmail: 'customer-email',
+        contractValue: 'contract-value',
+        startDate: 'start-date'
+      }
+    };
+  }
+
+  // Update a single field
+  async updateField(documentId, fieldKey, value, fieldType = 'input') {
+    const body = fieldType === 'TEXT'
+      ? { type: 'TEXT', fieldMeta: { type: 'TEXT', content: value } }
+      : { fieldMeta: { type: fieldType, value } };
+
+    return this.request(`/documents/${documentId}/fields/key:${fieldKey}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body)
+    });
+  }
+
+  // Sync all CRM fields to sajn
+  async syncDealToDocument(deal, fieldMapping) {
+    const updates = [];
+
+    // Text field updates
+    if (deal.headerText) {
+      updates.push(
+        this.updateField(deal.sajnDocumentId, fieldMapping.header, deal.headerText, 'TEXT')
+      );
+    }
+
+    // Form field updates
+    if (deal.customerName) {
+      updates.push(
+        this.updateField(deal.sajnDocumentId, fieldMapping.customerName, deal.customerName)
+      );
+    }
+    if (deal.customerEmail) {
+      updates.push(
+        this.updateField(deal.sajnDocumentId, fieldMapping.customerEmail, deal.customerEmail)
+      );
+    }
+    if (deal.dealValue) {
+      updates.push(
+        this.updateField(deal.sajnDocumentId, fieldMapping.contractValue, deal.dealValue.toString())
+      );
+    }
+    if (deal.startDate) {
+      updates.push(
+        this.updateField(deal.sajnDocumentId, fieldMapping.startDate, deal.startDate)
+      );
+    }
+
+    return Promise.all(updates);
+  }
+
+  // Get document status before updating
+  async getDocumentStatus(documentId) {
+    const document = await this.request(`/documents/${documentId}`);
+    return document.status;
+  }
+
+  // Safe update with status check
+  async safeUpdateField(documentId, fieldKey, value, fieldType = 'input') {
+    const status = await this.getDocumentStatus(documentId);
+
+    if (status !== 'DRAFT') {
+      throw new Error(`Cannot update field: document status is ${status}, expected DRAFT`);
+    }
+
+    return this.updateField(documentId, fieldKey, value, fieldType);
+  }
+}
+
+// Usage
+const sajn = new SajnCrmIntegration(process.env.SAJN_API_KEY);
+
+// When a new deal is created in CRM
+const deal = {
+  dealId: 'crm_deal_12345',
+  customerName: 'Acme Corp',
+  customerEmail: 'john@acme.com',
+  dealValue: 50000,
+  startDate: '2024-06-01'
+};
+
+const mapping = await sajn.createDocumentForDeal(deal);
+console.log('Created document:', mapping.documentId);
+// Store mapping.documentId and mapping.fields in your CRM
+
+// When deal data is updated in CRM
+const updatedDeal = {
+  ...deal,
+  sajnDocumentId: mapping.documentId,
+  dealValue: 75000  // Value changed
+};
+
+await sajn.syncDealToDocument(updatedDeal, mapping.fields);
+console.log('Synced updated deal to sajn');
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always check document status before updating">
+    Fields can only be updated when the document is in `DRAFT` status. Check the status before attempting updates to provide better error messages to your users.
+
+    ```javascript
+    const status = await sajn.getDocumentStatus(documentId);
+    if (status !== 'DRAFT') {
+      console.log('Document already sent, cannot update fields');
+      return;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Use webhooks for two-way sync">
+    Set up webhooks to receive notifications when documents are signed or updated. This enables you to update your CRM when document status changes.
+
+    ```javascript
+    // Webhook handler
+    app.post('/webhooks/sajn', (req, res) => {
+      const { event, documentId, externalId } = req.body;
+
+      if (event === 'document.completed') {
+        // Update CRM deal status using externalId
+        updateCrmDealStatus(externalId, 'signed');
+      }
+
+      res.sendStatus(200);
+    });
+    ```
+
+    See the [Webhooks Guide](/guides/webhooks) for setup instructions.
+  </Accordion>
+
+  <Accordion title="Handle errors gracefully">
+    Individual field updates may fail while others succeed. Handle errors per-field rather than failing the entire sync.
+
+    ```javascript
+    const results = await Promise.allSettled(
+      updates.map(update => updateField(update))
+    );
+
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      console.error(`${failed.length} field updates failed`);
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Use meaningful field keys">
+    Choose descriptive field keys that match your CRM field names. This makes debugging and maintenance easier.
+
+    ```javascript
+    // Good keys
+    'customer-name', 'contract-value', 'start-date'
+
+    // Avoid generic keys
+    'field1', 'input-a', 'text-section'
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Field Not Found Error
+
+```json
+{
+  "message": "Field with key \"invalid-key\" not found."
+}
+```
+
+**Solution**: Verify the field key exists. Retrieve the document to see available fields:
+
+```bash
+curl -X GET https://app.sajn.se/api/v1/documents/doc_xyz789 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Cannot Update Field - Document Not in Draft
+
+```json
+{
+  "message": "Document is not in DRAFT status"
+}
+```
+
+**Solution**: Once a document is sent for signing, fields cannot be modified. You would need to cancel the document, make changes, and resend.
+
+### Invalid Field Value
+
+```json
+{
+  "message": "Invalid value for field type"
+}
+```
+
+**Solution**: Ensure the value format matches the field type. Dates should be `YYYY-MM-DD`, numbers should be strings.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create Documents" icon="file-plus" href="/guides/create-document">
+    Learn more about document creation options
+  </Card>
+  <Card title="Templates and Forms" icon="rectangle-list" href="/guides/templates-and-forms">
+    Use templates for consistent document structure
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Set up webhooks for two-way CRM sync
+  </Card>
+  <Card title="Document Fields API" icon="code" href="/api/POST%20/api/v1/documents/{id}/fields">
+    Full API reference for field operations
+  </Card>
+</CardGroup>
