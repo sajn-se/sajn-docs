@@ -162,28 +162,6 @@
                                 ],
                                 "nullable": true
                               },
-                              "defaultSignatureType": {
-                                "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
-                                "type": "string",
-                                "enum": [
-                                  "DRAWING",
-                                  "BANKID",
-                                  "MANUAL",
-                                  "SMS_DRAWING",
-                                  "CLICK_TO_SIGN"
-                                ],
-                                "nullable": true
-                              },
-                              "distributionMethod": {
-                                "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                                "type": "string",
-                                "enum": [
-                                  "EMAIL",
-                                  "SMS",
-                                  "NONE"
-                                ],
-                                "nullable": true
-                              },
                               "forceReadFullDocument": {
                                 "description": "Whether signers must read the entire document before signing",
                                 "type": "boolean",
@@ -353,7 +331,7 @@
                     "nullable": true
                   },
                   "documentMeta": {
-                    "description": "Document metadata including subject, message, signing order, signature type, etc.",
+                    "description": "Document metadata including subject, message, signing order, etc.",
                     "type": "object",
                     "properties": {
                       "subject": {
@@ -370,26 +348,6 @@
                         "enum": [
                           "PARALLEL",
                           "SEQUENTIAL"
-                        ]
-                      },
-                      "defaultSignatureType": {
-                        "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
-                        "type": "string",
-                        "enum": [
-                          "DRAWING",
-                          "BANKID",
-                          "MANUAL",
-                          "SMS_DRAWING",
-                          "CLICK_TO_SIGN"
-                        ]
-                      },
-                      "distributionMethod": {
-                        "description": "How to send the document: EMAIL, SMS, or NONE",
-                        "type": "string",
-                        "enum": [
-                          "EMAIL",
-                          "SMS",
-                          "NONE"
                         ]
                       },
                       "forceReadFullDocument": {
@@ -470,6 +428,35 @@
                             "signingOrder": {
                               "description": "Order for sequential signing (1, 2, 3, etc.). Ignored for parallel signing.",
                               "type": "number"
+                            },
+                            "deliveryMethod": {
+                              "description": "Per-signer delivery method: EMAIL (default), SMS, or NONE (manual link sharing)",
+                              "type": "string",
+                              "enum": [
+                                "EMAIL",
+                                "SMS",
+                                "NONE"
+                              ]
+                            },
+                            "requiredSignature": {
+                              "description": "Per-signer signature type: DRAWING, BANKID, or CLICK_TO_SIGN. Defaults to organization settings.",
+                              "type": "string",
+                              "enum": [
+                                "NONE",
+                                "DRAWING",
+                                "BANKID",
+                                "MANUAL",
+                                "SMS_DRAWING",
+                                "CLICK_TO_SIGN"
+                              ]
+                            },
+                            "twoStepVerification": {
+                              "description": "Per-signer 2FA: NONE (default) or SMS_BEFORE_SIGNING",
+                              "type": "string",
+                              "enum": [
+                                "NONE",
+                                "SMS_BEFORE_SIGNING"
+                              ]
                             }
                           },
                           "required": [
@@ -515,6 +502,35 @@
                             "companyOrgNumber": {
                               "description": "Company organization number (required if companyName is provided)",
                               "type": "string"
+                            },
+                            "deliveryMethod": {
+                              "description": "Per-signer delivery method: EMAIL (default), SMS, or NONE (manual link sharing)",
+                              "type": "string",
+                              "enum": [
+                                "EMAIL",
+                                "SMS",
+                                "NONE"
+                              ]
+                            },
+                            "requiredSignature": {
+                              "description": "Per-signer signature type: DRAWING, BANKID, or CLICK_TO_SIGN. Defaults to organization settings.",
+                              "type": "string",
+                              "enum": [
+                                "NONE",
+                                "DRAWING",
+                                "BANKID",
+                                "MANUAL",
+                                "SMS_DRAWING",
+                                "CLICK_TO_SIGN"
+                              ]
+                            },
+                            "twoStepVerification": {
+                              "description": "Per-signer 2FA: NONE (default) or SMS_BEFORE_SIGNING",
+                              "type": "string",
+                              "enum": [
+                                "NONE",
+                                "SMS_BEFORE_SIGNING"
+                              ]
                             }
                           },
                           "required": [
@@ -582,7 +598,7 @@
                       "nullable": true
                     },
                     "signers": {
-                      "description": "Array of created signers with their signing URLs and tokens",
+                      "description": "Array of created signers. Use GET /documents/:id/signers/:signerId to retrieve signing URLs.",
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -602,10 +618,6 @@
                             "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
                             "nullable": true
                           },
-                          "token": {
-                            "description": "Unique signing token for this signer",
-                            "type": "string"
-                          },
                           "role": {
                             "description": "Signer role",
                             "type": "string",
@@ -620,10 +632,6 @@
                             "description": "Signing order (for sequential signing)",
                             "type": "number",
                             "nullable": true
-                          },
-                          "signingUrl": {
-                            "description": "Complete signing URL for this signer",
-                            "type": "string"
                           },
                           "type": {
                             "description": "Signer type: INDIVIDUAL or COMPANY",
@@ -652,9 +660,7 @@
                         "required": [
                           "signerId",
                           "name",
-                          "token",
                           "role",
-                          "signingUrl",
                           "type"
                         ],
                         "additionalProperties": false
@@ -793,28 +799,6 @@
                           ],
                           "nullable": true
                         },
-                        "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
-                          "type": "string",
-                          "enum": [
-                            "DRAWING",
-                            "BANKID",
-                            "MANUAL",
-                            "SMS_DRAWING",
-                            "CLICK_TO_SIGN"
-                          ],
-                          "nullable": true
-                        },
-                        "distributionMethod": {
-                          "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                          "type": "string",
-                          "enum": [
-                            "EMAIL",
-                            "SMS",
-                            "NONE"
-                          ],
-                          "nullable": true
-                        },
                         "forceReadFullDocument": {
                           "description": "Whether signers must read the entire document before signing",
                           "type": "boolean",
@@ -931,10 +915,6 @@
                             "type": "number",
                             "nullable": true
                           },
-                          "token": {
-                            "description": "Unique signing token",
-                            "type": "string"
-                          },
                           "signedAt": {
                             "description": "Date and time when the signer signed (null if not signed)",
                             "type": "string",
@@ -958,9 +938,49 @@
                               "REJECTED"
                             ]
                           },
-                          "signingUrl": {
-                            "description": "Complete signing URL for this signer",
-                            "type": "string"
+                          "deliveryMethod": {
+                            "description": "How documents are sent to this signer: EMAIL, SMS, or NONE",
+                            "type": "string",
+                            "enum": [
+                              "EMAIL",
+                              "SMS",
+                              "NONE"
+                            ],
+                            "nullable": true
+                          },
+                          "requiredSignature": {
+                            "description": "Signature type required: DRAWING, BANKID, CLICK_TO_SIGN, etc.",
+                            "type": "string",
+                            "enum": [
+                              "NONE",
+                              "DRAWING",
+                              "BANKID",
+                              "MANUAL",
+                              "SMS_DRAWING",
+                              "CLICK_TO_SIGN"
+                            ],
+                            "nullable": true
+                          },
+                          "twoStepVerification": {
+                            "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                            "type": "string",
+                            "enum": [
+                              "NONE",
+                              "SMS_BEFORE_SIGNING"
+                            ],
+                            "nullable": true
+                          },
+                          "sendStatus": {
+                            "description": "Send status: NOT_SENT, SENT, DELIVERED, BOUNCED, or FAILED",
+                            "type": "string",
+                            "enum": [
+                              "NOT_SENT",
+                              "SENT",
+                              "DELIVERED",
+                              "BOUNCED",
+                              "FAILED"
+                            ],
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -968,11 +988,13 @@
                           "documentId",
                           "name",
                           "role",
-                          "token",
                           "signedAt",
                           "readStatus",
                           "signingStatus",
-                          "signingUrl"
+                          "deliveryMethod",
+                          "requiredSignature",
+                          "twoStepVerification",
+                          "sendStatus"
                         ],
                         "additionalProperties": false
                       }
@@ -1162,24 +1184,6 @@
                           "SEQUENTIAL"
                         ]
                       },
-                      "defaultSignatureType": {
-                        "type": "string",
-                        "enum": [
-                          "DRAWING",
-                          "BANKID",
-                          "MANUAL",
-                          "SMS_DRAWING",
-                          "CLICK_TO_SIGN"
-                        ]
-                      },
-                      "distributionMethod": {
-                        "type": "string",
-                        "enum": [
-                          "EMAIL",
-                          "SMS",
-                          "NONE"
-                        ]
-                      },
                       "forceReadFullDocument": {
                         "type": "boolean"
                       },
@@ -1303,28 +1307,6 @@
                           "enum": [
                             "PARALLEL",
                             "SEQUENTIAL"
-                          ],
-                          "nullable": true
-                        },
-                        "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
-                          "type": "string",
-                          "enum": [
-                            "DRAWING",
-                            "BANKID",
-                            "MANUAL",
-                            "SMS_DRAWING",
-                            "CLICK_TO_SIGN"
-                          ],
-                          "nullable": true
-                        },
-                        "distributionMethod": {
-                          "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                          "type": "string",
-                          "enum": [
-                            "EMAIL",
-                            "SMS",
-                            "NONE"
                           ],
                           "nullable": true
                         },
@@ -1501,28 +1483,6 @@
                           "enum": [
                             "PARALLEL",
                             "SEQUENTIAL"
-                          ],
-                          "nullable": true
-                        },
-                        "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
-                          "type": "string",
-                          "enum": [
-                            "DRAWING",
-                            "BANKID",
-                            "MANUAL",
-                            "SMS_DRAWING",
-                            "CLICK_TO_SIGN"
-                          ],
-                          "nullable": true
-                        },
-                        "distributionMethod": {
-                          "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                          "type": "string",
-                          "enum": [
-                            "EMAIL",
-                            "SMS",
-                            "NONE"
                           ],
                           "nullable": true
                         },
@@ -1762,26 +1722,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "description": "Send document request",
+                "description": "Send document for signing.",
                 "type": "object",
                 "properties": {
-                  "deliveryMethod": {
-                    "description": "How to send the document: EMAIL, SMS, or NONE",
-                    "type": "string",
-                    "enum": [
-                      "EMAIL",
-                      "SMS",
-                      "NONE"
-                    ]
-                  },
                   "customMessage": {
                     "description": "Optional custom message to include in the signing invitation",
                     "type": "string"
                   }
                 },
-                "required": [
-                  "deliveryMethod"
-                ],
                 "additionalProperties": false
               }
             }
@@ -1837,28 +1785,6 @@
                           "enum": [
                             "PARALLEL",
                             "SEQUENTIAL"
-                          ],
-                          "nullable": true
-                        },
-                        "defaultSignatureType": {
-                          "description": "Default signature type: DRAWING, SMS_DRAWING, BANKID, or MANUAL",
-                          "type": "string",
-                          "enum": [
-                            "DRAWING",
-                            "BANKID",
-                            "MANUAL",
-                            "SMS_DRAWING",
-                            "CLICK_TO_SIGN"
-                          ],
-                          "nullable": true
-                        },
-                        "distributionMethod": {
-                          "description": "How to send the document: EMAIL, SMS, or NONE (use signing URLs directly)",
-                          "type": "string",
-                          "enum": [
-                            "EMAIL",
-                            "SMS",
-                            "NONE"
                           ],
                           "nullable": true
                         },
@@ -1964,7 +1890,7 @@
     },
     "/api/v1/documents/{id}/signers": {
       "post": {
-        "description": "Add a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer with a unique signing URL and token.",
+        "description": "Add a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
         "summary": "Add a signer to document",
         "tags": [],
         "parameters": [
@@ -2015,6 +1941,35 @@
                     "description": "Signing order for sequential signing (ignored for parallel)",
                     "type": "number",
                     "nullable": true
+                  },
+                  "deliveryMethod": {
+                    "description": "How to send to this signer: EMAIL (default), SMS, or NONE",
+                    "type": "string",
+                    "enum": [
+                      "EMAIL",
+                      "SMS",
+                      "NONE"
+                    ]
+                  },
+                  "requiredSignature": {
+                    "description": "Signature type required: DRAWING (default), BANKID, or CLICK_TO_SIGN",
+                    "type": "string",
+                    "enum": [
+                      "NONE",
+                      "DRAWING",
+                      "BANKID",
+                      "MANUAL",
+                      "SMS_DRAWING",
+                      "CLICK_TO_SIGN"
+                    ]
+                  },
+                  "twoStepVerification": {
+                    "description": "Two-step verification: NONE (default) or SMS_BEFORE_SIGNING",
+                    "type": "string",
+                    "enum": [
+                      "NONE",
+                      "SMS_BEFORE_SIGNING"
+                    ]
                   }
                 },
                 "required": [
@@ -2103,10 +2058,6 @@
                       "type": "number",
                       "nullable": true
                     },
-                    "token": {
-                      "description": "Unique signing token",
-                      "type": "string"
-                    },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
                       "type": "string",
@@ -2130,9 +2081,49 @@
                         "REJECTED"
                       ]
                     },
-                    "signingUrl": {
-                      "description": "Complete signing URL for this signer",
-                      "type": "string"
+                    "deliveryMethod": {
+                      "description": "How documents are sent to this signer: EMAIL, SMS, or NONE",
+                      "type": "string",
+                      "enum": [
+                        "EMAIL",
+                        "SMS",
+                        "NONE"
+                      ],
+                      "nullable": true
+                    },
+                    "requiredSignature": {
+                      "description": "Signature type required: DRAWING, BANKID, CLICK_TO_SIGN, etc.",
+                      "type": "string",
+                      "enum": [
+                        "NONE",
+                        "DRAWING",
+                        "BANKID",
+                        "MANUAL",
+                        "SMS_DRAWING",
+                        "CLICK_TO_SIGN"
+                      ],
+                      "nullable": true
+                    },
+                    "twoStepVerification": {
+                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "type": "string",
+                      "enum": [
+                        "NONE",
+                        "SMS_BEFORE_SIGNING"
+                      ],
+                      "nullable": true
+                    },
+                    "sendStatus": {
+                      "description": "Send status: NOT_SENT, SENT, DELIVERED, BOUNCED, or FAILED",
+                      "type": "string",
+                      "enum": [
+                        "NOT_SENT",
+                        "SENT",
+                        "DELIVERED",
+                        "BOUNCED",
+                        "FAILED"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2140,11 +2131,13 @@
                     "documentId",
                     "name",
                     "role",
-                    "token",
                     "signedAt",
                     "readStatus",
                     "signingStatus",
-                    "signingUrl"
+                    "deliveryMethod",
+                    "requiredSignature",
+                    "twoStepVerification",
+                    "sendStatus"
                   ],
                   "additionalProperties": false
                 }
@@ -2365,6 +2358,50 @@
                               "SIGNED",
                               "REJECTED"
                             ]
+                          },
+                          "deliveryMethod": {
+                            "description": "How documents are sent to this signer: EMAIL, SMS, or NONE",
+                            "type": "string",
+                            "enum": [
+                              "EMAIL",
+                              "SMS",
+                              "NONE"
+                            ],
+                            "nullable": true
+                          },
+                          "requiredSignature": {
+                            "description": "Signature type required: DRAWING, BANKID, CLICK_TO_SIGN, etc.",
+                            "type": "string",
+                            "enum": [
+                              "NONE",
+                              "DRAWING",
+                              "BANKID",
+                              "MANUAL",
+                              "SMS_DRAWING",
+                              "CLICK_TO_SIGN"
+                            ],
+                            "nullable": true
+                          },
+                          "twoStepVerification": {
+                            "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                            "type": "string",
+                            "enum": [
+                              "NONE",
+                              "SMS_BEFORE_SIGNING"
+                            ],
+                            "nullable": true
+                          },
+                          "sendStatus": {
+                            "description": "Send status: NOT_SENT, SENT, DELIVERED, BOUNCED, or FAILED",
+                            "type": "string",
+                            "enum": [
+                              "NOT_SENT",
+                              "SENT",
+                              "DELIVERED",
+                              "BOUNCED",
+                              "FAILED"
+                            ],
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -2374,7 +2411,11 @@
                           "role",
                           "signedAt",
                           "readStatus",
-                          "signingStatus"
+                          "signingStatus",
+                          "deliveryMethod",
+                          "requiredSignature",
+                          "twoStepVerification",
+                          "sendStatus"
                         ],
                         "additionalProperties": false
                       }
@@ -2515,6 +2556,35 @@
                   "signingOrder": {
                     "type": "number",
                     "nullable": true
+                  },
+                  "deliveryMethod": {
+                    "description": "How to send to this signer: EMAIL, SMS, or NONE",
+                    "type": "string",
+                    "enum": [
+                      "EMAIL",
+                      "SMS",
+                      "NONE"
+                    ]
+                  },
+                  "requiredSignature": {
+                    "description": "Signature type required: DRAWING, BANKID, or CLICK_TO_SIGN",
+                    "type": "string",
+                    "enum": [
+                      "NONE",
+                      "DRAWING",
+                      "BANKID",
+                      "MANUAL",
+                      "SMS_DRAWING",
+                      "CLICK_TO_SIGN"
+                    ]
+                  },
+                  "twoStepVerification": {
+                    "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                    "type": "string",
+                    "enum": [
+                      "NONE",
+                      "SMS_BEFORE_SIGNING"
+                    ]
                   }
                 },
                 "required": [
@@ -2602,10 +2672,6 @@
                       "type": "number",
                       "nullable": true
                     },
-                    "token": {
-                      "description": "Unique signing token",
-                      "type": "string"
-                    },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
                       "type": "string",
@@ -2629,9 +2695,49 @@
                         "REJECTED"
                       ]
                     },
-                    "signingUrl": {
-                      "description": "Complete signing URL for this signer",
-                      "type": "string"
+                    "deliveryMethod": {
+                      "description": "How documents are sent to this signer: EMAIL, SMS, or NONE",
+                      "type": "string",
+                      "enum": [
+                        "EMAIL",
+                        "SMS",
+                        "NONE"
+                      ],
+                      "nullable": true
+                    },
+                    "requiredSignature": {
+                      "description": "Signature type required: DRAWING, BANKID, CLICK_TO_SIGN, etc.",
+                      "type": "string",
+                      "enum": [
+                        "NONE",
+                        "DRAWING",
+                        "BANKID",
+                        "MANUAL",
+                        "SMS_DRAWING",
+                        "CLICK_TO_SIGN"
+                      ],
+                      "nullable": true
+                    },
+                    "twoStepVerification": {
+                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "type": "string",
+                      "enum": [
+                        "NONE",
+                        "SMS_BEFORE_SIGNING"
+                      ],
+                      "nullable": true
+                    },
+                    "sendStatus": {
+                      "description": "Send status: NOT_SENT, SENT, DELIVERED, BOUNCED, or FAILED",
+                      "type": "string",
+                      "enum": [
+                        "NOT_SENT",
+                        "SENT",
+                        "DELIVERED",
+                        "BOUNCED",
+                        "FAILED"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2639,11 +2745,13 @@
                     "documentId",
                     "name",
                     "role",
-                    "token",
                     "signedAt",
                     "readStatus",
                     "signingStatus",
-                    "signingUrl"
+                    "deliveryMethod",
+                    "requiredSignature",
+                    "twoStepVerification",
+                    "sendStatus"
                   ],
                   "additionalProperties": false
                 }
@@ -2845,10 +2953,6 @@
                       "type": "number",
                       "nullable": true
                     },
-                    "token": {
-                      "description": "Unique signing token",
-                      "type": "string"
-                    },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
                       "type": "string",
@@ -2872,9 +2976,49 @@
                         "REJECTED"
                       ]
                     },
-                    "signingUrl": {
-                      "description": "Complete signing URL for this signer",
-                      "type": "string"
+                    "deliveryMethod": {
+                      "description": "How documents are sent to this signer: EMAIL, SMS, or NONE",
+                      "type": "string",
+                      "enum": [
+                        "EMAIL",
+                        "SMS",
+                        "NONE"
+                      ],
+                      "nullable": true
+                    },
+                    "requiredSignature": {
+                      "description": "Signature type required: DRAWING, BANKID, CLICK_TO_SIGN, etc.",
+                      "type": "string",
+                      "enum": [
+                        "NONE",
+                        "DRAWING",
+                        "BANKID",
+                        "MANUAL",
+                        "SMS_DRAWING",
+                        "CLICK_TO_SIGN"
+                      ],
+                      "nullable": true
+                    },
+                    "twoStepVerification": {
+                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "type": "string",
+                      "enum": [
+                        "NONE",
+                        "SMS_BEFORE_SIGNING"
+                      ],
+                      "nullable": true
+                    },
+                    "sendStatus": {
+                      "description": "Send status: NOT_SENT, SENT, DELIVERED, BOUNCED, or FAILED",
+                      "type": "string",
+                      "enum": [
+                        "NOT_SENT",
+                        "SENT",
+                        "DELIVERED",
+                        "BOUNCED",
+                        "FAILED"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -2882,11 +3026,13 @@
                     "documentId",
                     "name",
                     "role",
-                    "token",
                     "signedAt",
                     "readStatus",
                     "signingStatus",
-                    "signingUrl"
+                    "deliveryMethod",
+                    "requiredSignature",
+                    "twoStepVerification",
+                    "sendStatus"
                   ],
                   "additionalProperties": false
                 }
@@ -3115,6 +3261,50 @@
                         "REJECTED"
                       ]
                     },
+                    "deliveryMethod": {
+                      "description": "How documents are sent to this signer: EMAIL, SMS, or NONE",
+                      "type": "string",
+                      "enum": [
+                        "EMAIL",
+                        "SMS",
+                        "NONE"
+                      ],
+                      "nullable": true
+                    },
+                    "requiredSignature": {
+                      "description": "Signature type required: DRAWING, BANKID, CLICK_TO_SIGN, etc.",
+                      "type": "string",
+                      "enum": [
+                        "NONE",
+                        "DRAWING",
+                        "BANKID",
+                        "MANUAL",
+                        "SMS_DRAWING",
+                        "CLICK_TO_SIGN"
+                      ],
+                      "nullable": true
+                    },
+                    "twoStepVerification": {
+                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "type": "string",
+                      "enum": [
+                        "NONE",
+                        "SMS_BEFORE_SIGNING"
+                      ],
+                      "nullable": true
+                    },
+                    "sendStatus": {
+                      "description": "Send status: NOT_SENT, SENT, DELIVERED, BOUNCED, or FAILED",
+                      "type": "string",
+                      "enum": [
+                        "NOT_SENT",
+                        "SENT",
+                        "DELIVERED",
+                        "BOUNCED",
+                        "FAILED"
+                      ],
+                      "nullable": true
+                    },
                     "signingUrl": {
                       "description": "Complete signing URL for this signer",
                       "type": "string"
@@ -3129,6 +3319,10 @@
                     "signedAt",
                     "readStatus",
                     "signingStatus",
+                    "deliveryMethod",
+                    "requiredSignature",
+                    "twoStepVerification",
+                    "sendStatus",
                     "signingUrl"
                   ],
                   "additionalProperties": false
@@ -8810,156 +9004,6 @@
         }
       }
     },
-    "/api/v1/putFile": {
-      "put": {
-        "description": "Upload a file directly to sajn storage.\n\n**Important:** This endpoint uses `https://upload.sajn.se` as the base URL, not `https://app.sajn.se`.\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Example Upload:**\n```bash\n# Private file (default)\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/document.pdf\"\n\n# Public file\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/image.png\" \\\n  -F \"visibility=PUBLIC\"\n```",
-        "summary": "Upload file",
-        "tags": [],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Bearer token for API authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "operationId": "putFile",
-        "requestBody": {
-          "description": "Multipart form data with file and optional visibility",
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "description": "File upload request",
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "description": "The file to upload. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG",
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "visibility": {
-                    "description": "File visibility: PRIVATE (requires signed URL) or PUBLIC (direct access)",
-                    "default": "PRIVATE",
-                    "type": "string",
-                    "enum": [
-                      "PRIVATE",
-                      "PUBLIC"
-                    ]
-                  }
-                },
-                "required": [
-                  "file"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "File uploaded successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "File upload response",
-                  "type": "object",
-                  "properties": {
-                    "key": {
-                      "description": "Storage key for the uploaded file",
-                      "type": "string"
-                    },
-                    "file": {
-                      "description": "File metadata",
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "description": "Unique file identifier",
-                          "type": "string"
-                        },
-                        "filename": {
-                          "description": "Original filename",
-                          "type": "string"
-                        },
-                        "mimeType": {
-                          "description": "MIME type of the file",
-                          "type": "string"
-                        },
-                        "size": {
-                          "description": "File size in bytes",
-                          "type": "integer"
-                        },
-                        "hash": {
-                          "description": "SHA-256 hash of the file",
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "filename",
-                        "mimeType",
-                        "size",
-                        "hash"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "required": [
-                    "key",
-                    "file"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/files/{id}": {
       "get": {
         "description": "Retrieve file information and access URL.\n\n**URL Generation:**\n- For `PRIVATE` files: Returns a fresh signed URL (valid for 60 minutes)\n- For `PUBLIC` files: Returns the permanent CloudFront URL\n\n**Response includes:**\n- File metadata (filename, size, MIME type)\n- Visibility setting\n- Access URL\n- Upload information",
@@ -9375,6 +9419,156 @@
                   "required": [
                     "files",
                     "totalPages"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/putFile": {
+      "put": {
+        "description": "Upload a file directly to sajn storage.\n\n**Important:** This endpoint uses `https://upload.sajn.se` as the base URL, not `https://app.sajn.se`.\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Example Upload:**\n```bash\n# Private file (default)\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/document.pdf\"\n\n# Public file\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/image.png\" \\\n  -F \"visibility=PUBLIC\"\n```",
+        "summary": "Upload file",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "putFile",
+        "requestBody": {
+          "description": "Multipart form data with file and optional visibility",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "File upload request",
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "description": "The file to upload. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG",
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "visibility": {
+                    "description": "File visibility: PRIVATE (requires signed URL) or PUBLIC (direct access)",
+                    "default": "PRIVATE",
+                    "type": "string",
+                    "enum": [
+                      "PRIVATE",
+                      "PUBLIC"
+                    ]
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "File upload response",
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "description": "Storage key for the uploaded file",
+                      "type": "string"
+                    },
+                    "file": {
+                      "description": "File metadata",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Unique file identifier",
+                          "type": "string"
+                        },
+                        "filename": {
+                          "description": "Original filename",
+                          "type": "string"
+                        },
+                        "mimeType": {
+                          "description": "MIME type of the file",
+                          "type": "string"
+                        },
+                        "size": {
+                          "description": "File size in bytes",
+                          "type": "integer"
+                        },
+                        "hash": {
+                          "description": "SHA-256 hash of the file",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "filename",
+                        "mimeType",
+                        "size",
+                        "hash"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "file"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
                   ],
                   "additionalProperties": false
                 }
