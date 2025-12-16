@@ -69,8 +69,6 @@ Documents can have rich metadata to control the signing process:
     "subject": "Please sign the employment contract",
     "message": "Welcome to the team! Please review and sign.",
     "signingOrder": "SEQUENTIAL",
-    "defaultSignatureType": "DRAWING",
-    "distributionMethod": "EMAIL",
     "forceReadFullDocument": true,
     "showCommentsToSigners": false,
     "preferredLanguage": "sv",
@@ -81,6 +79,10 @@ Documents can have rich metadata to control the signing process:
 }
 ```
 
+<Note>
+  Delivery method and signature type are configured per-signer. See [Signers](/concepts/signers) for details.
+</Note>
+
 ### Key Metadata Fields
 
 <AccordionGroup>
@@ -89,21 +91,12 @@ Documents can have rich metadata to control the signing process:
     **SEQUENTIAL**: Signers must sign in order (1, 2, 3, etc.)
   </Accordion>
 
-  <Accordion title="distributionMethod">
-    **EMAIL**: Send via email
-    **SMS**: Send via SMS
-    **NONE**: Don't send automatically (use signing URLs directly)
-  </Accordion>
-
-  <Accordion title="defaultSignatureType">
-    **DRAWING**: Free-hand signature (SES)
-    **SMS_DRAWING**: SMS + Free-hand signature (SES)
-    **BANKID**: Swedish BankID electronic signature (AES)
-    **CLICK_TO_SIGN**: Click-to-sign signature (SES)
-  </Accordion>
-
   <Accordion title="forceReadFullDocument">
     When `true`, signers must scroll through the entire document before signing.
+  </Accordion>
+
+  <Accordion title="preferredLanguage">
+    Language for the signing interface: `sv` (Swedish), `en` (English), `no` (Norwegian), `da` (Danish), or `fi` (Finnish).
   </Accordion>
 </AccordionGroup>
 

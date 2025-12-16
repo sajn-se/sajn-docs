@@ -54,6 +54,9 @@ Each signer has the following information:
   "ssn": "197001011234",
   "role": "SIGNER",
   "signingOrder": 1,
+  "deliveryMethod": "EMAIL",
+  "requiredSignature": "DRAWING",
+  "twoStepVerification": "NONE",
   "contactId": "contact_123"
 }
 ```
@@ -68,7 +71,9 @@ For company signers:
   "companyName": "Acme Corp",
   "companyOrgNumber": "556123-4567",
   "role": "SIGNER",
-  "signingOrder": 1
+  "signingOrder": 1,
+  "deliveryMethod": "EMAIL",
+  "requiredSignature": "BANKID"
 }
 ```
 
@@ -101,13 +106,17 @@ When using sequential signing (`signingOrder: "SEQUENTIAL"`), assign each signer
       "name": "Manager",
       "email": "manager@company.com",
       "role": "SIGNER",
-      "signingOrder": 1
+      "signingOrder": 1,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "BANKID"
     },
     {
       "name": "Employee",
       "email": "employee@company.com",
       "role": "SIGNER",
-      "signingOrder": 2
+      "signingOrder": 2,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "DRAWING"
     }
   ]
 }
@@ -118,6 +127,44 @@ The manager must sign first before the employee can access the document.
 <Note>
   For parallel signing, `signingOrder` is optional and will be ignored.
 </Note>
+
+## Delivery and Signature Settings
+
+Each signer can have individual delivery and signature settings configured when adding them to a document.
+
+### deliveryMethod
+
+How the signer receives their signing invitation:
+
+| Method | Description |
+|--------|-------------|
+| `EMAIL` | Signing invitation sent via email (default) |
+| `SMS` | Signing link sent via SMS (requires phone number) |
+| `NONE` | No automatic delivery - retrieve signing URL manually |
+
+### requiredSignature
+
+The signature type required from this signer:
+
+| Type | Description |
+|------|-------------|
+| `DRAWING` | Free-hand signature drawing (SES) |
+| `BANKID` | Swedish BankID electronic signature (AES) - requires SSN |
+| `CLICK_TO_SIGN` | Simple click-to-sign (SES) |
+| `MANUAL` | For in-person signing |
+
+### twoStepVerification
+
+Additional verification before signing:
+
+| Value | Description |
+|-------|-------------|
+| `NONE` | No additional verification (default) |
+| `SMS_BEFORE_SIGNING` | SMS code required before signing |
+
+<Tip>
+  For SMS verification before signing, use `twoStepVerification: "SMS_BEFORE_SIGNING"` combined with your chosen signature type.
+</Tip>
 
 ## Signer Status
 
@@ -139,21 +186,29 @@ Track each signer's progress through two status fields:
 | `SIGNED` | Signer has signed the document |
 | `REJECTED` | Signer rejected the document |
 
-## Signing URLs and Tokens
+## Retrieving Signing URLs
 
-Each signer gets a unique, secure URL and token:
+To get a signer's signing URL, call the get signer endpoint:
+
+```bash
+GET /api/v1/documents/{documentId}/signers/{signerId}
+```
+
+Response includes the signing URL:
 
 ```json
 {
-  "signerId": "signer_123",
-  "type": "INDIVIDUAL",
+  "id": "signer_123",
   "name": "John Doe",
   "email": "john@example.com",
   "token": "abc123...",
-  "signingUrl": "https://app.sajn.se/sign/doc_123?token={abc123}...",
-  "contactId": "contact_123"
+  "signingUrl": "https://app.sajn.se/sign/doc_123?token=abc123..."
 }
 ```
+
+<Note>
+  Each time you retrieve a signing URL, an audit log entry is created. Only fetch signing URLs when you need to share them with signers.
+</Note>
 
 <Warning>
   Never share signing URLs publicly. Each URL is tied to a specific signer and should only be sent to that individual.
@@ -174,33 +229,28 @@ This automatically populates signer information from the contact and tracks sign
 
 ## BankID Integration
 
-For BankID signatures, the signer must provide their Swedish personal number (SSN):
+For BankID signatures, the signer must provide their Swedish personal number (SSN) and have `requiredSignature` set to `BANKID`:
 
 ```json
 {
   "name": "John Doe",
   "email": "john@example.com",
   "ssn": "197001011234",
-  "role": "SIGNER"
-}
-```
-
-When sending the document, specify BankID as the signature type:
-
-```json
-{
+  "role": "SIGNER",
   "deliveryMethod": "EMAIL",
-  "signatureType": "BANKID"
+  "requiredSignature": "BANKID"
 }
 ```
 
 ## Notifications
 
-Signers receive notifications based on the distribution method:
+Signers receive notifications based on their individual `deliveryMethod` setting:
 
 - **EMAIL**: Receives signing invitation via email
 - **SMS**: Receives signing link via SMS
-- **NONE**: No automatic notification (you handle distribution)
+- **NONE**: No automatic notification (retrieve and share the signing URL yourself)
+
+Each signer can have a different delivery method, allowing you to mix email, SMS, and manual distribution in the same document.
 
 ## Updating Signers
 

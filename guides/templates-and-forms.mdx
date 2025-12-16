@@ -263,13 +263,17 @@ const signers = [
     name: 'Andreas Enem',
     email: 'andreas@example.com',
     role: 'SIGNER',
-    signingOrder: 1
+    signingOrder: 1,
+    deliveryMethod: 'EMAIL',
+    requiredSignature: 'DRAWING'
   },
   {
     name: 'HR Manager',
     email: 'hr@company.com',
     role: 'SIGNER',
-    signingOrder: 2
+    signingOrder: 2,
+    deliveryMethod: 'EMAIL',
+    requiredSignature: 'BANKID'
   }
 ];
 
@@ -284,16 +288,15 @@ After filling all form fields, send the document for signatures:
 curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/send \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{
-    "deliveryMethod": "EMAIL",
-    "signatureType": "BANKID"
-  }'
+  -d '{}'
 ```
+
+<Note>
+  Delivery method and signature type are configured per-signer when adding them, not at send time.
+</Note>
 
 ### Send Options
 
-- **`deliveryMethod`** - How to notify signers: `EMAIL`, `SMS`, or `NONE`
-- **`signatureType`** - Default signature method: `BANKID`, `DRAWING`, `MANUAL`, `SMS_DRAWING`, or `CLICK_TO_SIGN`
 - **`customMessage`** - Optional custom message to signers
 
 ## Advanced Field Operations

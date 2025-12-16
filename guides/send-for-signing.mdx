@@ -12,124 +12,130 @@ Learn how to send documents to signers and manage the signing workflow.
 Before sending a document:
 
 1. Document must be in `DRAFT` status
-2. At least one signer must be added
-3. Signers must have valid email addresses (for EMAIL) or phone numbers (for SMS)
+2. At least one signer must be added with:
+   - `deliveryMethod` configured (EMAIL, SMS, or NONE)
+   - `requiredSignature` configured (DRAWING, BANKID, CLICK_TO_SIGN, or MANUAL)
+3. Signers must have valid email addresses (for EMAIL delivery) or phone numbers (for SMS delivery)
 
 ## Basic Send
 
-Send a document via email with default settings:
+Send a document to signers:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/{documentId}/send \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+The send endpoint triggers delivery based on each signer's individual `deliveryMethod` setting.
+
+## Adding a Custom Message
+
+Include a personal message in the signing invitation:
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents/{documentId}/send \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "deliveryMethod": "EMAIL",
-    "signatureType": "DRAWING"
+    "customMessage": "Hi, please review and sign the updated employment contract. Let me know if you have any questions!"
   }'
 ```
 
-## Delivery Methods
+## Per-Signer Delivery and Signature Settings
 
-### Email Distribution
+Delivery method and signature type are configured per-signer when adding them to the document, not at send time. This allows different signers to receive invitations through different channels and use different signature types.
 
-Send signing invitations via email:
+### Example: Mixed Delivery Methods
+
+```json
+{
+  "signers": [
+    {
+      "name": "John Doe",
+      "email": "john@example.com",
+      "role": "SIGNER",
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "DRAWING"
+    },
+    {
+      "name": "Jane Manager",
+      "phone": "+46701234567",
+      "role": "SIGNER",
+      "deliveryMethod": "SMS",
+      "requiredSignature": "BANKID",
+      "twoStepVerification": "SMS_BEFORE_SIGNING"
+    },
+    {
+      "name": "External Reviewer",
+      "email": "reviewer@external.com",
+      "role": "REVIEWER",
+      "deliveryMethod": "NONE"
+    }
+  ]
+}
+```
+
+In this example:
+- John receives an email with a drawing signature
+- Jane receives an SMS with BankID + SMS verification before signing
+- The external reviewer doesn't receive automatic delivery (use signing URL directly)
+
+### Delivery Methods
+
+| Method | Description |
+|--------|-------------|
+| `EMAIL` | Signing invitation sent via email |
+| `SMS` | Signing link sent via SMS (requires phone number) |
+| `NONE` | No automatic delivery - retrieve signing URL manually |
+
+### Signature Types
+
+| Type | Description |
+|------|-------------|
+| `DRAWING` | Free-hand signature drawing (SES) |
+| `BANKID` | Swedish BankID electronic signature (AES) - requires SSN |
+| `CLICK_TO_SIGN` | Simple click-to-sign (SES) |
+| `MANUAL` | For in-person signing |
+
+### Two-Step Verification
+
+For additional security, enable SMS verification before signing:
 
 ```json
 {
   "deliveryMethod": "EMAIL",
-  "signatureType": "DRAWING",
-  "customMessage": "Please sign this document at your earliest convenience."
+  "requiredSignature": "DRAWING",
+  "twoStepVerification": "SMS_BEFORE_SIGNING"
 }
 ```
 
-### SMS Distribution
+This sends an SMS code that the signer must enter before they can sign.
 
-Send signing links via SMS (requires phone numbers on signers):
+## Retrieving Signing URLs
+
+For signers with `deliveryMethod: "NONE"`, or when you need to share the signing URL directly:
+
+```bash
+GET /api/v1/documents/{documentId}/signers/{signerId}
+```
+
+Response:
 
 ```json
 {
-  "deliveryMethod": "SMS",
-  "signatureType": "DRAWING"
+  "id": "signer_123",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "token": "abc123...",
+  "signingUrl": "https://app.sajn.se/sign/doc_123?token=abc123..."
 }
 ```
 
-### No Automatic Distribution
-
-Get signing URLs without sending notifications:
-
-```json
-{
-  "deliveryMethod": "NONE",
-  "signatureType": "DRAWING"
-}
-```
-
-Use this when you want to distribute URLs through your own channels.
-
-## Signature Types
-
-### Drawing Signature
-
-Free-hand signature drawing:
-
-```json
-{
-  "signatureType": "DRAWING"
-}
-```
-
-### BankID Signature
-
-Swedish BankID electronic signature (requires SSN on signers):
-
-```json
-{
-  "signatureType": "BANKID"
-}
-```
-
-### Manual Signature
-
-For in-person signing:
-
-```json
-{
-  "signatureType": "MANUAL"
-}
-```
-
-### SMS Drawing Signature
-
-Sends an SMS with a link for drawing signature on mobile:
-
-```json
-{
-  "signatureType": "SMS_DRAWING"
-}
-```
-
-### Click-to-Sign Signature
-
-Simple click-to-sign signature (SES - Simple Electronic Signature):
-
-```json
-{
-  "signatureType": "CLICK_TO_SIGN"
-}
-```
-
-## Custom Messages
-
-Add a personal message to the signing invitation:
-
-```json
-{
-  "deliveryMethod": "EMAIL",
-  "signatureType": "DRAWING",
-  "customMessage": "Hi John, please review and sign the updated employment contract. Let me know if you have any questions!"
-}
-```
+<Note>
+  Each time you retrieve a signing URL, an audit log entry is created. Only fetch signing URLs when you need to share them with signers.
+</Note>
 
 ## Signing Workflows
 
@@ -138,52 +144,40 @@ Add a personal message to the signing invitation:
 All signers can sign simultaneously (default):
 
 ```json
-// Document metadata
 {
   "documentMeta": {
     "signingOrder": "PARALLEL"
   }
 }
-
-// When sending
-{
-  "deliveryMethod": "EMAIL",
-  "signatureType": "DRAWING"
-}
 ```
 
-All signers receive invitations immediately.
+All signers receive invitations immediately when the document is sent.
 
 ### Sequential Signing
 
 Signers must sign in order:
 
 ```json
-// Document metadata (set when creating/updating document)
 {
   "documentMeta": {
     "signingOrder": "SEQUENTIAL"
-  }
-}
-
-// Signers with order
-[
-  {
-    "name": "Manager",
-    "email": "manager@company.com",
-    "signingOrder": 1
   },
-  {
-    "name": "Employee",
-    "email": "employee@company.com",
-    "signingOrder": 2
-  }
-]
-
-// When sending
-{
-  "deliveryMethod": "EMAIL",
-  "signatureType": "DRAWING"
+  "signers": [
+    {
+      "name": "Manager",
+      "email": "manager@company.com",
+      "signingOrder": 1,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "BANKID"
+    },
+    {
+      "name": "Employee",
+      "email": "employee@company.com",
+      "signingOrder": 2,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "DRAWING"
+    }
+  ]
 }
 ```
 
@@ -251,7 +245,7 @@ GET /api/v1/documents/{documentId}/download
 
 <AccordionGroup>
   <Accordion title="Test before sending">
-    Use `deliveryMethod: "NONE"` to get signing URLs for testing before sending to real signers.
+    Use `deliveryMethod: "NONE"` on signers to get signing URLs for testing before sending to real signers.
   </Accordion>
 
   <Accordion title="Clear instructions">

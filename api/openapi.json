@@ -274,7 +274,7 @@
         }
       },
       "post": {
-        "description": "Create a new document in DRAFT status. You can optionally include signers, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Signers:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify signer details\n\n**Signer Examples:**\n```json\n{\n  \"signers\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2\n    }\n  ]\n}\n```\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - optionally include signers and `documentMeta.defaultSignatureType` during creation\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more signers** if needed: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** You can set the signature type either during document creation (via `documentMeta.defaultSignatureType`) or later via the update endpoint.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with signers\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"documentMeta\": {\n    \"defaultSignatureType\": \"BANKID\"\n  },\n  \"signers\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{\n  \"deliveryMethod\": \"EMAIL\"\n}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
+        "description": "Create a new document in DRAFT status. You can optionally include signers, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields will be automatically copied.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Signers:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify signer details\n\n**Signer Examples:**\n```json\n{\n  \"signers\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include signers with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more signers** if needed: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each signer can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with signers\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"signers\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
         "summary": "Create a new document",
         "tags": [],
         "parameters": [
@@ -446,7 +446,6 @@
                                 "DRAWING",
                                 "BANKID",
                                 "MANUAL",
-                                "SMS_DRAWING",
                                 "CLICK_TO_SIGN"
                               ]
                             },
@@ -520,7 +519,6 @@
                                 "DRAWING",
                                 "BANKID",
                                 "MANUAL",
-                                "SMS_DRAWING",
                                 "CLICK_TO_SIGN"
                               ]
                             },
@@ -956,7 +954,6 @@
                               "DRAWING",
                               "BANKID",
                               "MANUAL",
-                              "SMS_DRAWING",
                               "CLICK_TO_SIGN"
                             ],
                             "nullable": true
@@ -1127,7 +1124,7 @@
         }
       },
       "patch": {
-        "description": "Update document properties. Only DRAFT documents can have all fields updated. Sent documents have restrictions.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `responsibleUserId` - User ID of responsible team member (must be in your organization)\n- `documentMeta` - Metadata including subject, message, signing order, distribution method, signature type, etc.\n- `customFields` - Custom field values\n\n**Note:** Some fields like signing order cannot be modified after the document is sent.",
+        "description": "Update document properties. Only DRAFT documents can have all fields updated. Sent documents have restrictions.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `responsibleUserId` - User ID of responsible team member (must be in your organization)\n- `documentMeta` - Metadata including subject, message, and signing order\n- `customFields` - Custom field values\n\n**Per-Signer Settings:** Delivery method and signature type are configured per-signer via the signers endpoint, not at the document level.\n\n**Note:** Some fields like signing order cannot be modified after the document is sent.",
         "summary": "Update a document",
         "tags": [],
         "parameters": [
@@ -1694,7 +1691,7 @@
     },
     "/api/v1/documents/{id}/send": {
       "post": {
-        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Delivery Methods:**\n- `EMAIL` - Send signing invitations via email\n- `SMS` - Send signing links via SMS (requires phone numbers)\n- `NONE` - Don't send notifications (use signing URLs directly)\n\n**Custom Message:** Optional custom message included in the invitation.\n\n**Signature Type:** The signature type is determined by the document's `documentMeta.defaultSignatureType` setting. Set this via the update document endpoint before sending:\n- `DRAWING` - Free-hand signature drawing (SES - Simple Electronic Signature)\n- `BANKID` - Swedish BankID electronic signature (AES - Advanced Electronic Signature)\n- `MANUAL` - Manual signature (for in-person signing)\n\n**Prerequisites:** Document must have at least one signer and a signature type configured before sending.",
+        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Request Body:**\n- `customMessage` (optional) - Custom message to include in the signing invitation emails/SMS\n\n**Prerequisites:**\n- Document must have at least one signer added via `POST /documents/{id}/signers` or when creating the document\n- Each signer's delivery method (`EMAIL`, `SMS`, or `NONE`) and signature type (`DRAWING`, `BANKID`, `CLICK_TO_SIGN`) are configured per-signer when adding them\n\n**What happens when you send:**\n1. Document status changes from `DRAFT` to `PENDING`\n2. Signing invitations are sent to each signer based on their individual `deliveryMethod` setting\n3. Signers with `deliveryMethod: NONE` won't receive notifications - use their signing URLs directly",
         "summary": "Send document for signing",
         "tags": [],
         "parameters": [
@@ -1890,7 +1887,7 @@
     },
     "/api/v1/documents/{id}/signers": {
       "post": {
-        "description": "Add a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
+        "description": "Add a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
         "summary": "Add a signer to document",
         "tags": [],
         "parameters": [
@@ -1959,7 +1956,6 @@
                       "DRAWING",
                       "BANKID",
                       "MANUAL",
-                      "SMS_DRAWING",
                       "CLICK_TO_SIGN"
                     ]
                   },
@@ -2099,7 +2095,6 @@
                         "DRAWING",
                         "BANKID",
                         "MANUAL",
-                        "SMS_DRAWING",
                         "CLICK_TO_SIGN"
                       ],
                       "nullable": true
@@ -2377,7 +2372,6 @@
                               "DRAWING",
                               "BANKID",
                               "MANUAL",
-                              "SMS_DRAWING",
                               "CLICK_TO_SIGN"
                             ],
                             "nullable": true
@@ -2476,7 +2470,7 @@
     },
     "/api/v1/documents/{id}/signers/{signerId}": {
       "patch": {
-        "description": "Update signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n\n**Restrictions:** Cannot update after signer has signed the document.",
+        "description": "Update signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` or `SMS_BEFORE_SIGNING`\n\n**Restrictions:** Cannot update after signer has signed the document.",
         "summary": "Update a signer",
         "tags": [],
         "parameters": [
@@ -2574,7 +2568,6 @@
                       "DRAWING",
                       "BANKID",
                       "MANUAL",
-                      "SMS_DRAWING",
                       "CLICK_TO_SIGN"
                     ]
                   },
@@ -2713,7 +2706,6 @@
                         "DRAWING",
                         "BANKID",
                         "MANUAL",
-                        "SMS_DRAWING",
                         "CLICK_TO_SIGN"
                       ],
                       "nullable": true
@@ -2994,7 +2986,6 @@
                         "DRAWING",
                         "BANKID",
                         "MANUAL",
-                        "SMS_DRAWING",
                         "CLICK_TO_SIGN"
                       ],
                       "nullable": true
@@ -3279,7 +3270,6 @@
                         "DRAWING",
                         "BANKID",
                         "MANUAL",
-                        "SMS_DRAWING",
                         "CLICK_TO_SIGN"
                       ],
                       "nullable": true

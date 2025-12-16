@@ -34,7 +34,7 @@ Response:
 
 ## Adding Signers During Creation
 
-Include signers when creating the document:
+Include signers when creating the document. Each signer can have their own delivery method and signature type:
 
 ```json
 {
@@ -45,19 +45,24 @@ Include signers when creating the document:
       "name": "John Doe",
       "email": "john@example.com",
       "role": "SIGNER",
-      "signingOrder": 1
+      "signingOrder": 1,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "DRAWING"
     },
     {
       "name": "Jane Manager",
       "email": "jane@example.com",
       "role": "SIGNER",
-      "signingOrder": 2
+      "signingOrder": 2,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "BANKID",
+      "twoStepVerification": "SMS_BEFORE_SIGNING"
     }
   ]
 }
 ```
 
-The response includes signing URLs for each signer:
+The response includes signer IDs:
 
 ```json
 {
@@ -68,33 +73,34 @@ The response includes signing URLs for each signer:
       "type": "INDIVIDUAL",
       "name": "John Doe",
       "email": "john@example.com",
-      "token": "token_abc",
-      "signingUrl": "https://app.sajn.se/sign/doc_123?token=token_abc",
       "contactId": null
     }
   ]
 }
 ```
 
-## Company Signers and SMS Signatures
+<Note>
+  To retrieve a signer's signing URL, use `GET /api/v1/documents/{id}/signers/{signerId}`. This endpoint returns the complete signing URL with token.
+</Note>
 
-Create documents with company signers and SMS drawing signatures:
+## Company Signers and SMS Delivery
+
+Create documents with company signers and SMS delivery with two-step verification:
 
 ```json
 {
   "name": "Business Contract",
   "type": "SIGNABLE",
-  "documentMeta": {
-    "defaultSignatureType": "SMS_DRAWING",
-    "distributionMethod": "SMS"
-  },
   "signers": [
     {
       "type": "INDIVIDUAL",
       "name": "John Doe",
       "phone": "+46701234567",
       "role": "SIGNER",
-      "signingOrder": 1
+      "signingOrder": 1,
+      "deliveryMethod": "SMS",
+      "requiredSignature": "DRAWING",
+      "twoStepVerification": "SMS_BEFORE_SIGNING"
     },
     {
       "type": "COMPANY",
@@ -103,11 +109,17 @@ Create documents with company signers and SMS drawing signatures:
       "companyName": "Acme Corp",
       "companyOrgNumber": "556123-4567",
       "role": "SIGNER",
-      "signingOrder": 2
+      "signingOrder": 2,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "BANKID"
     }
   ]
 }
 ```
+
+<Tip>
+  For SMS verification before signing, use `twoStepVerification: "SMS_BEFORE_SIGNING"` combined with your chosen signature type.
+</Tip>
 
 ## Setting Document Metadata
 
@@ -121,13 +133,15 @@ Configure signing workflow and notifications:
     "subject": "Please sign the service agreement",
     "message": "Thank you for choosing our services. Please review and sign the attached agreement.",
     "signingOrder": "SEQUENTIAL",
-    "defaultSignatureType": "DRAWING",
-    "distributionMethod": "EMAIL",
     "forceReadFullDocument": true,
     "preferredLanguage": "sv"
   }
 }
 ```
+
+<Note>
+  Delivery method and signature type are configured per-signer, not at the document level. See [Adding Signers](#adding-signers-during-creation) above.
+</Note>
 
 ## Setting Expiration
 
@@ -173,11 +187,21 @@ When creating documents from templates that contain FORM fields with keys, you c
 **Example:**
 
 ```bash
-# Step 1: Create from template
+# Step 1: Create from template with signers
 curl -X POST https://app.sajn.se/api/v1/documents \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"name": "Employment Contract", "templateId": "template_abc123"}'
+  -d '{
+    "name": "Employment Contract",
+    "templateId": "template_abc123",
+    "signers": [{
+      "name": "John Doe",
+      "email": "john@example.com",
+      "role": "SIGNER",
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "BANKID"
+    }]
+  }'
 
 # Step 2: Fill a form field by its key
 curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/key:employee_name \
@@ -189,8 +213,12 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/key:employee_n
 curl -X POST https://app.sajn.se/api/v1/documents/doc_123/send \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"deliveryMethod": "EMAIL", "signatureType": "BANKID"}'
+  -d '{}'
 ```
+
+<Note>
+  Delivery method and signature type are configured per-signer when adding them, not at send time.
+</Note>
 
 For more details on updating fields, see [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}).
 
@@ -228,8 +256,6 @@ Here's a complete example creating a business contract with all features:
     "subject": "Service Agreement for Your Review",
     "message": "Please review and sign this service agreement. Contact us if you have any questions.",
     "signingOrder": "SEQUENTIAL",
-    "defaultSignatureType": "DRAWING",
-    "distributionMethod": "EMAIL",
     "forceReadFullDocument": true,
     "showCommentsToSigners": true,
     "preferredLanguage": "sv",
@@ -242,13 +268,18 @@ Here's a complete example creating a business contract with all features:
       "name": "Jane Manager",
       "email": "jane@company.com",
       "role": "SIGNER",
-      "signingOrder": 1
+      "signingOrder": 1,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "DRAWING"
     },
     {
       "name": "John Client",
       "email": "john@acme.com",
       "role": "SIGNER",
-      "signingOrder": 2
+      "signingOrder": 2,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "BANKID",
+      "twoStepVerification": "SMS_BEFORE_SIGNING"
     }
   ],
   "customFields": [

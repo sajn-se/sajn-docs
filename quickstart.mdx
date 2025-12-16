@@ -50,7 +50,7 @@ Save the returned `documentId`.
 
 ## Step 3: Add a Signer
 
-Add your contact as a signer to the document.
+Add your contact as a signer to the document with delivery and signature settings.
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents/{documentId}/signers \
@@ -58,25 +58,24 @@ curl -X POST https://app.sajn.se/api/v1/documents/{documentId}/signers \
   -H "Content-Type: application/json" \
   -d '{
     "contactId": "CONTACT_ID_FROM_STEP_1",
-    "role": "SIGNER"
+    "role": "SIGNER",
+    "deliveryMethod": "EMAIL",
+    "requiredSignature": "DRAWING"
   }'
 ```
 
 ## Step 4: Send for Signing
 
-Send the document to the signer via email.
+Send the document to the signer.
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents/{documentId}/send \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{
-    "deliveryMethod": "EMAIL",
-    "signatureType": "DRAWING"
-  }'
+  -d '{}'
 ```
 
-That's it! The signer will receive an email with a link to sign the document.
+That's it! The signer will receive an email with a link to sign the document (based on their `deliveryMethod` setting).
 
 ## Next Steps
 
