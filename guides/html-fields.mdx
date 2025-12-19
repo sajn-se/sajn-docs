@@ -376,8 +376,42 @@ CSS can only be applied via inline `style` attributes on elements. The following
 - `width`, `height` - Element dimensions
 - `max-width`, `max-height` - Maximum dimensions
 - `min-width`, `min-height` - Minimum dimensions
-- `display` - Display type (block, inline, inline-block, flex)
-- `vertical-align` - Vertical alignment
+- `display` - Display type (block, inline, inline-block, flex, grid, none)
+- `vertical-align` - Vertical alignment (top, middle, bottom, baseline)
+- `box-sizing` - Box model (border-box, content-box)
+
+### Flexbox
+```html
+<div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; gap: 20px;">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+</div>
+```
+- `flex-direction` - Direction of flex items (row, row-reverse, column, column-reverse)
+- `flex-wrap` - Wrapping behavior (nowrap, wrap, wrap-reverse)
+- `align-items` - Cross-axis alignment (flex-start, flex-end, center, baseline, stretch, start, end)
+- `align-content` - Multi-line alignment (flex-start, flex-end, center, space-between, space-around, stretch, start, end)
+- `justify-content` - Main-axis alignment (flex-start, flex-end, center, space-between, space-around, space-evenly, start, end)
+- `gap` - Gap between flex items (px, em, rem, %)
+
+### Grid
+```html
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+  <div>Column 1</div>
+  <div>Column 2</div>
+  <div>Column 3</div>
+</div>
+```
+- `grid-template-columns` - Column track sizes (e.g., `1fr 1fr 1fr`, `repeat(3, 1fr)`, `200px auto 1fr`)
+- `grid-template-rows` - Row track sizes
+- `grid-column` - Column placement for grid items
+- `grid-row` - Row placement for grid items
+- `grid-area` - Shorthand for grid placement
+- `grid-gap` - Gap between grid items (legacy, use `gap` instead)
+- `row-gap` - Gap between rows
+- `column-gap` - Gap between columns
+- `gap` - Gap between grid items (px, em, rem, %, fr)
 
 ### Lists
 ```html

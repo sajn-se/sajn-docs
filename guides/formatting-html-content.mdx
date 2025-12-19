@@ -1,0 +1,401 @@
+---
+title: Formatting HTML for JSON Payloads
+description: 'Prepare and format raw HTML content for use in API requests'
+---
+
+# Formatting HTML for JSON Payloads
+
+When working with the Sajn API's HTML field, you need to properly format your HTML content for inclusion in JSON payloads. This guide provides utility functions and best practices for preparing HTML content.
+
+## The Challenge
+
+Sending HTML content in JSON payloads presents several challenges:
+
+- **Quote escaping** - Double quotes in HTML must be escaped for JSON
+- **Full HTML documents** - HTML editors often output complete `<html>` documents, but the API expects content fragments
+- **Body styles** - Styles applied to `<body>` tags need to be preserved on a wrapper element
+
+The utility functions in this guide handle these challenges automatically.
+
+## Quick Start
+
+The HTML field expects content in this structure:
+
+```json
+{
+  "type": "HTML",
+  "fieldMeta": {
+    "type": "HTML",
+    "content": "<div style=\"padding: 20px;\"><h1>Hello World</h1></div>"
+  }
+}
+```
+
+<Note>
+  The `content` value must be a valid JSON string with properly escaped quotes.
+</Note>
+
+## Processing Full HTML Documents
+
+When you have a complete HTML document like this:
+
+```html
+<html>
+  <body style="margin: 0; padding: 20px; font-family: Arial, sans-serif;">
+    <h1>Service Agreement</h1>
+    <p>This agreement outlines the terms...</p>
+  </body>
+</html>
+```
+
+The utility functions extract the body content and preserve the body styles:
+
+```html
+<div style="margin: 0; padding: 20px; font-family: Arial, sans-serif;">
+  <h1>Service Agreement</h1>
+  <p>This agreement outlines the terms...</p>
+</div>
+```
+
+## TypeScript/JavaScript Implementation
+
+Use this function to format HTML content for API requests:
+
+```typescript
+/**
+ * Format HTML content for Sajn API HTML field payload.
+ * Extracts body content and preserves body styles.
+ */
+function formatHtmlFieldPayload(htmlContent: string) {
+  const trimmed = htmlContent.trim();
+
+  // Check if content has a body tag with attributes
+  const bodyStartMatch = trimmed.match(/<body\s+/i);
+  if (!bodyStartMatch || bodyStartMatch.index === undefined) {
+    // No body tag found, return content as-is
+    return {
+      type: "HTML",
+      fieldMeta: {
+        type: "HTML",
+        content: trimmed,
+      },
+    };
+  }
+
+  // Find the end of the opening body tag
+  const bodyStartPos = bodyStartMatch.index;
+  const bodyTagEndPos = trimmed.indexOf(">", bodyStartPos);
+  if (bodyTagEndPos === -1) {
+    return {
+      type: "HTML",
+      fieldMeta: { type: "HTML", content: trimmed },
+    };
+  }
+
+  // Extract the body tag and find closing tag
+  const bodyTag = trimmed.slice(bodyStartPos, bodyTagEndPos + 1);
+  const bodyEndMatch = trimmed.slice(bodyTagEndPos + 1).match(/<\/body>/i);
+
+  if (!bodyEndMatch || bodyEndMatch.index === undefined) {
+    return {
+      type: "HTML",
+      fieldMeta: { type: "HTML", content: trimmed },
+    };
+  }
+
+  // Extract body content
+  const bodyContentStart = bodyTagEndPos + 1;
+  const bodyContentEnd = bodyTagEndPos + 1 + bodyEndMatch.index;
+  const bodyContent = trimmed.slice(bodyContentStart, bodyContentEnd).trim();
+
+  // Extract style attribute from body tag
+  const styleMatch =
+    bodyTag.match(/style\s*=\s*"([^"]*)"/i) ||
+    bodyTag.match(/style\s*=\s*'([^']*)'/i);
+
+  // Wrap content in div, preserving body styles
+  const processedHtml = styleMatch
+    ? `<div style="${styleMatch[1].trim()}">${bodyContent}</div>`
+    : `<div>${bodyContent}</div>`;
+
+  return {
+    type: "HTML",
+    fieldMeta: {
+      type: "HTML",
+      content: processedHtml,
+    },
+  };
+}
+```
+
+### Usage Example
+
+```typescript
+// Input: Full HTML document
+const html = `
+<html>
+  <body style="margin: 0; padding: 20px;">
+    <h1>Hello World</h1>
+    <p>Welcome to our service.</p>
+  </body>
+</html>
+`;
+
+// Generate the payload
+const payload = formatHtmlFieldPayload(html);
+
+// Use in API request
+const response = await fetch(
+  `https://app.sajn.se/api/v1/documents/${documentId}/fields`,
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ fields: [payload] }),
+  }
+);
+```
+
+## Python Implementation
+
+For Python projects, use this script to process HTML files and generate JSON payloads:
+
+```python
+#!/usr/bin/env python3
+"""
+Generate JSON payload for updating an HTML document field.
+Reads HTML from a file and outputs properly formatted JSON.
+"""
+
+import json
+import sys
+import os
+import re
+
+
+def process_html_content(html_content: str) -> str:
+    """
+    Process HTML content for Sajn API HTML field.
+    Extracts body content and preserves body styles.
+    """
+    html_content = html_content.strip()
+
+    # Check if content has a body tag with attributes
+    body_start_match = re.search(r'<body\s+', html_content, re.IGNORECASE)
+    if not body_start_match:
+        return html_content
+
+    # Find the end of the opening body tag
+    body_start_pos = body_start_match.start()
+    body_tag_end_pos = html_content.find('>', body_start_pos)
+    if body_tag_end_pos == -1:
+        return html_content
+
+    # Extract the body tag
+    body_tag = html_content[body_start_pos:body_tag_end_pos + 1]
+
+    # Find closing body tag
+    body_end_match = re.search(
+        r'</body>',
+        html_content[body_tag_end_pos + 1:],
+        re.IGNORECASE
+    )
+    if not body_end_match:
+        return html_content
+
+    # Extract body content
+    body_content_start = body_tag_end_pos + 1
+    body_content_end = body_tag_end_pos + 1 + body_end_match.start()
+    body_content = html_content[body_content_start:body_content_end].strip()
+
+    # Extract style attribute from body tag
+    style_match = re.search(
+        r'style\s*=\s*"([^"]*)"',
+        body_tag,
+        re.IGNORECASE | re.DOTALL
+    )
+    if not style_match:
+        style_match = re.search(
+            r"style\s*=\s*'([^']*)'",
+            body_tag,
+            re.IGNORECASE | re.DOTALL
+        )
+
+    # Wrap content in div, preserving body styles
+    if style_match:
+        body_style = style_match.group(1).strip()
+        processed_html = f'<div style="{body_style}">{body_content}</div>'
+    else:
+        processed_html = f'<div>{body_content}</div>'
+
+    return processed_html
+
+
+def create_payload(html_content: str) -> dict:
+    """Create the API payload structure."""
+    processed_html = process_html_content(html_content)
+    return {
+        "type": "HTML",
+        "fieldMeta": {
+            "type": "HTML",
+            "content": processed_html
+        }
+    }
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: python format_html.py <html_file>")
+        sys.exit(1)
+
+    html_file = sys.argv[1]
+
+    if not os.path.exists(html_file):
+        print(f"Error: File not found: {html_file}")
+        sys.exit(1)
+
+    with open(html_file, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+
+    payload = create_payload(html_content)
+
+    # Output to file
+    with open('output.json', 'w', encoding='utf-8') as f:
+        json.dump(payload, f, indent=2, ensure_ascii=False)
+
+    print("Payload written to output.json")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### Command Line Usage
+
+```bash
+# Process an HTML file
+python format_html.py document.html
+
+# The payload is written to output.json
+cat output.json
+```
+
+### Programmatic Usage
+
+```python
+import json
+import requests
+
+# Your HTML content
+html = """
+<html>
+  <body style="padding: 20px; background-color: #f5f5f5;">
+    <h1>Contract Agreement</h1>
+    <p>Terms and conditions apply.</p>
+  </body>
+</html>
+"""
+
+# Create the payload
+payload = create_payload(html)
+
+# Send to API
+response = requests.post(
+    f"https://app.sajn.se/api/v1/documents/{document_id}/fields",
+    headers={
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    },
+    json={"fields": [payload]}
+)
+```
+
+## Input/Output Examples
+
+### Example 1: Full HTML Document
+
+**Input:**
+```html
+<html>
+  <head><title>Agreement</title></head>
+  <body style="margin: 0; padding: 30px; font-family: Georgia, serif;">
+    <h1 style="color: #003366;">Service Agreement</h1>
+    <p>Effective from January 2024</p>
+  </body>
+</html>
+```
+
+**Output payload:**
+```json
+{
+  "type": "HTML",
+  "fieldMeta": {
+    "type": "HTML",
+    "content": "<div style=\"margin: 0; padding: 30px; font-family: Georgia, serif;\"><h1 style=\"color: #003366;\">Service Agreement</h1>\n    <p>Effective from January 2024</p></div>"
+  }
+}
+```
+
+### Example 2: HTML Fragment (No Body Tag)
+
+**Input:**
+```html
+<div style="text-align: center;">
+  <h2>Welcome</h2>
+  <p>Thank you for choosing our service.</p>
+</div>
+```
+
+**Output payload:**
+```json
+{
+  "type": "HTML",
+  "fieldMeta": {
+    "type": "HTML",
+    "content": "<div style=\"text-align: center;\">\n  <h2>Welcome</h2>\n  <p>Thank you for choosing our service.</p>\n</div>"
+  }
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use inline styles only">
+    The API only supports inline CSS styles. External stylesheets and `<style>` tags are stripped during sanitization. Apply all styles directly to elements using the `style` attribute.
+  </Accordion>
+
+  <Accordion title="Test with simple content first">
+    Start with basic HTML to verify your integration works, then gradually add complexity. This makes debugging easier if issues arise.
+  </Accordion>
+
+  <Accordion title="Validate JSON before sending">
+    Use `JSON.stringify()` in JavaScript or `json.dumps()` in Python to ensure your content is properly escaped. Invalid JSON will result in API errors.
+  </Accordion>
+
+  <Accordion title="Keep content focused">
+    Each HTML field should contain a logical section of content. Use multiple fields with position ordering rather than one massive HTML block.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  For a complete reference of allowed HTML tags and CSS properties, see the [HTML Fields guide](/guides/html-fields).
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="HTML Fields Reference" icon="code" href="/guides/html-fields">
+    Complete guide to HTML field capabilities, allowed tags, and CSS properties
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Learn how to create documents and add fields via the API
+  </Card>
+  <Card title="Document Fields API" icon="brackets-curly" href="/api/POST%20/api/v1/documents/{id}/fields">
+    API reference for creating and updating document fields
+  </Card>
+  <Card title="Send for Signing" icon="paper-plane" href="/guides/send-for-signing">
+    Send your HTML-styled documents for signatures
+  </Card>
+</CardGroup>
