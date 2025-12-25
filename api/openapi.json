@@ -188,6 +188,16 @@
                                 "description": "Monetary value of the document (for contracts)",
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "redirectUrl": {
+                                "description": "URL to redirect signers to after signing is complete",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "redirectEnabled": {
+                                "description": "Whether redirect after signing is enabled",
+                                "type": "boolean",
+                                "nullable": true
                               }
                             },
                             "additionalProperties": false,
@@ -372,6 +382,15 @@
                       "value": {
                         "description": "Monetary value of the document (for contracts)",
                         "type": "string"
+                      },
+                      "redirectUrl": {
+                        "description": "URL to redirect signers to after signing is complete",
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "redirectEnabled": {
+                        "description": "Whether redirect after signing is enabled",
+                        "type": "boolean"
                       }
                     },
                     "additionalProperties": false
@@ -454,7 +473,8 @@
                               "type": "string",
                               "enum": [
                                 "NONE",
-                                "SMS_BEFORE_SIGNING"
+                                "SMS_BEFORE_SIGNING",
+                                "EMAIL_BEFORE_SIGNING"
                               ]
                             }
                           },
@@ -527,7 +547,8 @@
                               "type": "string",
                               "enum": [
                                 "NONE",
-                                "SMS_BEFORE_SIGNING"
+                                "SMS_BEFORE_SIGNING",
+                                "EMAIL_BEFORE_SIGNING"
                               ]
                             }
                           },
@@ -823,6 +844,16 @@
                           "description": "Monetary value of the document (for contracts)",
                           "type": "string",
                           "nullable": true
+                        },
+                        "redirectUrl": {
+                          "description": "URL to redirect signers to after signing is complete",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectEnabled": {
+                          "description": "Whether redirect after signing is enabled",
+                          "type": "boolean",
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -963,7 +994,8 @@
                             "type": "string",
                             "enum": [
                               "NONE",
-                              "SMS_BEFORE_SIGNING"
+                              "SMS_BEFORE_SIGNING",
+                              "EMAIL_BEFORE_SIGNING"
                             ],
                             "nullable": true
                           },
@@ -1199,6 +1231,15 @@
                       },
                       "value": {
                         "type": "string"
+                      },
+                      "redirectUrl": {
+                        "description": "URL to redirect signers to after signing is complete",
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "redirectEnabled": {
+                        "description": "Whether redirect after signing is enabled",
+                        "type": "boolean"
                       }
                     },
                     "additionalProperties": false
@@ -1332,6 +1373,16 @@
                         "value": {
                           "description": "Monetary value of the document (for contracts)",
                           "type": "string",
+                          "nullable": true
+                        },
+                        "redirectUrl": {
+                          "description": "URL to redirect signers to after signing is complete",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectEnabled": {
+                          "description": "Whether redirect after signing is enabled",
+                          "type": "boolean",
                           "nullable": true
                         }
                       },
@@ -1508,6 +1559,16 @@
                         "value": {
                           "description": "Monetary value of the document (for contracts)",
                           "type": "string",
+                          "nullable": true
+                        },
+                        "redirectUrl": {
+                          "description": "URL to redirect signers to after signing is complete",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectEnabled": {
+                          "description": "Whether redirect after signing is enabled",
+                          "type": "boolean",
                           "nullable": true
                         }
                       },
@@ -1811,6 +1872,16 @@
                           "description": "Monetary value of the document (for contracts)",
                           "type": "string",
                           "nullable": true
+                        },
+                        "redirectUrl": {
+                          "description": "URL to redirect signers to after signing is complete",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectEnabled": {
+                          "description": "Whether redirect after signing is enabled",
+                          "type": "boolean",
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -1964,7 +2035,8 @@
                     "type": "string",
                     "enum": [
                       "NONE",
-                      "SMS_BEFORE_SIGNING"
+                      "SMS_BEFORE_SIGNING",
+                      "EMAIL_BEFORE_SIGNING"
                     ]
                   }
                 },
@@ -2104,7 +2176,8 @@
                       "type": "string",
                       "enum": [
                         "NONE",
-                        "SMS_BEFORE_SIGNING"
+                        "SMS_BEFORE_SIGNING",
+                        "EMAIL_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -2381,7 +2454,8 @@
                             "type": "string",
                             "enum": [
                               "NONE",
-                              "SMS_BEFORE_SIGNING"
+                              "SMS_BEFORE_SIGNING",
+                              "EMAIL_BEFORE_SIGNING"
                             ],
                             "nullable": true
                           },
@@ -2576,7 +2650,8 @@
                     "type": "string",
                     "enum": [
                       "NONE",
-                      "SMS_BEFORE_SIGNING"
+                      "SMS_BEFORE_SIGNING",
+                      "EMAIL_BEFORE_SIGNING"
                     ]
                   }
                 },
@@ -2715,7 +2790,8 @@
                       "type": "string",
                       "enum": [
                         "NONE",
-                        "SMS_BEFORE_SIGNING"
+                        "SMS_BEFORE_SIGNING",
+                        "EMAIL_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -2995,7 +3071,8 @@
                       "type": "string",
                       "enum": [
                         "NONE",
-                        "SMS_BEFORE_SIGNING"
+                        "SMS_BEFORE_SIGNING",
+                        "EMAIL_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -3279,7 +3356,8 @@
                       "type": "string",
                       "enum": [
                         "NONE",
-                        "SMS_BEFORE_SIGNING"
+                        "SMS_BEFORE_SIGNING",
+                        "EMAIL_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },

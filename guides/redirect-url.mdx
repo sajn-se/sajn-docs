@@ -1,0 +1,146 @@
+---
+title: Redirect URL
+description: 'Redirect signers to your application after signing'
+---
+
+# Redirect URL
+
+Redirect signers to a custom URL after they complete the signing process. This allows you to guide users back to your application with context about the signed document.
+
+## Overview
+
+When a signer completes signing, sajn can automatically redirect them to a URL you specify. The redirect URL supports placeholders that are replaced with actual values, allowing you to track which document and signer completed the process.
+
+## API Parameters
+
+Configure redirects when creating or updating a document using these parameters in `documentMeta`:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `redirectEnabled` | boolean | Enable or disable redirect after signing |
+| `redirectUrl` | string | The URL to redirect signers to |
+
+## Placeholders
+
+Your redirect URL can include placeholders that sajn replaces with actual values:
+
+| Placeholder | Replaced With |
+|-------------|---------------|
+| `{documentId}` | The document's unique identifier |
+| `{signerId}` | The signer's unique identifier |
+
+## Example
+
+### Creating a Document with Redirect
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Service Agreement",
+    "fileId": "file_abc123",
+    "documentMeta": {
+      "redirectEnabled": true,
+      "redirectUrl": "https://yourapp.com/signed?doc={documentId}&signer={signerId}"
+    },
+    "signers": [
+      {
+        "name": "John Doe",
+        "email": "john@example.com"
+      }
+    ]
+  }'
+```
+
+### Resulting Redirect
+
+After John signs, he will be redirected to:
+
+```
+https://yourapp.com/signed?doc=doc_xyz789&signer=signer_abc123
+```
+
+## Use Cases
+
+### Thank You Page
+
+Redirect to a confirmation page:
+
+```
+https://yourapp.com/thank-you?document={documentId}
+```
+
+### Next Steps Workflow
+
+Guide users to the next step in your process:
+
+```
+https://yourapp.com/onboarding/step-3?signed={documentId}
+```
+
+### CRM Integration
+
+Update your CRM with signing status:
+
+```
+https://yourapp.com/api/signing-complete?doc={documentId}&signer={signerId}
+```
+
+## Updating an Existing Document
+
+You can also enable redirects on an existing document:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_xyz789 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documentMeta": {
+      "redirectEnabled": true,
+      "redirectUrl": "https://yourapp.com/complete"
+    }
+  }'
+```
+
+## Handling the Redirect
+
+On your redirect endpoint, you can use the query parameters to look up the document and signer:
+
+```javascript
+// Express.js example
+app.get('/signed', async (req, res) => {
+  const { doc, signer } = req.query;
+
+  // Fetch document details from sajn API
+  const document = await fetch(
+    `https://app.sajn.se/api/v1/documents/${doc}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
+      }
+    }
+  ).then(r => r.json());
+
+  // Update your database, send notifications, etc.
+  await updateSigningStatus(doc, signer, 'completed');
+
+  // Show confirmation to user
+  res.render('signing-complete', { document });
+});
+```
+
+<Tip>
+  Combine redirect URLs with [webhooks](/guides/webhooks) for robust signing workflows. Webhooks provide server-to-server confirmation, while redirects handle the user experience.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Embedding" icon="window" href="/guides/embedding">
+    Embed signing in your app
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/guides/webhooks">
+    Server-side event notifications
+  </Card>
+</CardGroup>

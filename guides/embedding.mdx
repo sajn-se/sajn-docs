@@ -1,0 +1,132 @@
+---
+title: Embedding Documents
+description: 'Embed the signing experience directly in your application'
+---
+
+# Embedding Documents
+
+<Warning>
+  **Beta Feature** - Embedding is currently in beta and may change over time. During the beta period, this feature is available to everyone. When the beta ends, embedding will become an enterprise feature.
+</Warning>
+
+Embedding allows you to integrate the sajn signing experience directly into your application, providing a seamless experience for your users without redirecting them to app.sajn.se.
+
+## Overview
+
+Instead of sending signers to the standard sajn signing page, you can embed the signing interface in an iframe on your own domain. This gives you full control over the user experience while leveraging sajn's secure signing infrastructure.
+
+## Enabling Embedding
+
+To enable embedding for your application:
+
+1. Contact sajn support at [hej@sajn.se](mailto:hej@sajn.se)
+2. Provide the list of domains where you want to embed the signing experience
+3. sajn will whitelist your domains for embedding
+
+<Note>
+  Localhost is automatically allowed for development purposes.
+</Note>
+
+## Embed URL Format
+
+The embed URL follows this format:
+
+```
+https://app.sajn.se/embed/sign/{documentId}?token={token}
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `documentId` | The unique identifier of the document |
+| `token` | The signer's authentication token |
+
+You receive both values when you create a document and add signers via the API.
+
+## Implementation
+
+### Basic HTML
+
+```html
+<iframe
+  src="https://app.sajn.se/embed/sign/doc_abc123?token=your_signer_token"
+  width="100%"
+  height="800"
+  frameborder="0"
+  allow="camera"
+></iframe>
+```
+
+### React / Next.js
+
+```jsx
+function SigningEmbed({ documentId, token }) {
+  const embedUrl = `https://app.sajn.se/embed/sign/${documentId}?token=${token}`;
+
+  return (
+    <iframe
+      src={embedUrl}
+      width="100%"
+      height="800"
+      frameBorder="0"
+      allow="camera"
+      title="Sign document"
+    />
+  );
+}
+```
+
+### Full-Page Embed
+
+For a full-page signing experience:
+
+```html
+<style>
+  .signing-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+</style>
+
+<iframe
+  class="signing-container"
+  src="https://app.sajn.se/embed/sign/doc_abc123?token=your_signer_token"
+  allow="camera"
+></iframe>
+```
+
+## Recommended iframe Attributes
+
+| Attribute | Value | Purpose |
+|-----------|-------|---------|
+| `width` | `100%` | Responsive width |
+| `height` | `800` or `100%` | Adequate height for signing |
+| `frameborder` | `0` | Remove border |
+| `allow` | `camera` | Enable camera for identity verification |
+
+## Security
+
+- Only whitelisted domains can embed the signing interface
+- Each signer token is unique and single-use
+- Tokens are validated server-side before rendering
+- HTTPS is required for production environments
+
+## Limitations
+
+- Embedding requires domain whitelisting by sajn
+- The embedded interface cannot be customized beyond the standard sajn styling
+- Some browser extensions may block iframes
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Redirect URL" icon="arrow-right" href="/guides/redirect-url">
+    Redirect signers after signing
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/guides/webhooks">
+    Get notified when signing is complete
+  </Card>
+</CardGroup>
