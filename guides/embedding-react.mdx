@@ -1,0 +1,213 @@
+---
+title: React Embedding
+description: 'Embed signing documents using the React package'
+---
+
+The `@sajn/embed-react` package provides a React component for embedding the signing experience.
+
+## Requirements
+
+- React 18.0+ or React 19.0+
+
+## Installation
+
+```bash
+npm install @sajn/embed-react
+```
+
+## Component
+
+### Import
+
+```tsx
+import { EmbedSignDocument } from '@sajn/embed-react';
+```
+
+### Props Interface
+
+```typescript
+type EmbedSignDocumentProps = {
+  // Required
+  token: string;
+  documentId: string;
+
+  // Optional styling
+  className?: string;
+  cssVars?: CssVars & Record<string, string>;
+
+  // Configuration
+  host?: string;  // Default: 'https://app.sajn.se'
+  allowDocumentRejection?: boolean;
+  additionalProps?: Record<string, string | number | boolean>;
+
+  // Callbacks
+  onDocumentReady?: () => void;
+  onSignerCompleted?: (data: SignerCompletedData) => void;
+  onSignerRejected?: (data: SignerRejectedData) => void;
+  onDocumentError?: (data: { code: string; message: string }) => void;
+}
+```
+
+### Basic Example
+
+```tsx
+import { EmbedSignDocument } from '@sajn/embed-react';
+
+export function SigningPage({ documentId, token }) {
+  return (
+    <div style={{ width: '100%', height: '100vh' }}>
+      <EmbedSignDocument
+        documentId={documentId}
+        token={token}
+        onSignerCompleted={(data) => {
+          console.log('Document signed!', data);
+        }}
+      />
+    </div>
+  );
+}
+```
+
+### Full Example with All Props
+
+```tsx
+import { EmbedSignDocument } from '@sajn/embed-react';
+import type { SignerCompletedData, SignerRejectedData } from '@sajn/embed-react';
+
+export function SigningPage({ documentId, token }: { documentId: string; token: string }) {
+  const handleReady = () => {
+    console.log('Signing interface loaded');
+  };
+
+  const handleComplete = (data: SignerCompletedData) => {
+    if (data.failed) {
+      console.error('Signing failed:', data.failed);
+      return;
+    }
+    console.log('Document signed successfully!');
+    // Redirect to success page
+  };
+
+  const handleRejected = (data: SignerRejectedData) => {
+    console.log('Document rejected:', data.reason);
+    // Handle rejection
+  };
+
+  const handleError = (error: { code: string; message: string }) => {
+    console.error('Error:', error.code, error.message);
+    // Show error UI
+  };
+
+  return (
+    <div className="signing-container">
+      <EmbedSignDocument
+        documentId={documentId}
+        token={token}
+        className="signing-iframe"
+        cssVars={{
+          primary: '#2563eb',
+          background: '#ffffff',
+          foreground: '#1f2937',
+          mutedForeground: '#6b7280',
+        }}
+        allowDocumentRejection={true}
+        onDocumentReady={handleReady}
+        onSignerCompleted={handleComplete}
+        onSignerRejected={handleRejected}
+        onDocumentError={handleError}
+      />
+    </div>
+  );
+}
+```
+
+## TypeScript Types
+
+The package exports all types:
+
+```typescript
+import type {
+  EmbedSignDocumentProps,
+  SignerCompletedData,
+  SignerRejectedData,
+  CssVars,
+} from '@sajn/embed-react';
+```
+
+### SignerCompletedData
+
+```typescript
+interface SignerCompletedData {
+  token: string;
+  documentId: number;
+  signerId: number;
+  failed?: string;  // Present if signing failed
+}
+```
+
+### SignerRejectedData
+
+```typescript
+interface SignerRejectedData {
+  token: string;
+  documentId: number;
+  signerId: number;
+  reason: string;
+}
+```
+
+### CssVars
+
+```typescript
+type CssVars = {
+  background?: string;
+  primary?: string;
+  foreground?: string;
+  mutedForeground?: string;
+}
+```
+
+## Next.js
+
+The component is marked with `"use client"` and works in Next.js App Router projects.
+
+```tsx
+// app/sign/[id]/page.tsx
+import { EmbedSignDocument } from '@sajn/embed-react';
+
+export default function SignPage({ params }: { params: { id: string } }) {
+  // Fetch token from your API
+  const token = 'signer_token_from_api';
+
+  return (
+    <main style={{ height: '100vh' }}>
+      <EmbedSignDocument
+        documentId={params.id}
+        token={token}
+        onSignerCompleted={() => {
+          // Use next/navigation to redirect
+        }}
+      />
+    </main>
+  );
+}
+```
+
+<Note>
+  If you're using the Pages Router, the component works without any additional configuration.
+</Note>
+
+## Styling
+
+The component renders an iframe that fills its container. Set dimensions on the parent element:
+
+```css
+.signing-container {
+  width: 100%;
+  height: 600px;
+  /* or */
+  height: 100vh;
+}
+```
+
+The iframe has no border by default and is set to `width: 100%` and `height: 100%`.

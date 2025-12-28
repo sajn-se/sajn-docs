@@ -1,0 +1,249 @@
+---
+title: Vue Embedding
+description: 'Embed signing documents using the Vue package'
+---
+
+The `@sajn/embed-vue` package provides a Vue 3 component for embedding the signing experience.
+
+## Requirements
+
+- Vue 3.3.0+
+
+## Installation
+
+```bash
+npm install @sajn/embed-vue
+```
+
+## Component
+
+### Import
+
+```vue
+<script setup>
+import { EmbedSignDocument } from '@sajn/embed-vue';
+</script>
+```
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `document-id` | `string` | Yes | - | Document ID |
+| `token` | `string` | Yes | - | Signer token |
+| `host` | `string` | No | `https://app.sajn.se` | Custom host URL |
+| `class` | `string` | No | - | CSS class for iframe |
+| `css-vars` | `CssVars` | No | - | Theme customization |
+| `allow-document-rejection` | `boolean` | No | `false` | Enable rejection |
+| `additional-props` | `object` | No | - | Additional options |
+
+### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `document-ready` | - | Iframe loaded and ready |
+| `signer-completed` | `SignerCompletedData` | Signing completed |
+| `signer-rejected` | `SignerRejectedData` | Document rejected |
+| `document-error` | `DocumentErrorData` | Error occurred |
+
+### Basic Example
+
+```vue
+<script setup>
+import { EmbedSignDocument } from '@sajn/embed-vue';
+
+const props = defineProps<{
+  documentId: string;
+  token: string;
+}>();
+
+function handleComplete(data) {
+  console.log('Document signed!', data);
+}
+</script>
+
+<template>
+  <div class="signing-container">
+    <EmbedSignDocument
+      :document-id="props.documentId"
+      :token="props.token"
+      @signer-completed="handleComplete"
+    />
+  </div>
+</template>
+
+<style scoped>
+.signing-container {
+  width: 100%;
+  height: 100vh;
+}
+</style>
+```
+
+### Full Example with All Props
+
+```vue
+<script setup lang="ts">
+import { EmbedSignDocument } from '@sajn/embed-vue';
+import type { SignerCompletedData, SignerRejectedData } from '@sajn/embed-vue';
+
+const props = defineProps<{
+  documentId: string;
+  token: string;
+}>();
+
+const cssVars = {
+  primary: '#2563eb',
+  background: '#ffffff',
+  foreground: '#1f2937',
+  mutedForeground: '#6b7280',
+};
+
+function handleReady() {
+  console.log('Signing interface loaded');
+}
+
+function handleComplete(data: SignerCompletedData) {
+  if (data.failed) {
+    console.error('Signing failed:', data.failed);
+    return;
+  }
+  console.log('Document signed successfully!');
+  // Navigate to success page
+}
+
+function handleRejected(data: SignerRejectedData) {
+  console.log('Document rejected:', data.reason);
+}
+
+function handleError(error: { code: string; message: string }) {
+  console.error('Error:', error.code, error.message);
+}
+</script>
+
+<template>
+  <div class="signing-container">
+    <EmbedSignDocument
+      :document-id="props.documentId"
+      :token="props.token"
+      :css-vars="cssVars"
+      :allow-document-rejection="true"
+      class="signing-iframe"
+      @document-ready="handleReady"
+      @signer-completed="handleComplete"
+      @signer-rejected="handleRejected"
+      @document-error="handleError"
+    />
+  </div>
+</template>
+
+<style scoped>
+.signing-container {
+  width: 100%;
+  height: 100vh;
+}
+
+.signing-iframe {
+  border-radius: 8px;
+  overflow: hidden;
+}
+</style>
+```
+
+## TypeScript Types
+
+The package exports all types:
+
+```typescript
+import type {
+  SignerCompletedData,
+  SignerRejectedData,
+  CssVars,
+} from '@sajn/embed-vue';
+```
+
+### SignerCompletedData
+
+```typescript
+interface SignerCompletedData {
+  token: string;
+  documentId: number;
+  signerId: number;
+  failed?: string;  // Present if signing failed
+}
+```
+
+### SignerRejectedData
+
+```typescript
+interface SignerRejectedData {
+  token: string;
+  documentId: number;
+  signerId: number;
+  reason: string;
+}
+```
+
+### CssVars
+
+```typescript
+type CssVars = {
+  background?: string;
+  primary?: string;
+  foreground?: string;
+  mutedForeground?: string;
+}
+```
+
+## Nuxt
+
+The component works with Nuxt 3 projects:
+
+```vue
+<!-- pages/sign/[id].vue -->
+<script setup lang="ts">
+import { EmbedSignDocument } from '@sajn/embed-vue';
+
+const route = useRoute();
+const documentId = route.params.id as string;
+
+// Fetch token from your API
+const { data: token } = await useFetch(`/api/sign/${documentId}/token`);
+
+function handleComplete() {
+  navigateTo('/thank-you');
+}
+</script>
+
+<template>
+  <div class="signing-page">
+    <EmbedSignDocument
+      v-if="token"
+      :document-id="documentId"
+      :token="token"
+      @signer-completed="handleComplete"
+    />
+  </div>
+</template>
+
+<style scoped>
+.signing-page {
+  height: 100vh;
+}
+</style>
+```
+
+## Styling
+
+The component renders an iframe that fills its container. Set dimensions on the parent element:
+
+```css
+.signing-container {
+  width: 100%;
+  height: 600px;
+  /* or */
+  height: 100vh;
+}
+```
+
+The iframe has no border by default and is set to `width: 100%` and `height: 100%`.

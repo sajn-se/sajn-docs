@@ -3,8 +3,6 @@ title: Embedding Documents
 description: 'Embed the signing experience directly in your application'
 ---
 
-# Embedding Documents
-
 <Warning>
   **Beta Feature** - Embedding is currently in beta and may change over time. During the beta period, this feature is available to everyone. When the beta ends, embedding will become an enterprise feature.
 </Warning>
@@ -14,6 +12,14 @@ Embedding allows you to integrate the sajn signing experience directly into your
 ## Overview
 
 Instead of sending signers to the standard sajn signing page, you can embed the signing interface in an iframe on your own domain. This gives you full control over the user experience while leveraging sajn's secure signing infrastructure.
+
+sajn provides official embedding packages for popular frameworks:
+
+| Package | Framework | Version |
+|---------|-----------|---------|
+| `@sajn/embed` | Vanilla JS | 0.1.2 |
+| `@sajn/embed-react` | React 18+ | 0.1.2 |
+| `@sajn/embed-vue` | Vue 3.3+ | 0.1.2 |
 
 ## Enabling Embedding
 
@@ -27,85 +33,118 @@ To enable embedding for your application:
   Localhost is automatically allowed for development purposes.
 </Note>
 
-## Embed URL Format
+## Choose Your Framework
 
-The embed URL follows this format:
+<CardGroup cols={3}>
+  <Card title="Vanilla JS" icon="js" href="/guides/embedding-vanilla">
+    Function API and Web Component for any JavaScript project
+  </Card>
+  <Card title="React" icon="react" href="/guides/embedding-react">
+    React component with TypeScript support
+  </Card>
+  <Card title="Vue" icon="vuejs" href="/guides/embedding-vue">
+    Vue 3 component with Composition API
+  </Card>
+</CardGroup>
 
-```
-https://app.sajn.se/embed/sign/{documentId}?token={token}
-```
+## Configuration
 
-| Parameter | Description |
-|-----------|-------------|
-| `documentId` | The unique identifier of the document |
-| `token` | The signer's authentication token |
+All embedding packages share the same core configuration options.
+
+### Required Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `documentId` | `string` | The unique identifier of the document |
+| `token` | `string` | The signer's authentication token |
 
 You receive both values when you create a document and add signers via the API.
 
-## Implementation
+### Optional Props
 
-### Basic HTML
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `host` | `string` | `https://app.sajn.se` | The sajn host URL |
+| `className` | `string` | - | CSS class for the iframe element |
+| `allowDocumentRejection` | `boolean` | `false` | Allow signers to reject the document |
+| `additionalProps` | `Record<string, string \| number \| boolean>` | - | Additional options passed to the embed |
 
-```html
-<iframe
-  src="https://app.sajn.se/embed/sign/doc_abc123?token=your_signer_token"
-  width="100%"
-  height="800"
-  frameborder="0"
-  allow="camera"
-></iframe>
-```
+### Theming with CSS Variables
 
-### React / Next.js
+Customize the embedded signing interface to match your brand using the `cssVars` option:
 
-```jsx
-function SigningEmbed({ documentId, token }) {
-  const embedUrl = `https://app.sajn.se/embed/sign/${documentId}?token=${token}`;
-
-  return (
-    <iframe
-      src={embedUrl}
-      width="100%"
-      height="800"
-      frameBorder="0"
-      allow="camera"
-      title="Sign document"
-    />
-  );
+```typescript
+type CssVars = {
+  background?: string;      // Page background color
+  primary?: string;         // Primary button/accent color
+  foreground?: string;      // Main text color
+  mutedForeground?: string; // Secondary text color
 }
 ```
 
-### Full-Page Embed
+**Example:**
 
-For a full-page signing experience:
-
-```html
-<style>
-  .signing-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-</style>
-
-<iframe
-  class="signing-container"
-  src="https://app.sajn.se/embed/sign/doc_abc123?token=your_signer_token"
-  allow="camera"
-></iframe>
+```javascript
+cssVars: {
+  background: '#ffffff',
+  primary: '#2563eb',
+  foreground: '#1f2937',
+  mutedForeground: '#6b7280'
+}
 ```
 
-## Recommended iframe Attributes
+## Events
 
-| Attribute | Value | Purpose |
-|-----------|-------|---------|
-| `width` | `100%` | Responsive width |
-| `height` | `800` or `100%` | Adequate height for signing |
-| `frameborder` | `0` | Remove border |
-| `allow` | `camera` | Enable camera for identity verification |
+All packages emit the same events when the signing status changes. The event names and data structures are consistent across frameworks.
+
+### document-ready
+
+Fired when the iframe has loaded and is ready.
+
+**Payload:** None
+
+### signer-completed
+
+Fired when the signer has completed the signing process.
+
+**Payload:**
+
+```typescript
+interface SignerCompletedData {
+  token: string;
+  documentId: number;
+  signerId: number;
+  failed?: string; // Optional failure reason
+}
+```
+
+### signer-rejected
+
+Fired when the signer rejects the document (requires `allowDocumentRejection: true`).
+
+**Payload:**
+
+```typescript
+interface SignerRejectedData {
+  token: string;
+  documentId: number;
+  signerId: number;
+  reason: string;
+}
+```
+
+### document-error
+
+Fired when an error occurs during the signing process.
+
+**Payload:**
+
+```typescript
+interface DocumentErrorData {
+  code: string;
+  message: string;
+}
+```
 
 ## Security
 
@@ -113,12 +152,7 @@ For a full-page signing experience:
 - Each signer token is unique and single-use
 - Tokens are validated server-side before rendering
 - HTTPS is required for production environments
-
-## Limitations
-
-- Embedding requires domain whitelisting by sajn
-- The embedded interface cannot be customized beyond the standard sajn styling
-- Some browser extensions may block iframes
+- The `allow="camera"` attribute is needed on the iframe if using identity verification
 
 ## Next Steps
 
