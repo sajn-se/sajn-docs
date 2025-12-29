@@ -50,6 +50,7 @@ interface EmbedSignDocumentOptions {
 
   // Optional
   host?: string;                  // Default: 'https://app.sajn.se'
+  language?: 'sv' | 'en' | 'no' | 'da' | 'fi' | 'de' | 'is' | 'es' | 'fr' | 'it';
   className?: string;             // CSS class for iframe
   cssVars?: CssVars & Record<string, string>;
   allowDocumentRejection?: boolean;
@@ -124,6 +125,7 @@ Or with CDN, the component is automatically registered.
 | `document-id` | `string` | Yes | Document ID |
 | `token` | `string` | Yes | Signer token |
 | `host` | `string` | No | Custom host URL |
+| `language` | `string` | No | UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
 | `class-name` | `string` | No | CSS class for iframe |
 | `allow-document-rejection` | `boolean` | No | Enable rejection |
 
