@@ -54,6 +54,7 @@ interface EmbedSignDocumentOptions {
   className?: string;             // CSS class for iframe
   cssVars?: CssVars & Record<string, string>;
   allowDocumentRejection?: boolean;
+  showScrollIndicator?: boolean;  // Default: true
   additionalProps?: Record<string, string | number | boolean>;
 
   // Callbacks
@@ -128,6 +129,7 @@ Or with CDN, the component is automatically registered.
 | `language` | `string` | No | UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
 | `class-name` | `string` | No | CSS class for iframe |
 | `allow-document-rejection` | `boolean` | No | Enable rejection |
+| `show-scroll-indicator` | `boolean` | No | Show scroll indicator (default: true) |
 
 ### Events
 
@@ -224,8 +226,105 @@ The package exports all types for TypeScript users:
 import type {
   EmbedSignDocumentOptions,
   EmbedSignDocumentInstance,
+  EmbedViewDocumentOptions,
+  EmbedViewDocumentInstance,
   SignerCompletedData,
   SignerRejectedData,
   CssVars,
 } from '@sajn/embed';
+```
+
+## View Component
+
+The package also includes `embedViewDocument` for displaying signed documents in read-only mode.
+
+### Function API
+
+```javascript
+import { embedViewDocument } from '@sajn/embed';
+```
+
+Or with CDN:
+
+```javascript
+const { embedViewDocument } = sajn;
+```
+
+### Options Interface
+
+```typescript
+interface EmbedViewDocumentOptions {
+  // Required
+  element: HTMLElement | string;  // Target element or CSS selector
+  documentId: string;             // Document ID
+  token: string;                  // Viewer token
+
+  // Optional
+  host?: string;                  // Default: 'https://app.sajn.se'
+  language?: 'sv' | 'en' | 'no' | 'da' | 'fi' | 'de' | 'is' | 'es' | 'fr' | 'it';
+  className?: string;             // CSS class for iframe
+  cssVars?: CssVars & Record<string, string>;
+  showScrollIndicator?: boolean;  // Default: true
+  additionalProps?: Record<string, string | number | boolean>;
+
+  // Callbacks
+  onDocumentReady?: () => void;
+  onDocumentError?: (data: { code: string; message: string }) => void;
+}
+```
+
+### Example
+
+```javascript
+import { embedViewDocument } from '@sajn/embed';
+
+const instance = embedViewDocument({
+  element: '#viewer-container',
+  documentId: 'doc_abc123',
+  token: 'viewer_token_xyz',
+  cssVars: {
+    primary: '#2563eb',
+    background: '#ffffff',
+  },
+  onDocumentReady: () => {
+    console.log('Document loaded');
+  },
+  onDocumentError: (error) => {
+    console.error('Error:', error.code, error.message);
+  },
+});
+
+// Later: cleanup when done
+instance.destroy();
+```
+
+### Web Component
+
+The package also exports a custom element `<sajn-view-document>`:
+
+```javascript
+import '@sajn/embed';
+```
+
+```html
+<div id="viewer-wrapper" style="width: 100%; height: 600px;">
+  <sajn-view-document
+    document-id="doc_abc123"
+    token="viewer_token_xyz"
+  ></sajn-view-document>
+</div>
+
+<script type="module">
+  import '@sajn/embed';
+
+  const viewDocument = document.querySelector('sajn-view-document');
+
+  viewDocument.addEventListener('document-ready', () => {
+    console.log('Ready');
+  });
+
+  viewDocument.addEventListener('document-error', (event) => {
+    console.error('Error:', event.detail.code);
+  });
+</script>
 ```

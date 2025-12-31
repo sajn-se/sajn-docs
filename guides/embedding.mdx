@@ -17,9 +17,9 @@ sajn provides official embedding packages for popular frameworks:
 
 | Package | Framework | Version |
 |---------|-----------|---------|
-| `@sajn/embed` | Vanilla JS | 0.1.2 |
-| `@sajn/embed-react` | React 18+ | 0.1.2 |
-| `@sajn/embed-vue` | Vue 3.3+ | 0.1.2 |
+| `@sajn/embed` | Vanilla JS | 0.1.5 |
+| `@sajn/embed-react` | React 18+ | 0.1.5 |
+| `@sajn/embed-vue` | Vue 3.3+ | 0.1.5 |
 
 ## Enabling Embedding
 
@@ -68,6 +68,7 @@ You receive both values when you create a document and add signers via the API.
 | `language` | `string` | - | UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
 | `className` | `string` | - | CSS class for the iframe element |
 | `allowDocumentRejection` | `boolean` | `false` | Allow signers to reject the document |
+| `showScrollIndicator` | `boolean` | `true` | Show scroll indicator in the iframe |
 | `additionalProps` | `Record<string, string \| number \| boolean>` | - | Additional options passed to the embed |
 
 ### Theming with CSS Variables
@@ -113,8 +114,8 @@ Fired when the signer has completed the signing process.
 ```typescript
 interface SignerCompletedData {
   token: string;
-  documentId: number;
-  signerId: number;
+  documentId: string;
+  signerId: string;
   failed?: string; // Optional failure reason
 }
 ```
@@ -128,8 +129,8 @@ Fired when the signer rejects the document (requires `allowDocumentRejection: tr
 ```typescript
 interface SignerRejectedData {
   token: string;
-  documentId: number;
-  signerId: number;
+  documentId: string;
+  signerId: string;
   reason: string;
 }
 ```

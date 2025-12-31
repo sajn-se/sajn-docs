@@ -36,6 +36,7 @@ import { EmbedSignDocument } from '@sajn/embed-vue';
 | `class` | `string` | No | - | CSS class for iframe |
 | `css-vars` | `CssVars` | No | - | Theme customization |
 | `allow-document-rejection` | `boolean` | No | `false` | Enable rejection |
+| `show-scroll-indicator` | `boolean` | No | `true` | Show scroll indicator |
 | `additional-props` | `object` | No | - | Additional options |
 
 ### Events
@@ -168,8 +169,8 @@ import type {
 ```typescript
 interface SignerCompletedData {
   token: string;
-  documentId: number;
-  signerId: number;
+  documentId: string;
+  signerId: string;
   failed?: string;  // Present if signing failed
 }
 ```
@@ -179,8 +180,8 @@ interface SignerCompletedData {
 ```typescript
 interface SignerRejectedData {
   token: string;
-  documentId: number;
-  signerId: number;
+  documentId: string;
+  signerId: string;
   reason: string;
 }
 ```
@@ -248,3 +249,78 @@ The component renders an iframe that fills its container. Set dimensions on the 
 ```
 
 The iframe has no border by default and is set to `width: 100%` and `height: 100%`.
+
+## View Component
+
+The package also includes `EmbedViewDocument` for displaying signed documents in read-only mode.
+
+### Import
+
+```vue
+<script setup>
+import { EmbedViewDocument } from '@sajn/embed-vue';
+</script>
+```
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `document-id` | `string` | Yes | - | Document ID |
+| `token` | `string` | Yes | - | Viewer token |
+| `host` | `string` | No | `https://app.sajn.se` | Custom host URL |
+| `language` | `string` | No | - | UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
+| `class` | `string` | No | - | CSS class for iframe |
+| `css-vars` | `CssVars` | No | - | Theme customization |
+| `show-scroll-indicator` | `boolean` | No | `true` | Show scroll indicator |
+| `additional-props` | `object` | No | - | Additional options |
+
+### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `document-ready` | - | Iframe loaded and ready |
+| `document-error` | `DocumentErrorData` | Error occurred |
+
+### Example
+
+```vue
+<script setup lang="ts">
+import { EmbedViewDocument } from '@sajn/embed-vue';
+
+const props = defineProps<{
+  documentId: string;
+  token: string;
+}>();
+
+function handleReady() {
+  console.log('Document loaded');
+}
+
+function handleError(error: { code: string; message: string }) {
+  console.error('Error:', error.code, error.message);
+}
+</script>
+
+<template>
+  <div class="viewer-container">
+    <EmbedViewDocument
+      :document-id="props.documentId"
+      :token="props.token"
+      :css-vars="{
+        primary: '#2563eb',
+        background: '#ffffff',
+      }"
+      @document-ready="handleReady"
+      @document-error="handleError"
+    />
+  </div>
+</template>
+
+<style scoped>
+.viewer-container {
+  width: 100%;
+  height: 100vh;
+}
+</style>
+```
