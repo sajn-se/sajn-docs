@@ -1,0 +1,103 @@
+---
+title: Workspaces
+description: 'Organize your documents and teams with workspaces'
+---
+
+# Workspaces
+
+Workspaces help you organize your work in sajn. Think of them as separate folders or projects within your organization — each with its own documents, contacts, and settings.
+
+## Why Use Workspaces?
+
+<CardGroup cols={3}>
+  <Card title="Separate Projects" icon="folder">
+    Keep different projects or clients completely separate
+  </Card>
+  <Card title="Team Access" icon="users">
+    Control which team members can access what
+  </Card>
+  <Card title="Stay Organized" icon="grid-2">
+    Manage large volumes of documents without the clutter
+  </Card>
+</CardGroup>
+
+## What Belongs to a Workspace?
+
+Each workspace has its own isolated set of data:
+
+| Resource | Description |
+|----------|-------------|
+| Documents | All documents created or imported |
+| Contacts | People and companies you send documents to |
+| Templates | Reusable document templates |
+| Tags | Labels for organizing documents |
+| Files | Uploaded PDFs and other files |
+| Webhooks | Event notifications |
+| API Tokens | Credentials for API access |
+
+<Note>
+  Data is completely isolated between workspaces. A document in one workspace cannot access contacts from another workspace.
+</Note>
+
+## Workspace Properties
+
+Every workspace has:
+
+| Property | Description |
+|----------|-------------|
+| **Slug** | Unique identifier (e.g., `sales-team`) |
+| **Name** | Display name (e.g., "Sales Team") |
+| **Color** | Visual identifier in the dashboard |
+| **Icon** | Optional icon for quick recognition |
+
+## Common Use Cases
+
+### Multiple Clients
+Agencies and consultants can create a workspace for each client to keep their documents and contacts separate.
+
+### Departments
+Large organizations can have separate workspaces for HR, Legal, Sales, etc.
+
+### Projects
+Create workspaces for major projects that need their own document workflows.
+
+## Workspace Limits by Plan
+
+The number of workspaces you can create depends on your subscription:
+
+| Plan | Workspaces |
+|------|------------|
+| BASIC / SOLO | 1 |
+| TEAM | 5 |
+| ENTERPRISE | Unlimited |
+
+<Tip>
+  Need more workspaces? Contact us at hej@sajn.se to discuss your needs.
+</Tip>
+
+## Working with Workspaces
+
+### In the Dashboard
+
+Switch between workspaces using the workspace selector in the top navigation. Your current workspace determines which documents, contacts, and settings you see.
+
+### Via API
+
+When using the API, your API token is scoped to a specific workspace. All API operations affect only that workspace's data.
+
+```bash
+# Your API token determines which workspace you're working with
+curl -H "Authorization: Bearer YOUR_WORKSPACE_TOKEN" \
+  https://api.sajn.se/api/v1/documents
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Documents" icon="file-contract" href="/concepts/documents">
+    Learn about creating and managing documents
+  </Card>
+  <Card title="Contacts" icon="address-book" href="/concepts/contacts">
+    Manage your signer contacts
+  </Card>
+</CardGroup>

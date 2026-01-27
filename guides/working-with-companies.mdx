@@ -1,0 +1,269 @@
+---
+title: Working with Companies
+description: 'Create and manage company records for organized B2B document signing'
+---
+
+# Working with Companies
+
+Companies in sajn represent organizations that your contacts belong to. When signing documents on behalf of a company, the signer acts as a representative of that organization.
+
+## When to Use Company Signers
+
+Use company signers when:
+
+- The signer is signing on behalf of their employer or organization
+- You need to track which company a contract is with
+- Legal agreements require company representation
+- You want to organize contacts by their organizations
+
+<Frame>
+  <img src="/images/guides/company-create.png" alt="Company creation form showing fields for company name and organization number" />
+</Frame>
+
+## Creating Company Records
+
+Create a company with its basic information:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/companies \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Corporation AB",
+    "orgNumber": "556123-4567",
+    "country": "Sweden"
+  }'
+```
+
+Response:
+
+```json
+{
+  "company": {
+    "id": "company_xyz789",
+    "name": "Acme Corporation AB",
+    "orgNumber": "556123-4567",
+    "country": "Sweden",
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Company Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Official company name |
+| `orgNumber` | No | Organization number (e.g., Swedish organisationsnummer) |
+| `country` | No | Country where the company is registered |
+| `externalId` | No | Your system's identifier |
+
+## Swedish Organization Numbers
+
+Swedish organization numbers (organisationsnummer) follow a specific format:
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| `XXXXXX-XXXX` | `556123-4567` | Standard format with hyphen |
+| `XXXXXXXXXX` | `5561234567` | Without hyphen (also accepted) |
+
+<Note>
+  sajn validates Swedish organization numbers for correct format and checksum. Invalid numbers will be rejected.
+</Note>
+
+## Company Representatives
+
+When a person signs on behalf of a company, they act as a representative. This is different from an individual signer.
+
+<Frame>
+  <img src="/images/guides/company-signer.png" alt="Document showing a company signer with their role and company information" />
+</Frame>
+
+### Adding a Company Signer to a Document
+
+When creating a document, specify `type: "COMPANY"` for the signer:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Partnership Agreement",
+    "type": "SIGNABLE",
+    "signers": [
+      {
+        "type": "COMPANY",
+        "name": "Erik Eriksson",
+        "email": "erik@acme.se",
+        "companyName": "Acme Corporation AB",
+        "companyOrgNumber": "556123-4567",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      }
+    ]
+  }'
+```
+
+### Using a Contact Linked to a Company
+
+If you have a contact already linked to a company, reference them directly:
+
+```json
+{
+  "name": "Vendor Agreement",
+  "type": "SIGNABLE",
+  "signers": [
+    {
+      "contactId": "contact_abc123",
+      "type": "COMPANY",
+      "role": "SIGNER",
+      "signingOrder": 1,
+      "deliveryMethod": "EMAIL",
+      "requiredSignature": "BANKID"
+    }
+  ]
+}
+```
+
+The signer inherits both personal information and company details from the contact record.
+
+## Searching Companies
+
+### List All Companies
+
+```bash
+curl -X GET "https://app.sajn.se/api/v1/companies?page=1&perPage=20" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Search by Organization Number
+
+Find a specific company by its organization number:
+
+```bash
+curl -X GET "https://app.sajn.se/api/v1/companies/search?orgNumber=556123-4567" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Get Company with Contacts
+
+Retrieve a company and all associated contacts:
+
+```bash
+curl -X GET https://app.sajn.se/api/v1/companies/company_xyz789 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response:
+
+```json
+{
+  "company": {
+    "id": "company_xyz789",
+    "name": "Acme Corporation AB",
+    "orgNumber": "556123-4567",
+    "country": "Sweden",
+    "parties": [
+      {
+        "id": "contact_abc123",
+        "firstName": "Erik",
+        "lastName": "Eriksson",
+        "email": "erik@acme.se",
+        "companyRole": "CEO"
+      },
+      {
+        "id": "contact_def456",
+        "firstName": "Anna",
+        "lastName": "Andersson",
+        "email": "anna@acme.se",
+        "companyRole": "CFO"
+      }
+    ]
+  }
+}
+```
+
+## Linking Contacts to Companies
+
+### When Creating a Contact
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/contacts \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Maria",
+    "lastName": "Johansson",
+    "email": "maria@acme.se",
+    "companyId": "company_xyz789",
+    "companyRole": "Head of Legal"
+  }'
+```
+
+### Updating an Existing Contact
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/contacts/contact_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "companyId": "company_xyz789",
+    "companyRole": "CEO"
+  }'
+```
+
+## Company Signer vs Individual Signer
+
+| Aspect | Individual Signer | Company Signer |
+|--------|------------------|----------------|
+| Signs as | Themselves | Representative of company |
+| Document shows | Personal name only | Name + company name |
+| Legal binding | Personal responsibility | Company responsibility |
+| Use case | Personal contracts | Business agreements |
+
+<Tip>
+  For contracts where both personal and company responsibility apply (e.g., CEO signing with personal guarantee), you may need the same person as two separate signers.
+</Tip>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Verify organization numbers">
+    Always verify Swedish organization numbers before creating company records. Invalid numbers will be rejected by the API.
+  </Accordion>
+
+  <Accordion title="Use consistent naming">
+    Use the official company name as registered. This ensures consistency across documents and makes searching easier.
+  </Accordion>
+
+  <Accordion title="Link all employees">
+    When working with a company regularly, create contacts for all key stakeholders and link them to the company record.
+  </Accordion>
+
+  <Accordion title="Include company roles">
+    Always set `companyRole` when linking contacts to companies. This helps identify who has signing authority.
+  </Accordion>
+
+  <Accordion title="Use BankID for company signers">
+    In Sweden, BankID provides the strongest verification for company representatives, as it verifies their personal identity.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Managing Contacts" icon="address-book" href="/guides/managing-contacts">
+    Learn how to create and manage individual contacts
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Add company signers to your documents
+  </Card>
+  <Card title="Companies API" icon="code" href="/api/GET%20/api/v1/companies">
+    Explore the full Companies API reference
+  </Card>
+  <Card title="Signers Concept" icon="users" href="/concepts/signers">
+    Understand different signer types
+  </Card>
+</CardGroup>

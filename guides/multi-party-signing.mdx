@@ -1,0 +1,409 @@
+---
+title: Multi-Party Signing Workflows
+description: 'Configure documents with multiple signers using parallel, sequential, or mixed signing orders'
+---
+
+# Multi-Party Signing Workflows
+
+Many agreements require signatures from multiple parties. sajn supports flexible signing workflows, from simple parallel signing to complex sequential approval chains.
+
+## Understanding Signing Orders
+
+sajn offers three approaches for multi-party signing:
+
+| Type | Description | Use Case |
+|------|-------------|----------|
+| **Parallel** | Everyone signs at the same time | NDAs, simple contracts |
+| **Sequential** | One after another in order | Approval chains, escalations |
+| **Mixed** | Some parallel, some sequential | Complex workflows |
+
+<Frame>
+  <img src="/images/guides/signing-parallel.png" alt="Diagram showing parallel signing where all signers receive the document simultaneously" />
+</Frame>
+
+## Parallel Signing
+
+In parallel signing, all signers receive the document at the same time and can sign in any order.
+
+### Configuration
+
+Set all signers to the same `signingOrder`:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Non-Disclosure Agreement",
+    "type": "SIGNABLE",
+    "documentMeta": {
+      "signingOrder": "PARALLEL"
+    },
+    "signers": [
+      {
+        "name": "Anna Andersson",
+        "email": "anna@company.se",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      },
+      {
+        "name": "Erik Eriksson",
+        "email": "erik@partner.se",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      }
+    ]
+  }'
+```
+
+### When to Use Parallel Signing
+
+- **NDAs** where both parties need to agree
+- **Simple contracts** with equal parties
+- **Time-sensitive documents** where speed matters
+- **Multi-party agreements** without dependency requirements
+
+<Tip>
+  Parallel signing is faster because signers don't wait for each other. Use it when there's no requirement for a specific signing sequence.
+</Tip>
+
+## Sequential Signing
+
+<Frame>
+  <img src="/images/guides/signing-sequential.png" alt="Diagram showing sequential signing with numbered steps" />
+</Frame>
+
+In sequential signing, signers receive the document one at a time in a specified order. The next signer only receives the document after the previous one has signed.
+
+### Configuration
+
+Set incrementing `signingOrder` values:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contract",
+    "type": "SIGNABLE",
+    "documentMeta": {
+      "signingOrder": "SEQUENTIAL"
+    },
+    "signers": [
+      {
+        "name": "Anna Andersson",
+        "email": "anna@company.se",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "DRAWING"
+      },
+      {
+        "name": "Maria Johansson",
+        "email": "maria@company.se",
+        "role": "SIGNER",
+        "signingOrder": 2,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      },
+      {
+        "name": "Erik Eriksson",
+        "email": "erik@company.se",
+        "role": "SIGNER",
+        "signingOrder": 3,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      }
+    ]
+  }'
+```
+
+### Signing Flow
+
+1. **Step 1**: Anna receives the document and signs
+2. **Step 2**: After Anna signs, Maria receives the document
+3. **Step 3**: After Maria signs, Erik receives the document
+4. **Completed**: All three have signed
+
+### When to Use Sequential Signing
+
+- **Approval chains** where manager approval is needed first
+- **Hierarchical signatures** (employee → manager → executive)
+- **Counter-signatures** where one party must sign first
+- **Legal requirements** for specific signing order
+
+## Mixed Workflows
+
+For complex scenarios, combine parallel and sequential signing:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Partnership Agreement",
+    "type": "SIGNABLE",
+    "documentMeta": {
+      "signingOrder": "SEQUENTIAL"
+    },
+    "signers": [
+      {
+        "name": "Anna Andersson",
+        "email": "anna@company-a.se",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      },
+      {
+        "name": "Erik Eriksson",
+        "email": "erik@company-a.se",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      },
+      {
+        "name": "Maria Johansson",
+        "email": "maria@company-b.se",
+        "role": "SIGNER",
+        "signingOrder": 2,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      },
+      {
+        "name": "Johan Svensson",
+        "email": "johan@company-b.se",
+        "role": "SIGNER",
+        "signingOrder": 2,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      }
+    ]
+  }'
+```
+
+### Signing Flow
+
+1. **Step 1** (Parallel): Anna and Erik from Company A sign simultaneously
+2. **Step 2** (Parallel): After both sign, Maria and Johan from Company B sign simultaneously
+3. **Completed**: All four have signed
+
+<Note>
+  Signers with the same `signingOrder` value sign in parallel. The next order group only receives the document when all previous signers have completed.
+</Note>
+
+## Tracking Progress
+
+### Document Status
+
+Track overall document progress:
+
+```bash
+curl -X GET https://app.sajn.se/api/v1/documents/doc_123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response shows signing status:
+
+```json
+{
+  "document": {
+    "id": "doc_123",
+    "name": "Employment Contract",
+    "status": "SENT",
+    "signers": [
+      {
+        "signerId": "signer_1",
+        "name": "Anna Andersson",
+        "status": "SIGNED",
+        "signedAt": "2024-01-15T10:30:00Z"
+      },
+      {
+        "signerId": "signer_2",
+        "name": "Maria Johansson",
+        "status": "PENDING",
+        "signedAt": null
+      }
+    ]
+  }
+}
+```
+
+### Signer Statuses
+
+| Status | Description |
+|--------|-------------|
+| `PENDING` | Waiting for earlier signers (sequential) |
+| `NOTIFIED` | Document sent, awaiting signature |
+| `OPENED` | Signer has viewed the document |
+| `SIGNED` | Signer has completed signing |
+| `REJECTED` | Signer has declined to sign |
+
+### Webhook Notifications
+
+Receive real-time updates for each signing event:
+
+```json
+{
+  "event": "DOCUMENT_SIGNED",
+  "data": {
+    "documentId": "doc_123",
+    "signerId": "signer_1",
+    "signerName": "Anna Andersson",
+    "signedAt": "2024-01-15T10:30:00Z",
+    "remainingSigners": 2
+  }
+}
+```
+
+## Common Patterns
+
+### Manager Approval Before Employee
+
+Employee signs first, then manager approves:
+
+```json
+{
+  "signers": [
+    {
+      "name": "Anna Andersson",
+      "email": "anna@company.se",
+      "role": "SIGNER",
+      "signingOrder": 1
+    },
+    {
+      "name": "Erik Manager",
+      "email": "erik@company.se",
+      "role": "SIGNER",
+      "signingOrder": 2
+    }
+  ]
+}
+```
+
+### Multiple Counterparties
+
+Your company signs first, then the client:
+
+```json
+{
+  "signers": [
+    {
+      "name": "Your CEO",
+      "email": "ceo@yourcompany.se",
+      "role": "SIGNER",
+      "signingOrder": 1
+    },
+    {
+      "name": "Client Representative",
+      "email": "contact@client.se",
+      "role": "SIGNER",
+      "signingOrder": 2
+    }
+  ]
+}
+```
+
+### Witness Signatures
+
+Main parties sign, then witnesses attest:
+
+```json
+{
+  "signers": [
+    {
+      "name": "Party A",
+      "email": "party-a@example.com",
+      "role": "SIGNER",
+      "signingOrder": 1
+    },
+    {
+      "name": "Party B",
+      "email": "party-b@example.com",
+      "role": "SIGNER",
+      "signingOrder": 1
+    },
+    {
+      "name": "Witness 1",
+      "email": "witness1@example.com",
+      "role": "SIGNER",
+      "signingOrder": 2
+    },
+    {
+      "name": "Witness 2",
+      "email": "witness2@example.com",
+      "role": "SIGNER",
+      "signingOrder": 2
+    }
+  ]
+}
+```
+
+### Board Resolution
+
+All board members must sign:
+
+```json
+{
+  "documentMeta": {
+    "signingOrder": "PARALLEL"
+  },
+  "signers": [
+    { "name": "Board Member 1", "signingOrder": 1 },
+    { "name": "Board Member 2", "signingOrder": 1 },
+    { "name": "Board Member 3", "signingOrder": 1 },
+    { "name": "Board Member 4", "signingOrder": 1 },
+    { "name": "Board Member 5", "signingOrder": 1 }
+  ]
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Consider signer availability">
+    For sequential signing, consider whether signers will be available. A single unavailable signer blocks the entire chain.
+  </Accordion>
+
+  <Accordion title="Use parallel when possible">
+    Parallel signing is faster and reduces bottlenecks. Only use sequential when there's a business requirement.
+  </Accordion>
+
+  <Accordion title="Set appropriate expiration">
+    For multi-party documents, allow extra time for all parties to sign. Consider longer expiration periods.
+  </Accordion>
+
+  <Accordion title="Configure reminders">
+    Enable automatic reminders to keep the signing process moving, especially for sequential workflows.
+  </Accordion>
+
+  <Accordion title="Handle rejections gracefully">
+    If any signer rejects, the document is rejected. Have a process for handling rejections and restarting if needed.
+  </Accordion>
+
+  <Accordion title="Track with webhooks">
+    Use webhooks to monitor signing progress and take action when documents are signed, rejected, or stalled.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Reminders & Expiration" icon="clock" href="/guides/reminders-expiration">
+    Configure reminders and document expiration
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Track signing progress in real-time
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Learn document creation basics
+  </Card>
+  <Card title="Signers Concept" icon="users" href="/concepts/signers">
+    Understand signer types and roles
+  </Card>
+</CardGroup>

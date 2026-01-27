@@ -1,0 +1,236 @@
+---
+title: Managing Contacts
+description: 'Learn how to create, organize, and manage contacts for efficient document signing workflows'
+---
+
+# Managing Contacts
+
+Contacts are reusable records of individuals you frequently send documents to. By managing contacts effectively, you can speed up document creation and maintain consistent signer information across your organization.
+
+## Why Use Contacts?
+
+Instead of manually entering signer details each time you create a document, contacts allow you to:
+
+- **Save time** by reusing stored information
+- **Reduce errors** with pre-validated contact details
+- **Track history** across all documents a person has signed
+- **Stay organized** by linking contacts to companies
+
+<Frame>
+  <img src="/images/guides/contacts-list.png" alt="Contacts list in the sajn dashboard showing a searchable list of individuals" />
+</Frame>
+
+## Creating Contacts
+
+### Individual Contacts
+
+Create a contact with the essential information for document delivery:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/contacts \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Anna",
+    "lastName": "Andersson",
+    "email": "anna@example.com",
+    "phone": "+46701234567"
+  }'
+```
+
+Response:
+
+```json
+{
+  "contact": {
+    "id": "contact_abc123",
+    "firstName": "Anna",
+    "lastName": "Andersson",
+    "email": "anna@example.com",
+    "phone": "+46701234567",
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+<Frame>
+  <img src="/images/guides/contacts-create.png" alt="Create contact form in sajn showing fields for name, email, and phone" />
+</Frame>
+
+### Contact Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `firstName` | Yes | Contact's first name |
+| `lastName` | Yes | Contact's last name |
+| `email` | No | Email address for document delivery |
+| `phone` | No | Phone number for SMS delivery |
+| `ssn` | No | Swedish personal number (personnummer) |
+| `companyId` | No | Link to an existing company |
+| `companyRole` | No | Role within the company (e.g., "CEO", "CFO") |
+| `externalId` | No | Your system's identifier for integration |
+
+<Tip>
+  At least one of `email` or `phone` is recommended so documents can be delivered to the contact.
+</Tip>
+
+### Contacts with Company Association
+
+Link a contact to an existing company:
+
+```json
+{
+  "firstName": "Erik",
+  "lastName": "Eriksson",
+  "email": "erik@acme.se",
+  "companyId": "company_xyz789",
+  "companyRole": "CFO"
+}
+```
+
+## Searching and Filtering Contacts
+
+### List All Contacts
+
+Retrieve a paginated list of all contacts in your organization:
+
+```bash
+curl -X GET "https://app.sajn.se/api/v1/contacts?page=1&perPage=20" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Search by Specific Criteria
+
+Search for contacts by email, phone, or external ID:
+
+```bash
+# Search by email
+curl -X GET "https://app.sajn.se/api/v1/contacts/search?email=anna@example.com" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Search by phone
+curl -X GET "https://app.sajn.se/api/v1/contacts/search?phone=+46701234567" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Search by external ID
+curl -X GET "https://app.sajn.se/api/v1/contacts/search?externalId=customer_456" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Note>
+  All searches are exact matches scoped to your organization. The search returns an array of matching contacts, or an empty array if no matches are found.
+</Note>
+
+## Linking Contacts to Signers
+
+When creating a document, reference an existing contact instead of manually entering signer details:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Service Agreement",
+    "type": "SIGNABLE",
+    "signers": [
+      {
+        "contactId": "contact_abc123",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      }
+    ]
+  }'
+```
+
+The signer automatically inherits the contact's name, email, and phone number. You can still override specific fields if needed:
+
+```json
+{
+  "contactId": "contact_abc123",
+  "email": "anna.work@example.com",
+  "role": "SIGNER",
+  "signingOrder": 1,
+  "deliveryMethod": "EMAIL",
+  "requiredSignature": "DRAWING"
+}
+```
+
+## Updating Contacts
+
+Update an existing contact's information:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/contacts/contact_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "anna.new@example.com",
+    "phone": "+46709876543"
+  }'
+```
+
+<Warning>
+  Updating a contact does not affect existing document signers. Changes only apply to new documents created with this contact.
+</Warning>
+
+## Deleting Contacts
+
+Remove a contact from your organization:
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/contacts/contact_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Note>
+  Deleted contacts are soft-deleted to preserve historical data. They are hidden from lists, but existing document references remain valid for audit purposes.
+</Note>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Check for duplicates before creating">
+    Use the search endpoint to check if a contact already exists before creating a new one. This prevents duplicate records and maintains data quality.
+
+    ```bash
+    # Check if contact exists before creating
+    curl -X GET "https://app.sajn.se/api/v1/contacts/search?email=anna@example.com" \
+      -H "Authorization: Bearer YOUR_API_KEY"
+    ```
+  </Accordion>
+
+  <Accordion title="Use external IDs for integration">
+    When integrating with a CRM or other system, always set `externalId` to your system's identifier. This makes syncing and lookups straightforward.
+  </Accordion>
+
+  <Accordion title="Keep contact information current">
+    Regularly update contact details, especially email addresses and phone numbers, to ensure successful document delivery.
+  </Accordion>
+
+  <Accordion title="Organize with companies">
+    For B2B scenarios, create companies and link contacts to them. This improves organization and makes it easier to find all contacts from a specific organization.
+  </Accordion>
+
+  <Accordion title="Validate data before creation">
+    Ensure email addresses are valid and phone numbers are in international format (e.g., +46701234567) before creating contacts.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Working with Companies" icon="building" href="/guides/working-with-companies">
+    Learn how to create and manage company records
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Use contacts when creating documents
+  </Card>
+  <Card title="Contacts API" icon="code" href="/api/GET%20/api/v1/contacts">
+    Explore the full Contacts API reference
+  </Card>
+  <Card title="Signers Concept" icon="users" href="/concepts/signers">
+    Understand how signers work in sajn
+  </Card>
+</CardGroup>

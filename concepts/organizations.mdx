@@ -1,0 +1,125 @@
+---
+title: Organizations
+description: 'Your account structure in sajn'
+---
+
+# Organizations
+
+An organization is your top-level account in sajn. It represents your company or entity and contains everything you do in sajn.
+
+## Organizations vs Workspaces
+
+Understanding the hierarchy is simple:
+
+```
+Organization (your company)
+├── Workspace A (e.g., Sales)
+│   ├── Documents
+│   ├── Contacts
+│   └── Templates
+├── Workspace B (e.g., HR)
+│   ├── Documents
+│   ├── Contacts
+│   └── Templates
+└── Workspace C (e.g., Legal)
+    ├── Documents
+    ├── Contacts
+    └── Templates
+```
+
+<CardGroup cols={2}>
+  <Card title="Organization" icon="building">
+    **Your company account**
+
+    - One per company
+    - Contains all workspaces
+    - Manages billing and subscription
+    - Controls organization-wide settings
+    - Manages team members
+  </Card>
+  <Card title="Workspace" icon="folder">
+    **A project or department**
+
+    - Multiple per organization
+    - Contains documents and contacts
+    - Has its own templates and tags
+    - Separate API tokens
+    - Isolated data
+  </Card>
+</CardGroup>
+
+## What Belongs Where?
+
+| Organization Level | Workspace Level |
+|-------------------|-----------------|
+| Team members | Documents |
+| Billing & subscription | Contacts |
+| Organization name & branding | Templates |
+| SSO settings | Tags |
+| Audit logs | Files |
+| | Webhooks |
+| | API tokens |
+
+<Note>
+  Team members are invited at the organization level, then given access to specific workspaces.
+</Note>
+
+## How It Works in Practice
+
+### Example: Marketing Agency
+
+A marketing agency called "Creative Co" might set up sajn like this:
+
+**Organization:** Creative Co
+- **Workspace:** Client A — contracts and NDAs for Client A
+- **Workspace:** Client B — agreements for Client B
+- **Workspace:** Internal — employee contracts and policies
+
+Each client's documents stay separate, but the agency manages billing and team members in one place.
+
+### Example: Growing Startup
+
+A startup might start simple and grow:
+
+1. **Day 1:** One organization, one workspace (default)
+2. **Month 6:** Add a "Sales" workspace for customer contracts
+3. **Year 1:** Add "HR" workspace for employee documents
+
+## Managing Your Organization
+
+### Organization Settings
+
+Access organization settings to:
+- Update company name and branding
+- Manage subscription and billing
+- View organization-wide audit logs
+- Configure SSO (Enterprise plans)
+
+### Team Members
+
+Invite team members at the organization level, then assign them to workspaces:
+
+| Role | Description |
+|------|-------------|
+| **Owner** | Full access to everything, including billing |
+| **Admin** | Can manage workspaces and members |
+| **Member** | Access to assigned workspaces only |
+
+## One Organization, Multiple Workspaces
+
+Most companies need just **one organization** with **multiple workspaces**:
+
+<Tip>
+  You only need multiple organizations if you're managing completely separate legal entities with separate billing.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Workspaces" icon="folder" href="/concepts/workspaces">
+    Learn more about organizing with workspaces
+  </Card>
+  <Card title="Documents" icon="file-contract" href="/concepts/documents">
+    Start creating documents
+  </Card>
+</CardGroup>

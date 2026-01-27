@@ -1,0 +1,336 @@
+---
+title: Signing Methods
+description: 'Understanding the different electronic signature methods available in sajn'
+---
+
+# Signing Methods
+
+sajn supports multiple signing methods to accommodate different use cases, security requirements, and legal needs. Each method offers a different balance between convenience and verification strength.
+
+## SES vs AES Signatures
+
+Before choosing a signing method, it's important to understand the two categories of electronic signatures under the eIDAS regulation:
+
+| Type | Full Name | Legal Weight | Verification |
+|------|-----------|--------------|--------------|
+| **SES** | Simple Electronic Signature | Legally valid, basic | Intent to sign |
+| **AES** | Advanced Electronic Signature | Higher legal standing | Identity verified |
+
+<Tip>
+  For most everyday business documents, SES methods (Drawing, Click-to-Sign) provide sufficient legal validity. Use AES (BankID) for contracts requiring stronger identity verification.
+</Tip>
+
+## Quick Comparison
+
+| Method | Type | Requirements | User Effort | Best For |
+|--------|------|--------------|-------------|----------|
+| **DRAWING** | SES | None | Medium | Personal touch, visual signatures |
+| **CLICK_TO_SIGN** | SES | None | Very Low | High-volume, low-friction signing |
+| **BANKID** | AES | Swedish SSN | Medium | Legal contracts, identity verification |
+| **MANUAL** | N/A | Physical presence | N/A | In-person signing, legacy documents |
+
+---
+
+## Drawing Signature
+
+<CardGroup cols={2}>
+  <div>
+    ![Drawing Signature](https://placehold.co/600x400/2563EB/white?text=Drawing+Signature)
+  </div>
+  <div>
+    The drawing signature allows signers to create a free-hand signature using their mouse, trackpad, or touchscreen. This provides a personal, traditional feel while remaining fully digital.
+  </div>
+</CardGroup>
+
+### How It Works
+
+1. Signer opens the signing link
+2. Reviews the document content
+3. A signature pad appears with the confirmation: "Härmed bekräftar jag följande:" (I hereby confirm the following:)
+4. Signer draws their signature using mouse or touch
+5. Signature is captured and applied to the document
+
+### Requirements
+
+- No special requirements
+- Works on any device with a browser
+- Touch-enabled devices provide the best experience
+
+### Best For
+
+- Employment contracts
+- Sales agreements
+- Documents where a personal signature touch is desired
+- Mobile-friendly signing flows
+
+### API Configuration
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "SIGNER",
+  "deliveryMethod": "EMAIL",
+  "requiredSignature": "DRAWING"
+}
+```
+
+<Note>
+  The signature canvas is responsive: 288px width on desktop, 256px on mobile devices.
+</Note>
+
+---
+
+## Click-to-Sign
+
+<CardGroup cols={2}>
+  <div>
+    ![Click to Sign](https://placehold.co/600x400/2563EB/white?text=Click+to+Sign)
+  </div>
+  <div>
+    Click-to-Sign is the fastest signing method, requiring only two clicks to complete. Perfect for high-volume documents where speed matters more than a visual signature.
+  </div>
+</CardGroup>
+
+### How It Works
+
+1. Signer opens the signing link
+2. Reviews the document content
+3. Clicks the "Klicka för att signera" (Click to sign) button
+4. A confirmation dialog appears with a 60-second countdown
+5. Signer clicks "Bekräfta signering" (Confirm signing)
+6. Document is signed
+
+### Requirements
+
+- No special requirements
+- Works on any device with a browser
+- Fastest completion time
+
+### Best For
+
+- Terms of service acceptance
+- NDAs and standard agreements
+- Internal approvals
+- High-volume document workflows
+- Mobile-first experiences
+
+### API Configuration
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "SIGNER",
+  "deliveryMethod": "EMAIL",
+  "requiredSignature": "CLICK_TO_SIGN"
+}
+```
+
+<Tip>
+  Click-to-Sign creates detailed audit trail entries for both the initiation click and the confirmation, providing clear evidence of intent.
+</Tip>
+
+---
+
+## BankID
+
+<CardGroup cols={2}>
+  <div>
+    ![BankID Signing](https://placehold.co/600x400/2563EB/white?text=BankID+Signing)
+  </div>
+  <div>
+    BankID is Sweden's leading electronic identification system, providing cryptographically verified signatures. This is an Advanced Electronic Signature (AES) with the highest legal standing.
+  </div>
+</CardGroup>
+
+### How It Works
+
+**On Desktop:**
+1. Signer opens the signing link
+2. Reviews the document content
+3. A QR code appears on screen
+4. Signer scans the QR code with their phone's BankID app
+5. Confirms the signing in the BankID app
+6. Document is signed with verified identity
+
+**On Mobile:**
+1. Signer opens the signing link
+2. Reviews the document content
+3. Clicks to open BankID app (or scans QR as fallback)
+4. Confirms the signing in the BankID app
+5. Returns to sajn with completed signature
+
+### Signing States
+
+The BankID flow progresses through these states:
+
+| State | Description |
+|-------|-------------|
+| `checking` | Verifying BankID availability |
+| `ready` | QR code displayed, waiting for scan |
+| `waiting` | QR scanned, waiting for user action in app |
+| `authenticating` | User confirming in BankID app |
+| `verifying` | Validating the signature |
+| `complete` | Signature successfully applied |
+
+### Requirements
+
+- Swedish personal number (SSN) - **required**
+- Signer must have BankID installed on their device
+- Active BankID certificate
+
+### Best For
+
+- Real estate transactions
+- Financial agreements
+- Employment contracts requiring identity verification
+- Any document where verified identity is legally important
+- Swedish market documents
+
+### API Configuration
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "ssn": "197001011234",
+  "role": "SIGNER",
+  "deliveryMethod": "EMAIL",
+  "requiredSignature": "BANKID"
+}
+```
+
+<Warning>
+  The SSN field is required for BankID signatures. Without a valid Swedish personal number, the signing will fail.
+</Warning>
+
+---
+
+## Manual Signing
+
+<CardGroup cols={2}>
+  <div>
+    ![Manual Signing](https://placehold.co/600x400/2563EB/white?text=Manual+Signing)
+  </div>
+  <div>
+    Manual signing is used for in-person or physical signatures. The document organizer marks the signature as complete after collecting the physical signature.
+  </div>
+</CardGroup>
+
+### How It Works
+
+1. Document is created with a signer set to manual signing
+2. The physical signing happens outside of sajn
+3. Organizer accesses the document in sajn
+4. Organizer marks the signer as having signed
+5. Document flow continues with remaining signers
+
+### Requirements
+
+- Physical presence of signer
+- Organizer action to confirm signing
+- No digital signature UI shown to signer
+
+### Best For
+
+- In-person meetings or closings
+- Imported legacy documents
+- Situations where digital signing isn't possible
+- Hybrid workflows mixing digital and physical signatures
+
+### API Configuration
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "SIGNER",
+  "deliveryMethod": "NONE",
+  "requiredSignature": "MANUAL"
+}
+```
+
+<Note>
+  Manual signing is typically combined with `deliveryMethod: "NONE"` since the signer doesn't need a digital signing link.
+</Note>
+
+---
+
+## Choosing the Right Method
+
+<AccordionGroup>
+  <Accordion title="I need the fastest signing experience">
+    Use **CLICK_TO_SIGN**. It requires only two clicks and works on any device without special requirements.
+  </Accordion>
+
+  <Accordion title="I need verified signer identity">
+    Use **BANKID**. It provides cryptographic identity verification and is an Advanced Electronic Signature (AES).
+  </Accordion>
+
+  <Accordion title="I want a personal, visual signature">
+    Use **DRAWING**. Signers can create their own signature, providing a traditional feel.
+  </Accordion>
+
+  <Accordion title="I'm signing in person">
+    Use **MANUAL**. The organizer marks the document as signed after collecting the physical signature.
+  </Accordion>
+
+  <Accordion title="I have international signers">
+    Use **DRAWING** or **CLICK_TO_SIGN**. BankID only works for signers with Swedish personal numbers.
+  </Accordion>
+</AccordionGroup>
+
+## Comparison by Use Case
+
+| Use Case | Recommended Method | Reason |
+|----------|-------------------|--------|
+| Employment contracts | DRAWING or BANKID | Personal touch or verified identity |
+| Terms acceptance | CLICK_TO_SIGN | Minimal friction |
+| Real estate | BANKID | Legal requirement for identity |
+| International agreements | DRAWING | No Swedish ID required |
+| Internal approvals | CLICK_TO_SIGN | Speed and convenience |
+| Notarized documents | MANUAL | Requires physical presence |
+
+## Mixing Methods
+
+You can assign different signing methods to different signers on the same document:
+
+```json
+{
+  "signers": [
+    {
+      "name": "CEO",
+      "email": "ceo@company.com",
+      "ssn": "197001011234",
+      "requiredSignature": "BANKID",
+      "signingOrder": 1
+    },
+    {
+      "name": "Employee",
+      "email": "employee@company.com",
+      "requiredSignature": "DRAWING",
+      "signingOrder": 2
+    }
+  ]
+}
+```
+
+This allows you to require stronger verification for key signers while keeping the process simple for others.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Send for Signing" icon="paper-plane" href="/guides/send-for-signing">
+    Learn how to send documents for signing
+  </Card>
+  <Card title="Identity Verification" icon="shield-check" href="/guides/identity-verification">
+    Add extra verification steps
+  </Card>
+  <Card title="Signers" icon="users" href="/concepts/signers">
+    Learn more about signer configuration
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Get notified when documents are signed
+  </Card>
+</CardGroup>

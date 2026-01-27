@@ -1,0 +1,382 @@
+---
+title: Downloading Signed Documents
+description: 'Retrieve completed documents, audit certificates, and automate document archiving'
+---
+
+# Downloading Signed Documents
+
+Once all signers have completed a document, you can download the signed PDF along with the audit trail. This guide covers manual downloads, automated retrieval, and archiving best practices.
+
+## Download Endpoint
+
+Retrieve a signed document using the download endpoint:
+
+```bash
+curl -X GET https://app.sajn.se/api/v1/documents/doc_123/download \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -o "signed-document.pdf"
+```
+
+The response is the signed PDF file with all signatures embedded.
+
+<Frame>
+  <img src="/images/guides/signed-document.png" alt="Signed document showing embedded signatures from all parties" />
+</Frame>
+
+### Response Headers
+
+| Header | Description |
+|--------|-------------|
+| `Content-Type` | `application/pdf` |
+| `Content-Disposition` | `attachment; filename="document-name.pdf"` |
+| `Content-Length` | File size in bytes |
+
+### Download Options
+
+Specify what to include in the download:
+
+```bash
+# Download signed document only
+curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -o "signed-document.pdf"
+
+# Download with audit certificate
+curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download?includeCertificate=true" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -o "signed-document-with-certificate.pdf"
+```
+
+## Audit Trail / Certificate
+
+<Frame>
+  <img src="/images/guides/audit-certificate.png" alt="Audit certificate showing signature events and verification details" />
+</Frame>
+
+The audit certificate provides a detailed record of all signing events:
+
+### Certificate Contents
+
+| Information | Description |
+|-------------|-------------|
+| Document ID | Unique identifier for the document |
+| Document Hash | SHA-256 hash of the original document |
+| Signers | List of all signers with their roles |
+| Signature Events | Timestamp, IP address, signature method for each signature |
+| Verification | Cryptographic proof of document integrity |
+
+### Downloading the Certificate Separately
+
+```bash
+curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/certificate" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -o "audit-certificate.pdf"
+```
+
+## Storing Signed Documents
+
+### Download to Local Storage
+
+```javascript
+const fs = require('fs');
+const axios = require('axios');
+
+async function downloadDocument(documentId, outputPath) {
+  const response = await axios({
+    method: 'GET',
+    url: `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+    headers: {
+      'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
+    },
+    responseType: 'stream'
+  });
+
+  const writer = fs.createWriteStream(outputPath);
+  response.data.pipe(writer);
+
+  return new Promise((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+}
+
+// Usage
+await downloadDocument('doc_123', './contracts/signed-agreement.pdf');
+```
+
+### Upload to Cloud Storage
+
+#### Amazon S3
+
+```javascript
+const AWS = require('aws-sdk');
+const axios = require('axios');
+
+const s3 = new AWS.S3();
+
+async function downloadAndUploadToS3(documentId, bucket, key) {
+  // Download from sajn
+  const response = await axios({
+    method: 'GET',
+    url: `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+    headers: {
+      'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
+    },
+    responseType: 'arraybuffer'
+  });
+
+  // Upload to S3
+  await s3.putObject({
+    Bucket: bucket,
+    Key: key,
+    Body: response.data,
+    ContentType: 'application/pdf'
+  }).promise();
+
+  console.log(`Document uploaded to s3://${bucket}/${key}`);
+}
+```
+
+#### Google Cloud Storage
+
+```javascript
+const { Storage } = require('@google-cloud/storage');
+const axios = require('axios');
+
+const storage = new Storage();
+
+async function downloadAndUploadToGCS(documentId, bucket, fileName) {
+  const response = await axios({
+    method: 'GET',
+    url: `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+    headers: {
+      'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
+    },
+    responseType: 'arraybuffer'
+  });
+
+  const file = storage.bucket(bucket).file(fileName);
+  await file.save(response.data, {
+    contentType: 'application/pdf'
+  });
+
+  console.log(`Document uploaded to gs://${bucket}/${fileName}`);
+}
+```
+
+## Automating Downloads with Webhooks
+
+The most common pattern is to automatically download documents when they're completed using webhooks.
+
+### Webhook Handler
+
+```javascript
+const express = require('express');
+const axios = require('axios');
+const crypto = require('crypto');
+
+const app = express();
+app.use(express.json());
+
+app.post('/webhooks/sajn', async (req, res) => {
+  // Verify webhook signature
+  const signature = req.headers['x-sajn-signature'];
+  const expectedSignature = crypto
+    .createHmac('sha256', process.env.WEBHOOK_SECRET)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+
+  if (signature !== expectedSignature) {
+    return res.status(401).send('Invalid signature');
+  }
+
+  const { event, data } = req.body;
+
+  // Handle document completion
+  if (event === 'DOCUMENT_COMPLETED') {
+    try {
+      await downloadAndArchive(data.documentId, data.externalId);
+      console.log(`Archived document ${data.documentId}`);
+    } catch (error) {
+      console.error(`Failed to archive document: ${error.message}`);
+    }
+  }
+
+  res.status(200).send('OK');
+});
+
+async function downloadAndArchive(documentId, externalId) {
+  // Download the signed document
+  const response = await axios({
+    method: 'GET',
+    url: `https://app.sajn.se/api/v1/documents/${documentId}/download?includeCertificate=true`,
+    headers: {
+      'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
+    },
+    responseType: 'arraybuffer'
+  });
+
+  // Store in your system (database, file system, cloud storage)
+  await saveToArchive({
+    documentId,
+    externalId,
+    pdf: response.data,
+    archivedAt: new Date()
+  });
+}
+
+app.listen(3000);
+```
+
+### Python Webhook Handler
+
+```python
+from flask import Flask, request, abort
+import hmac
+import hashlib
+import requests
+import os
+
+app = Flask(__name__)
+
+@app.route('/webhooks/sajn', methods=['POST'])
+def webhook():
+    # Verify signature
+    signature = request.headers.get('X-Sajn-Signature')
+    body = request.get_data()
+    expected = hmac.new(
+        bytes(os.environ['WEBHOOK_SECRET'], 'utf-8'),
+        body,
+        hashlib.sha256
+    ).hexdigest()
+
+    if signature != expected:
+        abort(401)
+
+    payload = request.json
+    event = payload['event']
+    data = payload['data']
+
+    if event == 'DOCUMENT_COMPLETED':
+        download_and_archive(data['documentId'], data.get('externalId'))
+
+    return 'OK', 200
+
+def download_and_archive(document_id, external_id):
+    response = requests.get(
+        f'https://app.sajn.se/api/v1/documents/{document_id}/download',
+        headers={'Authorization': f'Bearer {os.environ["SAJN_API_KEY"]}'},
+        params={'includeCertificate': 'true'}
+    )
+
+    # Save to your archive
+    filename = f'contracts/{external_id or document_id}.pdf'
+    with open(filename, 'wb') as f:
+        f.write(response.content)
+
+    print(f'Archived document to {filename}')
+```
+
+## Archiving Best Practices
+
+<AccordionGroup>
+  <Accordion title="Download immediately on completion">
+    Set up a webhook handler to download documents as soon as they're completed. This ensures you always have a copy, even if the document is later deleted from sajn.
+  </Accordion>
+
+  <Accordion title="Include the audit certificate">
+    Always download with `includeCertificate=true` for legal purposes. The audit certificate provides proof of signing events.
+  </Accordion>
+
+  <Accordion title="Use external IDs for organization">
+    Set `externalId` on documents to match your system's identifiers. This makes it easy to organize and retrieve archived documents.
+  </Accordion>
+
+  <Accordion title="Store metadata alongside PDFs">
+    Save document metadata (signers, dates, custom fields) alongside the PDF for easier searching and reporting.
+  </Accordion>
+
+  <Accordion title="Implement redundant storage">
+    Store signed documents in multiple locations (e.g., primary storage + backup) for disaster recovery.
+  </Accordion>
+
+  <Accordion title="Consider retention policies">
+    Define how long to keep signed documents based on legal requirements. Some contracts may need to be retained for 7+ years.
+  </Accordion>
+
+  <Accordion title="Secure your archive">
+    Signed documents often contain sensitive information. Ensure your archive has appropriate access controls and encryption.
+  </Accordion>
+</AccordionGroup>
+
+## Error Handling
+
+### Document Not Ready
+
+If the document isn't completed yet:
+
+```json
+{
+  "error": "DOCUMENT_NOT_COMPLETED",
+  "message": "Document is not yet fully signed. Current status: SENT"
+}
+```
+
+### Document Not Found
+
+```json
+{
+  "error": "DOCUMENT_NOT_FOUND",
+  "message": "Document with ID doc_123 was not found"
+}
+```
+
+### Handling Errors
+
+```javascript
+async function safeDownload(documentId) {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+      headers: {
+        'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
+      },
+      responseType: 'arraybuffer',
+      validateStatus: (status) => status < 500
+    });
+
+    if (response.status === 404) {
+      console.error('Document not found');
+      return null;
+    }
+
+    if (response.status === 400) {
+      console.error('Document not yet completed');
+      return null;
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error(`Download failed: ${error.message}`);
+    throw error;
+  }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Set up automated document processing
+  </Card>
+  <Card title="Reminders & Expiration" icon="clock" href="/guides/reminders-expiration">
+    Manage unsigned documents
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/GET%20/api/v1/documents/{id}/download">
+    Download endpoint documentation
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Learn document creation basics
+  </Card>
+</CardGroup>

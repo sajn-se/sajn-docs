@@ -1,0 +1,279 @@
+---
+title: Organizing with Tags
+description: 'Use tags to categorize and filter your documents for better organization'
+---
+
+# Organizing with Tags
+
+Tags help you categorize and organize documents across your organization. By assigning tags to documents, you can quickly filter, search, and manage large volumes of agreements.
+
+## Why Use Tags?
+
+As your document volume grows, finding specific documents becomes challenging. Tags solve this by:
+
+- **Categorizing documents** by type, client, department, or status
+- **Enabling quick filtering** to find related documents
+- **Improving workflow** by grouping documents logically
+- **Supporting reporting** by allowing aggregate views
+
+<Frame>
+  <img src="/images/guides/tags-overview.png" alt="Document list showing color-coded tags for different categories" />
+</Frame>
+
+## Creating Tags
+
+Create tags with a name and optional color for visual organization:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/tags \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment",
+    "color": "#22C55E"
+  }'
+```
+
+Response:
+
+```json
+{
+  "tag": {
+    "id": "tag_abc123",
+    "name": "Employment",
+    "color": "#22C55E",
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Tag Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Display name for the tag (unique within organization) |
+| `color` | No | Hex color code for visual identification (e.g., `#22C55E`) |
+
+### Suggested Colors
+
+| Color | Hex Code | Suggested Use |
+|-------|----------|---------------|
+| Green | `#22C55E` | Completed, approved |
+| Blue | `#3B82F6` | In progress, active |
+| Yellow | `#EAB308` | Pending review, attention needed |
+| Red | `#EF4444` | Urgent, rejected |
+| Purple | `#A855F7` | Special handling |
+| Gray | `#6B7280` | Archived, inactive |
+
+## Adding Tags to Documents
+
+### When Creating a Document
+
+Include tag IDs in the document creation request:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contract - Anna Andersson",
+    "type": "SIGNABLE",
+    "tags": ["tag_abc123", "tag_def456"]
+  }'
+```
+
+### Adding Tags to Existing Documents
+
+Add a tag to a document that already exists:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/tags \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tagId": "tag_abc123"
+  }'
+```
+
+### Removing Tags from Documents
+
+Remove a tag from a document:
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/documents/doc_123/tags/tag_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Filtering Documents by Tags
+
+<Frame>
+  <img src="/images/guides/tags-filter.png" alt="Document filter interface showing tag selection for filtering" />
+</Frame>
+
+### Using the Dashboard
+
+1. Navigate to the Documents list
+2. Click the **Filter** button
+3. Select one or more tags
+4. The list updates to show only matching documents
+
+### Using the API
+
+Filter documents by tag when listing:
+
+```bash
+curl -X GET "https://app.sajn.se/api/v1/documents?tagId=tag_abc123&page=1&perPage=20" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Note>
+  You can filter by multiple tags by including multiple `tagId` parameters. Documents matching any of the specified tags will be returned.
+</Note>
+
+## Tag Management
+
+### Listing All Tags
+
+Retrieve all tags in your organization:
+
+```bash
+curl -X GET https://app.sajn.se/api/v1/tags \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response:
+
+```json
+{
+  "tags": [
+    {
+      "id": "tag_abc123",
+      "name": "Employment",
+      "color": "#22C55E"
+    },
+    {
+      "id": "tag_def456",
+      "name": "NDA",
+      "color": "#3B82F6"
+    },
+    {
+      "id": "tag_ghi789",
+      "name": "Urgent",
+      "color": "#EF4444"
+    }
+  ]
+}
+```
+
+### Updating Tags
+
+Change a tag's name or color:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/tags/tag_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contracts",
+    "color": "#16A34A"
+  }'
+```
+
+<Tip>
+  Updating a tag automatically updates its appearance on all documents that have it assigned.
+</Tip>
+
+## Organization Strategies
+
+### By Document Type
+
+Create tags for each type of document you handle:
+
+| Tag | Color | Description |
+|-----|-------|-------------|
+| Employment | Green | Employment contracts and offers |
+| NDA | Blue | Non-disclosure agreements |
+| Vendor | Purple | Vendor and supplier contracts |
+| Client | Yellow | Client agreements |
+| Internal | Gray | Internal policies and approvals |
+
+### By Client or Project
+
+For project-based work, create tags per client or project:
+
+| Tag | Description |
+|-----|-------------|
+| Client: Acme Corp | All documents for Acme Corporation |
+| Project: Website 2024 | Documents related to website project |
+| Deal: Q1 Expansion | M&A or deal-specific documents |
+
+### By Status or Priority
+
+Track document lifecycle with status tags:
+
+| Tag | Color | Description |
+|-----|-------|-------------|
+| Urgent | Red | Requires immediate attention |
+| Review Needed | Yellow | Awaiting internal review |
+| Ready to Send | Blue | Approved and ready for signing |
+| Archived | Gray | Completed and filed |
+
+### By Department
+
+Organize by internal teams:
+
+| Tag | Description |
+|-----|-------------|
+| HR | Human resources documents |
+| Legal | Legal agreements and contracts |
+| Sales | Sales contracts and quotes |
+| Finance | Financial agreements |
+
+<Warning>
+  Avoid creating too many tags. A smaller set of well-defined tags is more useful than hundreds of rarely-used ones.
+</Warning>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Define a tagging strategy">
+    Before creating tags, decide on your organization's tagging strategy. Document which tags to use and when, so everyone applies them consistently.
+  </Accordion>
+
+  <Accordion title="Use consistent naming">
+    Establish naming conventions for tags. For example, always prefix client tags with "Client:" or project tags with "Project:".
+  </Accordion>
+
+  <Accordion title="Limit the number of tags">
+    Keep your tag list manageable. Aim for 10-20 well-defined tags rather than creating a new tag for every scenario.
+  </Accordion>
+
+  <Accordion title="Use colors meaningfully">
+    Assign colors based on meaning (red for urgent, green for complete) rather than aesthetics. This makes visual scanning faster.
+  </Accordion>
+
+  <Accordion title="Review and clean up regularly">
+    Periodically review your tags. Remove or merge tags that are rarely used or have become redundant.
+  </Accordion>
+
+  <Accordion title="Tag documents consistently">
+    Make tagging part of your document creation workflow. Tag documents when creating them, not as an afterthought.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Custom Fields" icon="input-text" href="/guides/custom-fields">
+    Add structured metadata to documents
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Learn how to create and configure documents
+  </Card>
+  <Card title="Tags API" icon="code" href="/api/GET%20/api/v1/tags">
+    Explore the full Tags API reference
+  </Card>
+  <Card title="Document Tags API" icon="tag" href="/api/POST%20/api/v1/documents/{id}/tags">
+    Add and remove tags from documents
+  </Card>
+</CardGroup>

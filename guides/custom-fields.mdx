@@ -1,0 +1,389 @@
+---
+title: Custom Fields
+description: 'Add structured metadata to documents with custom field definitions'
+---
+
+# Custom Fields
+
+Custom fields allow you to attach structured metadata to documents beyond the standard fields. Define your own fields to track project codes, departments, cost centers, or any other information relevant to your workflow.
+
+## Why Use Custom Fields?
+
+Custom fields provide a way to:
+
+- **Add structured data** that your business needs to track
+- **Enable filtering and reporting** by custom criteria
+- **Integrate with external systems** using consistent data formats
+- **Enforce data standards** with validation rules
+
+<Frame>
+  <img src="/images/guides/custom-fields-setup.png" alt="Custom fields configuration screen showing different field types" />
+</Frame>
+
+## Creating Custom Field Definitions
+
+Before adding custom field values to documents, you must create field definitions that specify the field name, type, and validation rules.
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/custom-fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Project Code",
+    "key": "project_code",
+    "type": "TEXT",
+    "required": false,
+    "description": "Internal project identifier"
+  }'
+```
+
+Response:
+
+```json
+{
+  "customField": {
+    "id": "cf_abc123",
+    "name": "Project Code",
+    "key": "project_code",
+    "type": "TEXT",
+    "required": false,
+    "description": "Internal project identifier",
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Field Definition Properties
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `name` | Yes | Display name shown in the UI |
+| `key` | Yes | Unique identifier used in API calls |
+| `type` | Yes | Data type (see Field Types below) |
+| `required` | No | Whether the field must have a value |
+| `description` | No | Help text explaining the field's purpose |
+| `options` | No | For SELECT type, the available choices |
+
+## Field Types
+
+### Text Fields
+
+For free-form text input:
+
+```json
+{
+  "name": "Reference Number",
+  "key": "reference_number",
+  "type": "TEXT"
+}
+```
+
+### Number Fields
+
+For numeric values:
+
+```json
+{
+  "name": "Contract Value",
+  "key": "contract_value",
+  "type": "NUMBER"
+}
+```
+
+### Date Fields
+
+For date values:
+
+```json
+{
+  "name": "Start Date",
+  "key": "start_date",
+  "type": "DATE"
+}
+```
+
+### Select Fields
+
+For predefined choices:
+
+```json
+{
+  "name": "Department",
+  "key": "department",
+  "type": "SELECT",
+  "options": [
+    { "value": "hr", "label": "Human Resources" },
+    { "value": "legal", "label": "Legal" },
+    { "value": "sales", "label": "Sales" },
+    { "value": "finance", "label": "Finance" }
+  ]
+}
+```
+
+<Frame>
+  <img src="/images/guides/custom-fields-document.png" alt="Document detail view showing custom field values" />
+</Frame>
+
+## Setting Custom Field Values on Documents
+
+### When Creating a Document
+
+Include custom field values in the document creation request:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Service Agreement - Project Alpha",
+    "type": "SIGNABLE",
+    "customFields": [
+      {
+        "customInputId": "cf_abc123",
+        "value": "PROJ-2024-001"
+      },
+      {
+        "customInputId": "cf_def456",
+        "value": "legal"
+      },
+      {
+        "customInputId": "cf_ghi789",
+        "value": "150000"
+      }
+    ]
+  }'
+```
+
+### Using Field Keys
+
+You can also reference custom fields by their key:
+
+```json
+{
+  "name": "Vendor Contract",
+  "type": "SIGNABLE",
+  "customFields": [
+    {
+      "key": "project_code",
+      "value": "PROJ-2024-002"
+    },
+    {
+      "key": "department",
+      "value": "sales"
+    }
+  ]
+}
+```
+
+### Updating Custom Field Values
+
+Update custom field values on an existing document:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customFields": [
+      {
+        "customInputId": "cf_abc123",
+        "value": "PROJ-2024-001-UPDATED"
+      }
+    ]
+  }'
+```
+
+## Querying Documents by Custom Fields
+
+Filter documents based on custom field values:
+
+```bash
+# Find all documents with a specific project code
+curl -X GET "https://app.sajn.se/api/v1/documents?customField.project_code=PROJ-2024-001" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Find all documents for the Legal department
+curl -X GET "https://app.sajn.se/api/v1/documents?customField.department=legal" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Managing Custom Field Definitions
+
+### Listing All Custom Fields
+
+```bash
+curl -X GET https://app.sajn.se/api/v1/custom-fields \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response:
+
+```json
+{
+  "customFields": [
+    {
+      "id": "cf_abc123",
+      "name": "Project Code",
+      "key": "project_code",
+      "type": "TEXT",
+      "required": false
+    },
+    {
+      "id": "cf_def456",
+      "name": "Department",
+      "key": "department",
+      "type": "SELECT",
+      "required": true,
+      "options": [
+        { "value": "hr", "label": "Human Resources" },
+        { "value": "legal", "label": "Legal" }
+      ]
+    }
+  ]
+}
+```
+
+### Updating a Custom Field Definition
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/custom-fields/cf_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Project Reference",
+    "description": "Updated description for project codes"
+  }'
+```
+
+### Deleting a Custom Field Definition
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/custom-fields/cf_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Warning>
+  Deleting a custom field definition removes all values associated with that field from all documents. This action cannot be undone.
+</Warning>
+
+## Common Use Cases
+
+### Project Tracking
+
+Track documents by project for easy reporting:
+
+```json
+{
+  "name": "Project Code",
+  "key": "project_code",
+  "type": "TEXT",
+  "required": true,
+  "description": "Format: PROJ-YYYY-NNN"
+}
+```
+
+### Department Assignment
+
+Assign documents to departments:
+
+```json
+{
+  "name": "Department",
+  "key": "department",
+  "type": "SELECT",
+  "required": true,
+  "options": [
+    { "value": "hr", "label": "Human Resources" },
+    { "value": "legal", "label": "Legal" },
+    { "value": "sales", "label": "Sales" },
+    { "value": "finance", "label": "Finance" },
+    { "value": "it", "label": "IT" }
+  ]
+}
+```
+
+### Cost Center Tracking
+
+Track documents for financial allocation:
+
+```json
+{
+  "name": "Cost Center",
+  "key": "cost_center",
+  "type": "TEXT",
+  "required": false,
+  "description": "Financial cost center code"
+}
+```
+
+### Contract Value
+
+Record monetary values for contracts:
+
+```json
+{
+  "name": "Contract Value (SEK)",
+  "key": "contract_value",
+  "type": "NUMBER",
+  "required": false
+}
+```
+
+### Renewal Date
+
+Track contract renewal dates:
+
+```json
+{
+  "name": "Renewal Date",
+  "key": "renewal_date",
+  "type": "DATE",
+  "required": false,
+  "description": "Date when contract is up for renewal"
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Plan your field structure">
+    Before creating custom fields, plan what data you need to track. Consider how fields will be used for filtering, reporting, and integration.
+  </Accordion>
+
+  <Accordion title="Use consistent naming conventions">
+    Use clear, descriptive names and consistent key formats. For example, use snake_case for keys: `project_code`, `cost_center`.
+  </Accordion>
+
+  <Accordion title="Choose appropriate field types">
+    Use the right field type for your data: TEXT for free-form input, SELECT for controlled vocabularies, NUMBER for numeric values, DATE for dates.
+  </Accordion>
+
+  <Accordion title="Add helpful descriptions">
+    Include descriptions that explain the field's purpose and expected format. This helps users enter correct values.
+  </Accordion>
+
+  <Accordion title="Mark essential fields as required">
+    For fields that are critical to your workflow, set `required: true`. This ensures documents always have the necessary metadata.
+  </Accordion>
+
+  <Accordion title="Keep SELECT options manageable">
+    For SELECT fields, limit options to a reasonable number. If you have too many options, consider using a TEXT field instead.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Organizing with Tags" icon="tags" href="/guides/organizing-with-tags">
+    Categorize documents with tags
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Add custom fields when creating documents
+  </Card>
+  <Card title="Custom Fields API" icon="code" href="/api/GET%20/api/v1/custom-fields">
+    Explore the full Custom Fields API reference
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Receive notifications with custom field data
+  </Card>
+</CardGroup>

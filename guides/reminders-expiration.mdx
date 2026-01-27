@@ -1,0 +1,306 @@
+---
+title: Reminders & Expiration
+description: 'Manage unsigned documents with reminders, expiration dates, and cancellation'
+---
+
+# Reminders & Expiration
+
+Not all documents get signed immediately. sajn provides tools to manage unsigned documents through reminders, expiration dates, and cancellation options.
+
+## Setting Expiration Dates
+
+An expiration date defines when a document is no longer valid for signing. After this date, signers cannot complete the signing process.
+
+### When Creating a Document
+
+Set expiration using the `expiresAt` field:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Quote - Website Project",
+    "type": "SIGNABLE",
+    "expiresAt": "2024-02-15T23:59:59Z",
+    "signers": [
+      {
+        "name": "Anna Andersson",
+        "email": "anna@client.se",
+        "role": "SIGNER",
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "DRAWING"
+      }
+    ]
+  }'
+```
+
+<Frame>
+  <img src="/images/guides/document-expiration.png" alt="Document settings showing expiration date configuration" />
+</Frame>
+
+### Updating Expiration on Existing Documents
+
+Extend or shorten the expiration period:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "expiresAt": "2024-03-01T23:59:59Z"
+  }'
+```
+
+<Note>
+  You can only update expiration on documents that haven't been completed or expired yet.
+</Note>
+
+## What Happens When Documents Expire
+
+When a document expires:
+
+1. **Signing is disabled** - Signers can no longer access the signing interface
+2. **Status changes** - Document status becomes `EXPIRED`
+3. **Webhook fires** - A `DOCUMENT_EXPIRED` event is sent
+4. **Links invalidated** - All signing links return an expiration message
+
+### Expired Document Response
+
+When a signer tries to access an expired document:
+
+```json
+{
+  "error": "DOCUMENT_EXPIRED",
+  "message": "This document has expired and can no longer be signed.",
+  "expiredAt": "2024-02-15T23:59:59Z"
+}
+```
+
+### Handling Expired Documents
+
+If a document expires before signing is complete, you have several options:
+
+1. **Create a new document** - Duplicate the content with a new expiration date
+2. **Contact signers** - Reach out directly to understand any issues
+3. **Adjust your process** - Consider longer expiration periods or earlier reminders
+
+## Sending Reminders
+
+Reminders help move stalled documents forward by prompting signers to take action.
+
+<Frame>
+  <img src="/images/guides/reminder-email.png" alt="Example reminder email sent to a signer" />
+</Frame>
+
+### Manual Reminders
+
+Send a reminder to all pending signers on a document:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/remind \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+### Reminder to Specific Signer
+
+Send a reminder to a single signer:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/signers/signer_456/remind \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+### Automatic Reminders
+
+Configure automatic reminders in the document metadata:
+
+```json
+{
+  "name": "Service Agreement",
+  "type": "SIGNABLE",
+  "documentMeta": {
+    "autoReminder": true,
+    "reminderDays": [3, 7, 14]
+  },
+  "signers": [...]
+}
+```
+
+This configuration sends reminders:
+- 3 days after sending
+- 7 days after sending
+- 14 days after sending
+
+<Tip>
+  Automatic reminders only send to signers who haven't yet signed. Already completed signers are excluded.
+</Tip>
+
+### Reminder Content
+
+Reminders include:
+
+- Document name and description
+- Original signing request context
+- Direct link to sign
+- Expiration date (if set)
+
+## Cancelling Documents
+
+Sometimes you need to cancel a document that's out for signing—perhaps the terms have changed or the deal fell through.
+
+### Cancel a Document
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "CANCELLED"
+  }'
+```
+
+### What Happens When Cancelled
+
+1. **Signing is disabled** - All signing links become invalid
+2. **Status updates** - Document status becomes `CANCELLED`
+3. **Webhook fires** - A `DOCUMENT_CANCELLED` event is sent
+4. **Signers notified** - Signers receive a cancellation notice
+
+<Warning>
+  Cancellation is permanent. Cancelled documents cannot be reopened. Create a new document if needed.
+</Warning>
+
+## Webhook Events
+
+### Document Expired
+
+```json
+{
+  "event": "DOCUMENT_EXPIRED",
+  "timestamp": "2024-02-15T23:59:59Z",
+  "data": {
+    "documentId": "doc_123",
+    "documentName": "Quote - Website Project",
+    "externalId": "quote_456",
+    "expiredAt": "2024-02-15T23:59:59Z",
+    "pendingSigners": [
+      {
+        "signerId": "signer_789",
+        "name": "Anna Andersson",
+        "email": "anna@client.se"
+      }
+    ]
+  }
+}
+```
+
+### Handling Expired Webhook
+
+```javascript
+app.post('/webhooks/sajn', (req, res) => {
+  const { event, data } = req.body;
+
+  if (event === 'DOCUMENT_EXPIRED') {
+    // Log the expiration
+    console.log(`Document ${data.documentId} expired`);
+
+    // Notify your team
+    notifyTeam({
+      message: `Document "${data.documentName}" expired without all signatures`,
+      pendingSigners: data.pendingSigners
+    });
+
+    // Update your CRM/database
+    updateDocumentStatus(data.externalId, 'expired');
+  }
+
+  res.status(200).send('OK');
+});
+```
+
+### Document Cancelled
+
+```json
+{
+  "event": "DOCUMENT_CANCELLED",
+  "timestamp": "2024-02-10T14:30:00Z",
+  "data": {
+    "documentId": "doc_123",
+    "documentName": "Quote - Website Project",
+    "cancelledAt": "2024-02-10T14:30:00Z",
+    "cancelledBy": "user_abc"
+  }
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Set appropriate deadlines">
+    Consider your signers' context when setting expiration dates:
+    - **Quotes**: 14-30 days
+    - **Contracts**: 30-60 days
+    - **Internal approvals**: 7-14 days
+    - **Urgent documents**: 3-7 days
+  </Accordion>
+
+  <Accordion title="Send reminders strategically">
+    Don't spam signers with too many reminders. A good pattern:
+    - First reminder: 3-5 days after sending
+    - Second reminder: 7-10 days after sending
+    - Final reminder: A few days before expiration
+  </Accordion>
+
+  <Accordion title="Include expiration in initial message">
+    When sending documents, mention the expiration date in the subject or message so signers know there's a deadline.
+  </Accordion>
+
+  <Accordion title="Monitor with webhooks">
+    Set up webhook handlers for `DOCUMENT_EXPIRED` events to proactively reach out to signers or take corrective action.
+  </Accordion>
+
+  <Accordion title="Have a follow-up process">
+    When documents expire, have a defined process:
+    1. Contact the signer to understand the delay
+    2. Address any concerns or questions
+    3. Create a new document if needed
+    4. Adjust future expiration periods if consistently too short
+  </Accordion>
+
+  <Accordion title="Consider timezone differences">
+    Expiration times are in UTC. Consider your signers' timezones when setting deadlines to avoid unexpected expirations.
+  </Accordion>
+</AccordionGroup>
+
+## Document Lifecycle
+
+| Status | Description | Can Sign? | Can Remind? |
+|--------|-------------|-----------|-------------|
+| `DRAFT` | Not yet sent | No | No |
+| `SENT` | Out for signing | Yes | Yes |
+| `COMPLETED` | All signers done | No | No |
+| `EXPIRED` | Past expiration date | No | No |
+| `CANCELLED` | Manually cancelled | No | No |
+| `REJECTED` | Signer rejected | No | No |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Multi-Party Signing" icon="users" href="/guides/multi-party-signing">
+    Configure complex signing workflows
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Set up event notifications
+  </Card>
+  <Card title="Downloading Documents" icon="download" href="/guides/downloading-documents">
+    Retrieve completed documents
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Learn document creation basics
+  </Card>
+</CardGroup>
