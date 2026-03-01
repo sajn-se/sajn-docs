@@ -20,7 +20,7 @@ HTML fields allow you to add custom-styled content to documents with full contro
 
 - **API-Only Access** - Not visible in the UI editor, only via REST API
 - **Automatic Sanitization** - HTML is sanitized server-side for security
-- **Safe Subset of HTML** - Only formatting tags allowed (no scripts or links)
+- **Safe Subset of HTML** - Formatting tags and links allowed (no scripts; links restricted to http, https, mailto, tel)
 - **Inline CSS Styling** - Full control over colors, fonts, spacing, borders
 - **Image Support** - HTTP/HTTPS URLs and base64 data URIs
 - **PDF-Ready** - Renders perfectly in generated PDF documents
@@ -282,6 +282,9 @@ HTML fields support a safe subset of HTML tags for formatting and layout. All HT
 ### Images
 - `<img>` - Images with `src`, `alt`, `width`, `height`, `title` attributes
 
+### Links
+- `<a>` - Links with `href`, `target`, `rel`, `title` (allowed schemes: http, https, mailto, tel only; dangerous schemes like javascript:, data:, vbscript: are stripped; all links forced to `target="_blank"` and `rel="noopener noreferrer"` for security)
+
 ### Other
 - `<br>`, `<hr>` - Line breaks and horizontal rules
 - `<blockquote>` - Quoted text
@@ -306,10 +309,15 @@ HTML fields support a safe subset of HTML tags for formatting and layout. All HT
 **Text elements:**
 - `<p>`, `<div>`, `<h1>` through `<h6>`: `align`
 
+**Links (`<a>`):**
+- `href` - URL (http, https, mailto, tel only)
+- `target` - Forced to `_blank` for security
+- `rel` - Forced to `noopener noreferrer` for security
+- `title` - Link title
+
 ### Not Allowed
 
 The following tags are automatically removed for security:
-- `<a>` - Links (security risk)
 - `<script>` - JavaScript (XSS protection)
 - `<iframe>` - Embedded content
 - `<form>`, `<input>` - Form elements
@@ -458,17 +466,17 @@ HTML fields are automatically sanitized server-side for security:
 
 ### Safe & Allowed
 - Formatting tags (`<p>`, `<div>`, `<span>`, headings)
+- Links (`<a>`) with http, https, mailto, tel URLs (forced `target="_blank"` and `rel="noopener noreferrer"`)
 - Inline CSS styles (colors, fonts, spacing)
 - Images from HTTP/HTTPS/data URIs
 - Tables, lists, and basic structure
 
 ### Blocked & Removed
 - `<script>` tags - JavaScript removed
-- `<a>` tags - Links removed (phishing protection)
 - `<iframe>` tags - No embedded content
 - `<style>` tags - No global styles
 - `onclick`, `onerror` - No event handlers
-- `javascript:` - No JavaScript URLs
+- `javascript:`, `data:`, `vbscript:` - Dangerous URL schemes stripped from links
 
 ### Example: Sanitization in Action
 
@@ -477,7 +485,8 @@ HTML fields are automatically sanitized server-side for security:
 <div>
   <h1>Title</h1>
   <script>alert('xss')</script>
-  <a href="http://phishing.com">Click</a>
+  <a href="javascript:alert('xss')">Malicious</a>
+  <a href="https://example.com">Safe Link</a>
   <img src="https://safe.com/image.png" alt="Safe" />
 </div>
 ```
@@ -487,10 +496,12 @@ HTML fields are automatically sanitized server-side for security:
 <div>
   <h1>Title</h1>
 
-  Click
+  <a href="https://example.com" target="_blank" rel="noopener noreferrer">Safe Link</a>
   <img src="https://safe.com/image.png" alt="Safe" />
 </div>
 ```
+
+The malicious `javascript:` link is stripped; the safe https link is preserved with `target="_blank"` and `rel="noopener noreferrer"` added.
 
 ## Error Handling
 
