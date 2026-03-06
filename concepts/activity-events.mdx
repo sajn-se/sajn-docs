@@ -1,0 +1,138 @@
+---
+title: "Activity Events"
+description: "All document activity event types returned by the API"
+---
+
+Every action on a document is recorded as an activity event. You can retrieve these events via `GET /api/v1/documents/:id/activity`. Each event has a `type` field with one of the values listed below.
+
+## Delivery Events
+
+| Event | Description |
+|---|---|
+| `EMAIL_SENT` | Signing invitation email was sent |
+| `SMS_SENT` | Signing invitation SMS was sent |
+| `REMINDER_SENT` | Signing reminder was sent |
+| `DELIVERY_BOUNCED` | Email delivery bounced |
+| `DELIVERY_FAILED` | Email delivery failed |
+| `DELIVERY_DELIVERED` | Email was delivered |
+| `DELIVERY_COMPLAINED` | Email was marked as spam |
+
+## Signer Events
+
+| Event | Description |
+|---|---|
+| `SIGNER_CREATED` | A signer was added to the document |
+| `SIGNER_UPDATED` | A signer's details were updated |
+| `SIGNER_DELETED` | A signer was removed from the document |
+
+## Document Lifecycle Events
+
+| Event | Description |
+|---|---|
+| `DOCUMENT_CREATED` | Document was created |
+| `DOCUMENT_SENT` | Document was sent for signing |
+| `DOCUMENT_OPENED` | Document was opened by a signer |
+| `DOCUMENT_READ` | Document was read by a signer |
+| `DOCUMENT_VIEWED` | Document was viewed |
+| `DOCUMENT_SIGNED` | Document was signed by a signer |
+| `DOCUMENT_REJECTED` | Document was rejected by a signer |
+| `DOCUMENT_COMPLETED` | All signers have signed, document is complete |
+| `DOCUMENT_FORCE_COMPLETED` | Document was manually force-completed |
+| `DOCUMENT_CANCELLED` | Document was cancelled |
+| `DOCUMENT_WITHDRAWN` | Document was withdrawn |
+| `DOCUMENT_DELETED` | Document was deleted |
+| `DOCUMENT_RESET` | Document was reset to draft |
+| `DOCUMENT_RECREATED` | Document was recreated |
+| `DOCUMENT_API_ACCESS` | Document was accessed via API |
+| `DOCUMENT_UNAUTHORIZED_ACCESS` | Unauthorized access attempt |
+
+## Document Update Events
+
+| Event | Description |
+|---|---|
+| `DOCUMENT_TITLE_UPDATED` | Document title was changed |
+| `DOCUMENT_META_UPDATED` | Document metadata was updated |
+| `DOCUMENT_EXTERNAL_ID_UPDATED` | External ID was changed |
+| `DOCUMENT_EXPIRATION_DATE_UPDATED` | Expiration date was changed |
+| `DOCUMENT_SIGNING_ORDER_UPDATED` | Signing order was changed |
+| `DOCUMENT_VALUE_UPDATED` | Document value was updated |
+| `DOCUMENT_RESPONSIBLE_USER_UPDATED` | Responsible user was changed |
+| `DOCUMENT_PREFERRED_LANGUAGE_UPDATED` | Preferred language was changed |
+| `DOCUMENT_CUSTOM_FIELD_VIEWED` | Custom field was viewed |
+| `DOCUMENT_VISIBILITY_UPDATED` | Document visibility was changed |
+
+## Archive Events
+
+| Event | Description |
+|---|---|
+| `DOCUMENT_ARCHIVED` | Document was archived |
+| `DOCUMENT_UNARCHIVED` | Document was unarchived |
+
+## Sealing & Timestamp Events
+
+| Event | Description |
+|---|---|
+| `DOCUMENT_SEALED` | Document was sealed |
+| `DOCUMENT_SEALED_PDF_CREATED` | Sealed PDF was generated |
+| `DOCUMENT_TIMESTAMP_REQUESTED` | Timestamp was requested |
+| `DOCUMENT_TIMESTAMP_ADDED` | Timestamp was added |
+| `DOCUMENT_TIMESTAMP_FAILED` | Timestamp failed |
+| `DOCUMENT_TIMESTAMP_SKIPPED` | Timestamp was skipped |
+| `DOCUMENT_RFC3161_DETECTED` | RFC 3161 timestamp detected |
+| `DOCUMENT_SEALED_PDF_PADES_SIGNATURES_APPLIED` | PAdES signatures applied to sealed PDF |
+| `DOCUMENT_SEALED_PDF_PADES_FAILED` | PAdES signature application failed |
+
+## BankID Events
+
+| Event | Description |
+|---|---|
+| `BANKID_AUTH_INITIATED` | BankID authentication started |
+| `BANKID_AUTH_COMPLETED` | BankID authentication completed |
+| `BANKID_AUTH_FAILED` | BankID authentication failed |
+| `BANKID_NAME_VERIFICATION_MATCH` | BankID name verification matched |
+| `BANKID_NAME_VERIFICATION_MISMATCH` | BankID name verification did not match |
+| `BANKID_SSN_VERIFICATION_MATCH` | BankID SSN (personnummer) verification matched |
+| `BANKID_SSN_VERIFICATION_MISMATCH` | BankID SSN (personnummer) verification did not match |
+
+## SMS Verification Events
+
+| Event | Description |
+|---|---|
+| `SMS_VERIFICATION_SENT` | SMS verification code was sent |
+| `SMS_VERIFICATION_COMPLETED` | SMS verification was completed |
+| `SMS_VERIFICATION_FAILED` | SMS verification failed |
+| `SMS_VERIFICATION_RESENT` | SMS verification code was resent |
+
+## Email Verification Events
+
+| Event | Description |
+|---|---|
+| `EMAIL_VERIFICATION_SENT` | Email verification was sent |
+| `EMAIL_VERIFICATION_COMPLETED` | Email verification was completed |
+| `EMAIL_VERIFICATION_FAILED` | Email verification failed |
+| `EMAIL_VERIFICATION_RESENT` | Email verification was resent |
+
+## Click to Sign Events
+
+| Event | Description |
+|---|---|
+| `CLICK_TO_SIGN_INITIATED` | Click-to-sign was initiated |
+| `CLICK_TO_SIGN_CONFIRMED` | Click-to-sign was confirmed |
+| `CLICK_TO_SIGN_TIMEOUT` | Click-to-sign timed out |
+
+## Signing URL Events
+
+| Event | Description |
+|---|---|
+| `SIGNING_URL_ACCESSED` | Signing URL was accessed |
+
+## Delegation Events
+
+| Event | Description |
+|---|---|
+| `DELEGATION_CREATED` | Signing delegation was created |
+| `DELEGATION_ACCEPTED` | Delegation was accepted |
+| `DELEGATION_DECLINED` | Delegation was declined |
+| `DELEGATION_REVOKED` | Delegation was revoked |
+| `DELEGATION_EXPIRED` | Delegation expired |
+| `DELEGATION_COMPLETED` | Delegation was completed |
