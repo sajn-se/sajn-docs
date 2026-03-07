@@ -5,18 +5,8 @@
       "get": {
         "description": "Check API health status and get version information. This endpoint does not require authentication.",
         "summary": "Health check",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Bearer token for API authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "operationId": "root",
+        "security": [],
         "responses": {
           "200": {
             "description": "Health check response",
@@ -10398,6 +10388,21 @@
     {
       "url": "https://app.sajn.se",
       "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key",
+        "description": "Use your sajn API key as a bearer token."
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
     }
   ],
   "tags": [

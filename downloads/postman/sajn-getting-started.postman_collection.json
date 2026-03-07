@@ -1,0 +1,230 @@
+{
+  "info": {
+    "_postman_id": "2fb4f99f-07da-52db-b9d1-d93c928bb89b",
+    "name": "sajn Getting Started",
+    "description": "Fastest path to a successful authenticated request and first resource creation in sajn.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://app.sajn.se"
+    },
+    {
+      "key": "uploadBaseUrl",
+      "value": "https://upload.sajn.se"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "contactId",
+      "value": ""
+    },
+    {
+      "key": "signerId",
+      "value": ""
+    },
+    {
+      "key": "fieldId",
+      "value": ""
+    },
+    {
+      "key": "tagId",
+      "value": ""
+    },
+    {
+      "key": "fileId",
+      "value": ""
+    },
+    {
+      "key": "fileKey",
+      "value": ""
+    },
+    {
+      "key": "sajnIdId",
+      "value": ""
+    },
+    {
+      "key": "signingUrl",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/health",
+        "description": "Check API health status and get version information. This endpoint does not require authentication.",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List all documents",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/documents?page=1&perPage=10",
+        "description": "Retrieve a paginated list of all documents in your organization.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including signers.\n\n**Pagination:** Use 'page' and 'perPage' query parameters to control pagination."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List all contacts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/contacts?page=1&perPage=10",
+        "description": "Retrieve a paginated list of all contacts in your organization.\n\nContacts are individuals that can be added as signers to documents. Each contact can optionally be associated with a company.\n\n**Pagination:** Use 'page' and 'perPage' query parameters."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create a new contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contacts",
+        "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n- `lastName` - Contact's last name\n\n**Optional Fields:**\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `ssn` - Swedish personal number (for BankID)\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+46701234567\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.id) { pm.collectionVariables.set('contactId', response.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create a new document",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/documents",
+        "description": "Create a new document in DRAFT status. You can optionally include signers, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields and template parties are automatically copied unless `signers` are explicitly provided in the request.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Signers:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify signer details\n\n**Signer Examples:**\n```json\n{\n  \"signers\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include signers with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more signers** if needed: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each signer can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with signers\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"signers\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Employment Contract\",\n  \"type\": \"SIGNABLE\",\n  \"signers\": [],\n  \"documentMeta\": {\n    \"subject\": \"Employment Contract\",\n    \"message\": \"Please review and sign this agreement.\",\n    \"signingOrder\": \"PARALLEL\",\n    \"preferredLanguage\": \"en\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.id) { pm.collectionVariables.set('documentId', response.id); }"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

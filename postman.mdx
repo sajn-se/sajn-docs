@@ -1,0 +1,63 @@
+---
+title: "Postman"
+description: "Import ready-made Postman collections for the sajn API."
+---
+
+# Postman Collections
+
+Use the Postman starter kit to make your first authenticated request, create resources, and explore the full API without building requests from scratch.
+
+## Downloads
+
+- [API reference collection](/downloads/postman/sajn-api-reference.postman_collection.json)
+- [Getting started collection](/downloads/postman/sajn-getting-started.postman_collection.json)
+- [Document lifecycle collection](/downloads/postman/sajn-document-lifecycle.postman_collection.json)
+- [Contacts and signers collection](/downloads/postman/sajn-contacts-and-signers.postman_collection.json)
+- [Local environment](/downloads/postman/sajn-local.postman_environment.json)
+
+## What To Import
+
+<CardGroup cols={2}>
+  <Card title="Getting Started" icon="rocket">
+    Start here for auth checks, first list requests, and resource creation.
+  </Card>
+  <Card title="Document Lifecycle" icon="file-signature">
+    Create a document, add a signer, send it, and fetch the signing URL.
+  </Card>
+  <Card title="Contacts & Signers" icon="users">
+    Create contacts, search them, and attach them to documents.
+  </Card>
+  <Card title="API Reference" icon="code">
+    Full endpoint coverage generated from the OpenAPI spec.
+  </Card>
+</CardGroup>
+
+## Import Steps
+
+1. Download the collections you want to use and the local environment.
+2. In Postman, select **Import** and upload the JSON files.
+3. Open the imported **sajn Local** environment.
+4. Set `apiKey` to your API key from **Organization Settings > API Keys**.
+5. Keep `baseUrl` as `https://app.sajn.se` unless you are testing against another environment.
+
+## Built-in Variables
+
+The starter collections use shared variables so requests chain naturally:
+
+- `apiKey` for bearer authentication
+- `baseUrl` for the main API
+- `uploadBaseUrl` for file uploads
+- `documentId`, `contactId`, `signerId`, `sajnIdId` for captured resource IDs
+
+The workflow collections include test scripts that save common IDs from successful responses, so later requests can use them automatically.
+
+## Recommended Order
+
+1. Run **Health check** from the getting started collection.
+2. Run **List all documents** or **List all contacts** to verify authentication.
+3. Run **Create a new contact** and **Create a new document**.
+4. Continue with the document lifecycle collection to add a signer and send the document.
+
+## How These Collections Are Maintained
+
+The collections are generated from our OpenAPI specification in [`api/openapi.json`](/api/introduction). When the API changes, we regenerate the files to keep request URLs, methods, and starter payloads aligned with the docs.

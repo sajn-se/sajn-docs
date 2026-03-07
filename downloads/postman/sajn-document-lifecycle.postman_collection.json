@@ -1,0 +1,248 @@
+{
+  "info": {
+    "_postman_id": "de0d1350-d76b-5182-ab36-b9406522e4b8",
+    "name": "sajn Document Lifecycle",
+    "description": "Create a document, add a signer, send it for signing, retrieve the signer URL, and download the final document.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://app.sajn.se"
+    },
+    {
+      "key": "uploadBaseUrl",
+      "value": "https://upload.sajn.se"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "contactId",
+      "value": ""
+    },
+    {
+      "key": "signerId",
+      "value": ""
+    },
+    {
+      "key": "fieldId",
+      "value": ""
+    },
+    {
+      "key": "tagId",
+      "value": ""
+    },
+    {
+      "key": "fileId",
+      "value": ""
+    },
+    {
+      "key": "fileKey",
+      "value": ""
+    },
+    {
+      "key": "sajnIdId",
+      "value": ""
+    },
+    {
+      "key": "signingUrl",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Create a new document",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/documents",
+        "description": "Create a new document in DRAFT status. You can optionally include signers, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields and template parties are automatically copied unless `signers` are explicitly provided in the request.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Signers:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify signer details\n\n**Signer Examples:**\n```json\n{\n  \"signers\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include signers with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more signers** if needed: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each signer can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with signers\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"signers\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Employment Contract\",\n  \"type\": \"SIGNABLE\",\n  \"signers\": [],\n  \"documentMeta\": {\n    \"subject\": \"Employment Contract\",\n    \"message\": \"Please review and sign this agreement.\",\n    \"signingOrder\": \"PARALLEL\",\n    \"preferredLanguage\": \"en\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.id) { pm.collectionVariables.set('documentId', response.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Add a signer to document",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers",
+        "description": "Add a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"deliveryMethod\": \"EMAIL\",\n  \"requiredSignature\": \"DRAWING\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.id) { pm.collectionVariables.set('signerId', response.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Send document for signing",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/send",
+        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Request Body:**\n- `customMessage` (optional) - Custom message to include in the signing invitation emails/SMS\n\n**Prerequisites:**\n- Document must have at least one signer added via `POST /documents/{id}/signers` or when creating the document\n- Each signer's delivery method (`EMAIL`, `SMS`, or `NONE`) and signature type (`DRAWING`, `BANKID`, `CLICK_TO_SIGN`) are configured per-signer when adding them\n\n**What happens when you send:**\n1. Document status changes from `DRAFT` to `PENDING`\n2. Signing invitations are sent to each signer based on their individual `deliveryMethod` setting\n3. Signers with `deliveryMethod: NONE` won't receive notifications - use their signing URLs directly",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customMessage\": \"Please review and sign this document.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get a signer with signing URL",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers/{{signerId}}",
+        "description": "Retrieve a specific signer including their signing URL.\n\n**Security Note:** This endpoint creates an audit log entry each time a signing URL is accessed. Use this endpoint when you need the signing URL to share with the signer.\n\n**Response includes:**\n- Signer details (name, email, phone, company info)\n- Signing status (NOT_SIGNED, SIGNED, REJECTED)\n- Read status (NOT_OPENED, OPENED, READ)\n- Complete signing URL with token"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.signingUrl) { pm.collectionVariables.set('signingUrl', response.signingUrl); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Download signed document",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/download?downloadOriginalDocument=False",
+        "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `downloadOriginalDocument` (boolean): If true, downloads the original unsigned document. If false (default), downloads the signed/sealed version.\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- For signed documents: Document must be in COMPLETED status\n- For original documents: Available for all document statuses"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

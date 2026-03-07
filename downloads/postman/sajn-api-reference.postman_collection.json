@@ -1,0 +1,827 @@
+{
+  "info": {
+    "_postman_id": "920db615-c30a-5588-92e1-ad08556e4e8c",
+    "name": "sajn API Reference",
+    "description": "Complete Postman reference collection generated from the sajn OpenAPI specification.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://app.sajn.se"
+    },
+    {
+      "key": "uploadBaseUrl",
+      "value": "https://upload.sajn.se"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "contactId",
+      "value": ""
+    },
+    {
+      "key": "signerId",
+      "value": ""
+    },
+    {
+      "key": "fieldId",
+      "value": ""
+    },
+    {
+      "key": "tagId",
+      "value": ""
+    },
+    {
+      "key": "fileId",
+      "value": ""
+    },
+    {
+      "key": "fileKey",
+      "value": ""
+    },
+    {
+      "key": "sajnIdId",
+      "value": ""
+    },
+    {
+      "key": "signingUrl",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/health",
+            "description": "Check API health status and get version information. This endpoint does not require authentication.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "List all documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents?page=1&perPage=10",
+            "description": "Retrieve a paginated list of all documents in your organization.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including signers.\n\n**Pagination:** Use 'page' and 'perPage' query parameters to control pagination."
+          },
+          "response": []
+        },
+        {
+          "name": "Create a new document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents",
+            "description": "Create a new document in DRAFT status. You can optionally include signers, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields and template parties are automatically copied unless `signers` are explicitly provided in the request.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Signers:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify signer details\n\n**Signer Examples:**\n```json\n{\n  \"signers\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include signers with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more signers** if needed: `POST /api/v1/documents/{docId}/signers`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each signer can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with signers\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"signers\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, signer IDs, tokens, and signing URLs for all added signers.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Employment Contract\",\n  \"type\": \"SIGNABLE\",\n  \"signers\": [],\n  \"documentMeta\": {\n    \"subject\": \"Employment Contract\",\n    \"message\": \"Please review and sign this agreement.\",\n    \"signingOrder\": \"PARALLEL\",\n    \"preferredLanguage\": \"en\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a document",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}",
+            "description": "Soft delete a document. The document is marked as deleted but not permanently removed from the database.\n\n**Note:** Deleted documents are not included in list responses but can be retrieved by ID if you have the document ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a document by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}",
+            "description": "Retrieve detailed information about a specific document including all signers, tags, and custom field values.\n\nThe response includes:\n- Document metadata (subject, message, signing order, etc.)\n- All document signers with their status\n- Applied tags\n- Custom field values\n- Document timestamps (created, updated, completed, archived)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update a document",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}",
+            "description": "Update document properties. Only DRAFT documents can have all fields updated. Sent documents have restrictions.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `responsibleUserId` - User ID of responsible team member (must be in your organization)\n- `documentMeta` - Metadata including subject, message, and signing order\n- `customFields` - Custom field values\n\n**Per-Signer Settings:** Delivery method and signature type are configured per-signer via the signers endpoint, not at the document level.\n\n**Note:** Some fields like signing order cannot be modified after the document is sent.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get document activity log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/activity",
+            "description": "Retrieve the activity/audit log for a specific document. Returns all activity events sorted newest-first.\n\n**Response includes:**\n- Event type (e.g., DOCUMENT_CREATED, DOCUMENT_SIGNED, EMAIL_SENT)\n- Timestamp of the event\n- Event-specific data payload\n- Name and email of the person who triggered the event (when available)\n\n**Privacy:** Sensitive fields such as IP address, user agent, and request metadata are not included in the response."
+          },
+          "response": []
+        },
+        {
+          "name": "Download signed document",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/download?downloadOriginalDocument=False",
+            "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `downloadOriginalDocument` (boolean): If true, downloads the original unsigned document. If false (default), downloads the signed/sealed version.\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- For signed documents: Document must be in COMPLETED status\n- For original documents: Available for all document statuses"
+          },
+          "response": []
+        },
+        {
+          "name": "Send document for signing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/send",
+            "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Request Body:**\n- `customMessage` (optional) - Custom message to include in the signing invitation emails/SMS\n\n**Prerequisites:**\n- Document must have at least one signer added via `POST /documents/{id}/signers` or when creating the document\n- Each signer's delivery method (`EMAIL`, `SMS`, or `NONE`) and signature type (`DRAWING`, `BANKID`, `CLICK_TO_SIGN`) are configured per-signer when adding them\n\n**What happens when you send:**\n1. Document status changes from `DRAFT` to `PENDING`\n2. Signing invitations are sent to each signer based on their individual `deliveryMethod` setting\n3. Signers with `deliveryMethod: NONE` won't receive notifications - use their signing URLs directly",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customMessage\": \"Please review and sign this document.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Document Signers",
+      "item": [
+        {
+          "name": "List all signers for a document",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers",
+            "description": "Retrieve all signers for a document WITHOUT signing URLs.\n\nThis endpoint returns signer information for display purposes. Signing URLs are not included for security reasons.\n\nTo get a signer's signing URL (which creates an audit log entry), use the GET /documents/:id/signers/:signerId endpoint."
+          },
+          "response": []
+        },
+        {
+          "name": "Add a signer to document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers",
+            "description": "Add a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"deliveryMethod\": \"EMAIL\",\n  \"requiredSignature\": \"DRAWING\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove a signer from document",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers/{{signerId}}",
+            "description": "Remove a signer from a document. This operation is only allowed for DRAFT documents.\n\n**Note:** Once a document is sent, signers cannot be removed. You must cancel the document first."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a signer with signing URL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers/{{signerId}}",
+            "description": "Retrieve a specific signer including their signing URL.\n\n**Security Note:** This endpoint creates an audit log entry each time a signing URL is accessed. Use this endpoint when you need the signing URL to share with the signer.\n\n**Response includes:**\n- Signer details (name, email, phone, company info)\n- Signing status (NOT_SIGNED, SIGNED, REJECTED)\n- Read status (NOT_OPENED, OPENED, READ)\n- Complete signing URL with token"
+          },
+          "response": []
+        },
+        {
+          "name": "Update a signer",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers/{{signerId}}",
+            "description": "Update signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` or `SMS_BEFORE_SIGNING`\n\n**Restrictions:** Cannot update after signer has signed the document.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"SIGNER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Document Fields",
+      "item": [
+        {
+          "name": "Create a document field",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields",
+            "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"TEXT\",\n  \"position\": 1,\n  \"fieldMeta\": {\n    \"type\": \"TEXT\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a document field",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}",
+            "description": "Remove a field from a document. Only allowed for DRAFT documents."
+          },
+          "response": []
+        },
+        {
+          "name": "Update a document field",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}",
+            "description": "Update a document field's properties. Only DRAFT documents can have fields updated.\n\n**Field Identifier:**\n- `fieldId` - Can be either database ID or key-based reference (prefix with `key:`)\n- Example: `/api/v1/documents/{docId}/fields/key:recipient-name`\n\n**Updatable Properties:**\n- `type` - Field type (cannot change if field has data)\n- `position` - Field order/position\n- `fieldMeta` - Field-specific metadata\n- `key` - Unique key identifier for API access\n\n**Regular Field Updates (by ID):**\nPass the full field structure including type and complete fieldMeta for that field type.\n\n**Example - Update TEXT field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"TEXT\",\n  \"fieldMeta\": {\n    \"type\": \"TEXT\",\n    \"content\": \"<p>Updated content</p>\"\n  }\n}\n```\n\n**Example - Update HTML field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1 style='color: #003366'>Contract Title</h1><img src='https://example.com/logo.png' alt='Company Logo' style='max-width: 200px' /><p>Custom styled content with <span style='color: red'>highlighted text</span></p></div>\"\n  }\n}\n```\n\n**Example - Update FORM field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"FORM\",\n  \"fieldMeta\": {\n    \"type\": \"FORM\",\n    \"columns\": 2,\n    \"fields\": [...]\n  }\n}\n```\n\n**Key-Based Updates for FORM Subfields:**\nFor FORM fields with subfield keys, use `key:your-field-key` as the fieldId to update a specific subfield by its key.\n\nWhen updating a FORM subfield by key, only pass the `fieldMeta` property with the subfield's metadata structure. All other properties (type, position, key) are ignored.\n\n**Example - Update FORM subfield value:**\n```json\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\n    \"type\": \"input\",\n    \"value\": \"Andreas\"\n  }\n}\n```\n\nThis will update only the `value` property of the subfield with key \"name\", preserving all other properties like label, placeholder, and description.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Document Tags",
+      "item": [
+        {
+          "name": "Add tag to document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/tags",
+            "description": "Associate a tag with a document.\n\n**Note:** Tag must be configured for DOCUMENT use (availableFor includes 'DOCUMENT').",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tagId\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove tag from document",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/tags/{{tagId}}",
+            "description": "Remove a tag association from a document."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "item": [
+        {
+          "name": "List all contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/contacts?page=1&perPage=10",
+            "description": "Retrieve a paginated list of all contacts in your organization.\n\nContacts are individuals that can be added as signers to documents. Each contact can optionally be associated with a company.\n\n**Pagination:** Use 'page' and 'perPage' query parameters."
+          },
+          "response": []
+        },
+        {
+          "name": "Create a new contact",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/contacts",
+            "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n- `lastName` - Contact's last name\n\n**Optional Fields:**\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `ssn` - Swedish personal number (for BankID)\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+46701234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/contacts/search?email=john.doe@example.com&phone=string&externalId=string",
+            "description": "Search for contacts by email, phone number, or external ID.\n\n**Query Parameters (at least one required):**\n- `email` - Search by exact email address match\n- `phone` - Search by exact phone number match\n- `externalId` - Search by exact external ID match\n\n**Response:** Returns an array of matching contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a contact",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/contacts/{{documentId}}",
+            "description": "Soft delete a contact. The contact is marked as deleted but existing document signers remain unaffected."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a contact by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/contacts/{{documentId}}",
+            "description": "Retrieve detailed information about a specific contact including associated company information."
+          },
+          "response": []
+        },
+        {
+          "name": "Update a contact",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/contacts/{{documentId}}",
+            "description": "Update contact information. All fields are optional.\n\n**Note:** Updating a contact does not affect existing document signers. Changes only apply to new documents.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "List all companies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/companies",
+            "description": "Retrieve a list of all companies in your organization.\n\nCompanies can be associated with contacts to track organizational relationships."
+          },
+          "response": []
+        },
+        {
+          "name": "Create a new company",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/companies",
+            "description": "Create a new company in your organization.\n\n**Required Fields:**\n- `name` - Company name\n\n**Optional Fields:**\n- `orgNumber` - Organization number (must be unique if provided)\n- `country` - Country name\n\n**Note:** If a company with the same organization number exists, a 409 Conflict error is returned.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lookup company in external registry",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/companies/lookup?orgNr=string",
+            "description": "Look up a company in the external company registry by organization number and retrieve detailed information including signatories.\n\n**Query Parameters:**\n- `orgNr` (required) - Organization number to search for\n\n**Response includes:**\n- Basic company info (name, status, org number)\n- Contact information (phone, address)\n- Legal information (company form, domicile, registration dates)\n- Tax information (employer status, F-tax, VAT)\n- Business info (SNI codes, activity description, company signature)\n- Responsible persons (executives, board members, auditors, owners)\n- Location coordinates\n\n**Rate Limit:** This endpoint is rate limited to 2 requests per minute.\n\n**Note:** This searches an external registry, not your local workspace companies. Results are cached for 3 days."
+          },
+          "response": []
+        },
+        {
+          "name": "Search companies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/companies/search?orgNumber=string&name=string",
+            "description": "Search for companies by organization number or name.\n\n**Query Parameters (at least one required):**\n- `orgNumber` - Search by exact organization number match\n- `name` - Search by exact company name match (case-insensitive)\n\n**Response:** Returns an array of matching companies with their associated contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a company by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/companies/{{documentId}}",
+            "description": "Retrieve detailed information about a company including all associated contacts."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "item": [
+        {
+          "name": "List files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/files?page=1&perPage=10&visibility=PRIVATE",
+            "description": "Retrieve a paginated list of files in your organization.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.\n\n**Filtering:** Optionally filter by visibility (PRIVATE or PUBLIC).\n\n**Response:**\n- Files are sorted by creation date (newest first)\n- Use the 'getFile' endpoint to retrieve file access URLs"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a file",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/files/{{documentId}}",
+            "description": "Delete a file from storage and database.\n\n**Warning:** This operation is irreversible. The file will be permanently deleted from both S3 and the database."
+          },
+          "response": []
+        },
+        {
+          "name": "Get file by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/files/{{documentId}}",
+            "description": "Retrieve file information and access URL.\n\n**URL Generation:**\n- For `PRIVATE` files: Returns a fresh signed URL (valid for 60 minutes)\n- For `PUBLIC` files: Returns the permanent CloudFront URL\n\n**Response includes:**\n- File metadata (filename, size, MIME type)\n- Visibility setting\n- Access URL\n- Upload information"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload file",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{uploadBaseUrl}}/api/v1/putFile",
+            "description": "Upload a file directly to sajn storage.\n\n**Important:** This endpoint uses `https://upload.sajn.se` as the base URL, not `https://app.sajn.se`.\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Example Upload:**\n```bash\n# Private file (default)\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/document.pdf\"\n\n# Public file\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/image.png\" \\\n  -F \"visibility=PUBLIC\"\n```",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/absolute/path/to/document.pdf"
+                },
+                {
+                  "key": "visibility",
+                  "type": "text",
+                  "value": "PRIVATE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload file bytes to a signed URL",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/upload/{{fileKey}}",
+            "description": "Upload raw file bytes to the signed upload host.\n\nUse the signed URL returned by the file creation flow and send the file body as `application/octet-stream` or the file MIME type.\nIf the signed URL includes a checksum requirement, also send the matching `x-amz-checksum-sha256` header."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tags",
+      "item": [
+        {
+          "name": "List all tags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/tags?page=1&perPage=10",
+            "description": "Retrieve a paginated list of all tags in your organization.\n\nTags help organize and categorize documents, templates, and contacts.\n\n**Pagination:** Use 'page' and 'perPage' query parameters."
+          },
+          "response": []
+        },
+        {
+          "name": "Create a new tag",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/tags",
+            "description": "Create a new tag for organizing documents, templates, or contacts.\n\n**Required Fields:**\n- `name` - Tag name (must be unique)\n- `availableFor` - Where tag can be used: DOCUMENT, TEMPLATE, or CONTACT\n\n**Optional Fields:**\n- `color` - Hex color code (e.g., #FF5733)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"string\",\n  \"availableFor\": [\n    \"DOCUMENT\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a tag",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/tags/{{documentId}}",
+            "description": "Update tag properties. All fields are optional.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Custom Fields",
+      "item": [
+        {
+          "name": "List all custom fields",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/custom-fields?page=1&perPage=10&type=DOCUMENT",
+            "description": "Retrieve a paginated list of custom field definitions.\n\nCustom fields allow you to add additional structured data to documents or contacts.\n\n**Query Parameters:**\n- `page` - Page number\n- `perPage` - Items per page\n- `type` - Filter by type (DOCUMENT or CONTACT)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create a custom field definition",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/custom-fields",
+            "description": "Create a new custom field definition.\n\n**Required Fields:**\n- `name` - Field name\n- `type` - DOCUMENT or CONTACT\n- `inputType` - Input type (TEXT, NUMBER, DATE, CHECKBOX, SELECT, TEXTAREA)\n\n**Optional Fields:**\n- `defaultValue` - Default value for the field\n- `required` - Whether field is required (default: false)\n- `options` - For SELECT type, comma-separated options",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"string\",\n  \"type\": \"DOCUMENT\",\n  \"inputType\": \"TEXT\",\n  \"required\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a custom field definition",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/custom-fields/{{documentId}}",
+            "description": "Delete a custom field definition.\n\n**Warning:** This will remove all values associated with this field from all documents/contacts."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a custom field by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/custom-fields/{{documentId}}",
+            "description": "Retrieve detailed information about a custom field definition."
+          },
+          "response": []
+        },
+        {
+          "name": "Update a custom field definition",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/custom-fields/{{documentId}}",
+            "description": "Update custom field properties. All fields are optional.\n\n**Note:** Changing field type may affect existing data.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "sajn ID",
+      "item": [
+        {
+          "name": "List all sajn ID verifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/sajn-id?page=1&perPage=10&status=['CREATED']&dateFrom=string&dateTo=string",
+            "description": "Retrieve a paginated list of all sajn ID identity verifications in your organization.\n\nsajn ID enables secure identity verification using Swedish BankID, either with SSN validation or name-based verification.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.\n\n**Filtering:**\n- `status` - Filter by verification status (can specify multiple)\n- `dateFrom` - Filter by creation date from\n- `dateTo` - Filter by creation date to"
+          },
+          "response": []
+        },
+        {
+          "name": "Create a new sajn ID verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/sajn-id",
+            "description": "Create a new identity verification request. Optionally send it immediately to the recipient.\n\n**Required Fields:**\n- `fullName` - Full name of person to verify (required)\n- `channel` - Delivery channel: EMAIL or SMS (required)\n- Channel-specific: `email` (for EMAIL) or `phone` (for SMS)\n\n**Optional Fields:**\n- `ssn` - Swedish personal number for SSN-based verification (without SSN, name-based verification is used)\n- `reference` - External reference ID for tracking\n- `note` - Internal note about this verification\n- `contactId` - Link to existing contact\n- `locale` - Message locale (default: sv-SE)\n\n**Verification Methods:**\n- **SSN-based**: When `ssn` is provided, BankID verification validates both identity and SSN match\n- **Name-based**: Without `ssn`, BankID verifies identity and name match\n\n**Response:** Returns verification details including token and verification URL (only on creation, never exposed later).\n\n**Billing:** Creating a sajn ID verification counts toward your monthly sajn ID quota and is billed accordingly.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"locale\": \"sv-SE\",\n  \"reference\": \"customer-123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get a sajn ID verification by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/sajn-id/{{documentId}}",
+            "description": "Retrieve detailed information about a specific sajn ID verification including status, audit logs, and verification data.\n\nThe response includes:\n- Verification status and timestamps\n- Contact information (email/phone based on channel)\n- Linked contact details (if applicable)\n- Complete audit log of all verification events\n- Verification data (e.g., BankID response for verified identities)\n\n**Note:** Sensitive information like SSN is encrypted and not returned in the API response."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

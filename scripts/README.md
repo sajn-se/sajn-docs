@@ -16,6 +16,23 @@ This directory contains utility scripts for maintaining the sajn documentation s
 
 ### Available Scripts
 
+#### `generate-postman.py`
+**Python script** that generates versioned Postman collections and a local environment from `api/openapi.json`.
+
+**What it does:**
+- Builds a full API reference collection
+- Builds curated starter collections for onboarding workflows
+- Generates a shared Postman environment with standard variables
+
+**Usage:**
+```bash
+python3 scripts/generate-postman.py
+```
+
+Generated files are written to `downloads/postman/`.
+
+---
+
 #### `validate-openapi.sh`
 **All-in-one script** that fixes common issues and validates your OpenAPI specification.
 
@@ -103,8 +120,11 @@ python3 scripts/fix-openapi.py path/to/your/openapi.json
    ```bash
    ./scripts/validate-openapi.sh
    ```
-3. If validation passes, you're ready to commit
-4. Preview locally with `mint dev`
+3. Regenerate the Postman artifacts:
+   ```bash
+   python3 scripts/generate-postman.py
+   ```
+4. If validation passes, you're ready to preview locally with `mint dev`
 5. Commit and push to deploy
 
 **Note:** The `putFile` endpoint is hosted on `upload.sajn.se` and is not part of the main API's OpenAPI spec. The validation script automatically adds it.
