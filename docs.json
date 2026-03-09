@@ -142,7 +142,9 @@
           {
             "group": "Document Signers",
             "pages": [
+              "GET /api/v1/documents/{id}/signers",
               "POST /api/v1/documents/{id}/signers",
+              "GET /api/v1/documents/{id}/signers/{signerId}",
               "PATCH /api/v1/documents/{id}/signers/{signerId}",
               "DELETE /api/v1/documents/{id}/signers/{signerId}"
             ]
