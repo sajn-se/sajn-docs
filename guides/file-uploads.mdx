@@ -92,6 +92,10 @@ Public files are accessible via direct CloudFront URL.
 
 After successful upload, use the storage key in document field metadata. You can either create a new PDF field or update an existing one:
 
+<Note>
+PDF fields use `value` for the file storage key, while TEXT and HTML fields use `content` for their data. See the [API Reference](/api/POST%20/api/v1/documents/{id}/fields) for full details on each field type.
+</Note>
+
 ### Create New PDF Field
 
 Use the [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) endpoint to add the uploaded PDF:
@@ -105,8 +109,7 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
     "position": 0,
     "fieldMeta": {
       "type": "PDF",
-      "value": "f/org_123/abc123def/contract.pdf",
-      "numPages": -1
+      "value": "f/org_123/abc123def/contract.pdf"
     }
   }'
 ```
@@ -122,8 +125,7 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456 \
   -d '{
     "fieldMeta": {
       "type": "PDF",
-      "value": "f/org_123/abc123def/contract.pdf",
-      "numPages": -1
+      "value": "f/org_123/abc123def/contract.pdf"
     }
   }'
 ```
@@ -131,6 +133,43 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456 \
 ## Complete Upload Workflow
 
 Here's a complete example of uploading a file and adding it to a document:
+
+### cURL Example
+
+```bash
+# Step 1: Upload the file
+UPLOAD_RESPONSE=$(curl -s -X PUT https://upload.sajn.se/api/v1/putFile \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@contract.pdf")
+
+# Extract the storage key from the response
+STORAGE_KEY=$(echo "$UPLOAD_RESPONSE" | jq -r '.key')
+echo "Uploaded file with key: $STORAGE_KEY"
+
+# Step 2: Create a document
+DOC_RESPONSE=$(curl -s -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Employment Contract"
+  }')
+
+DOC_ID=$(echo "$DOC_RESPONSE" | jq -r '.id')
+echo "Created document: $DOC_ID"
+
+# Step 3: Add the uploaded file as a PDF field
+curl -X POST "https://app.sajn.se/api/v1/documents/${DOC_ID}/fields" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"type\": \"PDF\",
+    \"position\": 0,
+    \"fieldMeta\": {
+      \"type\": \"PDF\",
+      \"value\": \"${STORAGE_KEY}\"
+    }
+  }"
+```
 
 ### JavaScript Example
 
@@ -172,8 +211,7 @@ const addFileToDocument = async (documentId, storageKey, apiKey) => {
       position: 0,
       fieldMeta: {
         type: 'PDF',
-        value: storageKey,
-        numPages: -1
+        value: storageKey
       }
     })
   });
@@ -322,7 +360,7 @@ const FileUploader = ({ documentId, apiKey, onUploadComplete }) => {
         body: JSON.stringify({
           type: 'PDF',
           position: 0,
-          fieldMeta: { type: 'PDF', value: key, numPages: -1 }
+          fieldMeta: { type: 'PDF', value: key }
         })
       });
 
@@ -396,8 +434,7 @@ const uploadFileToDocument = async (documentId, filePath, apiKey) => {
       position: 0,
       fieldMeta: {
         type: 'PDF',
-        value: key,
-        numPages: -1
+        value: key
       }
     })
   });
