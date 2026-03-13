@@ -1,0 +1,84 @@
+---
+title: "Arbetsytor"
+description: "Lär dig hur du organiserar ditt arbete med arbetsytor i sajn"
+---
+
+Arbetsytor hjälper dig att organisera ditt arbete i sajn. Tänk på dem som separata mappar eller projekt inom din organisation, var och en med sina egna dokument, kontakter och inställningar.
+
+## Varför använda arbetsytor?
+
+<CardGroup cols={3}>
+  <Card title="Separera projekt" icon="folder">
+    Håll olika projekt eller kunder helt åtskilda.
+  </Card>
+  <Card title="Teamåtkomst" icon="users">
+    Styr vilka teammedlemmar som har tillgång till vad.
+  </Card>
+  <Card title="Håll ordning" icon="grid-2">
+    Hantera stora volymer dokument utan att tappa överblicken.
+  </Card>
+</CardGroup>
+
+## Vad tillhör en arbetsyta?
+
+Varje arbetsyta har sin egen isolerade uppsättning data:
+
+| Resurs | Beskrivning |
+|--------|-------------|
+| Dokument | Alla dokument som skapats eller importerats |
+| Kontakter | Personer och företag du skickar dokument till |
+| Mallar | Återanvändbara dokumentmallar |
+| Taggar | Etiketter för att organisera dokument |
+| Filer | Uppladdade PDF:er och andra filer |
+| Webhooks | Händelsenotiser |
+| API-nycklar | Autentiseringsuppgifter för API-åtkomst |
+
+<Note>
+  Data är helt isolerad mellan arbetsytor. Ett dokument i en arbetsyta kan inte komma åt kontakter från en annan arbetsyta.
+</Note>
+
+## Egenskaper för arbetsytor
+
+Varje arbetsyta har:
+
+| Egenskap | Beskrivning |
+|----------|-------------|
+| **Slug** | Unik identifierare (t.ex. `sales-team`) |
+| **Namn** | Visningsnamn (t.ex. "Säljavdelningen") |
+| **Färg** | Visuell identifierare i instrumentpanelen |
+| **Ikon** | Valfri ikon för snabb igenkänning |
+
+## Vanliga användningsområden
+
+### Flera kunder
+Byråer och konsulter kan skapa en arbetsyta per kund för att hålla dokument och kontakter separata.
+
+### Avdelningar
+Stora organisationer kan ha separata arbetsytor för HR, juridik, sälj med mera.
+
+### Projekt
+Skapa arbetsytor för större projekt som behöver egna dokumentflöden.
+
+## Arbetsytor per plan
+
+Antalet arbetsytor du kan skapa beror på din prenumeration:
+
+| Plan | Arbetsytor |
+|------|------------|
+| BASIC / SOLO | 1 |
+| TEAM | 5 |
+| ENTERPRISE | Obegränsat |
+
+<Tip>
+  Behöver du fler arbetsytor? Kontakta oss på hej@sajn.se så diskuterar vi dina behov.
+</Tip>
+
+## Arbeta med arbetsytor
+
+### I instrumentpanelen
+
+Byt mellan arbetsytor med hjälp av arbetsyteväljaren i toppnavigationen. Din valda arbetsyta avgör vilka dokument, kontakter och inställningar du ser.
+
+### Via API
+
+När du använder API:et är din API-nyckel kopplad till en specifik arbetsyta. Alla API-anrop påverkar bara den arbetsytans data.
