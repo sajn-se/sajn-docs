@@ -27,10 +27,8 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "description": "API status",
-                      "enum": [
-                        "ok"
-                      ]
+                      "const": "ok",
+                      "description": "API status"
                     },
                     "timestamp": {
                       "description": "Current server timestamp",
@@ -1178,9 +1176,7 @@
                     },
                     "fields": {
                       "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
+                      "items": {}
                     }
                   },
                   "required": [
@@ -1864,6 +1860,9 @@
                           },
                           "data": {
                             "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
                             "additionalProperties": {},
                             "description": "Event-specific data payload"
                           },
@@ -5509,9 +5508,7 @@
                       "properties": {
                         "sni": {
                           "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
+                          "items": {}
                         },
                         "activityDescription": {
                           "type": "string"
@@ -6023,9 +6020,7 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "enum": [
-                                  "TEXT"
-                                ]
+                                "const": "TEXT"
                               },
                               "content": {
                                 "type": "string"
@@ -6041,9 +6036,7 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "enum": [
-                                  "HTML"
-                                ]
+                                "const": "HTML"
                               },
                               "content": {
                                 "type": "string"
@@ -6059,9 +6052,7 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "enum": [
-                                  "PDF"
-                                ]
+                                "const": "PDF"
                               },
                               "value": {
                                 "type": "string"
@@ -6080,9 +6071,7 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "enum": [
-                                  "FORM"
-                                ]
+                                "const": "FORM"
                               },
                               "columns": {
                                 "type": "number",
@@ -6132,11 +6121,16 @@
                                             "description": {
                                               "type": "string"
                                             },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
                                             "type": {
                                               "type": "string",
-                                              "enum": [
-                                                "input"
-                                              ]
+                                              "const": "input"
                                             },
                                             "value": {
                                               "type": "string"
@@ -6159,11 +6153,16 @@
                                             "description": {
                                               "type": "string"
                                             },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
                                             "type": {
                                               "type": "string",
-                                              "enum": [
-                                                "text"
-                                              ]
+                                              "const": "text"
                                             },
                                             "value": {
                                               "type": "string"
@@ -6186,11 +6185,16 @@
                                             "description": {
                                               "type": "string"
                                             },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
                                             "type": {
                                               "type": "string",
-                                              "enum": [
-                                                "select"
-                                              ]
+                                              "const": "select"
                                             },
                                             "options": {
                                               "type": "array",
@@ -6228,11 +6232,16 @@
                                             "description": {
                                               "type": "string"
                                             },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
                                             "type": {
                                               "type": "string",
-                                              "enum": [
-                                                "datepicker"
-                                              ]
+                                              "const": "datepicker"
                                             },
                                             "value": {
                                               "type": "string"
@@ -6267,9 +6276,7 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "enum": [
-                                  "PRODUCT_TABLE"
-                                ]
+                                "const": "PRODUCT_TABLE"
                               },
                               "name": {
                                 "type": "string"
@@ -6279,6 +6286,9 @@
                               },
                               "columns": {
                                 "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
                                 "additionalProperties": {
                                   "type": "object",
                                   "properties": {
@@ -6291,9 +6301,7 @@
                                     "enabled": {
                                       "type": "boolean"
                                     },
-                                    "key": {
-                                      "type": "string"
-                                    },
+                                    "key": {},
                                     "settings": {
                                       "type": "object",
                                       "properties": {
@@ -6380,9 +6388,7 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "enum": [
-                                  "TABLE"
-                                ]
+                                "const": "TABLE"
                               },
                               "columns": {
                                 "type": "array",
@@ -6505,9 +6511,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "TEXT"
-                                  ]
+                                  "const": "TEXT"
                                 },
                                 "content": {
                                   "type": "string"
@@ -6523,9 +6527,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "HTML"
-                                  ]
+                                  "const": "HTML"
                                 },
                                 "content": {
                                   "type": "string"
@@ -6541,9 +6543,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "PDF"
-                                  ]
+                                  "const": "PDF"
                                 },
                                 "value": {
                                   "type": "string"
@@ -6562,9 +6562,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "FORM"
-                                  ]
+                                  "const": "FORM"
                                 },
                                 "columns": {
                                   "type": "number",
@@ -6614,11 +6612,16 @@
                                               "description": {
                                                 "type": "string"
                                               },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
                                               "type": {
                                                 "type": "string",
-                                                "enum": [
-                                                  "input"
-                                                ]
+                                                "const": "input"
                                               },
                                               "value": {
                                                 "type": "string"
@@ -6641,11 +6644,16 @@
                                               "description": {
                                                 "type": "string"
                                               },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
                                               "type": {
                                                 "type": "string",
-                                                "enum": [
-                                                  "text"
-                                                ]
+                                                "const": "text"
                                               },
                                               "value": {
                                                 "type": "string"
@@ -6668,11 +6676,16 @@
                                               "description": {
                                                 "type": "string"
                                               },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
                                               "type": {
                                                 "type": "string",
-                                                "enum": [
-                                                  "select"
-                                                ]
+                                                "const": "select"
                                               },
                                               "options": {
                                                 "type": "array",
@@ -6710,11 +6723,16 @@
                                               "description": {
                                                 "type": "string"
                                               },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
                                               "type": {
                                                 "type": "string",
-                                                "enum": [
-                                                  "datepicker"
-                                                ]
+                                                "const": "datepicker"
                                               },
                                               "value": {
                                                 "type": "string"
@@ -6749,9 +6767,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "PRODUCT_TABLE"
-                                  ]
+                                  "const": "PRODUCT_TABLE"
                                 },
                                 "name": {
                                   "type": "string"
@@ -6761,6 +6777,9 @@
                                 },
                                 "columns": {
                                   "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
                                   "additionalProperties": {
                                     "type": "object",
                                     "properties": {
@@ -6773,9 +6792,7 @@
                                       "enabled": {
                                         "type": "boolean"
                                       },
-                                      "key": {
-                                        "type": "string"
-                                      },
+                                      "key": {},
                                       "settings": {
                                         "type": "object",
                                         "properties": {
@@ -6862,9 +6879,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "TABLE"
-                                  ]
+                                  "const": "TABLE"
                                 },
                                 "columns": {
                                   "type": "array",
@@ -9217,9 +9232,7 @@
                       },
                       {
                         "type": "string",
-                        "enum": [
-                          ""
-                        ]
+                        "const": ""
                       }
                     ],
                     "description": "Email address (required for EMAIL channel)"
@@ -9231,9 +9244,7 @@
                       },
                       {
                         "type": "string",
-                        "enum": [
-                          ""
-                        ]
+                        "const": ""
                       }
                     ],
                     "description": "Phone number (required for SMS channel)"
@@ -9441,6 +9452,9 @@
                           },
                           "data": {
                             "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
                             "additionalProperties": {},
                             "description": "Event-specific data"
                           },
@@ -9477,6 +9491,9 @@
                     "data": {
                       "description": "Verification data (e.g., BankID response)",
                       "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
                       "additionalProperties": {},
                       "nullable": true
                     }
@@ -9753,6 +9770,9 @@
                           },
                           "data": {
                             "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
                             "additionalProperties": {},
                             "description": "Event-specific data"
                           },
@@ -9789,6 +9809,9 @@
                     "data": {
                       "description": "Verification data (e.g., BankID response)",
                       "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
                       "additionalProperties": {},
                       "nullable": true
                     }
@@ -11037,48 +11060,48 @@
     },
     "/api/v1/putFile": {
       "put": {
-        "description": "Upload a file directly to sajn storage.\n\n**Important:** This endpoint uses `https://upload.sajn.se` as the base URL, not `https://app.sajn.se`.\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Example Upload:**\n```bash\n# Private file (default)\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/document.pdf\"\n\n# Public file\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/image.png\" \\\n  -F \"visibility=PUBLIC\"\n```",
-        "summary": "Upload file",
-        "tags": [],
-        "parameters": [
+        "summary": "Upload a file",
+        "description": "Upload a file to sajn. This endpoint is hosted on a separate upload server (`upload.sajn.se`).\n\nSend the file as `multipart/form-data`. The server handles storage and returns a storage key that can be used to reference the file in document fields.\n\n**Supported file types:** PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, WebP, SVG, MP4, MOV, AVI, WebM\n\n**Max file size:** 100 MB\n\n**Visibility options:**\n- `PRIVATE` (default) — Requires signed URL for access (valid 60 minutes)\n- `PUBLIC` — Accessible via direct CloudFront URL\n\n**Example:**\n```bash\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@document.pdf\" \\\n  -F \"visibility=PRIVATE\"\n```\n\n**Using the returned key:**\n\nThe `key` in the response can be used when creating or updating document fields (e.g. adding a PDF section to a document).",
+        "operationId": "putFile",
+        "tags": [
+          "Files"
+        ],
+        "servers": [
           {
-            "name": "authorization",
-            "in": "header",
-            "description": "Bearer token for API authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "url": "https://upload.sajn.se",
+            "description": "Upload server"
           }
         ],
-        "operationId": "putFile",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
         "requestBody": {
-          "description": "Multipart form data with file and optional visibility",
+          "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
-                "description": "File upload request",
                 "type": "object",
+                "required": [
+                  "file"
+                ],
                 "properties": {
                   "file": {
-                    "description": "The file to upload. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG",
                     "type": "string",
-                    "format": "binary"
+                    "format": "binary",
+                    "description": "The file to upload (max 100 MB)"
                   },
                   "visibility": {
-                    "description": "File visibility: PRIVATE (requires signed URL) or PUBLIC (direct access)",
-                    "default": "PRIVATE",
                     "type": "string",
                     "enum": [
                       "PRIVATE",
                       "PUBLIC"
-                    ]
+                    ],
+                    "default": "PRIVATE",
+                    "description": "File visibility. PRIVATE requires signed URLs, PUBLIC is directly accessible."
                   }
-                },
-                "required": [
-                  "file"
-                ],
-                "additionalProperties": false
+                }
               }
             }
           }
@@ -11089,98 +11112,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "File upload response",
                   "type": "object",
                   "properties": {
                     "key": {
-                      "description": "Storage key for the uploaded file",
-                      "type": "string"
+                      "type": "string",
+                      "description": "Storage key for referencing the file in document fields",
+                      "example": "f/org_123/abc123def/document.pdf"
                     },
                     "file": {
-                      "description": "File metadata",
                       "type": "object",
                       "properties": {
                         "id": {
-                          "description": "Unique file identifier",
-                          "type": "string"
+                          "type": "string",
+                          "description": "Unique file identifier"
                         },
                         "filename": {
-                          "description": "Original filename",
-                          "type": "string"
+                          "type": "string",
+                          "description": "Original filename"
                         },
                         "mimeType": {
+                          "type": "string",
                           "description": "MIME type of the file",
-                          "type": "string"
+                          "example": "application/pdf"
                         },
                         "size": {
-                          "description": "File size in bytes",
-                          "type": "integer"
+                          "type": "integer",
+                          "description": "File size in bytes"
                         },
                         "hash": {
-                          "description": "SHA-256 hash of the file",
-                          "type": "string"
+                          "type": "string",
+                          "description": "SHA-256 checksum of the file"
                         }
-                      },
-                      "required": [
-                        "id",
-                        "filename",
-                        "mimeType",
-                        "size",
-                        "hash"
-                      ],
-                      "additionalProperties": false
+                      }
                     }
-                  },
-                  "required": [
-                    "key",
-                    "file"
-                  ],
-                  "additionalProperties": false
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
+            "description": "Invalid request — missing file, unsupported file type, or file too large"
           },
           "401": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
+            "description": "Unauthorized — invalid or missing API key"
           }
         }
       }
