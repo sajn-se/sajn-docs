@@ -1,0 +1,231 @@
+---
+title: Managing Webhooks via API
+description: 'Create, list, update, and delete webhook subscriptions programmatically'
+---
+
+# Managing Webhooks via API
+
+The webhooks API lets you programmatically manage webhook subscriptions for your workspace. This is useful when you need to automate webhook setup as part of your integration, manage webhooks across multiple environments, or build admin tooling around your sajn integration.
+
+<Note>
+  Webhook management requires a **SOLO plan** or higher. See [Webhooks](/guides/webhooks) for general webhook concepts, payload format, and signature verification.
+</Note>
+
+## Prerequisites
+
+- A sajn API key with workspace access
+- SOLO plan or higher
+
+## Available Events
+
+When creating or updating webhooks, you subscribe to one or more event types:
+
+| Category | Event | Description |
+|----------|-------|-------------|
+| Document | `DOCUMENT_CREATED` | A new document was created |
+| Document | `DOCUMENT_SENT` | A document was sent to signers |
+| Document | `DOCUMENT_OPENED` | A signer opened a document |
+| Document | `DOCUMENT_SIGNED` | A signer signed a document |
+| Document | `DOCUMENT_COMPLETED` | All signers have signed |
+| Document | `DOCUMENT_REJECTED` | A signer rejected a document |
+| Document | `DOCUMENT_WITHDRAWN` | A document was withdrawn |
+| Document | `DOCUMENT_ARCHIVE_UPLOADED` | Archive copy was uploaded |
+| ID Check | `ID_CREATED` | An ID check was created |
+| ID Check | `ID_SENT` | An ID check was sent |
+| ID Check | `ID_OPENED` | An ID check was opened |
+| ID Check | `ID_VERIFIED` | Identity was verified |
+| ID Check | `ID_FAILED` | ID check failed |
+| ID Check | `ID_CANCELED` | ID check was canceled |
+| Contact | `CONTACT_CREATED` | A contact was created |
+| Contact | `CONTACT_UPDATED` | A contact was updated |
+| Contact | `CONTACT_DELETED` | A contact was deleted |
+
+## Creating a Webhook
+
+Register a new webhook endpoint to start receiving events:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "webhookUrl": "https://your-domain.com/webhooks/sajn",
+    "eventTriggers": [
+      "DOCUMENT_SIGNED",
+      "DOCUMENT_COMPLETED",
+      "DOCUMENT_REJECTED"
+    ],
+    "secret": "whsec_your_signing_secret",
+    "enabled": true
+  }'
+```
+
+Response:
+
+```json
+{
+  "id": "wh_abc123",
+  "webhookUrl": "https://your-domain.com/webhooks/sajn",
+  "secret": "whsec_your_signing_secret",
+  "enabled": true,
+  "eventTriggers": [
+    "DOCUMENT_SIGNED",
+    "DOCUMENT_COMPLETED",
+    "DOCUMENT_REJECTED"
+  ],
+  "createdAt": "2025-01-15T10:00:00.000Z",
+  "updatedAt": "2025-01-15T10:00:00.000Z"
+}
+```
+
+<Tip>
+  Always provide a `secret` so you can verify that incoming requests are genuinely from sajn. See [Verifying Webhooks](/guides/webhooks#verifying-webhooks) for implementation details.
+</Tip>
+
+## Listing Webhooks
+
+Retrieve all webhooks in your workspace:
+
+```bash
+curl https://app.sajn.se/api/v1/webhooks?page=1&perPage=10 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response:
+
+```json
+{
+  "webhooks": [
+    {
+      "id": "wh_abc123",
+      "webhookUrl": "https://your-domain.com/webhooks/sajn",
+      "secret": "whsec_your_signing_secret",
+      "enabled": true,
+      "eventTriggers": ["DOCUMENT_SIGNED", "DOCUMENT_COMPLETED"],
+      "createdAt": "2025-01-15T10:00:00.000Z",
+      "updatedAt": "2025-01-15T10:00:00.000Z"
+    }
+  ],
+  "totalPages": 1
+}
+```
+
+Use `page` and `perPage` query parameters for pagination. `perPage` accepts values from 1 to 100 (default: 10).
+
+## Getting a Webhook
+
+Fetch details for a specific webhook:
+
+```bash
+curl https://app.sajn.se/api/v1/webhooks/wh_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Updating a Webhook
+
+Update any webhook property. Only provided fields are changed:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/webhooks/wh_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "eventTriggers": [
+      "DOCUMENT_SIGNED",
+      "DOCUMENT_COMPLETED",
+      "DOCUMENT_REJECTED",
+      "CONTACT_CREATED"
+    ]
+  }'
+```
+
+### Common Update Scenarios
+
+**Disable a webhook temporarily** without deleting it:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/webhooks/wh_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
+```
+
+**Rotate the signing secret:**
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/webhooks/wh_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"secret": "whsec_new_signing_secret"}'
+```
+
+<Warning>
+  After rotating a secret, update your endpoint to verify with the new secret immediately. Payloads in flight may still use the old secret briefly.
+</Warning>
+
+**Change the endpoint URL** (e.g., migrating to a new domain):
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/webhooks/wh_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"webhookUrl": "https://new-domain.com/webhooks/sajn"}'
+```
+
+## Deleting a Webhook
+
+Remove a webhook and all its associated event subscriptions and call logs:
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/webhooks/wh_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response:
+
+```json
+{
+  "success": true
+}
+```
+
+<Warning>
+  Deletion is permanent. All call logs for this webhook are also deleted. If you just want to stop receiving events temporarily, [disable the webhook](#common-update-scenarios) instead.
+</Warning>
+
+## Multi-Environment Setup
+
+A common pattern is to create separate webhooks for each environment:
+
+```bash
+# Production webhook
+curl -X POST https://app.sajn.se/api/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "webhookUrl": "https://api.yourapp.com/webhooks/sajn",
+    "eventTriggers": ["DOCUMENT_SIGNED", "DOCUMENT_COMPLETED"],
+    "secret": "whsec_prod_secret"
+  }'
+
+# Staging webhook
+curl -X POST https://app.sajn.se/api/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "webhookUrl": "https://staging.yourapp.com/webhooks/sajn",
+    "eventTriggers": ["DOCUMENT_SIGNED", "DOCUMENT_COMPLETED"],
+    "secret": "whsec_staging_secret"
+  }'
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Payload format, signature verification, and best practices
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/introduction">
+    Full webhook API endpoint reference
+  </Card>
+</CardGroup>
