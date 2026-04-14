@@ -1,0 +1,349 @@
+---
+title: Signer-Fillable Fields
+description: 'Create form fields that signers fill in during the signing process'
+---
+
+# Signer-Fillable Fields
+
+Form fields in sajn can be assigned to a specific signer, requiring them to fill in the value when they sign the document. This is useful when you need information from the signing party that only they can provide, such as their address, personal number, or a date they choose.
+
+## How It Works
+
+By default, form fields in a document are filled by the document creator (you) via the API or dashboard before sending. When you set a `signerId` on a form field, the field becomes **signer-fillable**: its value is left empty and the assigned signer sees an input field they must complete during signing.
+
+The key properties:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `signerId` | string (nullable) | The ID of the signer who should fill this field. Set to `null` or omit for creator-filled fields. |
+| `required` | boolean | Whether the signer must fill this field before they can sign. |
+
+## Prerequisites
+
+- A document with at least one signer added
+- The signer's ID (returned when creating the document or adding signers)
+
+## Creating Signer-Fillable Fields
+
+### Step 1: Create a Document with Signers
+
+First, create a document and add signers so you have signer IDs to reference:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Rental Agreement",
+    "type": "SIGNABLE",
+    "signers": [
+      {
+        "name": "Anna Andersson",
+        "email": "anna@example.com",
+        "role": "SIGNER",
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "BANKID"
+      }
+    ]
+  }'
+```
+
+Response:
+
+```json
+{
+  "documentId": "doc_abc123",
+  "signers": [
+    {
+      "signerId": "signer_xyz789",
+      "name": "Anna Andersson",
+      "email": "anna@example.com"
+    }
+  ]
+}
+```
+
+### Step 2: Add a Form with Signer-Fillable Fields
+
+Add a FORM field where some fields are filled by the signer:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_abc123/fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fields": [{
+      "type": "FORM",
+      "fieldMeta": {
+        "type": "FORM",
+        "columns": 1,
+        "fields": [
+          {
+            "id": "field_address",
+            "row": 0,
+            "column": 0,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Address",
+              "placeholder": "Enter your full address",
+              "signerId": "signer_xyz789",
+              "required": true
+            }
+          },
+          {
+            "id": "field_personal_number",
+            "row": 1,
+            "column": 0,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Personal Number",
+              "placeholder": "YYYYMMDD-XXXX",
+              "signerId": "signer_xyz789",
+              "required": true
+            }
+          },
+          {
+            "id": "field_move_in_date",
+            "row": 2,
+            "column": 0,
+            "fieldMeta": {
+              "type": "datepicker",
+              "label": "Preferred Move-in Date",
+              "signerId": "signer_xyz789",
+              "required": false
+            }
+          }
+        ]
+      }
+    }]
+  }'
+```
+
+When Anna opens the document to sign, she will see these fields as inputs she needs to fill in. The required fields must be completed before she can sign.
+
+### Step 3: Send for Signing
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_abc123/send \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+## Mixing Creator and Signer Fields
+
+A common pattern is to pre-fill some fields yourself and leave others for the signer. Only fields with a `signerId` are editable by the signer -- the rest appear as read-only content.
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_abc123/fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fields": [{
+      "type": "FORM",
+      "fieldMeta": {
+        "type": "FORM",
+        "columns": 2,
+        "fields": [
+          {
+            "id": "field_company",
+            "row": 0,
+            "column": 0,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Company",
+              "value": "RIBBAN AB"
+            }
+          },
+          {
+            "id": "field_org_number",
+            "row": 0,
+            "column": 1,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Org. Number",
+              "value": "559254-0321"
+            }
+          },
+          {
+            "id": "field_signer_name",
+            "row": 1,
+            "column": 0,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Your Full Name",
+              "signerId": "signer_xyz789",
+              "required": true
+            }
+          },
+          {
+            "id": "field_signer_email",
+            "row": 1,
+            "column": 1,
+            "fieldMeta": {
+              "type": "input",
+              "label": "Your Email",
+              "placeholder": "name@example.com",
+              "signerId": "signer_xyz789",
+              "required": true
+            }
+          }
+        ]
+      }
+    }]
+  }'
+```
+
+In this example, "Company" and "Org. Number" are pre-filled and read-only. "Your Full Name" and "Your Email" are filled by the signer.
+
+## Supported Field Types
+
+All form field types support `signerId` and `required`:
+
+| Type | Description | Signer sees |
+|------|-------------|-------------|
+| `input` | Single-line text input | Text field |
+| `text` | Multi-line text area | Text area |
+| `select` | Dropdown selection | Dropdown with predefined options |
+| `datepicker` | Date selection | Date picker |
+
+### Select Field with Signer Assignment
+
+```json
+{
+  "id": "field_department",
+  "row": 0,
+  "column": 0,
+  "fieldMeta": {
+    "type": "select",
+    "label": "Department",
+    "signerId": "signer_xyz789",
+    "required": true,
+    "options": [
+      { "value": "Engineering" },
+      { "value": "Sales" },
+      { "value": "Marketing" },
+      { "value": "Finance" }
+    ]
+  }
+}
+```
+
+## Multi-Party Signing with Different Fields
+
+When a document has multiple signers, you can assign different fields to each:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Partnership Agreement",
+    "type": "SIGNABLE",
+    "signers": [
+      {
+        "name": "Partner A",
+        "email": "partner-a@example.com",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "DRAWING"
+      },
+      {
+        "name": "Partner B",
+        "email": "partner-b@example.com",
+        "role": "SIGNER",
+        "signingOrder": 2,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "DRAWING"
+      }
+    ]
+  }'
+```
+
+Then assign fields to each signer:
+
+```json
+{
+  "fields": [{
+    "type": "FORM",
+    "fieldMeta": {
+      "type": "FORM",
+      "columns": 2,
+      "fields": [
+        {
+          "id": "field_partner_a_address",
+          "row": 0,
+          "column": 0,
+          "fieldMeta": {
+            "type": "input",
+            "label": "Partner A - Address",
+            "signerId": "signer_partner_a",
+            "required": true
+          }
+        },
+        {
+          "id": "field_partner_b_address",
+          "row": 0,
+          "column": 1,
+          "fieldMeta": {
+            "type": "input",
+            "label": "Partner B - Address",
+            "signerId": "signer_partner_b",
+            "required": true
+          }
+        }
+      ]
+    }
+  }]
+}
+```
+
+Each signer only sees and fills their own assigned fields. The other party's fields appear as empty until that signer completes them.
+
+## Updating Signer Assignment
+
+You can update an existing field to assign or unassign a signer using the field update endpoint:
+
+```bash
+# Assign a field to a signer
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_abc123/fields/field_456 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldMeta": {
+      "type": "input",
+      "signerId": "signer_xyz789",
+      "required": true
+    }
+  }'
+
+# Remove signer assignment (make it creator-filled again)
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_abc123/fields/field_456 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldMeta": {
+      "type": "input",
+      "signerId": null,
+      "value": "Pre-filled value"
+    }
+  }'
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Templates and Forms" icon="file-lines" href="/guides/templates-and-forms">
+    Pre-fill fields from templates
+  </Card>
+  <Card title="Multi-Party Signing" icon="users" href="/guides/multi-party-signing">
+    Configure signing order and multiple parties
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Full document creation guide
+  </Card>
+  <Card title="Document Fields API" icon="code" href="/api/POST%20/api/v1/documents/{id}/fields">
+    Complete fields API reference
+  </Card>
+</CardGroup>

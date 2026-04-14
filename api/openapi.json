@@ -27,8 +27,10 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "const": "ok",
-                      "description": "API status"
+                      "description": "API status",
+                      "enum": [
+                        "ok"
+                      ]
                     },
                     "timestamp": {
                       "description": "Current server timestamp",
@@ -1176,7 +1178,9 @@
                     },
                     "fields": {
                       "type": "array",
-                      "items": {}
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -1860,9 +1864,6 @@
                           },
                           "data": {
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {},
                             "description": "Event-specific data payload"
                           },
@@ -5508,7 +5509,9 @@
                       "properties": {
                         "sni": {
                           "type": "array",
-                          "items": {}
+                          "items": {
+                            "type": "string"
+                          }
                         },
                         "activityDescription": {
                           "type": "string"
@@ -6020,7 +6023,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "TEXT"
+                                "enum": [
+                                  "TEXT"
+                                ]
                               },
                               "content": {
                                 "type": "string"
@@ -6036,7 +6041,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "HTML"
+                                "enum": [
+                                  "HTML"
+                                ]
                               },
                               "content": {
                                 "type": "string"
@@ -6052,7 +6059,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PDF"
+                                "enum": [
+                                  "PDF"
+                                ]
                               },
                               "value": {
                                 "type": "string"
@@ -6071,7 +6080,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "FORM"
+                                "enum": [
+                                  "FORM"
+                                ]
                               },
                               "columns": {
                                 "type": "number",
@@ -6130,7 +6141,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "input"
+                                              "enum": [
+                                                "input"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -6162,7 +6175,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "text"
+                                              "enum": [
+                                                "text"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -6194,7 +6209,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "select"
+                                              "enum": [
+                                                "select"
+                                              ]
                                             },
                                             "options": {
                                               "type": "array",
@@ -6241,7 +6258,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "datepicker"
+                                              "enum": [
+                                                "datepicker"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -6276,7 +6295,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PRODUCT_TABLE"
+                                "enum": [
+                                  "PRODUCT_TABLE"
+                                ]
                               },
                               "name": {
                                 "type": "string"
@@ -6286,9 +6307,6 @@
                               },
                               "columns": {
                                 "type": "object",
-                                "propertyNames": {
-                                  "type": "string"
-                                },
                                 "additionalProperties": {
                                   "type": "object",
                                   "properties": {
@@ -6301,7 +6319,9 @@
                                     "enabled": {
                                       "type": "boolean"
                                     },
-                                    "key": {},
+                                    "key": {
+                                      "type": "string"
+                                    },
                                     "settings": {
                                       "type": "object",
                                       "properties": {
@@ -6388,7 +6408,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "TABLE"
+                                "enum": [
+                                  "TABLE"
+                                ]
                               },
                               "columns": {
                                 "type": "array",
@@ -6511,7 +6533,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TEXT"
+                                  "enum": [
+                                    "TEXT"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -6527,7 +6551,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "HTML"
+                                  "enum": [
+                                    "HTML"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -6543,7 +6569,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PDF"
+                                  "enum": [
+                                    "PDF"
+                                  ]
                                 },
                                 "value": {
                                   "type": "string"
@@ -6562,7 +6590,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "FORM"
+                                  "enum": [
+                                    "FORM"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "number",
@@ -6621,7 +6651,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "input"
+                                                "enum": [
+                                                  "input"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -6653,7 +6685,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "text"
+                                                "enum": [
+                                                  "text"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -6685,7 +6719,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "select"
+                                                "enum": [
+                                                  "select"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -6732,7 +6768,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "datepicker"
+                                                "enum": [
+                                                  "datepicker"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -6767,7 +6805,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PRODUCT_TABLE"
+                                  "enum": [
+                                    "PRODUCT_TABLE"
+                                  ]
                                 },
                                 "name": {
                                   "type": "string"
@@ -6777,9 +6817,6 @@
                                 },
                                 "columns": {
                                   "type": "object",
-                                  "propertyNames": {
-                                    "type": "string"
-                                  },
                                   "additionalProperties": {
                                     "type": "object",
                                     "properties": {
@@ -6792,7 +6829,9 @@
                                       "enabled": {
                                         "type": "boolean"
                                       },
-                                      "key": {},
+                                      "key": {
+                                        "type": "string"
+                                      },
                                       "settings": {
                                         "type": "object",
                                         "properties": {
@@ -6879,7 +6918,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TABLE"
+                                  "enum": [
+                                    "TABLE"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "array",
@@ -9232,7 +9273,9 @@
                       },
                       {
                         "type": "string",
-                        "const": ""
+                        "enum": [
+                          ""
+                        ]
                       }
                     ],
                     "description": "Email address (required for EMAIL channel)"
@@ -9244,7 +9287,9 @@
                       },
                       {
                         "type": "string",
-                        "const": ""
+                        "enum": [
+                          ""
+                        ]
                       }
                     ],
                     "description": "Phone number (required for SMS channel)"
@@ -9452,9 +9497,6 @@
                           },
                           "data": {
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {},
                             "description": "Event-specific data"
                           },
@@ -9491,9 +9533,6 @@
                     "data": {
                       "description": "Verification data (e.g., BankID response)",
                       "type": "object",
-                      "propertyNames": {
-                        "type": "string"
-                      },
                       "additionalProperties": {},
                       "nullable": true
                     }
@@ -9770,9 +9809,6 @@
                           },
                           "data": {
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {},
                             "description": "Event-specific data"
                           },
@@ -9809,9 +9845,6 @@
                     "data": {
                       "description": "Verification data (e.g., BankID response)",
                       "type": "object",
-                      "propertyNames": {
-                        "type": "string"
-                      },
                       "additionalProperties": {},
                       "nullable": true
                     }
@@ -11060,48 +11093,48 @@
     },
     "/api/v1/putFile": {
       "put": {
-        "summary": "Upload a file",
-        "description": "Upload a file to sajn. This endpoint is hosted on a separate upload server (`upload.sajn.se`).\n\nSend the file as `multipart/form-data`. The server handles storage and returns a storage key that can be used to reference the file in document fields.\n\n**Supported file types:** PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, WebP, SVG, MP4, MOV, AVI, WebM\n\n**Max file size:** 100 MB\n\n**Visibility options:**\n- `PRIVATE` (default) — Requires signed URL for access (valid 60 minutes)\n- `PUBLIC` — Accessible via direct CloudFront URL\n\n**Example:**\n```bash\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@document.pdf\" \\\n  -F \"visibility=PRIVATE\"\n```\n\n**Using the returned key:**\n\nThe `key` in the response can be used when creating or updating document fields (e.g. adding a PDF section to a document).",
+        "description": "Upload a file directly to sajn storage.\n\n**Important:** This endpoint uses `https://upload.sajn.se` as the base URL, not `https://app.sajn.se`.\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Example Upload:**\n```bash\n# Private file (default)\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/document.pdf\"\n\n# Public file\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/image.png\" \\\n  -F \"visibility=PUBLIC\"\n```",
+        "summary": "Upload file",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "operationId": "putFile",
-        "tags": [
-          "Files"
-        ],
-        "servers": [
-          {
-            "url": "https://upload.sajn.se",
-            "description": "Upload server"
-          }
-        ],
-        "security": [
-          {
-            "Authorization": []
-          }
-        ],
         "requestBody": {
-          "required": true,
+          "description": "Multipart form data with file and optional visibility",
           "content": {
             "multipart/form-data": {
               "schema": {
+                "description": "File upload request",
                 "type": "object",
-                "required": [
-                  "file"
-                ],
                 "properties": {
                   "file": {
+                    "description": "The file to upload. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG",
                     "type": "string",
-                    "format": "binary",
-                    "description": "The file to upload (max 100 MB)"
+                    "format": "binary"
                   },
                   "visibility": {
+                    "description": "File visibility: PRIVATE (requires signed URL) or PUBLIC (direct access)",
+                    "default": "PRIVATE",
                     "type": "string",
                     "enum": [
                       "PRIVATE",
                       "PUBLIC"
-                    ],
-                    "default": "PRIVATE",
-                    "description": "File visibility. PRIVATE requires signed URLs, PUBLIC is directly accessible."
+                    ]
                   }
-                }
+                },
+                "required": [
+                  "file"
+                ],
+                "additionalProperties": false
               }
             }
           }
@@ -11112,49 +11145,98 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "File upload response",
                   "type": "object",
                   "properties": {
                     "key": {
-                      "type": "string",
-                      "description": "Storage key for referencing the file in document fields",
-                      "example": "f/org_123/abc123def/document.pdf"
+                      "description": "Storage key for the uploaded file",
+                      "type": "string"
                     },
                     "file": {
+                      "description": "File metadata",
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string",
-                          "description": "Unique file identifier"
+                          "description": "Unique file identifier",
+                          "type": "string"
                         },
                         "filename": {
-                          "type": "string",
-                          "description": "Original filename"
+                          "description": "Original filename",
+                          "type": "string"
                         },
                         "mimeType": {
-                          "type": "string",
                           "description": "MIME type of the file",
-                          "example": "application/pdf"
+                          "type": "string"
                         },
                         "size": {
-                          "type": "integer",
-                          "description": "File size in bytes"
+                          "description": "File size in bytes",
+                          "type": "integer"
                         },
                         "hash": {
-                          "type": "string",
-                          "description": "SHA-256 checksum of the file"
+                          "description": "SHA-256 hash of the file",
+                          "type": "string"
                         }
-                      }
+                      },
+                      "required": [
+                        "id",
+                        "filename",
+                        "mimeType",
+                        "size",
+                        "hash"
+                      ],
+                      "additionalProperties": false
                     }
-                  }
+                  },
+                  "required": [
+                    "key",
+                    "file"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request — missing file, unsupported file type, or file too large"
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized — invalid or missing API key"
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error message describing what went wrong",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
           }
         }
       }
