@@ -1,246 +1,298 @@
 ---
 title: Webhooks
-description: 'Receive real-time notifications about document events'
+description: 'Receive real-time notifications when events occur in your sajn account'
 ---
 
 # Webhooks
 
-Webhooks allow you to receive real-time HTTP notifications when events occur in your sajn account.
+sajn can send webhook notifications to your server when events occur in your account. This allows you to build integrations that react to document signings, contact changes, identity checks, and more.
 
-## Overview
+---
 
-When an event occurs (e.g., a document is signed), sajn sends an HTTP POST request to your configured webhook URL with details about the event.
+## Setup
 
-## Supported Events
+Webhooks are configured per workspace under **Settings > Developer > Webhooks**. When creating a webhook you provide:
 
-| Event | Description |
-|-------|-------------|
-| `DOCUMENT_CREATED` | A new document was created |
-| `DOCUMENT_SENT` | A document was sent to signers |
-| `DOCUMENT_OPENED` | A signer opened a document |
-| `DOCUMENT_SIGNED` | A signer signed a document |
-| `DOCUMENT_COMPLETED` | All signers have signed |
-| `DOCUMENT_REJECTED` | A signer rejected a document |
+| Field | Required | Description |
+|-------|----------|-------------|
+| URL | Yes | The endpoint that will receive POST requests. Must be publicly reachable (HTTPS recommended). |
+| Events | Yes | Which events to subscribe to. |
+| Secret | No | A shared secret sent in the `X-Sajn-Secret` header so you can verify requests. |
 
-## Webhook Payload
+The URL is validated on creation -- sajn will resolve the hostname, block private/internal IPs (SSRF protection), and send a test POST to confirm the endpoint is reachable.
 
-Each webhook request includes:
+---
+
+## Request Format
+
+All webhooks are sent as `POST` requests with a JSON body:
 
 ```json
 {
   "event": "DOCUMENT_SIGNED",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "organizationId": "org_123",
-  "data": {
-    "documentId": "doc_456",
-    "documentName": "Employment Contract",
-    "externalId": "contract_2024_001",
-    "signerId": "signer_789",
-    "signerEmail": "john@example.com",
-    "signerName": "John Doe",
-    "signedAt": "2024-01-15T10:30:00Z",
-    "signatureType": "DRAWING"
+  "payload": { ... },
+  "createdAt": "2026-04-16T12:00:00.000Z",
+  "webhookEndpoint": "https://your-server.com/webhook"
+}
+```
+
+### Headers
+
+| Header | Description |
+|--------|-------------|
+| `Content-Type` | `application/json` |
+| `X-Sajn-Secret` | The secret you configured (empty string if not set). Use this to verify that the request came from sajn. |
+
+### Verifying Requests
+
+Compare the `X-Sajn-Secret` header value against the secret you configured when creating the webhook. Reject requests that don't match.
+
+---
+
+## Delivery
+
+- Webhooks are dispatched asynchronously via a background job queue.
+- Each webhook call is logged with request/response details and kept for **72 hours**.
+- If delivery fails (network error or non-2xx response), an in-app notification is sent to organization members who have enabled webhook failure notifications.
+- There is **no automatic retry**. If delivery fails, you can inspect the call log in the dashboard and resend manually or handle it on your end.
+
+---
+
+## Events
+
+### Document Events
+
+These events fire on document-level state changes. The payload is a [Document object](#document-payload).
+
+| Event | Description |
+|-------|-------------|
+| `DOCUMENT_CREATED` | A new document was created. |
+| `DOCUMENT_SENT` | The document was sent out to its signers. |
+| `DOCUMENT_SIGNED` | All signers have signed the document. |
+| `DOCUMENT_COMPLETED` | The document has been sealed and is fully completed. |
+| `DOCUMENT_REJECTED` | The document was rejected (by any signer). |
+| `DOCUMENT_EXPIRED` | The document passed its expiration date while still pending. |
+| `DOCUMENT_WITHDRAWN` | The document was withdrawn by the sender. |
+
+### Party Events (per signer)
+
+These events fire when a specific signer takes action. The payload is a [Document + Party object](#document--party-payload).
+
+| Event | Description |
+|-------|-------------|
+| `DOCUMENT_PARTY_SENT` | The signing notification was sent to a signer. |
+| `DOCUMENT_PARTY_DELIVERY_FAILED` | The signing notification failed to deliver to a signer. |
+| `DOCUMENT_PARTY_OPENED` | A signer opened the signing link. |
+| `DOCUMENT_PARTY_READ` | A signer read/scrolled through the document. |
+| `DOCUMENT_PARTY_SIGNED` | A signer signed the document. |
+| `DOCUMENT_PARTY_REJECTED` | A signer rejected the document. |
+
+### Reminder Events
+
+Reminder events also use the [Document + Party object](#document--party-payload).
+
+| Event | Description |
+|-------|-------------|
+| `DOCUMENT_REMINDER_AUTOMATIC` | An automatic scheduled reminder was sent to a signer. |
+| `DOCUMENT_REMINDER_MANUAL` | A manual reminder was sent to a signer by the document owner. |
+
+### Identity Check Events
+
+These events fire during the identity verification flow. The payload is an [Identity Check object](#identity-check-payload).
+
+| Event | Description |
+|-------|-------------|
+| `ID_CREATED` | A new identity check was initiated. |
+| `ID_SENT` | The verification link was sent (via email or SMS). |
+| `ID_OPENED` | The verification link was opened. |
+| `ID_VERIFIED` | The identity was successfully verified (e.g. BankID). |
+| `ID_FAILED` | The identity verification failed. |
+| `ID_CANCELED` | The identity check was canceled. |
+
+### Contact Events
+
+These events fire when contacts are modified. The payload is a [Contact object](#contact-payload).
+
+| Event | Description |
+|-------|-------------|
+| `CONTACT_CREATED` | A new contact was created. |
+| `CONTACT_UPDATED` | A contact's details were updated. |
+| `CONTACT_DELETED` | A contact was deleted. |
+
+---
+
+## Payloads
+
+### Document Payload
+
+Used by document-level events (`DOCUMENT_CREATED`, `DOCUMENT_SENT`, `DOCUMENT_SIGNED`, `DOCUMENT_COMPLETED`, `DOCUMENT_REJECTED`, `DOCUMENT_EXPIRED`, `DOCUMENT_WITHDRAWN`).
+
+```json
+{
+  "id": "clx1abc...",
+  "title": "Employment Agreement",
+  "createdAt": "2026-04-16T10:00:00.000Z",
+  "updatedAt": "2026-04-16T12:00:00.000Z",
+  "organizationId": "clx2def...",
+  "status": "COMPLETED",
+  "signers": [
+    {
+      "id": "clx3ghi...",
+      "name": "Anna Svensson",
+      "email": "anna@example.com",
+      "signingStatus": "SIGNED"
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Document ID. |
+| `title` | string | Document title. |
+| `createdAt` | string (ISO 8601) | When the document was created. |
+| `updatedAt` | string (ISO 8601) | When the document was last updated. |
+| `organizationId` | string | The organization that owns the document. |
+| `status` | string | One of: `DRAFT`, `SENDING`, `PENDING_APPROVAL`, `PENDING`, `COMPLETED`, `EXPIRED`, `CANCELLED`, `REJECTED`, `IMPORTED`. |
+| `signers` | array | List of signers (see below). |
+
+**Signer object:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Signer ID. |
+| `name` | string | Signer's name. |
+| `email` | string | Signer's email address. |
+| `signingStatus` | string | One of: `NOT_SIGNED`, `SIGNED`, `REJECTED`. |
+
+### Document + Party Payload
+
+Used by party-level and reminder events. Wraps the document payload with the specific signer that triggered the event.
+
+```json
+{
+  "document": {
+    "id": "clx1abc...",
+    "title": "Employment Agreement",
+    "createdAt": "2026-04-16T10:00:00.000Z",
+    "updatedAt": "2026-04-16T12:00:00.000Z",
+    "organizationId": "clx2def...",
+    "status": "PENDING",
+    "signers": [...]
+  },
+  "party": {
+    "id": "clx3ghi...",
+    "name": "Anna Svensson",
+    "email": "anna@example.com",
+    "signingStatus": "SIGNED"
   }
 }
 ```
 
-## Configuring Webhooks
+| Field | Type | Description |
+|-------|------|-------------|
+| `document` | object | The full [Document payload](#document-payload). |
+| `party` | object | The signer that triggered this event (same shape as a signer object). |
 
-### Via Dashboard
+### Identity Check Payload
 
-1. Log in to [app.sajn.se](https://app.sajn.se)
-2. Navigate to **Organization Settings** > **Webhooks**
-3. Click **Add Webhook**
-4. Enter your webhook URL
-5. Select which events to receive
-6. Save
+Used by identity check events (`ID_CREATED`, `ID_SENT`, `ID_OPENED`, `ID_VERIFIED`, `ID_FAILED`, `ID_CANCELED`).
 
-### Via API
-
-Configure webhooks programmatically:
-
-```bash
-curl -X POST https://app.sajn.se/api/v1/webhooks \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "webhookUrl": "https://your-domain.com/webhooks/sajn",
-    "events": [
-      "DOCUMENT_SIGNED",
-      "DOCUMENT_COMPLETED",
-      "DOCUMENT_REJECTED"
-    ],
-    "secret": "your_webhook_secret"
-  }'
-```
-
-## Implementing a Webhook Endpoint
-
-### Node.js Example
-
-```javascript
-const express = require('express');
-const crypto = require('crypto');
-
-const app = express();
-app.use(express.json());
-
-app.post('/webhooks/sajn', (req, res) => {
-  // Verify webhook signature
-  const signature = req.headers['x-sajn-signature'];
-  const expectedSignature = crypto
-    .createHmac('sha256', process.env.WEBHOOK_SECRET)
-    .update(JSON.stringify(req.body))
-    .digest('hex');
-
-  if (signature !== expectedSignature) {
-    return res.status(401).send('Invalid signature');
-  }
-
-  // Process the webhook
-  const { event, data } = req.body;
-
-  switch (event) {
-    case 'DOCUMENT_SIGNED':
-      console.log(`Document ${data.documentId} signed by ${data.signerName}`);
-      // Update your database, send notifications, etc.
-      break;
-
-    case 'DOCUMENT_COMPLETED':
-      console.log(`Document ${data.documentId} fully executed`);
-      // Trigger downstream processes
-      break;
-  }
-
-  // Respond quickly
-  res.status(200).send('OK');
-});
-
-app.listen(3000);
-```
-
-### Python Example
-
-```python
-from flask import Flask, request, abort
-import hmac
-import hashlib
-import json
-
-app = Flask(__name__)
-
-@app.route('/webhooks/sajn', methods=['POST'])
-def webhook():
-    # Verify signature
-    signature = request.headers.get('X-Sajn-Signature')
-    body = request.get_data()
-    expected = hmac.new(
-        bytes(os.environ['WEBHOOK_SECRET'], 'utf-8'),
-        body,
-        hashlib.sha256
-    ).hexdigest()
-
-    if signature != expected:
-        abort(401)
-
-    # Process webhook
-    payload = request.json
-    event = payload['event']
-    data = payload['data']
-
-    if event == 'DOCUMENT_SIGNED':
-        print(f"Document {data['documentId']} signed")
-
-    return 'OK', 200
-```
-
-## Verifying Webhooks
-
-Always verify webhook signatures to ensure requests come from sajn:
-
-1. Get the `X-Sajn-Signature` header
-2. Compute HMAC-SHA256 of the request body using your webhook secret
-3. Compare signatures
-
-```javascript
-const crypto = require('crypto');
-
-function verifyWebhook(body, signature, secret) {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(JSON.stringify(body))
-    .digest('hex');
-
-  return signature === expectedSignature;
+```json
+{
+  "id": "clx4jkl...",
+  "fullName": "Erik Johansson",
+  "email": "erik@example.com",
+  "phone": "+46701234567",
+  "channel": "EMAIL",
+  "reference": "ref-123",
+  "status": "VERIFIED",
+  "failureReason": null,
+  "createdAt": "2026-04-16T10:00:00.000Z",
+  "updatedAt": "2026-04-16T12:30:00.000Z",
+  "organizationId": "clx2def...",
+  "contactId": "clx5mno..."
 }
 ```
 
-## Best Practices
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Identity check ID. |
+| `fullName` | string | Full name of the person being verified. |
+| `email` | string or null | Email address. |
+| `phone` | string or null | Phone number. |
+| `channel` | string | Delivery channel: `EMAIL` or `SMS`. |
+| `reference` | string or null | Your custom reference string. |
+| `status` | string | One of: `CREATED`, `SENT`, `OPENED`, `VERIFIED`, `FAILED`, `EXPIRED`, `CANCELED`. |
+| `failureReason` | string or null | Reason for failure (only set when status is `FAILED`). |
+| `createdAt` | string (ISO 8601) | When the identity check was created. |
+| `updatedAt` | string (ISO 8601) | When the identity check was last updated. |
+| `organizationId` | string | The organization that owns the identity check. |
+| `contactId` | string or null | Associated contact ID, if linked. |
 
-<AccordionGroup>
-  <Accordion title="Respond quickly">
-    Return a 200 response within 5 seconds. Process the webhook asynchronously if needed.
-  </Accordion>
+### Contact Payload
 
-  <Accordion title="Verify signatures">
-    Always verify webhook signatures to prevent spoofing attacks.
-  </Accordion>
+Used by contact events (`CONTACT_CREATED`, `CONTACT_UPDATED`, `CONTACT_DELETED`).
 
-  <Accordion title="Handle retries">
-    Make your endpoint idempotent - sajn will retry failed webhooks up to 3 times.
-  </Accordion>
-
-  <Accordion title="Use HTTPS">
-    Always use HTTPS webhook URLs to encrypt webhook data in transit.
-  </Accordion>
-
-  <Accordion title="Monitor failures">
-    Set up monitoring to alert you when webhooks fail consistently.
-  </Accordion>
-</AccordionGroup>
-
-## Retry Logic
-
-If your webhook endpoint returns a non-2xx status or times out:
-
-1. First retry after 1 minute
-2. Second retry after 5 minutes
-3. Third retry after 15 minutes
-
-After 3 failed attempts, the webhook is marked as failed and you'll receive an alert.
-
-## Troubleshooting
-
-### Webhooks Not Receiving
-
-- Check webhook URL is correct and publicly accessible
-- Verify HTTPS certificate is valid
-- Check firewall/security group settings
-- Look for webhook failures in dashboard
-
-### Signature Verification Failing
-
-- Ensure you're using the correct webhook secret
-- Verify you're hashing the raw request body
-- Check character encoding (should be UTF-8)
-
-### Duplicate Webhooks
-
-This is normal! Your endpoint should be idempotent to handle duplicate events gracefully.
-
-## Testing Webhooks
-
-Use tools like [webhook.site](https://webhook.site) or [ngrok](https://ngrok.com) to test webhook integration during development.
-
-Example with ngrok:
-
-```bash
-# Start ngrok tunnel
-ngrok http 3000
-
-# Use the ngrok URL as your webhook URL
-https://abc123.ngrok.io/webhooks/sajn
+```json
+{
+  "id": "clx5mno...",
+  "firstName": "Anna",
+  "lastName": "Svensson",
+  "email": "anna@example.com",
+  "phone": "+46701234567",
+  "companyName": "Acme AB",
+  "companyRole": "CEO",
+  "externalId": "ext-456",
+  "addressLine1": "Storgatan 1",
+  "addressLine2": null,
+  "city": "Stockholm",
+  "state": null,
+  "zipCode": "111 22",
+  "country": "SE",
+  "createdAt": "2026-04-16T10:00:00.000Z",
+  "updatedAt": "2026-04-16T12:00:00.000Z",
+  "organizationId": "clx2def...",
+  "company": {
+    "id": "clx6pqr...",
+    "name": "Acme AB",
+    "orgNumber": "5561234567",
+    "country": "SE"
+  }
+}
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Contact ID. |
+| `firstName` | string | First name. |
+| `lastName` | string | Last name. |
+| `email` | string or null | Email address. |
+| `phone` | string or null | Phone number. |
+| `companyName` | string or null | Company name (free text on the contact). |
+| `companyRole` | string or null | Role at the company. |
+| `externalId` | string or null | Your external ID for this contact. |
+| `addressLine1` | string or null | Address line 1. |
+| `addressLine2` | string or null | Address line 2. |
+| `city` | string or null | City. |
+| `state` | string or null | State/region. |
+| `zipCode` | string or null | Zip/postal code. |
+| `country` | string or null | Country code. |
+| `createdAt` | string (ISO 8601) | When the contact was created. |
+| `updatedAt` | string (ISO 8601) | When the contact was last updated. |
+| `organizationId` | string | The organization that owns the contact. |
+| `company` | object or null | Associated company (see below). |
+
+**Company object:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Company ID. |
+| `name` | string or null | Company name. |
+| `orgNumber` | string or null | Organization number. |
+| `country` | string or null | Country code. |
+
+---
 
 ## Next Steps
 

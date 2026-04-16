@@ -260,6 +260,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -281,6 +285,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -779,6 +787,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -800,6 +812,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -1206,6 +1222,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -1227,6 +1247,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -1581,6 +1605,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -1602,6 +1630,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -1777,6 +1809,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -1798,6 +1834,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -1906,6 +1946,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -1927,6 +1971,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2011,6 +2059,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2032,6 +2084,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2048,7 +2104,7 @@
     },
     "/api/v1/documents/{id}/send": {
       "post": {
-        "description": "Send a document to signers for signing. The document status will change from DRAFT to PENDING.\n\n**Request Body:**\n- `customMessage` (optional) - Custom message to include in the signing invitation emails/SMS\n\n**Prerequisites:**\n- Document must have at least one signer added via `POST /documents/{id}/signers` or when creating the document\n- Each signer's delivery method (`EMAIL`, `SMS`, or `NONE`) and signature type (`DRAWING`, `BANKID`, `CLICK_TO_SIGN`) are configured per-signer when adding them\n\n**What happens when you send:**\n1. Document status changes from `DRAFT` to `PENDING`\n2. Signing invitations are sent to each signer based on their individual `deliveryMethod` setting\n3. Signers with `deliveryMethod: NONE` won't receive notifications - use their signing URLs directly",
+        "description": "Send a document to signers for signing.\n\n**Request Body:**\n- `customMessage` (optional) - Custom message to include in the signing invitation emails/SMS\n- `approverId` (optional) - User ID of the approver. Required if you lack the SEND_WITHOUT_APPROVAL permission. Use `GET /api/v1/approvers` to list eligible approvers.\n\n**Prerequisites:**\n- Document must have at least one signer added via `POST /documents/{id}/signers` or when creating the document\n- Each signer's delivery method (`EMAIL`, `SMS`, or `NONE`) and signature type (`DRAWING`, `BANKID`, `CLICK_TO_SIGN`) are configured per-signer when adding them\n\n**Responses:**\n- **200** - Document sent directly. Status changes from DRAFT to PENDING.\n- **202** - Document submitted for approval. Status changes from DRAFT to PENDING_APPROVAL. The designated approver must approve before the document is sent.\n- **403** with `code: \"APPROVAL_REQUIRED\"` - You lack permission to send directly. Provide an `approverId` to submit for approval.\n\n**What happens when you send:**\n1. Document status changes from `DRAFT` to `PENDING`\n2. Signing invitations are sent to each signer based on their individual `deliveryMethod` setting\n3. Signers with `deliveryMethod: NONE` won't receive notifications - use their signing URLs directly",
         "summary": "Send document for signing",
         "parameters": [
           {
@@ -2080,10 +2136,14 @@
                   "customMessage": {
                     "description": "Optional custom message to include in the signing invitation",
                     "type": "string"
+                  },
+                  "approverId": {
+                    "description": "User ID of the approver. Required if you do not have SEND_WITHOUT_APPROVAL permission. Use GET /api/v1/approvers to list eligible approvers.",
+                    "type": "string"
                   }
                 },
                 "additionalProperties": false,
-                "description": "Send document for signing."
+                "description": "Send document for signing. If you lack permission to send directly, provide an approverId to submit for approval instead."
               }
             }
           }
@@ -2091,6 +2151,134 @@
         "responses": {
           "200": {
             "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique document identifier"
+                    },
+                    "externalId": {
+                      "description": "Your external reference ID for this document",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "expiresAt": {
+                      "description": "Date and time when the document expires",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Document name/title"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Document status: DRAFT, SENDING, PENDING, COMPLETED, EXPIRED, CANCELLED, or IMPORTED"
+                    },
+                    "documentMeta": {
+                      "description": "Document metadata including subject, message, signing order, etc.",
+                      "type": "object",
+                      "properties": {
+                        "subject": {
+                          "description": "Email subject line when sending document",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message": {
+                          "description": "Custom message included in signing invitation",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "signingOrder": {
+                          "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                          "type": "string",
+                          "enum": [
+                            "PARALLEL",
+                            "SEQUENTIAL"
+                          ],
+                          "nullable": true
+                        },
+                        "forceReadFullDocument": {
+                          "description": "Whether signers must read the entire document before signing",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "showChatToSigners": {
+                          "description": "Whether to show document chat to signers",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "preferredLanguage": {
+                          "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
+                          "type": "string",
+                          "enum": [
+                            "sv",
+                            "en",
+                            "no",
+                            "da",
+                            "fi",
+                            "de",
+                            "is",
+                            "es",
+                            "fr",
+                            "it"
+                          ],
+                          "nullable": true
+                        },
+                        "value": {
+                          "description": "Monetary value of the document (for contracts)",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectUrl": {
+                          "description": "URL to redirect signers to after signing is complete",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectEnabled": {
+                          "description": "Whether redirect after signing is enabled",
+                          "type": "boolean",
+                          "nullable": true
+                        }
+                      },
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "completedAt": {
+                      "description": "Date and time when all signers completed signing",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "202",
             "content": {
               "application/json": {
                 "schema": {
@@ -2227,6 +2415,35 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2248,6 +2465,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2528,6 +2749,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2549,6 +2774,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2570,6 +2799,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2591,6 +2824,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2813,6 +3050,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -2834,6 +3075,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3142,6 +3387,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3163,6 +3412,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3184,6 +3437,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3205,6 +3462,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3423,6 +3684,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3444,6 +3709,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3465,6 +3734,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3486,6 +3759,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3714,6 +3991,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3735,6 +4016,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3912,6 +4197,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -3933,6 +4222,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4118,6 +4411,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4139,6 +4436,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4323,6 +4624,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4344,6 +4649,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4485,6 +4794,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4506,6 +4819,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4693,6 +5010,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4714,6 +5035,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4853,6 +5178,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4874,6 +5203,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -4958,6 +5291,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5054,6 +5391,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5075,6 +5416,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5096,6 +5441,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5293,6 +5642,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5314,6 +5667,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5713,6 +6070,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5734,6 +6095,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5755,6 +6120,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5930,6 +6299,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -5951,6 +6324,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7029,6 +7406,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7050,6 +7431,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7071,6 +7456,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7165,6 +7554,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7186,6 +7579,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7207,6 +7604,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7262,6 +7663,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7283,6 +7688,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7304,6 +7713,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7439,6 +7852,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7569,6 +7986,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7590,6 +8011,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7611,6 +8036,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7743,6 +8172,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7764,6 +8197,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7785,6 +8222,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7873,6 +8314,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7894,6 +8339,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7915,6 +8364,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -7991,6 +8444,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8012,6 +8469,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8033,6 +8494,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8213,6 +8678,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8396,6 +8865,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8417,6 +8890,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8546,6 +9023,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8567,6 +9048,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8737,6 +9222,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8758,6 +9247,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8779,6 +9272,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8906,6 +9403,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -8927,6 +9428,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -9220,6 +9725,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -9563,6 +10072,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -9584,6 +10097,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -9605,6 +10122,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -9875,6 +10396,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -9896,6 +10421,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10036,6 +10565,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10057,6 +10590,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10125,6 +10662,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10146,6 +10687,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10338,6 +10883,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10484,6 +11033,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10532,11 +11085,20 @@
                       "enum": [
                         "DOCUMENT_CREATED",
                         "DOCUMENT_SENT",
-                        "DOCUMENT_OPENED",
                         "DOCUMENT_SIGNED",
                         "DOCUMENT_COMPLETED",
                         "DOCUMENT_REJECTED",
+                        "DOCUMENT_EXPIRED",
                         "DOCUMENT_WITHDRAWN",
+                        "DOCUMENT_PARTY_SENT",
+                        "DOCUMENT_PARTY_DELIVERY_FAILED",
+                        "DOCUMENT_PARTY_OPENED",
+                        "DOCUMENT_PARTY_READ",
+                        "DOCUMENT_PARTY_SIGNED",
+                        "DOCUMENT_PARTY_REJECTED",
+                        "DOCUMENT_REMINDER_AUTOMATIC",
+                        "DOCUMENT_REMINDER_MANUAL",
+                        "DOCUMENT_OPENED",
                         "DOCUMENT_ARCHIVE_UPLOADED",
                         "ID_CREATED",
                         "ID_SENT",
@@ -10641,6 +11203,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10662,6 +11228,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10768,6 +11338,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10789,6 +11363,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10846,11 +11424,20 @@
                       "enum": [
                         "DOCUMENT_CREATED",
                         "DOCUMENT_SENT",
-                        "DOCUMENT_OPENED",
                         "DOCUMENT_SIGNED",
                         "DOCUMENT_COMPLETED",
                         "DOCUMENT_REJECTED",
+                        "DOCUMENT_EXPIRED",
                         "DOCUMENT_WITHDRAWN",
+                        "DOCUMENT_PARTY_SENT",
+                        "DOCUMENT_PARTY_DELIVERY_FAILED",
+                        "DOCUMENT_PARTY_OPENED",
+                        "DOCUMENT_PARTY_READ",
+                        "DOCUMENT_PARTY_SIGNED",
+                        "DOCUMENT_PARTY_REJECTED",
+                        "DOCUMENT_REMINDER_AUTOMATIC",
+                        "DOCUMENT_REMINDER_MANUAL",
+                        "DOCUMENT_OPENED",
                         "DOCUMENT_ARCHIVE_UPLOADED",
                         "ID_CREATED",
                         "ID_SENT",
@@ -10948,6 +11535,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10969,6 +11560,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -10990,6 +11585,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -11056,6 +11655,10 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -11077,6 +11680,1061 @@
                     "message": {
                       "type": "string",
                       "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/approvers": {
+      "get": {
+        "description": "List workspace members who have the APPROVE_DOCUMENT permission. Use the returned user IDs when submitting a document for approval via `POST /api/v1/documents/{id}/send` with an `approverId`.",
+        "summary": "List eligible approvers",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getApprovers",
+        "responses": {
+          "200": {
+            "description": "List of eligible approvers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "approvers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "User ID"
+                          },
+                          "firstName": {
+                            "description": "First name",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "lastName": {
+                            "description": "Last name",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "email": {
+                            "type": "string",
+                            "description": "Email address"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "firstName",
+                          "lastName",
+                          "email"
+                        ],
+                        "additionalProperties": false,
+                        "description": "A workspace member eligible to approve documents"
+                      }
+                    }
+                  },
+                  "required": [
+                    "approvers"
+                  ],
+                  "additionalProperties": false,
+                  "description": "List of eligible approvers"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{id}/approval": {
+      "get": {
+        "description": "Get the current approval status for a document. Returns the approval details including status, approver, and requester information.",
+        "summary": "Get document approval status",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getDocumentApproval",
+        "responses": {
+          "200": {
+            "description": "Document approval status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Approval ID"
+                    },
+                    "documentId": {
+                      "type": "string",
+                      "description": "Document ID"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "APPROVED",
+                        "REJECTED"
+                      ],
+                      "description": "Approval status"
+                    },
+                    "approver": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "User ID"
+                        },
+                        "firstName": {
+                          "description": "First name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "lastName": {
+                          "description": "Last name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "description": "Email address"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The designated approver"
+                    },
+                    "requestedBy": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "User ID"
+                        },
+                        "firstName": {
+                          "description": "First name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "lastName": {
+                          "description": "Last name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "description": "Email address"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The user who submitted for approval"
+                    },
+                    "resolvedBy": {
+                      "description": "A workspace member eligible to approve documents",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "User ID"
+                        },
+                        "firstName": {
+                          "description": "First name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "lastName": {
+                          "description": "Last name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "description": "Email address"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "comment": {
+                      "description": "Comment from the approver",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "customMessage": {
+                      "description": "Custom message for signing invitation",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "description": "When the approval was requested"
+                    },
+                    "resolvedAt": {
+                      "description": "When the approval was resolved",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "documentId",
+                    "status",
+                    "approver",
+                    "requestedBy",
+                    "resolvedBy",
+                    "comment",
+                    "customMessage",
+                    "createdAt",
+                    "resolvedAt"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Document approval status"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Cancel a pending approval request. Only the user who submitted the approval can cancel it. The document status returns to DRAFT.",
+        "summary": "Cancel a pending approval",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "cancelApproval",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{id}/approval/approve": {
+      "post": {
+        "description": "Approve a pending document and send it for signing. You must be the designated approver or a workspace admin. The document status changes from PENDING_APPROVAL to PENDING as it is sent.",
+        "summary": "Approve a document",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "approveDocument",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment": {
+                    "description": "Optional comment from the approver",
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Approve a document"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique document identifier"
+                    },
+                    "externalId": {
+                      "description": "Your external reference ID for this document",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "expiresAt": {
+                      "description": "Date and time when the document expires",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Document name/title"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Document status: DRAFT, SENDING, PENDING, COMPLETED, EXPIRED, CANCELLED, or IMPORTED"
+                    },
+                    "documentMeta": {
+                      "description": "Document metadata including subject, message, signing order, etc.",
+                      "type": "object",
+                      "properties": {
+                        "subject": {
+                          "description": "Email subject line when sending document",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message": {
+                          "description": "Custom message included in signing invitation",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "signingOrder": {
+                          "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                          "type": "string",
+                          "enum": [
+                            "PARALLEL",
+                            "SEQUENTIAL"
+                          ],
+                          "nullable": true
+                        },
+                        "forceReadFullDocument": {
+                          "description": "Whether signers must read the entire document before signing",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "showChatToSigners": {
+                          "description": "Whether to show document chat to signers",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "preferredLanguage": {
+                          "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
+                          "type": "string",
+                          "enum": [
+                            "sv",
+                            "en",
+                            "no",
+                            "da",
+                            "fi",
+                            "de",
+                            "is",
+                            "es",
+                            "fr",
+                            "it"
+                          ],
+                          "nullable": true
+                        },
+                        "value": {
+                          "description": "Monetary value of the document (for contracts)",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectUrl": {
+                          "description": "URL to redirect signers to after signing is complete",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectEnabled": {
+                          "description": "Whether redirect after signing is enabled",
+                          "type": "boolean",
+                          "nullable": true
+                        }
+                      },
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "completedAt": {
+                      "description": "Date and time when all signers completed signing",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{id}/approval/reject": {
+      "post": {
+        "description": "Reject a pending document. A comment is required explaining the reason. The document status returns to DRAFT so the creator can make changes and resubmit.",
+        "summary": "Reject a document",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "rejectDocument",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Required comment explaining why the document was rejected"
+                  }
+                },
+                "required": [
+                  "comment"
+                ],
+                "additionalProperties": false,
+                "description": "Reject a document"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document approval status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Approval ID"
+                    },
+                    "documentId": {
+                      "type": "string",
+                      "description": "Document ID"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "APPROVED",
+                        "REJECTED"
+                      ],
+                      "description": "Approval status"
+                    },
+                    "approver": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "User ID"
+                        },
+                        "firstName": {
+                          "description": "First name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "lastName": {
+                          "description": "Last name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "description": "Email address"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The designated approver"
+                    },
+                    "requestedBy": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "User ID"
+                        },
+                        "firstName": {
+                          "description": "First name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "lastName": {
+                          "description": "Last name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "description": "Email address"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The user who submitted for approval"
+                    },
+                    "resolvedBy": {
+                      "description": "A workspace member eligible to approve documents",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "User ID"
+                        },
+                        "firstName": {
+                          "description": "First name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "lastName": {
+                          "description": "Last name",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "description": "Email address"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "comment": {
+                      "description": "Comment from the approver",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "customMessage": {
+                      "description": "Custom message for signing invitation",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "description": "When the approval was requested"
+                    },
+                    "resolvedAt": {
+                      "description": "When the approval was resolved",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "documentId",
+                    "status",
+                    "approver",
+                    "requestedBy",
+                    "resolvedBy",
+                    "comment",
+                    "customMessage",
+                    "createdAt",
+                    "resolvedAt"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Document approval status"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
                     }
                   },
                   "required": [
