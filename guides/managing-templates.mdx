@@ -1,0 +1,434 @@
+---
+title: Managing Templates via API
+description: 'Create, update, and organize document templates programmatically'
+---
+
+# Managing Templates via API
+
+The templates API lets you programmatically create and manage reusable document templates. Templates predefine the structure, fields, default parties, and tags of a document. Once a template exists, you can spawn any number of documents from it by calling `POST /api/v1/documents` with `templateId`.
+
+<Note>
+  For filling fields on documents created from a template, see [Templates and Forms](/guides/templates-and-forms). This guide focuses on managing the templates themselves.
+</Note>
+
+## Prerequisites
+
+- A sajn API key with workspace access
+- Familiarity with document fields and signers is helpful — templates reuse the same primitives
+
+## Creating a Template
+
+Create an empty template with just a name:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/templates \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contract",
+    "initialFields": []
+  }'
+```
+
+Response:
+
+```json
+{
+  "id": "tmpl_abc123",
+  "name": "Employment Contract",
+  "workspaceId": "ws_xyz",
+  "organizationId": "org_xyz",
+  "createdById": "user_xyz",
+  "isGlobal": false,
+  "templateMeta": null,
+  "createdAt": "2026-04-20T10:00:00.000Z",
+  "updatedAt": "2026-04-20T10:00:00.000Z"
+}
+```
+
+### Creating with Initial Fields
+
+You can seed fields at creation time. Each field has a `type`, `position`, and type-specific `fieldMeta`:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/templates \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contract",
+    "initialFields": [
+      {
+        "type": "HTML",
+        "position": 0,
+        "fieldMeta": {
+          "type": "HTML",
+          "content": "<h1>Employment Contract</h1><p>This agreement is between {{companyName}} and the employee.</p>"
+        }
+      },
+      {
+        "type": "FORM",
+        "position": 1,
+        "fieldMeta": {
+          "type": "FORM",
+          "columns": 2,
+          "fields": [
+            {
+              "id": "f1",
+              "key": "name",
+              "type": "input",
+              "row": 0,
+              "column": 0,
+              "fieldMeta": { "type": "input", "label": "Full Name", "required": true }
+            },
+            {
+              "id": "f2",
+              "key": "startDate",
+              "type": "datepicker",
+              "row": 0,
+              "column": 1,
+              "fieldMeta": { "type": "datepicker", "label": "Start Date", "required": true }
+            }
+          ]
+        }
+      }
+    ]
+  }'
+```
+
+Supported field types: `TEXT`, `HTML`, `FORM`, `PDF`, `PRODUCT_TABLE`, `TABLE`.
+
+## Listing Templates
+
+Retrieve a paginated list of all templates:
+
+```bash
+curl "https://app.sajn.se/api/v1/templates?page=1&perPage=20" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Filter by name using `search`:
+
+```bash
+curl "https://app.sajn.se/api/v1/templates?search=employment" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response:
+
+```json
+{
+  "templates": [
+    {
+      "id": "tmpl_abc123",
+      "name": "Employment Contract",
+      "workspaceId": "ws_xyz",
+      "organizationId": "org_xyz",
+      "createdById": "user_xyz",
+      "isGlobal": false,
+      "createdAt": "2026-04-20T10:00:00.000Z",
+      "updatedAt": "2026-04-20T10:00:00.000Z"
+    }
+  ],
+  "totalPages": 1
+}
+```
+
+## Getting a Template
+
+Fetch a single template with its fields, parties, and tags:
+
+```bash
+curl https://app.sajn.se/api/v1/templates/tmpl_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The response includes `fields`, `parties`, and `tags` arrays in addition to the top-level template properties.
+
+## Updating a Template
+
+Update the name or template defaults. Only provided fields are changed:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/templates/tmpl_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contract v2",
+    "templateMeta": {
+      "signingOrder": "SEQUENTIAL",
+      "preferredLanguage": "en",
+      "forceReadFullDocument": true,
+      "allowDelegation": false,
+      "reminderIntervalDays": "3"
+    }
+  }'
+```
+
+### `templateMeta` Options
+
+These defaults are applied to documents spawned from the template (and can be overridden at document creation):
+
+| Field | Description |
+|-------|-------------|
+| `signingOrder` | `PARALLEL` or `SEQUENTIAL` |
+| `preferredLanguage` | Signing UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
+| `forceReadFullDocument` | Require signers to scroll through the full document |
+| `showChatToSigners` | Show the document chat to signers |
+| `value` | Monetary value of the document |
+| `signableAfterExpired` | Whether expired documents remain signable |
+| `sendPlainTextEmailOnly` | Send plain-text invitations only |
+| `allowDelegation` | Allow signers to delegate signing |
+| `reminderIntervalDays` | Auto-reminder interval |
+| `responsibleUserId` | Default responsible user |
+
+## Duplicating a Template
+
+Create a full copy including all fields and parties:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/templates/tmpl_abc123/duplicate \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Useful when branching a template for a different use case without touching the original.
+
+## Deleting a Template
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/templates/tmpl_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Note>
+  Documents already created from a template are not affected by deletion. Only the template definition is removed.
+</Note>
+
+## Managing Template Fields
+
+Template field endpoints mirror the document field endpoints ([`POST /api/v1/documents/{id}/fields`](/guides/create-document)).
+
+### Add a Field
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/templates/tmpl_abc123/fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "TEXT",
+    "position": 2,
+    "fieldMeta": {
+      "type": "TEXT",
+      "content": "By signing below, both parties agree to the terms above."
+    }
+  }'
+```
+
+### Update a Field
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/templates/tmpl_abc123/fields/fld_xyz \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "position": 3
+  }'
+```
+
+FORM subfield updates work via the `key:` prefix, same as on documents:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/templates/tmpl_abc123/fields/key:name \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldMeta": { "type": "input", "label": "Employee Name", "required": true }
+  }'
+```
+
+### Delete a Field
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/templates/tmpl_abc123/fields/fld_xyz \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Managing Template Parties
+
+Template parties are default signers that get copied onto every document created from the template. You can still override them per-document.
+
+### Add a Party from an Existing Contact
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/templates/tmpl_abc123/parties \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contactId": "cnt_hr_manager",
+    "role": "SIGNER",
+    "signingOrder": 1,
+    "deliveryMethod": "EMAIL",
+    "requiredSignature": "BANKID"
+  }'
+```
+
+### Add a Party Manually
+
+Provide `name` with optional contact and company details instead of a `contactId`:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/templates/tmpl_abc123/parties \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "HR Department",
+    "email": "hr@company.com",
+    "role": "SIGNER",
+    "signingOrder": 2,
+    "deliveryMethod": "EMAIL",
+    "requiredSignature": "BANKID",
+    "twoStepVerification": "NONE",
+    "companyName": "Example AB",
+    "companyOrgNumber": "556677-8899"
+  }'
+```
+
+### List Template Parties
+
+```bash
+curl https://app.sajn.se/api/v1/templates/tmpl_abc123/parties \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Update a Party
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/templates/tmpl_abc123/parties/tp_xyz \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "requiredSignature": "DRAWING",
+    "signingOrder": 1
+  }'
+```
+
+### Remove a Party
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/templates/tmpl_abc123/parties/tp_xyz \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Role Reference
+
+| Role | Description |
+|------|-------------|
+| `SIGNER` | Must sign the document |
+| `ORGANIZER` | Prepares and sends; does not sign |
+| `REVIEWER` | Reviews but does not sign |
+| `ACCEPTOR` | Accepts without a signature step |
+
+## Managing Template Tags
+
+### Add a Tag
+
+The tag must have `TEMPLATE` in its `availableFor` list (configured when creating the tag).
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/templates/tmpl_abc123/tags \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "tagId": "tag_hr" }'
+```
+
+### Remove a Tag
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/templates/tmpl_abc123/tags/tag_hr \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Creating Documents from a Template
+
+Once a template is configured, spawn a document from it:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment Contract - Andreas Enem",
+    "templateId": "tmpl_abc123",
+    "type": "SIGNABLE"
+  }'
+```
+
+The new document inherits all fields, parties, and `templateMeta` defaults. Fill form fields via [the fields API](/guides/templates-and-forms), then send for signing.
+
+## End-to-End Example
+
+Build an onboarding template from scratch:
+
+```bash
+# 1. Create the template
+TEMPLATE_ID=$(curl -s -X POST https://app.sajn.se/api/v1/templates \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Onboarding Packet", "initialFields": []}' | jq -r .id)
+
+# 2. Configure defaults
+curl -X PATCH https://app.sajn.se/api/v1/templates/$TEMPLATE_ID \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateMeta": {
+      "signingOrder": "SEQUENTIAL",
+      "preferredLanguage": "en",
+      "reminderIntervalDays": "3"
+    }
+  }'
+
+# 3. Add an HR signer as a default party
+curl -X POST https://app.sajn.se/api/v1/templates/$TEMPLATE_ID/parties \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contactId": "cnt_hr_manager",
+    "role": "SIGNER",
+    "signingOrder": 2,
+    "requiredSignature": "BANKID",
+    "deliveryMethod": "EMAIL"
+  }'
+
+# 4. Tag it for easy filtering
+curl -X POST https://app.sajn.se/api/v1/templates/$TEMPLATE_ID/tags \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"tagId": "tag_hr"}'
+
+# 5. Spawn a document from the template
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Onboarding - Andreas\",
+    \"templateId\": \"$TEMPLATE_ID\",
+    \"type\": \"SIGNABLE\"
+  }"
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Templates and Forms" icon="input-text" href="/guides/templates-and-forms">
+    Fill form fields on documents created from a template
+  </Card>
+  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
+    Full reference for document creation
+  </Card>
+  <Card title="Multi-Party Signing" icon="users" href="/guides/multi-party-signing">
+    Configure signing order and roles
+  </Card>
+  <Card title="Organizing with Tags" icon="tag" href="/guides/organizing-with-tags">
+    Use tags to structure templates and documents
+  </Card>
+</CardGroup>
