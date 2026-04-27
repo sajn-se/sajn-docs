@@ -2483,6 +2483,280 @@
         }
       }
     },
+    "/api/v1/documents/{id}/withdraw": {
+      "post": {
+        "description": "Withdraw (cancel) a document that has been sent out for signing. The document is returned to `DRAFT` status and signers are notified.\n\n**Status Requirements:**\n- Document must be in `PENDING` or `SENDING` status. Use `DELETE /api/v1/documents/{id}` for documents in `DRAFT`, and the approval cancel endpoint for `PENDING_APPROVAL`.\n\n**Permissions:**\n- Requires the `EDIT_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `reason` (optional) - Free-text reason. Included in withdrawal emails to signers and stored on the audit log.\n\n**What happens when you withdraw:**\n1. Document status is set back to `DRAFT`\n2. Any existing signatures and signer verifications are removed\n3. Each signer's signing/sending/read status is reset\n4. Pending signing reminders are cancelled\n5. A withdrawal email is sent to every signer that had been notified\n6. The `document.withdrawn` webhook is triggered",
+        "summary": "Withdraw a sent document",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "withdrawDocument",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "description": "Optional reason for withdrawing the document. Included in notification emails to signers and the audit log.",
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Withdraw a sent document. Returns the document to DRAFT status, removes any signatures, and notifies signers via email."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique document identifier"
+                    },
+                    "externalId": {
+                      "description": "Your external reference ID for this document",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "expiresAt": {
+                      "description": "Date and time when the document expires",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Document name/title"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Document status: DRAFT, SENDING, PENDING, COMPLETED, EXPIRED, CANCELLED, or IMPORTED"
+                    },
+                    "documentMeta": {
+                      "description": "Document metadata including subject, message, signing order, etc.",
+                      "type": "object",
+                      "properties": {
+                        "subject": {
+                          "description": "Email subject line when sending document",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message": {
+                          "description": "Custom message included in signing invitation",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "signingOrder": {
+                          "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                          "type": "string",
+                          "enum": [
+                            "PARALLEL",
+                            "SEQUENTIAL"
+                          ],
+                          "nullable": true
+                        },
+                        "forceReadFullDocument": {
+                          "description": "Whether signers must read the entire document before signing",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "showChatToSigners": {
+                          "description": "Whether to show document chat to signers",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "preferredLanguage": {
+                          "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
+                          "type": "string",
+                          "enum": [
+                            "sv",
+                            "en",
+                            "no",
+                            "da",
+                            "fi",
+                            "de",
+                            "is",
+                            "es",
+                            "fr",
+                            "it"
+                          ],
+                          "nullable": true
+                        },
+                        "value": {
+                          "description": "Monetary value of the document (for contracts)",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectUrl": {
+                          "description": "URL to redirect signers to after signing is complete",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectEnabled": {
+                          "description": "Whether redirect after signing is enabled",
+                          "type": "boolean",
+                          "nullable": true
+                        }
+                      },
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "completedAt": {
+                      "description": "Date and time when all signers completed signing",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/documents/{id}/signers": {
       "post": {
         "description": "Add a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
@@ -3982,6 +4256,168 @@
             }
           },
           "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{id}/signers/{signerId}/remind": {
+      "post": {
+        "description": "Send a manual reminder email to a specific signer who has not yet signed.\n\n**Prerequisites:**\n- Document must be in `PENDING` status\n- Signer must have a delivery method other than `NONE`\n- Signer must have an email address and must have already been sent the document\n- Signer must not have already signed or rejected the document\n- Document must not have expired\n\n**Rate limiting:** Only one reminder can be sent to a given signer per 24 hours.",
+        "summary": "Send a reminder to a signer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "signerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "sendSignerReminder",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Whether the reminder was sent successfully"
+                    },
+                    "sentAt": {
+                      "description": "Timestamp when the reminder was sent",
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "sentAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
             "description": "Error response",
             "content": {
               "application/json": {
