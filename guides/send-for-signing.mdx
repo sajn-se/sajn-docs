@@ -43,6 +43,55 @@ curl -X POST https://app.sajn.se/api/v1/documents/{documentId}/send \
   }'
 ```
 
+### Line Breaks
+
+Use `\n` in the JSON string to insert line breaks in the rendered message:
+
+```json
+{
+  "customMessage": "Hej\nrad 2"
+}
+```
+
+### Template Variables
+
+Use `{{variableName}}` syntax to insert dynamic values. Each signer receives a personalized version of the message.
+
+**Recipient (signer):**
+
+| Variable | Description |
+|----------|-------------|
+| `{{firstName}}` / `{{recipientFirstName}}` | Signer's first name |
+| `{{lastName}}` / `{{recipientLastName}}` | Signer's last name |
+| `{{fullName}}` / `{{recipientFullName}}` | Signer's full name |
+| `{{recipientEmail}}` | Signer's email address |
+| `{{recipientPhone}}` | Signer's phone number |
+
+**Sender (you):**
+
+| Variable | Description |
+|----------|-------------|
+| `{{senderFirstName}}` | Sender's first name |
+| `{{senderLastName}}` | Sender's last name |
+| `{{senderFullName}}` | Sender's full name |
+| `{{senderEmail}}` | Sender's email address |
+| `{{senderPhone}}` | Sender's phone number |
+
+**Document:**
+
+| Variable | Description |
+|----------|-------------|
+| `{{documentName}}` | Document name/title |
+| `{{signUrl}}` | Direct signing URL for the recipient |
+
+**Example combining variables and line breaks:**
+
+```json
+{
+  "customMessage": "Hej {{firstName}},\n\nVänligen signera {{documentName}}.\n\nMvh,\n{{senderFullName}}"
+}
+```
+
 ## Per-Signer Delivery and Signature Settings
 
 Delivery method and signature type are configured per-signer when adding them to the document, not at send time. This allows different signers to receive invitations through different channels and use different signature types.

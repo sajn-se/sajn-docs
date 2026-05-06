@@ -297,7 +297,7 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/send \
 
 ### Send Options
 
-- **`customMessage`** - Optional custom message to signers
+- **`customMessage`** - Optional custom message to signers. Supports `\n` for line breaks and template variables (e.g. `{{firstName}}`, `{{documentName}}`, `{{signUrl}}`). See [Sending Documents for Signing](/guides/send-for-signing#template-variables) for the full list.
 
 ## Advanced Field Operations
 
