@@ -1,0 +1,86 @@
+---
+title: "Lägg till sektioner och fält i ett dokument"
+description: "Bygg upp ett dokument med sektioner och fyllbara formulärfält"
+---
+
+Ett dokument byggs upp av **sektioner**. Det finns fyra sektionstyper: Text & bild, PDF-dokument, Formulär och Produkttabell. Den här guiden går igenom hur du lägger till var och en, samt hur du byter typ på de fyra olika **formulärfälten** (Textfält, Flerradigt textfält, Datumväljare och Rullgardin).
+
+<Tip>
+  Vill du istället göra samma sak på mallnivå – med roller och variabler som fylls i av signerare? Se [Lägg till sektioner och fält i en mall](/guider/add-fields-to-template).
+</Tip>
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta där du har behörighet att skapa dokument.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Dokument och hitta Skapa nytt-knappen">
+    ![Dokumentlistan med Skapa nytt-knappen](/images/guider/add-fields-to-document/03-documents-list.png)
+
+    Den primära **Skapa nytt**-knappen längst upp till höger skapar direkt ett tomt dokument med titeln *Nytt dokument*. Dropdown-pilen bredvid har även alternativ för att ladda upp en fil eller börja från en sparad mall.
+  </Step>
+  <Step title="Ett tomt dokument öppnas i editorn">
+    ![Tom dokument-editor](/images/guider/add-fields-to-document/05-empty-editor.png)
+
+    Editorn startar tomt — innehållet byggs upp som sektioner. Klicka på **Lägg till sektion** för att börja.
+  </Step>
+  <Step title="Välj sektionstyp i sektionsmenyn">
+    ![Sektionsmenyn med de fyra sektionstyperna](/images/guider/add-fields-to-document/06-open-section-menu.png)
+
+    - **Text & bild** – fritext med formatering och bilder.
+    - **PDF-dokument** – bädda in ett uppladdat PDF-dokument.
+    - **Formulär** – fält som fylls i per dokument (textfält, datumväljare, rullgardin osv).
+    - **Produkttabell** – rader med pris, antal, rabatt och moms.
+
+    Under Verktyg finns även **Skapa med AI** (beskriv vad sektionen ska innehålla) och **Sektionsbiblioteket** (återanvänd sparade sektioner).
+  </Step>
+  <Step title="Text & bild – fritext med formatering och bilder">
+    ![Text & bild-sektion](/images/guider/add-fields-to-document/07-add-text-image.png)
+
+    Sektionen läggs till med en tom textyta. Markera text för att se formateringsverktygen i topp-baren – rubriker, listor, länkar, bilder och tabeller. Det här är samma yta där du senare kan infoga *signerar-variabler* (men då i en mall — se [mallguiden](/guider/add-fields-to-template)).
+  </Step>
+  <Step title="Formulär – fyllbara fält">
+    ![Formulärsektion med dropzone](/images/guider/add-fields-to-document/09-add-formular.png)
+
+    Formulärsektionen är en behållare som rymmer flera fyllbara fält i ett rutnät (1–4 kolumner). Klicka på dropzonen *Klicka för att lägga till fält* för att skapa första fältet.
+  </Step>
+  <Step title="Första fältet skapas som ett Textfält">
+    ![Nyskapat textfält](/images/guider/add-fields-to-document/10-create-first-form-field.png)
+
+    Nya fält startar som **Textfält** med etiketten *Namnlöst fält*. För att byta etikett, typ eller placeholder klickar du på fältet.
+  </Step>
+  <Step title="Ändra etikett, typ, beskrivning och placeholder">
+    ![Fältredigeraren](/images/guider/add-fields-to-document/12-field-edit-popover.png)
+
+    Här bestämmer du hur fältet ska bete sig. *Typ*-väljaren erbjuder fyra alternativ:
+
+    - **Textfält** – enkelradig text
+    - **Flerradigt textfält** – textarea för längre svar
+    - **Datumväljare** – kalender för att välja ett datum
+    - **Rullgardin** – välj ett av flera fördefinierade alternativ (lägg till alternativen under *Val*)
+
+    Under **Avancerat** kan du sätta en *Nyckel* (för API-anrop) och, om dokumentet har signerare, koppla fältet till en specifik signerare via *Tilldelad part*.
+  </Step>
+  <Step title="De fyra fälttyperna i ett formulär">
+    ![De fyra fälttyperna](/images/guider/add-fields-to-document/14-type-options.png)
+
+    Textfält, Flerradigt textfält, Datumväljare och Rullgardin. För Rullgardin dyker en extra *Val*-sektion upp där du fyller i alternativen.
+  </Step>
+  <Step title="PDF-dokument – bädda in en uppladdad PDF">
+    ![PDF-uppladdningszon](/images/guider/add-fields-to-document/18-add-pdf.png)
+
+    Dra och släpp en PDF (eller Word, Excel, PowerPoint, CSV eller text) i zonen, eller klicka för att välja från din dator. Du kan också hämta filen från **Filer**-fliken via länken *välj från Filer*. PDF:er som innehåller formulärfält kan signerare fylla i direkt på sidan.
+  </Step>
+  <Step title="Produkttabell – rader med pris och summering">
+    ![Produkttabell](/images/guider/add-fields-to-document/20-add-product-table.png)
+
+    Produkttabellen visar dina varor/tjänster med kolumner för namn, beskrivning, pris, antal, rabatt och moms. Lägg till rader för hand eller importera från ett bibliotek (om du har produkter sparade). Summan räknas automatiskt längst ner.
+  </Step>
+</Steps>
+
+## Nästa steg
+
+- Vill du återanvända samma struktur i flera dokument? [Skapa en mall](/guider/skapa-mall) och koppla fält till parter — se [Lägg till sektioner och fält i en mall](/guider/add-fields-to-template).
+- När innehållet är klart: [lägg till parter](/guider/lagg-till-part) och [skicka dokumentet för signering](/guider/skicka-dokument).

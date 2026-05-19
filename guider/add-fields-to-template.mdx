@@ -1,0 +1,65 @@
+---
+title: "Lägg till sektioner och fält i en mall"
+description: "Definiera parter och koppla fält till roller i en mall"
+---
+
+Mallar bygger på samma sektioner som vanliga dokument — **Text & bild**, **PDF-dokument**, **Formulär** och **Produkttabell**. För grunderna kring sektioner och formulärfält, se [Lägg till sektioner och fält i ett dokument](/guider/add-fields-to-document).
+
+Skillnaden i mallar är att signerare definieras som **parter** (rollbaserade platshållare som *Säljaren* eller *Köparen*). När parterna sedan binds till riktiga personer i ett dokument går allt automatiskt på plats: fält som är *Tilldelade* en part fylls i av rätt signerare, och **variabler** i löpande text byts ut mot data signeraren matar in.
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta där du har behörighet att skapa mallar.
+- Du har läst [dokumentguiden](/guider/add-fields-to-document) eller känner till de fyra sektionstyperna.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Mallar och klicka på Skapa ny mall">
+    ![Mall-listan med Skapa ny mall-knappen](/images/guider/add-fields-to-template/03-templates-list.png)
+
+    Skapa ny mall-knappen skapar direkt en tom mall som heter *Ny mall* och tar dig till mall-editorn. Dropdown-pilen bredvid har även alternativet att skapa en mall från en uppladdad PDF.
+  </Step>
+  <Step title="Mall-editorn har en extra Parter-flik">
+    ![Tom mall-editor med flikar](/images/guider/add-fields-to-template/05-empty-template-editor.png)
+
+    Sidopanelen till höger har fyra flikar: **Sektioner** (block-bibliotek), **Parter** (rolldefinitioner för signerare), **Inställningar** (mallens beteende) och **Aktivitet** (audit log). Vi börjar med Parter.
+  </Step>
+  <Step title="Definiera rollerna i Parter-fliken">
+    ![Parter-fliken](/images/guider/add-fields-to-template/06-open-parter-tab.png)
+
+    En *part* är en platshållare för en signerare — t.ex. *Säljaren*, *Köparen* eller *VD*. När mallen sedan används till ett verkligt dokument fyller du i vilka personer som är vilka parter. Klicka på **Sök eller lägg till parter...** för att lägga till första parten.
+  </Step>
+  <Step title="Fyll i namn och e-post för rollen">
+    ![Lägg till part-dialogen](/images/guider/add-fields-to-template/08-add-party-dialog.png)
+
+    **Namn** och **E-post** är obligatoriska (markerade med röd asterisk). Övriga fält är valfria: *Land* (defaultar till Sverige), *Telefonnummer*, *Personnummer* (krävs vid BankID-signering), *Externt ID* (för API-integrationer), företagsinformation samt signaturmetod, leveransmetod och tvåstegsverifiering under *Signering och leverans*.
+  </Step>
+  <Step title="Parten är sparad i mallen">
+    ![Parten i listan](/images/guider/add-fields-to-template/12-party-in-list.png)
+
+    Parten visas nu i listan med en färgmarkering — varje part får en egen färg som följer med genom hela editorn (i variabler, fältkopplingar och signeringsordning).
+  </Step>
+  <Step title="Lägg till en formulärsektion">
+    ![Sektionsmenyn](/images/guider/add-fields-to-template/13-open-section-menu.png)
+
+    Sektionsmenyn är identisk med dokumentens — fyra sektionstyper plus AI-genvägen och sektionsbiblioteket. För att visa koppling till parter använder vi **Formulär**.
+  </Step>
+  <Step title="Hitta Tilldelad part under Avancerat">
+    ![Tilldelad part-väljaren](/images/guider/add-fields-to-template/18-field-tilldelad-part.png)
+
+    Eftersom mallen har en part dyker en *Tilldelad part*-väljare upp i fältets *Avancerat*-sektion. Här kan du också ge fältet en **Nyckel** — en unik identifierare så att fältets värde kan läsas ut via API:et.
+  </Step>
+  <Step title="Välj en part — fältet blir en signerar-uppgift">
+    ![Tilldelad part-alternativ](/images/guider/add-fields-to-template/20-tilldelad-part-options.png)
+
+    Alla parter som mallen har lagts till med visas här (här *Säljaren*) tillsammans med sin färgmarkering. Väljer du **Säljaren** låses fältet i mall-vyn — istället fyller den person som tilldelas rollen Säljaren i värdet under signering. Lämnar du *Ingen (statiskt fält)* fyller du själv i värdet manuellt när mallen används för att skapa ett dokument.
+
+    När en part är vald dyker även en *Obligatoriskt*-toggle upp så du kan bestämma om signeraren måste fylla i fältet för att signera.
+  </Step>
+</Steps>
+
+## Nästa steg
+
+- [Använd mallen](/guider/use-template) för att skapa ett dokument där parterna binds till riktiga personer.
+- [Lås mallen](/guider/lock-template) så att andra i arbetsytan inte oavsiktligt ändrar den.
