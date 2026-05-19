@@ -236,6 +236,20 @@
             ]
           },
           {
+            "group": "Account",
+            "pages": [
+              "GET /api/v1/me"
+            ]
+          },
+          {
+            "group": "Workspaces",
+            "pages": [
+              "GET /api/v1/workspaces",
+              "POST /api/v1/members",
+              "GET /api/v1/workspace-roles"
+            ]
+          },
+          {
             "group": "Documents",
             "pages": [
               "GET /api/v1/documents",
@@ -299,7 +313,8 @@
               "PATCH /api/v1/templates/{id}/parties/{partyId}",
               "DELETE /api/v1/templates/{id}/parties/{partyId}",
               "POST /api/v1/templates/{id}/tags",
-              "DELETE /api/v1/templates/{id}/tags/{tagId}"
+              "DELETE /api/v1/templates/{id}/tags/{tagId}",
+              "GET /api/v1/templates/{id}/documents"
             ]
           },
           {
