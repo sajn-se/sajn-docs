@@ -1,0 +1,61 @@
+---
+title: "Bädda in signering på din egen webbplats"
+description: "Konfigurera vilka domäner som får ladda sajns inbäddade signeringsvy via iframe eller embed-SDK"
+---
+
+Vill du låta dina egna användare signera direkt i ditt produktgränssnitt – utan att de skickas iväg till sajn.se? Då kan du bädda in signeringsvyn som en iframe. På sidan **Inbäddning** styr du vilka domäner som får ladda den inbäddade vyn. Den här guiden visar var sidan ligger och vad du kan konfigurera. Inga ändringar görs – du kan utforska sidan utan att råka spara något.
+
+## Innan du börjar
+
+- Du är inloggad och har behörighet att administrera organisationen.
+- Inbäddning konfigureras på **organisationsnivå** – alla arbetsytor i organisationen delar samma lista över tillåtna domäner.
+- Den faktiska inbäddningen sker via sajns embed-SDK eller en iframe mot signeringslänken – den här sidan styr bara vilka domäner som tillåts ladda vyn.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Inbäddning i sidomenyn">
+    Brödsmulorna högst upp visar att sidan ligger under *Inställningar → Organisation*. Det betyder att inställningarna gäller hela organisationen – inte bara den arbetsyta du är i just nu. Underrubriken sammanfattar syftet: *Konfigurera utseende och tillåtna domäner för inbäddad signering*.
+
+    <Frame>
+      <img src="/images/guider/settings-embed/02-open-embed-settings.png" alt="Sidan Inbäddning öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Översikt av sidan Inbäddning">
+    Sidan består av ett enda formulär: sektionen **Tillåtna domäner**, där du listar de domäner som får bädda in signeringsvyn. Längst ned ligger knappen **Spara ändringar**, som är gråad tills du faktiskt ändrat något – du kan alltså bekanta dig med sidan i lugn och ro utan att råka spara.
+
+    Själva inbäddningen sker från din egen webbplats (med iframe eller sajns embed-SDK). Den här sidan är säkerhetsspärren som avgör vilka ursprung som tillåts ladda vyn.
+
+    <Frame>
+      <img src="/images/guider/settings-embed/04-embed-overview.png" alt="Översikt av sidan Inbäddning med sektionen Tillåtna domäner" />
+    </Frame>
+  </Step>
+  <Step title="Tillåtna domäner – kontrollera vilka ursprung som får ladda signeringsvyn">
+    Inmatningsfältet **Domäner** är en tagg-input – skriv en domän och tryck Enter för att lägga till den som en chip. Varje chip kan tas bort med krysset till höger. Befintliga domäner laddas in automatiskt från organisationens inställningar.
+
+    Ange domäner utan protokoll, t.ex. `app.exempel.se` eller `kundportal.exempel.se`. Domänlistan jämförs mot `Origin`-headern på inkommande embed-förfrågningar – står domänen inte med så vägras inbäddningen.
+
+    <Frame>
+      <img src="/images/guider/settings-embed/05-allowed-domains-section.png" alt="Sektionen Tillåtna domäner med tagg-input för domäner" />
+    </Frame>
+  </Step>
+  <Step title="Wildcard för subdomäner och tom lista">
+    Hjälptexten under fältet förklarar två viktiga specialfall:
+
+    - **Wildcard:** använd `*` för att matcha alla subdomäner under en domän – t.ex. `*.example.com` tillåter `kund1.example.com`, `kund2.example.com` osv.
+    - **Tom lista:** om du lämnar fältet helt tomt tillåts **alla** domäner. Det är praktiskt under utveckling men bör undvikas i produktion – det betyder att vem som helst kan bädda in dina signeringsvyer på sin egen sida.
+
+    <Frame>
+      <img src="/images/guider/settings-embed/06-wildcard-hint.png" alt="Hjälptext om wildcard och tom lista under domänfältet" />
+    </Frame>
+  </Step>
+  <Step title="Längst ned: knappen Spara ändringar">
+    Ändringar börjar inte gälla förrän du klickar **Spara ändringar**. Knappen är inaktiv så länge formuläret är orört, så du kan tryggt utforska sidan utan att råka spara.
+
+    När du sparat bekräftas det med ett toast-meddelande och den nya domänlistan börjar gälla direkt för alla inbäddningar i organisationen.
+
+    <Frame>
+      <img src="/images/guider/settings-embed/07-save-button.png" alt="Knappen Spara ändringar längst ner på Inbäddningssidan" />
+    </Frame>
+  </Step>
+</Steps>

@@ -1,0 +1,78 @@
+---
+title: "Säkerhetsinställningar för organisationen"
+description: "Härda inloggning för hela organisationen — tvinga 2FA och begränsa inloggningar per land"
+---
+
+På sidan **Säkerhet** under organisationsinställningarna kan du som administratör härda inloggningen för hela organisationen – kräva tvåstegsautentisering för alla medlemmar och begränsa vilka länder som tillåts logga in. Den här guiden visar var sidan ligger och vad varje sektion gör. Den ändrar inga inställningar – du bestämmer själv om något ska justeras.
+
+## Innan du börjar
+
+- Du är inloggad med en användare som har behörighet att hantera organisationsinställningar.
+- Inställningarna gäller hela **organisationen** – inte enbart den arbetsyta du står i just nu.
+- Tvingad tvåstegsautentisering kräver att alla medlemmar kan slå på 2FA på sitt konto – informera teamet i förväg.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Organisation → Säkerhet i sidomenyn">
+    Sidan ligger under *Organisationsinställningar* och påverkar därför alla arbetsytor i organisationen. Sidan innehåller två sektioner: **Tvåstegsautentisering** och **Geografiska regler**.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-security/02-open-security.png" alt="Sidan Säkerhet öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Översikt av de två sektionerna: Tvåstegsautentisering och Geografiska regler">
+    Sidan är uppdelad uppifrån och ned:
+
+    1. **Tvåstegsautentisering** – tvinga alla teammedlemmar att aktivera 2FA.
+    2. **Geografiska regler** – begränsa inloggningar till eller från specifika länder.
+
+    Längst ned finns knappen **Spara**, som bara aktiveras när du har ändrat något.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-security/04-overview.png" alt="Översikt av säkerhetssidan med två sektioner" />
+    </Frame>
+  </Step>
+  <Step title="Tvåstegsautentisering – tvinga alla medlemmar att använda 2FA">
+    Med valet **Ja** tvingas alla teammedlemmar som inte redan har tvåstegsverifiering att aktivera det nästa gång de loggar in. Med **Nej** är 2FA frivilligt per användare.
+
+    Det här är ett av de mest effektiva sätten att skydda organisationen mot kapade konton och rekommenderas för team som hanterar känsliga avtal.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-security/05-two-factor-section.png" alt="Sektionen Tvåstegsautentisering med valen Ja och Nej" />
+    </Frame>
+  </Step>
+  <Step title="Geografiska regler – begränsa inloggningar baserat på land">
+    Här kan du styra var ifrån användare får logga in. Tre lägen finns:
+
+    - **Av** – inga geografiska begränsningar (standard).
+    - **Tillåtelselista** – endast inloggningar från valda länder tillåts. Alla andra blockeras.
+    - **Blockeringslista** – alla länder tillåts utom de du listar.
+
+    Obs: en tom tillåtelselista skulle blockera alla inloggningar, så sajn kräver minst ett land om du väljer det läget.
+
+    När ett läge är aktivt (inte *Av*) visas en grön **Aktiv**-etikett vid rubriken.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-security/06-geo-section.png" alt="Sektionen Geografiska regler med tre lägen" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på Tillåtelselista för att se landväljaren">
+    När du väljer *Tillåtelselista* eller *Blockeringslista* visas en sökbar landlista där du kan välja ett eller flera länder. Varje valt land läggs till som en chip med flagg-ikon nedanför listan, och kan tas bort med krysset.
+
+    Ingenting sparas förrän du klickar **Spara** längst ned – så du kan tryggt utforska lägena och stänga sidan utan att aktivera någon regel.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-security/07-geo-allow-mode.png" alt="Landväljaren i Tillåtelselistan med valda länder" />
+    </Frame>
+  </Step>
+  <Step title="Längst ned: knappen Spara">
+    Inga ändringar träder i kraft förrän du klickar **Spara**. Knappen är gråad så länge formuläret är orört, så du kan utforska sidan utan att råka ändra något.
+
+    När du sparar bekräftas det med ett toast-meddelande och de nya reglerna börjar gälla direkt för hela organisationen – inklusive vid nästa inloggning för medlemmar som inte hade 2FA aktiverat.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-security/08-save-button.png" alt="Knappen Spara längst ner på säkerhetssidan" />
+    </Frame>
+  </Step>
+</Steps>

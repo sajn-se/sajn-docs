@@ -1,0 +1,69 @@
+---
+title: "Konfigurera attestflöde för ett dokument"
+description: "Styr internt godkännande av dokument via arbetsytans rollrättigheter Skicka utan godkännande och Godkänna dokument"
+---
+
+I sajn finns ett inbyggt attestflöde som kräver att en kollega godkänner ett dokument innan det skickas ut för signering. Attestflödet konfigureras *inte* per dokument utan styrs via två arbetsyterättigheter: **Skicka utan godkännande** och **Godkänna dokument**. Den här guiden visar var rättigheterna sitter i arbetsytans rollinställningar, vad de innebär och hur attestflödet ser ut för avsändare respektive godkännare.
+
+## Innan du börjar
+
+- Du är inloggad i sajn med en användare som har behörigheten **Hantera arbetsytans roller**.
+- Du har redan minst ett utkast i arbetsytan (t.ex. *Avtal som kräver attest*) som ska gå igenom attest.
+- Det finns minst en annan medlem i arbetsytan som ska kunna vara godkännare.
+
+## Steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Arbetsyta → Roller">
+    Attestflödet styrs här, inte per dokument.
+
+    Till skillnad från utgångsdatum, språk och andra dokumentinställningar ligger attest-konfigurationen i arbetsytans **Roller**. Här fördelar du två behörigheter som tillsammans utgör attestflödet:
+
+    - **Skicka utan godkännande** – medlemmar med den här rättigheten skickar dokument direkt utan attest. Saknas den tvingas användaren välja en godkännare innan utskick.
+    - **Godkänna dokument** – endast medlemmar med den här rättigheten dyker upp som möjliga godkännare i attest-dialogen.
+
+    Att sätta upp attestflödet handlar alltså om vilka roller som har respektive rättighet – inte om att slå på en switch i dokumentet.
+
+    <Frame>
+      <img src="/images/guider/approval-workflow/02-open-workspace-roles.png" alt="Inställningar för arbetsytans roller där attestflödet konfigureras" />
+    </Frame>
+  </Step>
+  <Step title="Rolltabellen listar alla roller i arbetsytan">
+    Attest-rättigheterna sätts per roll.
+
+    Varje rad i tabellen är en roll. Inbyggda roller som *Admin* och *Medlem* är märkta **Inbyggd** och kan inte redigeras direkt – men du kan **Göra en kopia** via trepunktsmenyn till höger och justera kopian. Egna roller kan redigeras direkt via *Redigera* i samma meny. Antalet aktiva behörigheter syns i kolumnen **Behörigheter** och hur många medlemmar som har rollen syns i **Antal medlemmar**.
+
+    <Frame>
+      <img src="/images/guider/approval-workflow/04-roles-table.png" alt="Rolltabellen med alla roller i arbetsytan och deras behörigheter" />
+    </Frame>
+  </Step>
+  <Step title="Öppna gruppen Dokumentflöde">
+    Där bor attest-rättigheterna.
+
+    Gruppen **Dokumentflöde** innehåller fem rättigheter, varav två styr attestflödet:
+
+    - **Skicka dokument** – grundläggande behörighet att skicka utkast.
+    - **Skicka utan godkännande** – kringgår attestkravet. *Avmarkera* för roller som ska tvingas att attestera.
+    - **Godkänna dokument** – gör medlemmen valbar som godkännare i attest-dialogen. *Markera* för roller du litar på som godkännare.
+    - **Redigera efter utskick** – orelaterat till attest, för redigering efter signeringen startat.
+    - **Återkalla dokument** – orelaterat till attest, för att avbryta utskick.
+
+    För att tvinga en roll att begära attest: avmarkera *Skicka utan godkännande* men behåll *Skicka dokument*. För att utse godkännare: markera *Godkänna dokument* på de roller som ska få godkänna. Eftersom inbyggda roller (*Admin*, *Medlem*) inte kan redigeras direkt gjorde vi först en kopia – du sparar genom att klicka **Uppdatera roll** längst ner i dialogen och tilldelar sedan kopian via *Medlemmar*-sidan.
+
+    <Frame>
+      <img src="/images/guider/approval-workflow/15-approval-permissions.png" alt="Gruppen Dokumentflöde med attest-rättigheterna markerade" />
+    </Frame>
+  </Step>
+  <Step title="Ingen extra konfiguration krävs på enskilda dokument">
+    När rättigheterna är fördelade fungerar attestflödet automatiskt för varje nytt dokument:
+
+    1. **Avsändaren** öppnar sitt utkast (t.ex. *Avtal som kräver attest*) och klickar på **Skicka utkast** i den nedre högra panelen.
+    2. Eftersom rollen saknar *Skicka utan godkännande* svarar servern med felkoden `APPROVAL_REQUIRED` och dialogen **Skicka för godkännande** öppnas i stället. Avsändaren väljer en godkännare från listan (alla medlemmar med *Godkänna dokument*), klickar **Skicka för godkännande** och dokumentet får statusen **Väntar på godkännande**.
+    3. **Godkännaren** får både en avisering i appen och ett mejl. När hen öppnar dokumentet ser hen knapparna **Godkänn** och **Avböj** (med kommentar) i högerpanelen.
+    4. Vid **Godkänn** skickas dokumentet automatiskt vidare till parterna för signering. Vid **Avböj** går dokumentet tillbaka till **Utkast** med godkännarens motivering loggad. Avsändaren kan när som helst trycka **Avbryt godkännandebegäran** för att dra tillbaka attestbegäran och fortsätta redigera utkastet.
+
+    <Frame>
+      <img src="/images/guider/approval-workflow/18-back-to-roles-summary.png" alt="Översikt av rollerna efter att attest-rättigheterna är konfigurerade" />
+    </Frame>
+  </Step>
+</Steps>

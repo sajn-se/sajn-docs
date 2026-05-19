@@ -1,0 +1,47 @@
+---
+title: "Spela upp en mottagares signeringssession"
+description: "Se hur en mottagare interagerade med dokumentet — sidvisningar, klick, scrolldjup och händelseflöde"
+---
+
+När en mottagare öppnar ett dokument spelar sajn in hur de interagerar med det – varje sidvisning, klick, textmarkering och hur länge de stannade på respektive sida. Den här guiden visar var du hittar inspelningen för en mottagare, hur du startar uppspelningen och vilken information som visas i händelseflödet bredvid dokumentet.
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta där du har behörighet att se dokument.
+- Dokumentet har skickats ut och minst en mottagare har öppnat det – då finns det engagement-data att spela upp.
+- Sessionsuppspelning är en betalplansfunktion (Team/Enterprise).
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna ett skickat eller signerat dokument från Dokument eller Arkiv">
+    I höger sidopanel ser du fliken **Parter** med alla mottagare. Den här fliken är förvald när du öppnar ett dokument. Bredvid varje mottagare visas en statusbricka – t.ex. *Signerat*, *Läst* eller *Öppnad* – som du kan klicka på för att se mer detaljer om deras interaktion med dokumentet.
+
+    <Frame>
+      <img src="/images/guider/signing-session-replay/07-document-opened.png" alt="Dokumentet öppet med fliken Parter och statusbrickor i höger sidopanel" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på mottagarens statusbricka i fliken Parter för att öppna detaljpanelen">
+    I detaljpanelen ser du mottagarens kontaktuppgifter, *Leveransmetod*, *Signeringsmetod* och en tidslinje över händelser (*Skickat*, *Öppnat*, *Läst*, *Signerat*) med exakta tidsstämplar. **Visningstid** visar hur länge mottagaren totalt tittade på dokumentet.
+
+    Längst ner i panelen finns avsnittet **Sessioner** – en kronologisk lista över varje gång mottagaren öppnat dokumentet, med start-tidpunkt och varaktighet. När sajn har lyckats spara interaktionsdata för en session dyker en **Replay**-länk upp bredvid tidsstämpeln. Klicka på den för att starta uppspelningen.
+
+    När du klickar på **Replay** öppnas **Sessionsuppspelningen** i helskärm – en vy uppdelad i två delar:
+
+    * **Till vänster** – dokumentet visas precis som mottagaren såg det, tillsammans med en uppspelningstidslinje (spela/pausa, hastighetsval 0,5× – 4× och en scrubber för att hoppa fram och tillbaka). Tidsmarkörerna ovanför PDF:en motsvarar händelserna i flödet till höger.
+    * **Till höger** – först **Sidstatistik** som visar hur länge mottagaren tillbringade på varje sida, scrolldjup (i procent) och antal klick per sida. Under det listas **Händelseflöde** – en kronologisk lista över alla händelser sajn fångade upp:
+        * *Öppnade dokumentet*
+        * *Visade sida X* (eller sidor X, Y, Z)
+        * *Scrollade i dokumentet*
+        * *Klickade på sida X*
+        * *Markerade text på sida X*
+
+    Klicka på vilken händelse som helst i listan för att hoppa direkt till den tidpunkten i uppspelningen. Uppspelningen är endast en visualisering – inget skickas till mottagaren och dokumentet ändras inte. Stäng panelen via **Tillbaka**-knappen uppe till vänster eller tryck *Esc* när du är klar.
+
+    *Tips:* Saknas **Replay**-länken bredvid en session i sessionslistan betyder det att engagement-data inte hann sparas (för kort session, mottagaren stängde fliken direkt, eller webbläsaren blockerar bakgrundsspårning). Du ser fortfarande att sessionen inträffade och hur länge den varade – bara inte själva spelet.
+
+    <Frame>
+      <img src="/images/guider/signing-session-replay/10-signer-popover.png" alt="Detaljpanelen för en mottagare med tidslinje och Replay-länkar för varje session" />
+    </Frame>
+  </Step>
+</Steps>

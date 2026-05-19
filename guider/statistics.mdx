@@ -1,0 +1,74 @@
+---
+title: "Statistik och nyckeltal"
+description: "Följ arbetsytans dokumentflöde, signeringsgrad, tid till signering och aktiva användare över tid"
+---
+
+På sidan **Statistik** följer du arbetsytans dokumentflöde – hur mycket som är på gång, hur stor andel som faktiskt blir signerat och hur lång tid det tar. Den här guiden tar dig genom KPI-korten, diagrammen och tidsperiod-filtret. Allt är skrivskyddat – inga inställningar eller dokument ändras.
+
+## Innan du börjar
+
+- Du är inloggad och har minst en arbetsyta.
+- Statistiken gäller den arbetsyta du står i just nu – byt arbetsyta via sidomenyn om du vill se siffror för en annan.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Statistik via sidomenyn">
+    Sidan ligger på arbetsytans toppnivå – siffrorna gäller bara den aktuella arbetsytan. Vill du jämföra mellan arbetsytor byter du arbetsyta via menyn uppe till vänster och öppnar **Statistik** igen.
+
+    <Frame>
+      <img src="/images/guider/statistics/02-open-statistics.png" alt="Sidan Statistik öppen via sidomenyn" />
+    </Frame>
+  </Step>
+  <Step title="KPI-korten överst – Pågående, Signerat, Avfärdat och Förfallet">
+    Varje kort visar två tal för vald tidsperiod: antalet dokument till vänster och det sammanlagda värdet (i SEK) till höger.
+
+    - **Pågående** – dokument som skickats för signering men ännu inte är klara.
+    - **Signerat** – dokument som har signerats av alla parter och är slutförda.
+    - **Avfärdat** – dokument där en mottagare aktivt avböjt att signera.
+    - **Förfallet** – dokument som passerat sitt slutdatum utan att bli signerade.
+
+    Korten är klickbara – klickar du på ett kort hoppar du direkt till dokumentlistan filtrerad på den statusen.
+
+    <Frame>
+      <img src="/images/guider/statistics/04-kpi-cards.png" alt="KPI-korten med Pågående, Signerat, Avfärdat och Förfallet" />
+    </Frame>
+  </Step>
+  <Step title="Tidsperiod-väljaren uppe till höger styr alla siffror på sidan">
+    Öppna väljaren och välj mellan förinställda perioder – *Senaste 7 dagarna*, *Senaste 30 dagarna*, *Senaste 3 månaderna*, *Senaste 6 månaderna* eller *I år* – eller markera ett eget datumintervall i kalendern.
+
+    Valet sparas i URL:en så att du kan dela en länk till exakt samma vy, men inga inställningar sparas centralt – du kan tryggt prova olika perioder utan att påverka kollegor.
+
+    <Frame>
+      <img src="/images/guider/statistics/08-period-presets.png" alt="Tidsperiod-väljaren med förinställda perioder och kalender" />
+    </Frame>
+  </Step>
+  <Step title="Tid från skickat till signerat – så fort dokumenten faktiskt blir klara">
+    Stapeldiagrammet grupperar de färdigsignerade dokumenten på hur lång tid de tog från utskick till sista signatur – *< 6 tim*, *6 - 24 tim*, *1 - 7 dagar*, *1 - 3 veckor* och *> 3 veckor*. Texten under diagrammet visar hur många dokument totalt som signerats under perioden.
+
+    Intill till höger ligger **Signeringsgrad** – ett munk-diagram som visar hur stor andel av de skickade dokumenten som faktiskt blivit signerade, med uppdelning på status (pågående, signerat, avfärdat, förfallet).
+
+    <Frame>
+      <img src="/images/guider/statistics/11-time-to-sign.png" alt="Diagrammet Tid från skickat till signerat med stapelfördelning" />
+    </Frame>
+  </Step>
+  <Step title="Volym över tid – dagligt flöde av skickade och signerade dokument">
+    Områdesdiagrammet visar två linjer per dag under vald period: **Skickade** (dokument som gått ut för signering) och **Signerade** (dokument som blivit fullständigt signerade).
+
+    De två linjerna behöver inte följas åt – om *Skickade* skjuter i höjden men *Signerade* släpar efter har du en propp i flödet. Hovra över en punkt för att se exakt antal för den dagen.
+
+    <Frame>
+      <img src="/images/guider/statistics/12-volume-trend.png" alt="Diagrammet Volym över tid med skickade och signerade dokument per dag" />
+    </Frame>
+  </Step>
+  <Step title="Aktiva användare och Mest använda mallar – vem och vad som drar volymen">
+    Längst ner på sidan ligger två tabeller:
+
+    - **Aktiva användare** – lista över de medlemmar i arbetsytan som faktiskt har skickat eller signerat något under perioden, med kolumner för *Skickade*, *Signerade* och *Signeringsgrad*. Listan paginerar 10 åt gången om ni är många.
+    - **Mest använda mallar** – toppmallar baserat på antal dokument som skickats från dem under perioden. Klicka på ett mallnamn för att hoppa direkt till mallen och redigera den.
+
+    <Frame>
+      <img src="/images/guider/statistics/13-active-users.png" alt="Tabellerna Aktiva användare och Mest använda mallar längst ner på statistiksidan" />
+    </Frame>
+  </Step>
+</Steps>

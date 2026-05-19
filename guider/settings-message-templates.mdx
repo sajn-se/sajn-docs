@@ -1,0 +1,63 @@
+---
+title: "Spara meddelandemallar för utskick"
+description: "Skapa återanvändbara meddelandetexter som plockas upp i utskicksdialogen — med stöd för variabler"
+---
+
+På sidan **Meddelandemallar** sparar du återanvändbara meddelanden som du kan välja när du skickar ut dokument för signering – så slipper du skriva samma hälsning gång på gång. Den här guiden visar var sidan ligger, vilka kolumner och fält som finns, och hur en sparad mall plockas upp i utskicksdialogen. Den skapar inga nya mallar – du bestämmer själv när det är dags att lägga till en.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har behörighet att hantera arbetsyteinställningar.
+- Mallarna är **arbetsytespecifika** – byter du arbetsyta får du en egen uppsättning meddelandemallar.
+- Du behöver inte skapa något i den här guiden – läs den först och skapa mallar när du har ett konkret meddelande du vill återanvända.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Meddelandemallar i sidomenyn">
+    Sidan ligger under *Arbetsyteinställningar*. Rubriken längst upp beskriver vad sidan gör: *Skapa och hantera mallar för automatiserade meddelanden som används i signeringsprocessen*. Mallarna är knutna till den arbetsyta du står i – inte hela organisationen.
+
+    <Frame>
+      <img src="/images/guider/settings-message-templates/02-open-message-templates.png" alt="Sidan Meddelandemallar öppen under Arbetsyteinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Listan över sparade meddelandemallar i arbetsytan">
+    Varje rad är en sparad mall med fyra kolumner:
+
+    - **Namn** – mallens interna titel som du själv ser i utskicksdialogen.
+    - **Innehåll** – en förhandsvisning av meddelandetexten som skickas till mottagaren.
+    - **Skapad den** – datum då mallen lades till.
+    - **Status** – aktiva mallar är märkta **Aktiv** och kan väljas vid utskick.
+
+    Längst till höger på varje rad finns en trepunktsmeny med **Redigera** och **Ta bort**. Om listan är tom har arbetsytan inga sparade mallar ännu – då dyker även en länk upp i utskicksdialogen som leder hit.
+
+    <Frame>
+      <img src="/images/guider/settings-message-templates/04-overview.png" alt="Lista över sparade meddelandemallar med kolumner för namn, innehåll och status" />
+    </Frame>
+  </Step>
+  <Step title="Uppe till höger: knappen Skapa mall">
+    Klicka på **Skapa mall** för att öppna en dialog där du fyller i mallens *Mallnamn* och *Innehåll*. Vi öppnar inte dialogen i den här guiden – men det är dit du går när du är redo att spara ett nytt meddelande.
+
+    I innehållsfältet kan du skriva fri text och blanda in **variabler** som ersätts automatiskt vid utskick. Variabler skrivs med dubbla klammerparenteser, t.ex. `{{firstName}}` eller `{{senderFullName}}`. Skriver du `{{` i innehållsfältet dyker en lista upp med alla tillgängliga variabler:
+
+    - **Mottagare:** `firstName`, `lastName`, `fullName`, `recipientFirstName`, `recipientLastName`, `recipientFullName`, `recipientEmail`, `recipientPhone`
+    - **Avsändare:** `senderFirstName`, `senderLastName`, `senderFullName`, `senderPhone`, `senderEmail`
+
+    Vid utskicket byts variablerna ut mot det riktiga namnet, e-postadressen eller telefonnumret för respektive part.
+
+    <Frame>
+      <img src="/images/guider/settings-message-templates/05-skapa-button.png" alt="Knappen Skapa mall uppe till höger på Meddelandemallssidan" />
+    </Frame>
+  </Step>
+  <Step title="Så här plockas mallen upp vid utskick">
+    När du sedan skickar ut ett dokument för signering visas alla sparade mallar i en rullgardin märkt **Meddelande mall** i utskicksdialogen. Välj en mall för att fylla i meddelandet automatiskt, eller välj **Ingen mall** om du vill skriva fritt.
+
+    Har du inga mallar sparade dyker det istället upp en länk – *Trött på att skriva samma sak varje gång? Skapa en mall här.* – som leder tillbaka till just den här sidan.
+
+    Mallarna är fristående från själva dokumentet: ändrar du en mall här i efterhand påverkas inte tidigare utskick, bara nya.
+
+    <Frame>
+      <img src="/images/guider/settings-message-templates/06-back-to-list.png" alt="Listan över meddelandemallar tillbaka i fokus efter utskick" />
+    </Frame>
+  </Step>
+</Steps>

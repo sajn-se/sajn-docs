@@ -1,0 +1,71 @@
+---
+title: "Organisera dokument och filer i mappar"
+description: "Skapa mappar i Dokument- och Mallar-listorna för att strukturera arbetsytan när antalet objekt växer"
+---
+
+Mappar i sajn håller ihop **Dokument**- och **Mallar**-listorna när antalet objekt växer. En mapp lever i en arbetsyta och fungerar precis som en mapp på datorn – du kan skapa undermappar, byta namn, flytta in eller ut innehåll och ladda ner hela mappen som en zip-fil. Den här guiden visar var mappfunktionen finns på **Dokument**-sidan, hur du skapar en mapp och hur du sedan flyttar in befintliga dokument i den. Mappar finns däremot **inte** på sidan **Filer** – fristående filuppladdningar organiseras med taggar och filter, inte med mappar.
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta som har minst ett dokument i listan.
+- Du har behörighet att skapa dokument i arbetsytan – mappar styrs av samma behörighet (CREATE_DOCUMENT).
+
+## Steg
+
+<Steps>
+  <Step title="Mappar exponeras direkt på Dokument-sidan">
+    Det finns ingen separat **Mappar**-vy i sidomenyn – mappar bor inuti **Dokument**-listan (och inuti **Mallar**-listan, som har en egen, parallell mapphierarki). Eventuella mappar visas som rader högst upp i tabellen, ovanför själva dokumenten, med en mapp-ikon i checkbox-kolumnen. Klickar du på en mapp navigerar du in i den – då uppdateras rubriken till en brödsmula (t.ex. **Dokument › Avtal 2026**) och tabellen visar bara innehållet i den mappen.
+
+    <Frame>
+      <img src="/images/guider/folders/02-open-documents.png" alt="Dokument-sidan med mappar som rader högst upp i tabellen" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på mapp-plus-ikonen för att skapa en ny mapp">
+    Knappen med mapp-plus-ikonen längst upp till höger skapar en ny mapp.
+
+    Strax till vänster om den lila **Skapa nytt**-knappen ligger en diskret ikonknapp – en mapp med ett plustecken. Klicka på den för att skapa en mapp i den nivå du står på just nu. Står du på rotnivån skapas mappen direkt under **Dokument**. Står du redan inne i en mapp blir den nya mappen en undermapp där.
+
+    <Frame>
+      <img src="/images/guider/folders/03-highlight-create-folder.png" alt="Mapp-plus-ikonen markerad bredvid Skapa nytt-knappen" />
+    </Frame>
+  </Step>
+  <Step title="Ge mappen ett namn">
+    En liten dialog öppnas där du ger mappen ett namn.
+
+    Det enda obligatoriska fältet är **Namn**. Mappnamn får innehålla bokstäver, siffror, mellanslag, punkt, bindestreck och understreck – däremot inte specialtecken som hakparentes eller snedstreck. Inga taggar, beskrivningar eller behörigheter sätts på mappnivå – mappar i sajn är rent organisatoriska. Åtkomsten styrs av arbetsytan och av varje enskilt dokument.
+
+    <Frame>
+      <img src="/images/guider/folders/06-empty-create-dialog.png" alt="Tom dialog för att skapa en ny mapp med ett namnfält" />
+    </Frame>
+  </Step>
+  <Step title="Skriv in ett beskrivande namn och klicka på Skapa mapp">
+    Tryck på **Enter** eller klicka på den lila **Skapa mapp**-knappen för att skapa mappen. Dialogen stängs och den nya raden dyker upp högst upp i dokumenttabellen, med mapp-ikonen i checkbox-kolumnen och namnet i kolumnen **Namn**.
+
+    <Frame>
+      <img src="/images/guider/folders/08-filled-create-dialog.png" alt="Dialog med ifyllt mappnamn och Skapa mapp-knappen redo att klickas" />
+    </Frame>
+  </Step>
+  <Step title="Befintliga mappar ligger alltid högst upp i tabellen">
+    Mappraderna sorteras separat från dokumentraderna och håvar in eventuella undermappar i samma vy. Hovra över en rad för att få fram kryssrutan – då kan du markera flera mappar för bulkåtgärder. Trepunktsmenyn längst till höger på en mapprad ger dig **Byt namn**, **Flytta** (öppnar väljardialogen för att placera mappen någon annanstans), **Ladda ner** (zippar mappen och mailar dig en länk) och **Ta bort** (mappen flyttas till papperskorgen tillsammans med sitt innehåll).
+
+    <Frame>
+      <img src="/images/guider/folders/11-folder-list-overview.png" alt="Översikt av mapplistan med mappar högst upp i tabellen" />
+    </Frame>
+  </Step>
+  <Step title="Markera dokument med kryssrutan">
+    Markera ett eller flera dokument med kryssrutan längst till vänster.
+
+    När minst en rad är markerad dyker knappen **Åtgärder** upp uppe till höger. Här samlas alla operationer som kan göras på flera dokument samtidigt – inklusive **Flytta till mapp**, **Exportera**, **Arkivera**, **Hantera taggar** och **Skicka utkast**. Vill du flytta bara ett enda dokument hittar du samma **Flytta till mapp**-val i trepunktsmenyn ute till höger på dokumentraden.
+
+    <Frame>
+      <img src="/images/guider/folders/14-selected-document.png" alt="Ett markerat dokument med Åtgärder-knappen synlig uppe till höger" />
+    </Frame>
+  </Step>
+  <Step title="Välj Flytta till mapp för att flytta dokumenten">
+    **Flytta till mapp** öppnar en gemensam väljardialog oavsett om du flyttar ett dokument, flera dokument eller en hel mapp. Du får upp arbetsytans hela mappträd – välj målmappen (eller lämna allt omarkerat för att flytta till rotnivån **Alla dokument**) och bekräfta med **Flytta hit**. Texten **Flyttar till** längst ner i dialogen uppdateras live så att du ser exakt vart objekten hamnar innan du klickar.
+
+    <Frame>
+      <img src="/images/guider/folders/17-actions-menu.png" alt="Åtgärder-menyn öppen med valet Flytta till mapp" />
+    </Frame>
+  </Step>
+</Steps>

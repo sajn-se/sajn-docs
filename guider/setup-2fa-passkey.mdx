@@ -1,0 +1,60 @@
+---
+title: "Säkra ditt konto med 2FA eller passkey"
+description: "Aktivera inloggningsnycklar (passkeys) eller tvåstegsautentisering för ditt personliga sajn-konto"
+---
+
+Vill du höja säkerheten på ditt sajn-konto? På sidan **Personuppgifter** hittar du två sektioner som hjälper dig härda inloggningen: **Inloggningsnycklar** (passkeys) för lösenordsfri inlogging med biometri eller säkerhetsnyckel, och **Tvåstegsautentisering** (2FA) som kräver en engångskod från en autentiseringsapp utöver lösenordet. Den här guiden visar var ingångarna ligger och vad varje val gör – den genomför inte själva registreringen åt dig.
+
+## Innan du börjar
+
+- Du är inloggad på ditt sajn-konto.
+- Inställningarna gäller **ditt personliga konto** – inte arbetsytan eller organisationen. Skydden följer dig oavsett vilken arbetsyta du loggar in i.
+- För passkey behöver du en enhet och en webbläsare som stöder WebAuthn (t.ex. Touch ID, Face ID, Windows Hello eller en hårdvarunyckel).
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Personuppgifter i sidomenyn">
+    Sidan **Personuppgifter** samlar dina personliga konto­inställningar: namn, e-post, lösenord, kommunikations­val och – det vi tittar på här – säkerhets­funktionerna **Inloggningsnycklar** och **Tvåstegsautentisering**. Inställningarna är knutna till ditt användarkonto och följer med dig mellan arbetsytor.
+
+    <Frame>
+      <img src="/images/guider/setup-2fa-passkey/02-open-user-settings.png" alt="Sidan Personuppgifter öppen under Personliga inställningar" />
+    </Frame>
+  </Step>
+  <Step title="Inloggningsnycklar – lösenordsfri inlogging med biometri eller hårdvarunyckel">
+    Här ser du alla passkeys som är kopplade till ditt konto, när de skapades och senast användes. En passkey är en kryptografisk nyckel som lagras på din enhet (t.ex. i iCloud Keychain, Google Password Manager eller en YubiKey) och låter dig logga in med Touch ID, Face ID, Windows Hello eller PIN istället för lösenord.
+
+    Knappen **Lägg till inloggningsnyckel** uppe till höger startar registreringen. Du kan ha flera passkeys parallellt – en per enhet är vanligt – och ta bort dem via trepunktsmenyn när du inte längre använder en viss enhet.
+
+    <Frame>
+      <img src="/images/guider/setup-2fa-passkey/04-passkey-section.png" alt="Sektionen Inloggningsnycklar med lista över registrerade passkeys" />
+    </Frame>
+  </Step>
+  <Step title="Dialogen Lägg till inloggningsnyckel förklarar hur registreringen går till">
+    När du klickar **Fortsätt** startar webbläsaren sin egen systemdialog där du väljer var nyckeln ska sparas (t.ex. iCloud Keychain, en lösenordshanterare eller en säkerhetsnyckel) och bekräftar med din biometri eller PIN. Efter det får du ge nyckeln ett namn så att du senare kan skilja den från andra enheter.
+
+    I den här guiden stannar vi vid info-rutan – vi går inte vidare så att inget faktiskt registreras.
+
+    <Frame>
+      <img src="/images/guider/setup-2fa-passkey/07-passkey-dialog-info.png" alt="Dialogen Lägg till inloggningsnyckel med info om registreringen" />
+    </Frame>
+  </Step>
+  <Step title="Tvåstegsautentisering – kräver en engångskod från en autentiseringsapp">
+    Tvåstegsautentisering (2FA) lägger ett extra lager utöver lösenordet: när du loggar in måste du också ange en sexsiffrig kod från en autentiseringsapp på din telefon. Är 2FA inte aktiverat ser du beskrivnings­texten *"Du kan aktivera tvåfaktorsautentisering..."*; är det aktiverat visas en tabell med metoden **Autentiseringsapp (2FA)** och datumet den slogs på.
+
+    För att starta registreringen klickar du på **Lägg till autentiseringsmetod** uppe till höger.
+
+    <Frame>
+      <img src="/images/guider/setup-2fa-passkey/10-twofa-section.png" alt="Sektionen Tvåstegsautentisering med Lägg till autentiseringsmetod" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på Lägg till autentiseringsmetod för att se vilka 2FA-metoder som finns">
+    I dropdownen finns för närvarande **Lägg till autentiseringsapp (2FA)** – det är den TOTP-baserade metoden som fungerar med Apple Passwords, Google Authenticator, Microsoft Authenticator, Authy och liknande appar. När du väljer den öppnas en dialog med en QR-kod du skannar in i appen, följt av ett verifieringssteg där du anger den genererade sexsiffriga koden för att aktivera 2FA.
+
+    Är 2FA redan aktiverat är valet utgråat – du behöver först stänga av den befintliga metoden via trepunktsmenyn i tabellen. Där hittar du också **Generera backup kod**, som ger dig engångskoder att använda om du tappar bort telefonen om mobilen försvinner.
+
+    <Frame>
+      <img src="/images/guider/setup-2fa-passkey/13-twofa-dropdown-open.png" alt="Dropdownen Lägg till autentiseringsmetod öppen med 2FA-val" />
+    </Frame>
+  </Step>
+</Steps>

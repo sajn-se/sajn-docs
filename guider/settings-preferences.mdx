@@ -1,0 +1,101 @@
+---
+title: "UI-inställningar (tema, språk, dashboardvy)"
+description: "Styr standardvärden för nya dokument och utgående mejl i arbetsytan — utgångsdatum, signaturtyp, synlighet och e-postformat"
+---
+
+Sidan **Preferenser** samlar de standardvärden som styr hur nya dokument och utgående e-post ser ut för just den här arbetsytan – utgångsdatum, signaturtyp, synlighet, e-postformat och svara till-adress. Den här guiden går igenom varje sektion utan att ändra något – så du tryggt kan utforska sidan och se vad som finns att justera.
+
+## Innan du börjar
+
+- Du är inloggad och har en aktiv arbetsyta.
+- Inställningarna är **arbetsytespecifika** – byter du arbetsyta får du en egen uppsättning preferenser.
+- Vissa val (BankID som standard, e-postformat) kräver en betalplan – på Basic är de gråade eller dolda.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Preferenser i sidomenyn">
+    Sidan ligger under *Arbetsyteinställningar*. Preferenser styr **standardvärden** för nya dokument och utgående e-post – inte enskilda dokument eller hela organisationen. Inrubriken beskriver vad sidan täcker: dokumentinställningar, e-postformat och standardvärden för arbetsytan.
+
+    <Frame>
+      <img src="/images/guider/settings-preferences/02-open-preferences.png" alt="Sidan Preferenser öppen under Arbetsyteinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Översikt: två sektioner – Dokumentinställningar och E-postinställningar">
+    Sidan är uppdelad i två fält, ovanifrån och ned:
+
+    1. **Dokumentinställningar** – standard utgångsdagar, signaturtyp och synlighet för nya dokument.
+    2. **E-postinställningar** – avsändarformat, förhandsvisning och svara till-adress för utgående mejl.
+
+    Längst ned finns knappen **Spara ändringar**, som bara aktiveras när du ändrat något – så du kan klicka runt utan att råka spara.
+
+    <Frame>
+      <img src="/images/guider/settings-preferences/04-overview.png" alt="Översikt av Preferenser-sidan med två sektioner" />
+    </Frame>
+  </Step>
+  <Step title="Standard utgångsdagar – antal dagar tills nya dokument går ut automatiskt">
+    Värdet sätts som standardutgångsdatum på alla nya dokument som skapas i arbetsytan. Lämna fältet tomt om du inte vill att dokument ska få något utgångsdatum alls. Du kan alltid skriva över värdet på ett enskilt dokument när du skickar ut det.
+
+    <Frame>
+      <img src="/images/guider/settings-preferences/05-expiration-days.png" alt="Fältet Standard utgångsdagar för nya dokument" />
+    </Frame>
+  </Step>
+  <Step title="Standard signaturtyp – vilken signeringsmetod nya mottagare får från start">
+    Tre alternativ finns:
+
+    - **Svenskt BankID** – stark identifiering med högst bevisvärde (AES). Kräver betalplan.
+    - **Klicksignering** – snabbast och enklast, bra för enkla dokument (SES).
+    - **Ritad signatur** – mottagaren ritar sin signatur, fungerar för de flesta dokument (SES).
+
+    Valet styr bara *standarden* – du kan alltid byta signaturtyp per mottagare när du förbereder ett dokument.
+
+    <Frame>
+      <img src="/images/guider/settings-preferences/06-signature-type.png" alt="Fältet Standard signaturtyp med tre alternativ" />
+    </Frame>
+  </Step>
+  <Step title="Standard synlighet – vem som ser nya dokument i arbetsytan">
+    Bestämmer vilka kollegor som ser ett nyskapat dokument:
+
+    - **Alla i arbetsytan** – samtliga medlemmar ser dokumentet.
+    - **Ansvarig och administratörer** – bara den som skapat dokumentet och arbetsyteadmins.
+    - **Användare med behörighet** – endast den som specifikt fått åtkomst.
+
+    Synligheten kan ändras per dokument senare – det här är bara utgångsläget.
+
+    <Frame>
+      <img src="/images/guider/settings-preferences/07-visibility.png" alt="Fältet Standard synlighet med tre nivåer" />
+    </Frame>
+  </Step>
+  <Step title="E-postinställningar – avsändarformat och förhandsvisning">
+    Här styr du hur avsändaren visas i mejl som går ut från sajn:
+
+    - **Vänligt** – "Förnamn via sajn", känns mer personligt.
+    - **Professionellt** – organisationens namn, känns mer formellt. (Endast betalplan.)
+
+    Rutan **Förhandsvisning** visar exakt hur avsändaren kommer se ut i mottagarens inkorg, baserat på din inloggade användare och organisation.
+
+    <Frame>
+      <img src="/images/guider/settings-preferences/08-email-section.png" alt="Sektionen E-postinställningar med avsändarformat och förhandsvisning" />
+    </Frame>
+  </Step>
+  <Step title="Svara till-adress – vart svar på utgående mejl hamnar">
+    Tre alternativ:
+
+    - **Ingen** – mottagare kan inte svara via mejl (svaren bouncar).
+    - **Organisationens e-post** – svaren går till en specifik adress du anger.
+    - **Ansvarig användare** – svaren går till den som skickade ut dokumentet.
+
+    Väljer du *Organisationens e-post* dyker ett extra fält upp där du fyller i adressen.
+
+    <Frame>
+      <img src="/images/guider/settings-preferences/09-reply-to.png" alt="Fältet Svara till-adress med tre alternativ" />
+    </Frame>
+  </Step>
+  <Step title="Längst ned: knappen Spara ändringar">
+    Inga ändringar träder i kraft förrän du klickar **Spara ändringar**. Knappen är gråad så länge formuläret är orört – så du kan utforska sidan utan att råka ändra något. När du sparar bekräftas det med ett toast-meddelande och de nya standardvärdena börjar gälla för alla nya dokument och mejl i arbetsytan.
+
+    <Frame>
+      <img src="/images/guider/settings-preferences/10-save-button.png" alt="Knappen Spara ändringar längst ner på Preferenser-sidan" />
+    </Frame>
+  </Step>
+</Steps>

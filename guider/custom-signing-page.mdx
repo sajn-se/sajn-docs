@@ -1,0 +1,96 @@
+---
+title: "Anpassa signeringssidan med din branding"
+description: "Visa er logotyp i sidhuvudet på signeringssidan så att mottagare möts av er visuella identitet"
+---
+
+När en mottagare öppnar en länk för att signera ett dokument från er organisation möts hen av en signeringssida med ett mörkt sidhuvud. Som standard står det **sajn** där – men med branding aktiverad visas i stället er logotyp, och den blir klickbar till er webbplats. Den här guiden visar var ni styr det utseendet och vad som faktiskt följer med till **/sign/**-sidan. Det är en läsguide – inga bilder laddas upp och inga inställningar sparas.
+
+## Innan du börjar
+
+- Du är inloggad och har behörighet att hantera organisationsinställningar.
+- Branding kräver ett betalt abonnemang (Solo, Team eller Enterprise). På Basic visas i stället en uppmaning att uppgradera.
+- Inställningarna gäller för hela organisationen – samma logotyp visas på signeringssidan oavsett vilken arbetsyta som skickade dokumentet.
+
+## Steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Profilering i sidomenyn">
+    Allt som påverkar signeringssidans utseende styrs härifrån. Det finns ingen separat sida för signeringssidans branding – den ärver direkt från fliken **Inställningar** på **Profilering**.
+
+    Se även den bredare guiden *Anpassa branding för dokument och kommunikation* för en genomgång av samtliga fält. Den här guiden zoomar in på just det som syns för mottagaren på signeringssidan.
+
+    <Frame>
+      <img src="/images/guider/custom-signing-page/02-open-branding.png" alt="Inställningar för Profilering öppnade i sidomenyn" />
+    </Frame>
+  </Step>
+  <Step title="Aktivera branding">
+    Styr om signeringssidan visar er logotyp eller sajns standardrubrik.
+
+    När **Aktivera branding** står på **Ja** ersätts texten *sajn* i sidhuvudet på signeringssidan med er ljusa logotyp. När den står på **Nej** visas sajns standardutseende – bilderna ligger kvar sparade men används inte.
+
+    Ändringarna träder i kraft direkt för nya signeringssessioner när du sparar – mottagare som öppnar länken efter det ser den uppdaterade brandingen.
+
+    <Frame>
+      <img src="/images/guider/custom-signing-page/04-enable-section.png" alt="Sektionen Aktivera branding med Ja/Nej-väljaren" />
+    </Frame>
+  </Step>
+  <Step title="Logotyp (ljus) – det enda fältet som visas i signeringssidans sidhuvud">
+    Signeringssidans sidhuvud har en mörk bakgrund i organisationens primärfärg. Sajn använder därför i första hand **Logotyp (ljus)** – en vit eller ljus variant av er logotyp som syns tydligt mot mörk bakgrund.
+
+    Om bara **Logotyp (mörk)** är uppladdad används den i stället, men resultatet blir ofta otydligt. Rekommendationen är att alltid ladda upp en ljus variant innan ni aktiverar branding. Max 512 KB, gärna minst 300 px bred.
+
+    <Frame>
+      <img src="/images/guider/custom-signing-page/05-logo-light-section.png" alt="Sektion för att ladda upp ljus logotyp till signeringssidan" />
+    </Frame>
+  </Step>
+  <Step title="Logotyp (mörk) – används som reserv och i e-postutskick">
+    Den mörka logotypen visas i första hand i e-postmeddelanden med ljus bakgrund (inbjudan, påminnelse, färdigsignerat). På själva signeringssidan används den bara som fallback när **Logotyp (ljus)** är tom.
+
+    Ladda gärna upp båda varianter så får både e-post och signeringssida rätt kontrast.
+
+    <Frame>
+      <img src="/images/guider/custom-signing-page/06-logo-dark-section.png" alt="Sektion för att ladda upp mörk logotyp" />
+    </Frame>
+  </Step>
+  <Step title="Ikoner – visas inte på signeringssidan">
+    De fyrkantiga ikonerna används för avatarer, små ytor och favicon-liknande sammanhang – inte i sidhuvudet på signeringssidan. Du kan hoppa över dem om du bara vill anpassa signeringssidan, men det rekommenderas att ladda upp dem ändå så att profileringen blir konsekvent i e-postutskick och andra ytor.
+
+    <Frame>
+      <img src="/images/guider/custom-signing-page/07-icons-section.png" alt="Sektion för fyrkantiga ikoner som inte visas på signeringssidan" />
+    </Frame>
+  </Step>
+  <Step title="Webbplats – gör logotypen klickbar">
+    Skriv in er publika webbplatsadress (t.ex. `https://example.com`). När branding är aktiverad blir logotypen i signeringssidans sidhuvud klickbar och öppnar adressen i en ny flik.
+
+    Om fältet lämnas tomt faller sajn tillbaka på organisationens webbplats från **Företagsuppgifter** – och om den också saknas visas logotypen som en stillbild utan länk.
+
+    <Frame>
+      <img src="/images/guider/custom-signing-page/08-website-section.png" alt="Sektionen Webbplats där adress för klickbar logotyp anges" />
+    </Frame>
+  </Step>
+  <Step title="Spara ändringar aktiverar brandingen">
+    Längst ned finns knappen **Spara ändringar** som aktiverar brandingen för nya signeringssessioner.
+
+    Inga ändringar träder i kraft förrän du klickar **Spara ändringar**. Knappen är gråad så länge formuläret är orört – så du kan tryggt utforska sidan utan att råka spara något.
+
+    När du sparar uppdateras signeringssidan direkt för alla framtida besökare. Pågående signeringssessioner uppdateras när mottagaren laddar om sidan.
+
+    <Frame>
+      <img src="/images/guider/custom-signing-page/09-save-button.png" alt="Spara ändringar-knappen längst ned i formuläret" />
+    </Frame>
+  </Step>
+  <Step title="Vad följer inte med till signeringssidan?">
+    Det går i dag inte att anpassa följande på signeringssidan:
+
+    - **Färger** – sidhuvudets bakgrund är fast (sajns primärfärg). Det finns ingen färgväljare och ingen möjlighet att ladda upp egen CSS.
+    - **Sidfot / *Powered by sajn*** – inbäddade signeringssessioner visar en *Powered by sajn*-rad. Den huvudsakliga signeringssidan har ingen anpassningsbar sidfot.
+    - **Ikoner** – de fyrkantiga ikonerna används bara i e-post och andra ytor, inte i signeringssidans sidhuvud.
+    - **Avsändarens namn** – texten *Skickat av {organisation}* hämtas automatiskt från organisationsnamnet och kan inte överskridas separat.
+
+    För att ändra texten i de mejl som leder fram till signeringssidan (inbjudan, påminnelse) – gå till fliken **E-postmallar** ovanför och se separat guide.
+
+    <Frame>
+      <img src="/images/guider/custom-signing-page/10-what-does-not-carry-over.png" alt="Översikt av vad som inte går att anpassa på signeringssidan" />
+    </Frame>
+  </Step>
+</Steps>

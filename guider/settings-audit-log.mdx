@@ -1,0 +1,69 @@
+---
+title: "Granska organisationens aktivitetslogg"
+description: "Följ inloggningar, medlemshantering, säkerhetshändelser och andra aktiviteter i organisationen"
+---
+
+Aktivitetsloggen ger en samlad bild av allt som händer i organisationen – inloggningar, medlemshantering, ändringar i inställningar, API-tokens, ägarskifte och annat som påverkar säkerhet eller drift. Den här guiden visar var loggen ligger, hur kolumnerna är upplagda, hur du filtrerar bland händelserna och hur du öppnar en enskild aktivitet för att se all bakgrundsinformation. Den ändrar ingenting – det är en ren granskningsvy.
+
+## Innan du börjar
+
+- Du är inloggad och har behörigheten **Visa aktivitetslogg** i organisationen.
+- Organisationen ligger på **Team-** eller **Enterprise-planen** – på Solo och Basic finns ingen aktivitetslogg.
+- Det här är en läsvy. Inga händelser kan raderas eller redigeras, bara läsas och filtreras.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Organisation → Aktivitetslogg i sidomenyn">
+    Sidan ligger under *Organisationsinställningar* – brödsmulan högst upp visar **Inställningar › Organisation › Aktivitetslogg**. Rubriken **Aktivitetslogg** med beskrivningen *"Granska alla aktiviteter och ändringar i organisationen"* signalerar att du befinner dig på rätt plats.
+
+    <Frame>
+      <img src="/images/guider/settings-audit-log/02-open-audit-log.png" alt="Sidan Aktivitetslogg öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Översikt över aktivitetsloggen">
+    Sidan består av två delar: ett filterfält högst upp och en tabell med händelser nedanför.
+
+    Tabellen visar de senaste händelserna i organisationen med kolumnerna **Tidpunkt**, **Aktivitet**, **Kategori**, **Användare**, **Resurs** och **Nivå**. Varje rad är en händelse – ett dokument som skickats, en medlem som lagts till, ett API-token som skapats, en inloggning, en ändrad inställning, och så vidare. Längst ned sitter sidnumreringen där du kan bläddra bakåt i tiden.
+
+    <Frame>
+      <img src="/images/guider/settings-audit-log/04-overview.png" alt="Översikt av aktivitetsloggen med filter och tabell" />
+    </Frame>
+  </Step>
+  <Step title="Kolumnerna förklarar vem, vad, var och när">
+    Varje rad svarar på fyra frågor:
+
+    - **Tidpunkt** – när det hände, relativt nu (*"för 2 timmar sedan"*).
+    - **Aktivitet** – vad som hände, på svenska (t.ex. *"Medlem inbjuden"*, *"API-token skapad"*, *"Ägarskap överfört"*).
+    - **Kategori** – vilket område händelsen tillhör (Medlemshantering, Säkerhet, Dokument, Faktura osv.) – visas som en grå tagg.
+    - **Användare** – vem som utförde åtgärden, med initialer i en avatar och e-postadress under namnet.
+    - **Resurs** – objektet som påverkades (t.ex. ett mottagarnamn, ett dokumenttitel eller en token-rubrik).
+    - **Nivå** – färgmarkering för säkerhetsrelevanta händelser. Vanliga *info*-händelser är omarkerade, **WARNING** lyser gult och **SECURITY** lyser rött.
+
+    <Frame>
+      <img src="/images/guider/settings-audit-log/05-columns-detail.png" alt="Detaljvy av kolumnerna i aktivitetsloggen" />
+    </Frame>
+  </Step>
+  <Step title="Filtrera per kategori för att zooma in på ett område">
+    Kategorifiltret låter dig snabbt isolera en typ av händelse – t.ex. bara **Medlemshantering** för att se inbjudningar och borttagna konton, bara **Säkerhet** för inloggningar och tokens, eller bara **Dokument** för signering och utskick. Välj **Alla kategorier** för att återgå till hela vyn.
+
+    Eftersom säkerhetshändelser ofta är de viktigaste att följa upp på är just **Säkerhet** ett bra ställe att börja om du letar efter något misstänkt.
+
+    <Frame>
+      <img src="/images/guider/settings-audit-log/08-category-menu-open.png" alt="Kategorimenyn öppen med val för att filtrera händelser" />
+    </Frame>
+  </Step>
+  <Step title="Sökfältet, kategoriväljaren och användarväljaren – tre sätt att hitta rätt händelse">
+    Ovanför tabellen finns tre filter som kan kombineras:
+
+    1. **Sökfältet** – fritextsökning på aktivitet, resursnamn eller e-post. Skriv exempelvis ett dokumentnamn eller en mottagares e-post för att se allt som rör just det.
+    2. **Alla kategorier** – samma kategorimeny som ovan.
+    3. **Alla användare** – filtrera på den person som utförde åtgärden. Praktiskt vid utredning av en specifik medarbetares aktivitet, eller för att se vad systemet (sajn) gjort automatiskt.
+
+    Du kan kombinera filtren – t.ex. *"alla säkerhetshändelser från användare X den senaste tiden"*. När minst ett filter är aktivt dyker knappen **Rensa filter** upp så du snabbt kommer tillbaka till hela loggen.
+
+    <Frame>
+      <img src="/images/guider/settings-audit-log/11-filter-search.png" alt="Sökfältet och filtervalen ovanför tabellen i aktivitetsloggen" />
+    </Frame>
+  </Step>
+</Steps>

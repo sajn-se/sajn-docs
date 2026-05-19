@@ -1,0 +1,58 @@
+---
+title: "Lås en mall så ingen ändrar den av misstag"
+description: "Frys en godkänd mall mot ändringar – den går fortfarande att använda för att skapa nya dokument"
+---
+
+När en mall är godkänd och färdig vill du oftast frysa den så att ingen råkar pilla på inställningar, parter, fält eller stil. Med låsfunktionen kan en arbetsyteadministratör göra just det – mallen går fortfarande att använda för att skapa nya dokument, men själva mallen är skyddad mot ändringar tills någon låser upp den igen.
+
+## Innan du börjar
+
+- Du är inloggad med en arbetsyta där du har behörigheten **Lås mall** (LOCK_TEMPLATE) – ingår normalt i admin-rollen.
+- Mallen du vill låsa finns i arbetsytan och du har skapat eller kan redigera den.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Mallar från sidomenyn för att hitta mallen du vill låsa">
+    Listan visar alla mallar i arbetsytan. Du kan söka efter mallens namn i sökfältet uppe till vänster om listan är lång.
+
+    <Frame>
+      <img src="/images/guider/lock-template/10-open-templates.png" alt="Sidan Mallar öppen från sidomenyn" />
+    </Frame>
+  </Step>
+  <Step title="Sök fram mallen och klicka på raden för att öppna den">
+    Låsåtgärden styr du inne i mallen, så att du tydligt ser vad du låser innan du bekräftar. Klicka var som helst på mallens rad för att öppna den i editorn.
+
+    <Frame>
+      <img src="/images/guider/lock-template/13-template-row.png" alt="Mallraden markerad i listan Mallar" />
+    </Frame>
+  </Step>
+  <Step title="Mallen öppnas i editorn. Klicka på trepunktsknappen uppe till höger i toppraden">
+    Trepunktsmenyn finns längst ut till höger på den övre raden, bredvid hjälp- och AI-ikonerna. Här hittar du alla mall-åtgärder – skapa dokument, kopiera, förhandsgranska, hantera taggar, ladda ner PDF och – för dig med rätt behörighet – **Lås**.
+
+    <Frame>
+      <img src="/images/guider/lock-template/16-editor-loaded.png" alt="Mallen öppen i editorn med trepunktsknappen synlig uppe till höger" />
+    </Frame>
+  </Step>
+  <Step title="Välj Lås i menyn">
+    Menyalternativet **Lås** visas bara för användare som har behörigheten **Lås mall** – om du inte ser det behöver din arbetsyta-admin ge dig den rollen. När mallen redan är låst byts alternativet ut mot **Lås upp** med exakt samma flöde.
+
+    <Frame>
+      <img src="/images/guider/lock-template/19-menu-open.png" alt="Trepunktsmenyn öppen med valet Lås synligt" />
+    </Frame>
+  </Step>
+  <Step title="Bekräfta i dialogen genom att klicka på Lås">
+    Dialogen påminner dig om vad låsningen innebär: inställningar, parter, fält och stil fryses. Mallen kan fortfarande användas för att skapa nya dokument och duplikat – det är bara själva mallen som låses från redigering. Klickar du **Avbryt** händer ingenting.
+
+    <Frame>
+      <img src="/images/guider/lock-template/22-confirm-dialog.png" alt="Bekräftelsedialogen för att låsa mallen" />
+    </Frame>
+  </Step>
+  <Step title="Mallen är nu låst – en gul varningsbanner syns högst upp i editorn och Mall-chippen i toppraden får en låsikon">
+    Så länge banneret syns kan ingen ändra mallens innehåll, parter, fält eller stilinställningar. För att låsa upp mallen igen öppnar du samma trepunktsmeny inne i mallen och väljer **Lås upp** – samma behörighet krävs.
+
+    <Frame>
+      <img src="/images/guider/lock-template/26-locked-state.png" alt="Mallen i låst läge med gul varningsbanner och låsikon" />
+    </Frame>
+  </Step>
+</Steps>

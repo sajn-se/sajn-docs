@@ -1,0 +1,46 @@
+---
+title: "Skapa egna fält för dokument och kontakter"
+description: "Definiera anpassade fält som berikar dokument och kontakter med extra data — t.ex. fakturanummer eller projektkod"
+---
+
+Med **anpassade fält** kan du berika dokument och kontakter i din arbetsyta med extra data – t.ex. *Fakturanummer*, *Avtalsdatum*, *Projektkod* eller *Kundnummer*. Den här guiden ger en rundtur av inställningssidan: var du hittar den, hur listan är uppbyggd, vilka fälttyper som finns och vad **säkrade fält** innebär. Vi går inte igenom att skapa ett fält – bara hur sidan fungerar.
+
+## Innan du börjar
+
+- Du är inloggad med en arbetsyta där du är admin.
+- Anpassade fält definieras på organisationsnivå och syns för alla användare i organisationen.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Anpassade fält i sidomenyn">
+    Sidan listar alla anpassade fält som har skapats i organisationen. Knappen **Lägg till fält** uppe till höger öppnar en panel där du kan skapa ett nytt fält – men du behöver inte klicka på den för att utforska sidan.
+
+    <Frame>
+      <img src="/images/guider/settings-custom-fields/02-open-custom-fields.png" alt="Sidan Anpassade fält öppen från sidomenyn" />
+    </Frame>
+  </Step>
+  <Step title="Listan visar alla befintliga anpassade fält med fältnamn, omfång, fälttyp och vem som skapade dem">
+    Kolumnerna i tabellen är:
+
+    - **Fältnamn** – namnet du gav fältet, t.ex. *Fakturanummer*. Är fältet markerat som *säkrat* visas en lås-ikon med etiketten **Säkrad** bredvid namnet.
+    - **Typ** – om fältet gäller **Dokument** eller **Kontakt**. Fält av typen *Dokument* dyker upp när du redigerar ett dokument; *Kontakt*-fält dyker upp på kontaktkortet.
+    - **Fälttyp** – datatypen: *Text*, *Flerradigt text*, *Nummer*, *Datum*, *E-post*, *Telefon*, *URL*, *Ja/Nej*, *Val från lista* eller *JSON* (endast för dokument).
+    - **Standardvärde** och **Förhandsvisning** – valfri förifyllning och placeholder-text.
+    - **Skapad av** och **Skapad** – vem som lade till fältet och när.
+    - Trepunktsmenyn längst till höger låter dig **Redigera** eller **Ta bort** ett fält. Att ändra omfång (Dokument/Kontakt) är låst efter att fältet skapats.
+
+    <Frame>
+      <img src="/images/guider/settings-custom-fields/04-fields-list.png" alt="Lista över anpassade fält med kolumner för fältnamn, typ, fälttyp och skapad" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på Lägg till fält uppe till höger för att skapa ett nytt anpassat fält">
+    Knappen öppnar en sidopanel där du anger fältnamn, väljer om fältet ska gälla **Dokument** eller **Kontakter** och vilken **fälttyp** det ska ha. För text- och flerradiga textfält kan du även aktivera **Säkrad** – då krypteras värdet och visas dolt tills användaren aktivt klickar för att visa det. Säkrade fält är användbara för känsliga uppgifter som personnummer eller interna referenser.
+
+    Fält definieras på organisationsnivå – när du skapar ett nytt fält blir det tillgängligt för alla användare i alla arbetsytor i organisationen.
+
+    <Frame>
+      <img src="/images/guider/settings-custom-fields/06-add-button-visible.png" alt="Knappen Lägg till fält uppe till höger på sidan Anpassade fält" />
+    </Frame>
+  </Step>
+</Steps>

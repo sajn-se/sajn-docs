@@ -1,0 +1,71 @@
+---
+title: "Lista och hantera dina arbetsytor"
+description: "Se alla arbetsytor i organisationen, skapa nya och hantera medlemmar, roller och inställningar per arbetsyta"
+---
+
+Arbetsytor är separata utrymmen inom samma organisation – t.ex. en för Sälj, en för HR och en för Juridik – med egna dokument, mallar, kontakter och medlemmar. På sidan **Arbetsytor** ser du alla arbetsytor som hör till organisationen och vilka grundläggande åtgärder som finns på varje rad. Den här guiden går igenom sidan i sin helhet utan att skapa, döpa om eller byta arbetsyta – så du kan utforska tryggt.
+
+## Innan du börjar
+
+- Du är inloggad med en användare som har behörighet att se och hantera arbetsytor i organisationen.
+- Organisationen har minst en arbetsyta – på Team- och Enterprise-paketen kan du ha flera parallellt.
+- Sidan är **organisationsövergripande** – listan är densamma oavsett vilken arbetsyta du står i när du öppnar den.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Organisation → Arbetsytor i sidomenyn">
+    Sidan ligger under *Organisationsinställningar* eftersom arbetsytor delas mellan alla i organisationen. Brödsmulan högst upp visar vägen *Inställningar → Organisation*, och rubriken **Arbetsytor** följs av en kort beskrivning samt en räknare som visar hur många arbetsytor du använder av ditt paketets kvot.
+
+    <Frame>
+      <img src="/images/guider/settings-workspaces/02-open-workspaces.png" alt="Sidan Arbetsytor öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Översikt: rubrik, användningsräknare, informationsruta och tabellen med alla arbetsytor">
+    Sidan består av fyra delar:
+
+    1. **Rubrikraden** – namnet *Arbetsytor*, beskrivningen och raden *Du använder X av Y arbetsytor* (eller bara *Du har X arbetsytor* om paketet är obegränsat).
+    2. **Knappen Lägg till arbetsyta** uppe till höger – grå/inaktiv om du har nått paketets gräns, annars klickbar.
+    3. **Informationsrutan** *När ska jag använda arbetsytor?* – ger en kort förklaring av användningsområdet.
+    4. **Arbetsytetabellen** – listar samtliga arbetsytor i organisationen.
+
+    <Frame>
+      <img src="/images/guider/settings-workspaces/05-overview.png" alt="Översikt av arbetsytesidan med rubrik, räknare, infobox och tabell" />
+    </Frame>
+  </Step>
+  <Step title="Tabellen visar Namn, URL, Medlemmar och Skapad för varje arbetsyta">
+    Varje rad är en arbetsyta i organisationen:
+
+    - **Namn** – arbetsytans namn tillsammans med dess ikon och färg, så du snabbt kan skilja dem åt visuellt.
+    - **URL** – slug som används i adressraden. Hovra för en tooltip som visar var dokumenten ligger, t.ex. `https://app.sajn.se/<slug>/documents`.
+    - **Medlemmar** – antal personer som har tillgång till just den arbetsytan.
+    - **Skapad** – datum då arbetsytan skapades.
+
+    Längst till höger i varje rad finns en trepunktsmeny med fler åtgärder. Vill du byta till en arbetsyta gör du det via **arbetsyteväljaren längst upp till vänster i sidomenyn** – inte härifrån.
+
+    <Frame>
+      <img src="/images/guider/settings-workspaces/06-scroll-table.png" alt="Arbetsytetabellen med kolumner för namn, URL, medlemmar och skapad" />
+    </Frame>
+  </Step>
+  <Step title="Uppe till höger: knappen Lägg till arbetsyta">
+    Klicka på **Lägg till arbetsyta** för att öppna en dialog där du anger **namn**, väljer **ikon** och **färg** och skapar en helt ny arbetsyta. Slug:en genereras automatiskt utifrån namnet.
+
+    Om du redan har nått ditt pakets maxantal arbetsytor är knappen gråad och en tooltip förklarar hur många du använder av kvoten samt att du behöver uppgradera ditt paket för att skapa fler. Räknaren ovanför tabellen (*Du använder X av Y arbetsytor*) visar samma information.
+
+    <Frame>
+      <img src="/images/guider/settings-workspaces/07-create-button.png" alt="Knappen Lägg till arbetsyta uppe till höger på arbetsytesidan" />
+    </Frame>
+  </Step>
+  <Step title="Trepunktsmenyn på varje rad: Redigera, Hantera medlemmar, Hantera roller och Ta bort">
+    Klicka på trepunktsikonen längst till höger på en rad för att få upp åtgärdsmenyn:
+
+    - **Redigera** – öppnar en dialog där du kan byta arbetsytans **namn**, **ikon** och **färg**. Slug:en (URL-delen) ändras inte i efterhand.
+    - **Hantera medlemmar** – tar dig till *Inställningar → Arbetsyta → Medlemmar* för just den arbetsytan, där du bjuder in och tar bort personer.
+    - **Hantera roller** – tar dig till *Inställningar → Arbetsyta → Roller* för samma arbetsyta, där du styr behörigheterna.
+    - **Ta bort** – tar bort arbetsytan permanent efter en bekräftelse. Är det den enda arbetsytan i organisationen är valet gråat – du måste alltid ha minst en kvar.
+
+    <Frame>
+      <img src="/images/guider/settings-workspaces/10-row-menu.png" alt="Trepunktsmenyn öppen på en arbetsyterad med fyra åtgärder" />
+    </Frame>
+  </Step>
+</Steps>

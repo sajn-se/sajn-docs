@@ -1,0 +1,71 @@
+---
+title: "Bjud in medlemmar och tilldela arbetsyteroller"
+description: "Hantera vilka i organisationen som har tillgång till arbetsytan och vilken roll de får"
+---
+
+I varje arbetsyta finns två sidor som hör ihop: **Medlemmar**, där du ser vilka som har tillgång och tilldelar dem en roll, och **Roller**, där du definierar vilka behörigheter rollerna ger. Den här guiden visar var sidorna ligger, vad varje kolumn betyder och hur det ser ut när du lägger till en ny medlem – utan att faktiskt bjuda in någon eller ändra en roll.
+
+## Innan du börjar
+
+- Du är inloggad med en användare som har behörighet **Hantera medlemmar** och **Hantera roller** i arbetsytan.
+- Det finns minst en organisationsmedlem utöver dig själv – nya arbetsytemedlemmar måste först finnas på organisationsnivå.
+- Inställningarna är **arbetsytespecifika** – varje arbetsyta har sin egen uppsättning medlemmar och roller.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Arbetsyta → Medlemmar i sidomenyn">
+    Sidan listar alla användare som har tillgång till just den här arbetsytan. Rubriken **Medlemmar** står överst, och underrubriken förklarar att du hanterar både medlemmar och deras roller härifrån. Sidan är arbetsytespecifik – byter du arbetsyta får du en helt egen lista.
+
+    <Frame>
+      <img src="/images/guider/settings-workspace-members-roles/02-open-members.png" alt="Sidan Medlemmar öppen under Arbetsyteinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Medlemstabellen visar Namn, status, E-postadress, Roll och Senast aktiv / Utgår">
+    Varje rad är en medlem i arbetsytan:
+
+    - **Namn** – för- och efternamn från användarens profil.
+    - **Status** – badge som visar *Aktiv* (har använt sajn nyligen) eller *Inaktiv*. För väntande inbjudningar står det *Väntar*.
+    - **E-postadress** – adressen där medlemmen får sina aviseringar.
+    - **Roll** – arbetsyterollen som styr behörigheterna. Klicka på trepunktsmenyn längst till höger för att välja **Ändra roll**.
+    - **Senast aktiv / Utgår** – för medlemmar visas när de senast var aktiva, för väntande inbjudningar när inbjudan går ut.
+
+    Trepunktsmenyn längst till höger innehåller också **Ta bort medlem** (du kan inte ta bort dig själv). Vill du bara se utestående inbjudningar går det att filtrera via URL-parametern `?status=pending_invites`.
+
+    <Frame>
+      <img src="/images/guider/settings-workspace-members-roles/04-members-table.png" alt="Medlemstabellen med kolumner för namn, status, e-post, roll och aktivitet" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på Lägg till uppe till höger för att öppna inbjudningspanelen">
+    Drawern *Lägg till medlemmar i arbetsytan* glider in från höger. Här väljer du:
+
+    - **Organisationsmedlem** – endast personer som redan finns i organisationen kan läggas till i arbetsytan. Är listan tom är alla redan med – bjud i så fall in nya personer via *Organisationsinställningar → Medlemmar*.
+    - **Roll** – arbetsyterollen den nya medlemmen ska få. Rollerna definieras på nästa sida vi tittar på.
+
+    Du kan lägga till upp till **10 medlemmar samtidigt** – klicka på **Lägg till fler** för en ny rad. Inget skickas förrän du klickar på den blå **Lägg till**-knappen längst ner. *Avbryt* eller krysset stänger panelen utan att skapa något.
+
+    <Frame>
+      <img src="/images/guider/settings-workspace-members-roles/08-add-drawer.png" alt="Drawern Lägg till medlemmar i arbetsytan med valbara organisationsmedlemmar och roller" />
+    </Frame>
+  </Step>
+  <Step title="Gå vidare till Inställningar → Arbetsyta → Roller">
+    Rollsidan ligger precis under Medlemmar i sidomenyn. Här bestämmer du *vad* en roll får göra – på Medlemmar-sidan bestämmer du *vem* som har vilken roll.
+
+    <Frame>
+      <img src="/images/guider/settings-workspace-members-roles/11-open-roles.png" alt="Sidan Roller öppen under Arbetsyteinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Rolltabellen visar Namn, Behörigheter och Antal medlemmar per roll">
+    Varje rad är en roll som finns i arbetsytan:
+
+    - **Namn** – rollens namn. Inbyggda roller (t.ex. *Admin* och *Medlem*) är märkta med badgen **Inbyggd** och kan inte tas bort eller döpas om.
+    - **Behörigheter** – antal aktiva behörigheter. Klicka på info-ikonen för en popover med hela listan av behörighetsnycklar.
+    - **Antal medlemmar** – hur många personer i arbetsytan som har rollen just nu.
+
+    Trepunktsmenyn till höger innehåller **Redigera** (endast egna roller), **Gör en kopia** (skapar `<Namn> (Kopia)` som utgångspunkt för en ny roll) och **Ta bort** (gråad för inbyggda roller och så länge minst en medlem har rollen). Uppe till höger finns **Skapa roll** för att lägga till en helt ny roll från grunden.
+
+    <Frame>
+      <img src="/images/guider/settings-workspace-members-roles/13-roles-table.png" alt="Rolltabellen med namn, behörigheter och antal medlemmar" />
+    </Frame>
+  </Step>
+</Steps>

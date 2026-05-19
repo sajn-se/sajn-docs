@@ -1,0 +1,72 @@
+---
+title: "Hantera API-nycklar och utvecklarinställningar"
+description: "Skapa och hantera API-nycklar, webhooks och loggar för integrationer mot sajns REST API"
+---
+
+På sidan **Utvecklare** hittar du allt som behövs för att bygga integrationer mot sajns REST API: API-nycklar, webhooks och loggar över anrop som gjorts mot er organisation. Den här guiden är en rundtur av sidan och visar var allt ligger. Den skapar ingen nyckel och tar inte bort något – du bestämmer själv när du vill ta nästa steg.
+
+## Innan du börjar
+
+- Du är inloggad och har behörighet att hantera utvecklarinställningar på organisationsnivå.
+- Utvecklarinställningar ligger på **organisationen**, inte på enskilda arbetsytor – nycklar och webhooks delas mellan alla arbetsytor i organisationen.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Utvecklare i sidomenyn">
+    Sidan ligger under *Organisationsinställningar* och hanterar API-nycklar och webhooks för hela organisationen. Rubriken längst upp förklarar att du här hanterar **API-nycklar och webhooks för integrationer**.
+
+    <Frame>
+      <img src="/images/guider/settings-developer-api/02-open-developer-settings.png" alt="Sidan Utvecklare öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Sektionen API-nycklar listar alla nycklar i organisationen">
+    Tabellen visar **Namn**, **Typ** (API eller Personlig), **Arbetsyta**, **Behörighet**, en maskad förhandsvisning av själva nyckeln (klicka på den för att avslöja prefixet), när den **Skapades** och när den **Senast användes**.
+
+    Kolumnen *Typ* skiljer på nycklar som är knutna till organisationen (**API**) och personliga nycklar som tillhör en enskild användare (**Personlig**). Använd sökfältet uppe till vänster för att filtrera bland nycklarna när listan blir lång.
+
+    <Frame>
+      <img src="/images/guider/settings-developer-api/04-api-keys-section.png" alt="Sektionen API-nycklar med tabell över alla nycklar i organisationen" />
+    </Frame>
+  </Step>
+  <Step title="Knappen Skapa API-nyckel uppe till höger startar guiden för att generera en ny nyckel">
+    Klicka på **Skapa API-nyckel** för att öppna dialogen där du namnger nyckeln, väljer arbetsyta och behörighetsnivå. När nyckeln genereras visas hela värdet **endast en gång** – kopiera den direkt och spara den på en säker plats, eftersom du aldrig kommer kunna se den igen.
+
+    Den här guiden klickar **inte** på knappen – API-nycklar är riktiga inloggningsuppgifter och ska bara skapas när du faktiskt behöver en.
+
+    <Frame>
+      <img src="/images/guider/settings-developer-api/05-hover-create-key.png" alt="Knappen Skapa API-nyckel uppe till höger på Utvecklarsidan" />
+    </Frame>
+  </Step>
+  <Step title="Trepunktsmenyn på varje rad – Regenerera eller Återkalla en befintlig nyckel">
+    Längst till höger på varje rad finns en trepunktsmeny (⋯) som låter dig:
+
+    - **Regenerera** – byter ut nyckelns hemliga värde mot ett nytt. Det gamla värdet slutar fungera direkt, så glöm inte att uppdatera dina integrationer.
+    - **Återkalla** – tar bort nyckeln helt. Alla anrop med den nyckeln avvisas omedelbart.
+
+    Längst ner i menyn står även vem som ursprungligen skapade nyckeln, så att du kan följa upp internt innan du gör något destruktivt.
+
+    <Frame>
+      <img src="/images/guider/settings-developer-api/07-key-row-actions.png" alt="Trepunktsmenyn öppen på en API-nyckelrad med Regenerera och Återkalla" />
+    </Frame>
+  </Step>
+  <Step title="Sektionen Webhooks låter dig prenumerera på händelser i sajn">
+    Webhooks postar JSON-payloads till en URL du själv anger när vissa händelser inträffar – t.ex. när ett dokument blir signerat eller en mottagare avböjer. Tabellen visar **URL**, **Arbetsyta**, vilka **Event** som triggar anropet och när webhooken **skapades**.
+
+    Klicka **Skapa webhook** för att lägga till en ny endpoint, eller använd trepunktsmenyn på en rad för att **Redigera** eller **Ta bort** en befintlig.
+
+    <Frame>
+      <img src="/images/guider/settings-developer-api/08-webhooks-section.png" alt="Sektionen Webhooks med tabell över aktiva webhooks" />
+    </Frame>
+  </Step>
+  <Step title="API-loggar och Webhook-loggar – felsök integrationer i realtid">
+    Längre ned på sidan finns två loggsektioner:
+
+    - **API-loggar** – varje anrop som gjorts mot REST API:t med en av era nycklar, med statuskod, ändpunkt och tidsstämpel. Klicka på en rad för att se hela request/response-payloaden.
+    - **Webhook-loggar** – utgående webhook-anrop som sajn skickat till era endpoints, inklusive svarstid och statuskod. Loggarna sparas i **72 timmar** och är det första stället att titta när en integration inte beter sig som förväntat.
+
+    <Frame>
+      <img src="/images/guider/settings-developer-api/09-api-logs-section.png" alt="Sektionen API-loggar med tabell över senaste API-anrop" />
+    </Frame>
+  </Step>
+</Steps>

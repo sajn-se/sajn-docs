@@ -1,0 +1,50 @@
+---
+title: "Signaturtyper i sajn (BankID, Klicksignering, Ritad signatur)"
+description: "Förstå skillnaden mellan sajns tre signaturtyper och var du väljer standard för arbetsytan eller per mottagare"
+---
+
+sajn stödjer tre signaturtyper: **Svenskt BankID**, **Klicksignering** och **Ritad signatur**. Du kan välja en **standardsignaturtyp** för hela arbetsytan – och samtidigt **överstyra** valet per mottagare när du förbereder ett enskilt dokument. Den här guiden visar var båda inställningarna finns och vilka alternativ som erbjuds.
+
+## Innan du börjar
+
+- Du är inloggad och har en aktiv arbetsyta.
+- Standardsignaturtypen är **arbetsytespecifik** – varje arbetsyta har sitt eget val.
+- **Svenskt BankID** kräver betalplan; **Klicksignering** och **Ritad signatur** ingår i alla planer.
+
+## Steg
+
+<Steps>
+  <Step title="Hitta arbetsytans standardsignaturtyp">
+    Öppna **Inställningar → Preferenser** för att hitta arbetsytans standardsignaturtyp. Standardsignaturtypen är arbetsytespecifik – varje arbetsyta har sitt eget val. Den används som utgångspunkt för nya mottagare på alla dokument i arbetsytan, men kan alltid överstyras per mottagare när du förbereder ett enskilt dokument.
+
+    <Frame>
+      <img src="/images/guider/signing-methods/04-workspace-defaults-page.png" alt="Sidan Preferenser med arbetsytans standardsignaturtyp" />
+    </Frame>
+  </Step>
+  <Step title="De tre signaturtyperna i sajn">
+    Tre alternativ erbjuds:
+
+    - **Svenskt BankID** – stark identifiering med högst bevisvärde (AES, Avancerad Elektronisk Signatur). Mottagaren signerar med sitt svenska BankID. Kräver betalplan.
+    - **Klicksignering** – snabbast och enklast (SES, Enkel Elektronisk Signatur). Mottagaren bekräftar med ett klick och en kryssruta. Bra för enkla avtal och interna dokument.
+    - **Ritad signatur** – mottagaren ritar sin namnteckning med musen eller på en touchskärm (SES). Fungerar för de flesta vardagliga dokument.
+
+    Det finns ingen eIDAS-AdES-signering exponerad i det här valet.
+
+    <Frame>
+      <img src="/images/guider/signing-methods/08-workspace-default-options.png" alt="Väljaren med de tre signaturtyperna BankID, Klicksignering och Ritad signatur" />
+    </Frame>
+  </Step>
+  <Step title="Överstyra signaturtypen per mottagare">
+    I dialogen **Lägg till part** kan du välja en annan **Signaturtyp** för just den parten. Per-mottagar-väljaren visar exakt samma tre alternativ som arbetsytans standardväljare: **Svenskt BankID**, **Klicksignering** och **Ritad signatur**. Skillnaden är att valet här bara påverkar **den här mottagaren på det här dokumentet** – andra mottagare och andra dokument behåller arbetsytans standardval.
+
+    Tumregel för vilken metod du ska välja:
+
+    - Behöver du **juridiskt högt bevisvärde** (anställningsavtal, fullmakter, viktiga affärsavtal) – välj **Svenskt BankID**.
+    - Behöver du **snabbhet och låg friktion** (NDA:er, enkla bekräftelser) – välj **Klicksignering**.
+    - Behöver du en **synlig namnteckning** men inte BankID – välj **Ritad signatur**.
+
+    <Frame>
+      <img src="/images/guider/signing-methods/16-per-signer-signature-options.png" alt="Dialogen Lägg till part med signaturtypsväljaren per mottagare" />
+    </Frame>
+  </Step>
+</Steps>

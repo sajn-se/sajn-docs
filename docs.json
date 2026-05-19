@@ -21,22 +21,148 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Sign in",
+      "label": "Logga in",
       "href": "https://app.sajn.se"
     }
   },
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Guider",
+        "groups": [
+          {
+            "group": "Kom igång",
+            "pages": [
+              "guider/index",
+              "guider/dashboard-tour",
+              "guider/workspace-switching",
+              "guider/notifications",
+              "guider/setup-2fa-passkey",
+              "guider/signing-methods"
+            ]
+          },
+          {
+            "group": "Dokument",
+            "pages": [
+              "guider/skapa-dokument",
+              "guider/create-document-from-template",
+              "guider/create-document-from-pdf",
+              "guider/upload-office-documents",
+              "guider/edit-pdf-in-editor",
+              "guider/document-ai-analysis",
+              "guider/document-ai-text-edit",
+              "guider/private-documents",
+              "guider/lagg-till-part",
+              "guider/internal-recipients",
+              "guider/andra-installningar",
+              "guider/skicka-dokument",
+              "guider/skicka-paminnelse",
+              "guider/forlang-utgangsdatum",
+              "guider/document-version-history",
+              "guider/document-bookmarks",
+              "guider/filer",
+              "guider/files-overview",
+              "guider/folders",
+              "guider/add-attachments",
+              "guider/comments-mentions",
+              "guider/approval-workflow"
+            ]
+          },
+          {
+            "group": "Mallar",
+            "pages": [
+              "guider/skapa-mall",
+              "guider/create-template-from-pdf",
+              "guider/use-template",
+              "guider/ai-generate-template-section",
+              "guider/sajn-collection",
+              "guider/lock-template",
+              "guider/delete-template"
+            ]
+          },
+          {
+            "group": "Kontakter",
+            "pages": [
+              "guider/create-contact",
+              "guider/edit-contact",
+              "guider/import-contacts"
+            ]
+          },
+          {
+            "group": "SajnID",
+            "pages": [
+              "guider/create-sajn-id",
+              "guider/manage-sajn-id"
+            ]
+          },
+          {
+            "group": "Arkiv & statistik",
+            "pages": [
+              "guider/arkivet",
+              "guider/archive-document",
+              "guider/trash-document",
+              "guider/statistics",
+              "guider/signing-session-replay"
+            ]
+          },
+          {
+            "group": "Konto & inställningar",
+            "pages": [
+              "guider/personliga-installningar",
+              "guider/settings-communication-preferences",
+              "guider/settings-overview",
+              "guider/settings-preferences"
+            ]
+          },
+          {
+            "group": "Arbetsyta",
+            "pages": [
+              "guider/arbetsytor",
+              "guider/arbetsyteinstellningar",
+              "guider/settings-workspace-members-roles",
+              "guider/settings-branding",
+              "guider/anpassade-epostmallar",
+              "guider/settings-message-templates",
+              "guider/anpassade-falt-i-dokument",
+              "guider/settings-tags",
+              "guider/settings-ai",
+              "guider/settings-search",
+              "guider/settings-inbox",
+              "guider/settings-embed",
+              "guider/custom-signing-page",
+              "guider/settings-developer-api",
+              "guider/webhooks",
+              "guider/redirect-after-signing",
+              "guider/document-content-search"
+            ]
+          },
+          {
+            "group": "Organisation",
+            "pages": [
+              "guider/settings-organization-profile",
+              "guider/settings-organization-business-details",
+              "guider/settings-organization-members-roles",
+              "guider/settings-organization-security",
+              "guider/settings-organization-data-privacy",
+              "guider/settings-audit-log",
+              "guider/settings-subscription",
+              "guider/settings-usage"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API",
+        "openapi": "api/openapi.json",
         "groups": [
           {
             "group": "Getting Started",
             "pages": [
-              "index",
+              "api/introduction",
               "quickstart",
               "authentication",
-              "postman"
+              "postman",
+              "mcp"
             ]
           },
           {
@@ -88,9 +214,8 @@
             ]
           },
           {
-            "group": "Integrations",
+            "group": "Webhooks & Embedding",
             "pages": [
-              "mcp",
               "guides/webhooks",
               "guides/managing-webhooks",
               {
@@ -102,18 +227,6 @@
                   "guides/embedding-vue"
                 ]
               }
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API",
-        "openapi": "api/openapi.json",
-        "groups": [
-          {
-            "group": "Introduction",
-            "pages": [
-              "api/introduction"
             ]
           },
           {
@@ -244,46 +357,6 @@
               "GET /api/v1/sajn-id",
               "POST /api/v1/sajn-id",
               "GET /api/v1/sajn-id/{id}"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Guider",
-        "groups": [
-          {
-            "group": "Kom igång",
-            "pages": [
-              "guider/index"
-            ]
-          },
-          {
-            "group": "Dokument",
-            "pages": [
-              "guider/skapa-dokument",
-              "guider/lagg-till-part",
-              "guider/andra-installningar",
-              "guider/skicka-dokument",
-              "guider/skicka-paminnelse",
-              "guider/forlang-utgangsdatum",
-              "guider/filer"
-            ]
-          },
-          {
-            "group": "Mallar & Arkiv",
-            "pages": [
-              "guider/skapa-mall",
-              "guider/arkivet"
-            ]
-          },
-          {
-            "group": "Inställningar",
-            "pages": [
-              "guider/arbetsytor",
-              "guider/arbetsyteinstellningar",
-              "guider/personliga-installningar",
-              "guider/anpassade-epostmallar",
-              "guider/anpassade-falt-i-dokument"
             ]
           }
         ]

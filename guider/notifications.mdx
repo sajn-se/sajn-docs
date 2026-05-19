@@ -1,0 +1,57 @@
+---
+title: "Håll koll på notiser i sajn"
+description: "Hitta aviseringssidan, filtrera mellan olästa och alla notiser och hantera vilka händelser du får"
+---
+
+Aviseringssidan samlar händelser kring dina dokument på ett ställe – när någon signerar, kommenterar, eller när AI-funktioner har något att säga till om. Den här guiden visar var sidan ligger, vad du ser i listan och hur du filtrerar mellan olästa och alla notiser.
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta.
+- Vilka notiser du får styrs av dina kommunikationsinställningar – nya konton kan därför se en tom lista tills det börjar hända saker i arbetsytan.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Aviseringar via klockikonen i toppmenyn – eller gå direkt till /{workspace}/notifications">
+    Sidan visar händelser kopplade till din arbetsyta: signeringar, kommentarer, dokumentstatusbyten, AI-händelser och liknande. Listan är personlig – varje användare ser sina egna notiser.
+
+    <Frame>
+      <img src="/images/guider/notifications/02-open-notifications.png" alt="Aviseringssidan öppnad via klockikonen i toppmenyn" />
+    </Frame>
+  </Step>
+  <Step title="Översikt av aviseringssidan: filterflikar, tabell med notiser och paginering">
+    Tabellen har två kolumner:
+
+    - **Avisering** – själva meddelandet. Olästa notiser visas med fet text och en liten färgad prick framför rubriken.
+    - **Datum** – tidpunkten då notisen skapades, i formatet `ÅÅÅÅ-MM-DD HH:MM`.
+
+    Längst ner styr du **rader per sida** (10, 25 eller 50) och bläddrar mellan sidor med pilarna till höger. Räknaren i mitten visar vilka rader du tittar på just nu och totalsumman.
+
+    Har du inga notiser ännu visar tabellen *Inga notiser att visa.* – det är helt normalt på ett nytt konto.
+
+    <Frame>
+      <img src="/images/guider/notifications/04-overview.png" alt="Aviseringssidan med filterflikar, tabell och paginering" />
+    </Frame>
+  </Step>
+  <Step title="Växla mellan Oläst och Alla högst upp för att filtrera listan">
+    **Oläst** är förvalt och visar bara notiser du inte har öppnat ännu – praktiskt när du vill beta av nyheterna.
+
+    **Alla** visar hela historiken inklusive sådant du redan läst. Den valda fliken är markerad med kraftigare ram och färgad text.
+
+    Filtret styrs av query-parametern `readFilter` i URL:en, så du kan bokmärka en specifik vy om du vill.
+
+    <Frame>
+      <img src="/images/guider/notifications/07-all-view.png" alt="Filterflikarna Oläst och Alla högst upp på aviseringssidan" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på Hantera inställningar uppe till höger om du vill styra vilka notiser du faktiskt får">
+    Knappen tar dig till dina kommunikationsinställningar där du väljer vilka händelser som ska skicka e-post, push eller in-app-notis. Behöver du tysta en viss typ av avisering är det här du gör det – inte på den här sidan.
+
+    Observera: notiser markeras som lästa först när du öppnar dem från klockmenyn eller klickar på raden i listan. Den här guiden rör inga rader, så din olästa kö är intakt efter att du har bläddrat klart.
+
+    <Frame>
+      <img src="/images/guider/notifications/10-manage-settings.png" alt="Knappen Hantera inställningar uppe till höger på aviseringssidan" />
+    </Frame>
+  </Step>
+</Steps>

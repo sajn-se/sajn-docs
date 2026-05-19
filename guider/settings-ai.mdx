@@ -1,0 +1,80 @@
+---
+title: "Konfigurera AI-inställningar för din arbetsyta"
+description: "Styr om AI-funktioner är aktiverade, när PDF:er ska analyseras och vilken kontext AI:n får om er verksamhet"
+---
+
+På sidan **AI-inställningar** styr du hur sajns AI-funktioner beter sig i en specifik arbetsyta – om de ska vara aktiverade överhuvudtaget, när Bob ska analysera uppladdade PDF:er och vilken kontext han ska ha om er verksamhet. Den här guiden visar var sidan ligger och vad varje sektion gör. Den ändrar inga inställningar – du bestämmer själv om något ska justeras.
+
+## Innan du börjar
+
+- Du är inloggad och har behörighet att hantera arbetsyteinställningar.
+- AI-funktioner är en del av betalplanerna (Solo, Team eller Enterprise). På Basic är sektionerna gråade och inaktiverade.
+- Inställningarna är **arbetsytespecifika** – byter du arbetsyta får du en egen uppsättning AI-inställningar.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → AI-inställningar i sidomenyn">
+    Sidan ligger under *Arbetsyteinställningar* – inställningarna gäller alltså bara den arbetsyta du är i just nu, inte hela organisationen. Rubriken längst upp beskriver vad sidan styr: AI-funktioner och anpassningar för just denna arbetsyta.
+
+    <Frame>
+      <img src="/images/guider/settings-ai/02-open-ai-settings.png" alt="Sidan AI-inställningar öppen under Arbetsyteinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Översikt av de tre sektionerna: Generellt, AI-analys av uppladdade PDF:er och Anpassade instruktioner">
+    Sidan är uppdelad i tre fält, ovanifrån och ned:
+
+    1. **Generellt** – huvudströmbrytaren för all AI i arbetsytan.
+    2. **AI-analys av uppladdade PDF:er** – styr när Bob ska försöka tolka inkommande PDF:er.
+    3. **Anpassade instruktioner** – fritext som ger AI:n kontext om er verksamhet.
+
+    Längst ned finns knappen **Spara ändringar**, som bara aktiveras när du ändrat något.
+
+    <Frame>
+      <img src="/images/guider/settings-ai/04-overview.png" alt="Översikt av AI-inställningssidan med de tre sektionerna" />
+    </Frame>
+  </Step>
+  <Step title="Generellt – huvudströmbrytaren Aktivera AI-funktioner">
+    Här slår du av eller på samtliga AI-funktioner i arbetsytan med ett val mellan **Ja** och **Nej**.
+
+    När den står på **Nej** stängs allt AI-relaterat av: chattassistenten, dokumentanalysen och AI-genereringen. De två sektionerna nedanför gråas ut eftersom inställningarna då saknar effekt.
+
+    Det här är rätt ställe att börja om ni av integritets- eller policyskäl inte vill att AI ska användas i en viss arbetsyta.
+
+    <Frame>
+      <img src="/images/guider/settings-ai/05-general-section.png" alt="Sektionen Generellt med valet Aktivera AI-funktioner" />
+    </Frame>
+  </Step>
+  <Step title="AI-analys av uppladdade PDF:er – välj mellan Alltid och Manuellt">
+    Här bestämmer du när Bob ska analysera en PDF som laddas upp via dashboarden.
+
+    - **Alltid** – Bob kör automatiskt så snart en PDF laddas upp och föreslår parter, signeringsinställningar och titel direkt på dokumentet.
+    - **Manuellt** – ingen analys körs automatiskt. Användaren måste själv starta analysen från dokumentvyn när hen vill ha förslag.
+
+    Observera notisen längst ner: **PDF:er som kommer in via API:t analyseras aldrig automatiskt** – inställningen gäller bara uppladdningar från dashboarden. Användare kan ändå starta analysen manuellt på ett enskilt dokument.
+
+    <Frame>
+      <img src="/images/guider/settings-ai/06-analysis-section.png" alt="Sektionen AI-analys av uppladdade PDF:er med valen Alltid och Manuellt" />
+    </Frame>
+  </Step>
+  <Step title="Anpassade instruktioner – ge AI:n kontext om er verksamhet">
+    I textfältet kan du ge AI:n bakgrundsinformation som följer med varje AI-anrop i arbetsytan – t.ex. bransch, tonläge, terminologi eller standarder ni vill att den ska följa.
+
+    Instruktionerna används både av chattassistenten och vid dokumentgenerering. Max **2000 tecken**. Lämna fältet tomt om du inte vill skicka med någon extra kontext.
+
+    Exempel som platshållartexten föreslår: *"Vi är en advokatbyrå som specialiserar oss på fastighetsrätt. Använd formellt språk och juridiska termer..."*
+
+    <Frame>
+      <img src="/images/guider/settings-ai/07-custom-instructions-section.png" alt="Sektionen Anpassade instruktioner med textfält för bakgrundsinformation" />
+    </Frame>
+  </Step>
+  <Step title="Längst ned: knappen Spara ändringar">
+    Inga ändringar träder i kraft förrän du klickar **Spara ändringar**. Knappen är gråad så länge formuläret är orört – så du kan tryggt utforska sidan utan att råka ändra något.
+
+    När du sparar bekräftas det med ett toast-meddelande, och de nya inställningarna börjar gälla direkt för alla användare i arbetsytan.
+
+    <Frame>
+      <img src="/images/guider/settings-ai/08-save-button.png" alt="Knappen Spara ändringar längst ner på AI-inställningssidan" />
+    </Frame>
+  </Step>
+</Steps>

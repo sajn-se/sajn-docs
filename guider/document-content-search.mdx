@@ -1,0 +1,51 @@
+---
+title: "Sök i innehåll av dokument"
+description: "Aktivera innehållssök i sajn för att hitta avtal baserat på vad som faktiskt står i texten"
+---
+
+Det globala sökfältet ovanför dokumentlistan letar normalt bara i namn, motpart och metadata. Aktiverar du **Sök i innehåll** börjar sajn dessutom söka *inuti* själva avtalstexten — perfekt när du minns en formulering men inte vad dokumentet hette. Den här guiden visar var inställningen finns, hur du slår på den och vad du faktiskt ser när en sökterm träffar mitt i en avtalstext.
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta med Enterprise-plan.
+- Innehållsindexering är aktiverad för arbetsytan under *Inställningar → Sökinställningar* (annars indexeras inga dokument och inga träffar visas).
+- Det finns minst ett färdigsignerat dokument med ett textlager — utkast och inskannade PDF:er utan OCR indexeras inte.
+
+## Steg
+
+<Steps>
+  <Step title="Börja på dokumentlistan via Dokument i sidomenyn">
+    Sökfältet ligger högst upp i listan, strax under rubriken. Som standard söker det bara på dokumentets namn, parter och andra metadata — platshållaren visar *Sök dokument…*. För att också söka *inuti* dokumenttexten behöver du slå på **Sök i innehåll** — vi gör det i nästa steg.
+
+    <Frame>
+      <img src="/images/guider/document-content-search/02-open-documents.png" alt="Dokumentlistan med sökfältet högst upp" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på filterikonen i sökfältet">
+    Filterikonen öppnar **Sökinställningar**.
+
+    I popovern hittar du strömbrytaren **Sök i innehåll** med beskrivningen *"Hitta avtal genom att söka inuti signerade dokument. Endast färdiga dokument indexeras."* Längst ner i popovern står två tips: tryck **Enter** för att låta AI:n tolka frågan (t.ex. *"avtal som löper ut i mars"*), och omge en fras med citattecken — `"90 dagar"` — för exakt matchning.
+
+    <Frame>
+      <img src="/images/guider/document-content-search/06-search-popover.png" alt="Popover för Sökinställningar med strömbrytaren Sök i innehåll" />
+    </Frame>
+  </Step>
+  <Step title="Slå på Sök i innehåll">
+    Sökfältets platshållare byter till *Sök i dokumentinnehåll…*
+
+    När innehållssök är aktivt visas en liten prick på filterikonen och platshållaren i sökfältet ändras från *Sök dokument…* till *Sök i dokumentinnehåll…* — ett snabbt sätt att se vilket läge du är i. Inställningen ligger kvar via URL-parametern `searchContent=1`, så du kan dela en länk där läget redan är förvalt.
+
+    <Frame>
+      <img src="/images/guider/document-content-search/09-content-search-on.png" alt="Sökfältet med innehållssök aktiverat och ny platshållare" />
+    </Frame>
+  </Step>
+  <Step title="Skriv ett ord eller en fras">
+    Träffar inuti dokumenten dyker upp som textutdrag under dokumentnamnet.
+
+    För varje dokument där sökordet hittas i innehållet visas ett kort textutdrag (snippet) under dokumentets namn, med själva träffen markerad i gult. Det är samma resultatlista som vanligt — status, parter, taggar och datum syns precis som annars — men nu får du dessutom kontext om *var* i texten din sökterm finns. Hovrar du över textutdraget öppnas ett hover-kort med rubriken **Träffar i innehåll** som listar varje enskild träff i dokumentet med sidintervall (t.ex. *sid 3* eller *sid 5–6*). Visas inga snippets även när du sökt på ett ord du vet finns i texten — kontrollera under *Inställningar → Sökinställningar* att indexeringen är aktiverad och att dokumenten är färdigsignerade med ett textlager.
+
+    <Frame>
+      <img src="/images/guider/document-content-search/13-content-results.png" alt="Sökresultat med textutdrag under dokumentnamnen och träffen markerad i gult" />
+    </Frame>
+  </Step>
+</Steps>

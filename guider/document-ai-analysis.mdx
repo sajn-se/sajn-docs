@@ -1,0 +1,54 @@
+---
+title: "Analysera en PDF-bilaga med AI"
+description: "Låt Bob läsa en uppladdad PDF och föreslå parter, titel, sammanfattning och inställningar direkt i sidopanelen"
+---
+
+Har du laddat upp en PDF i ett dokument och vill att Bob – sajns AI-assistent – ska läsa igenom den åt dig? AI-analysen extraherar automatiskt parter (namn, e-post, organisation), föreslår en passande titel, sammanfattar innehållet och tipsar om signeringsinställningar. Den här guiden visar hur du manuellt startar analysen på en specifik PDF-sektion och hur du tar emot förslagen i sidopanelen.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta på en betald plan (AI-funktioner kräver Team eller högre).
+- Du har en PDF-fil att ladda upp – gärna ett riktigt avtal så att AI:n har parter att hitta.
+- Du har behörighet att skapa och redigera dokument i arbetsytan.
+
+## Steg
+
+<Steps>
+  <Step title="Skapa ett dokument från en PDF">
+    Öppna **Dokument** i sidomenyn och skapa ett nytt dokument från en PDF. AI-analysen körs på PDF-sektioner i ett dokument. Den här guiden utgår från ett nytt dokument skapat från en uppladdad PDF, men du kan precis lika gärna lägga till en PDF-sektion i ett befintligt utkast – se guiden *Lägg till en bilaga* för det flödet.
+
+    <Frame>
+      <img src="/images/guider/document-ai-analysis/02-open-documents.png" alt="Dokumentlistan med valet att skapa ett nytt dokument från en PDF" />
+    </Frame>
+  </Step>
+  <Step title="Dokumentet öppnas i editorn">
+    Dokumentet skapas med PDF:en som innehåll och öppnas direkt i editorn. Varje sektion i dokumentet har en sektionsmeny som dyker upp när du hovrar över den. För en PDF-sektion finns där ett alternativ för att manuellt starta en AI-analys – kugghjulsikonen till höger om sektionen är ingången.
+
+    <Frame>
+      <img src="/images/guider/document-ai-analysis/10-editor-ready.png" alt="Editorn öppen med PDF-sektionen redo för analys" />
+    </Frame>
+  </Step>
+  <Step title="Starta analysen från sektionsmenyn">
+    Klicka på kugghjulet bredvid PDF-sektionen och välj **Analysera med AI** från sektionsmenyn. Sektionsmenyn för en PDF-sektion visar **Kommentar** för att lämna en instruktion till AI:n, **Analysera med AI** för att starta analysen, samt vanliga sektionsval (spara, duplicera, ta bort). Är du på en gratisplan ser du i stället texten *Analysera med AI (uppgradera)* och alternativet är inaktivt.
+
+    <Frame>
+      <img src="/images/guider/document-ai-analysis/13-menu-open.png" alt="Sektionsmenyn öppen med valet Analysera med AI" />
+    </Frame>
+  </Step>
+  <Step title="AI-förslagen dyker upp i sidopanelen">
+    Efter 10–30 sekunder dyker AI-förslagen upp i högra sidopanelen under **Parter** – Bob har läst PDF:en och föreslår parter att lägga till.
+
+    Under rubriken **Förslag** listas varje part som AI:n hittat i PDF:en med namn, eventuell roll, e-post, telefon och organisationsuppgifter (namn + organisationsnummer). Klicka på bockikonen för att lägga till parten direkt i dokumentet, eller krysset för att avfärda förslaget. Hittade AI:n flera parter visas länken **Lägg till alla** överst i listan.
+
+    Utöver parter använder analysen även:
+    - **Föreslagen titel** – om PDF:en har en tydlig avtalsrubrik kan AI:n döpa om dokumentet automatiskt.
+    - **Sammanfattning** – en kort beskrivning av PDF:ens innehåll, synlig i dokumentdetaljerna.
+    - **Custom fields** – egna metadatafält som ditt företag definierat fylls i automatiskt om värdet finns i PDF:en (se i panelen **Inställningar** under fältlistan).
+
+    Är **AI** påslagen för arbetsytan med läget **Alltid** körs samma analys automatiskt när du laddar upp en ny PDF, utan att du behöver klicka *Analysera med AI*.
+
+    <Frame>
+      <img src="/images/guider/document-ai-analysis/19-suggestions-ready.png" alt="Sidopanelen med AI-förslag på parter och titel" />
+    </Frame>
+  </Step>
+</Steps>

@@ -1,39 +1,274 @@
 ---
 title: "Guider"
-description: "Steg-för-steg-guider för att använda sajn-plattformen"
+description: "Steg-för-steg-guider för att använda sajn"
 ---
 
-Här hittar du guider som visar hur du använder sajn för att skapa, skicka och hantera digitala dokument. Varje guide innehåller en videogenomgång och steg-för-steg-instruktioner.
+Välkommen till sajns guidebibliotek. Här hittar du steg-för-steg-genomgångar av allt du kan göra i sajn – från att skapa ditt första dokument till att finjustera organisationens säkerhetsinställningar. Klicka in på en kategori nedan eller använd sidomenyn till vänster.
+
+## Kom igång
+
+<CardGroup cols={2}>
+  <Card title="Översikt över startsidan" icon="house" href="/guider/dashboard-tour">
+    Hitta rätt i startsidan, sidomenyn och dokumentlistan.
+  </Card>
+  <Card title="Byt arbetsyta" icon="grid-2" href="/guider/workspace-switching">
+    Växla mellan arbetsytor du är medlem i.
+  </Card>
+  <Card title="Hantera notiser" icon="bell" href="/guider/notifications">
+    Välj vilka händelser du vill bli aviserad om.
+  </Card>
+  <Card title="Säkra ditt konto" icon="shield-check" href="/guider/setup-2fa-passkey">
+    Aktivera 2FA eller passkey för säker inloggning.
+  </Card>
+  <Card title="Signaturtyper" icon="signature" href="/guider/signing-methods">
+    BankID, klicksignering eller ritad signatur.
+  </Card>
+</CardGroup>
+
+## Dokument
 
 <CardGroup cols={2}>
   <Card title="Skapa ett dokument" icon="file-plus" href="/guider/skapa-dokument">
-    Lär dig hur du skapar ett nytt dokument i sajn.
+    Skapa ett nytt dokument från grunden eller från en mall.
+  </Card>
+  <Card title="Skapa från mall" icon="copy" href="/guider/create-document-from-template">
+    Skapa ett dokument från en befintlig mall.
+  </Card>
+  <Card title="Skapa från PDF" icon="file-pdf" href="/guider/create-document-from-pdf">
+    Skapa ett dokument genom att ladda upp en PDF.
+  </Card>
+  <Card title="Ladda upp Office-filer" icon="file-word" href="/guider/upload-office-documents">
+    Ladda upp DOCX, PPT eller CSV som dokument.
+  </Card>
+  <Card title="Redigera PDF" icon="pen" href="/guider/edit-pdf-in-editor">
+    Redigera en uppladdad PDF i editorn.
+  </Card>
+  <Card title="AI-analys" icon="sparkles" href="/guider/document-ai-analysis">
+    Låt AI:n extrahera parter och inställningar från en PDF.
+  </Card>
+  <Card title="AI-textredigering" icon="wand-magic-sparkles" href="/guider/document-ai-text-edit">
+    Förbättra text i dokumenteditorn med AI.
+  </Card>
+  <Card title="Privata dokument" icon="lock" href="/guider/private-documents">
+    Skapa dokument synliga endast för dig.
   </Card>
   <Card title="Lägg till en part" icon="user-plus" href="/guider/lagg-till-part">
-    Lägg till parter som ska signera dokumentet.
+    Lägg till mottagare som ska signera dokumentet.
+  </Card>
+  <Card title="Interna mottagare" icon="users" href="/guider/internal-recipients">
+    Kollegor som ska få dokumentet utan att signera.
   </Card>
   <Card title="Ändra inställningar" icon="gear" href="/guider/andra-installningar">
-    Konfigurera inställningar som påminnelser, utgångsdatum och mer.
+    Justera utgångsdatum, språk och signeringsordning.
   </Card>
   <Card title="Skicka för signering" icon="paper-plane" href="/guider/skicka-dokument">
-    Skicka dokumentet till parterna för signering.
+    Skicka dokumentet till parterna.
   </Card>
-  <Card title="Skapa en mall" icon="copy" href="/guider/skapa-mall">
-    Skapa mallar för dokument du skickar ofta.
+  <Card title="Skicka en påminnelse" icon="bell-ring" href="/guider/skicka-paminnelse">
+    Knuffa på en mottagare som inte signerat.
   </Card>
-  <Card title="Hantera filer" icon="file" href="/guider/filer">
+  <Card title="Förläng utgångsdatum" icon="calendar-clock" href="/guider/forlang-utgangsdatum">
+    Skjut fram dokumentets utgångsdatum.
+  </Card>
+  <Card title="Versionshistorik" icon="clock-rotate-left" href="/guider/document-version-history">
+    Se vad som ändrats i ett dokument.
+  </Card>
+  <Card title="Bokmärken" icon="bookmark" href="/guider/document-bookmarks">
+    Bokmärk dokument du återkommer till.
+  </Card>
+  <Card title="Filer" icon="file" href="/guider/filer">
     Ladda upp och hantera filer i sajn.
   </Card>
-  <Card title="Utforska arkivet" icon="box-archive" href="/guider/arkivet">
-    Hitta och hantera dina signerade och arkiverade dokument.
+  <Card title="Fillistan" icon="folder-open" href="/guider/files-overview">
+    Hitta uppladdade filer separat från dokumentlistan.
   </Card>
+  <Card title="Mappar" icon="folder-tree" href="/guider/folders">
+    Organisera dokument och filer i mappar.
+  </Card>
+  <Card title="Bilagor" icon="paperclip" href="/guider/add-attachments">
+    Bifoga filer till ett dokument.
+  </Card>
+  <Card title="Kommentarer & omnämnanden" icon="comment" href="/guider/comments-mentions">
+    Använd kommentarer och @-omnämnanden i ett dokument.
+  </Card>
+  <Card title="Attestflöde" icon="check-double" href="/guider/approval-workflow">
+    Konfigurera attestflöde för ett dokument.
+  </Card>
+</CardGroup>
+
+## Mallar
+
+<CardGroup cols={2}>
+  <Card title="Skapa en mall" icon="copy" href="/guider/skapa-mall">
+    Spara återanvändbara dokumentmallar.
+  </Card>
+  <Card title="Mall från PDF" icon="file-pdf" href="/guider/create-template-from-pdf">
+    Skapa en mall från en befintlig PDF.
+  </Card>
+  <Card title="Använd en mall" icon="file-import" href="/guider/use-template">
+    Skapa ett nytt dokument från en mall.
+  </Card>
+  <Card title="AI-generera sektion" icon="sparkles" href="/guider/ai-generate-template-section">
+    Låt AI generera ett nytt avsnitt i en mall.
+  </Card>
+  <Card title="Delade mallar" icon="users" href="/guider/sajn-collection">
+    Använd delade mallar i din arbetsyta.
+  </Card>
+  <Card title="Lås en mall" icon="lock-keyhole" href="/guider/lock-template">
+    Lås en mall så ingen ändrar den av misstag.
+  </Card>
+  <Card title="Ta bort en mall" icon="trash" href="/guider/delete-template">
+    Ta bort en mall som inte används.
+  </Card>
+</CardGroup>
+
+## Kontakter
+
+<CardGroup cols={2}>
+  <Card title="Skapa en kontakt" icon="user-plus" href="/guider/create-contact">
+    Lägg till en ny kontakt manuellt.
+  </Card>
+  <Card title="Redigera en kontakt" icon="user-pen" href="/guider/edit-contact">
+    Uppdatera en kontakts uppgifter.
+  </Card>
+  <Card title="Importera kontakter" icon="file-import" href="/guider/import-contacts">
+    Importera flera kontakter samtidigt.
+  </Card>
+</CardGroup>
+
+## SajnID
+
+<CardGroup cols={2}>
+  <Card title="Skapa ett SajnID" icon="id-card" href="/guider/create-sajn-id">
+    Skapa ett SajnID för identifiering.
+  </Card>
+  <Card title="Hantera SajnID" icon="id-card-clip" href="/guider/manage-sajn-id">
+    Se status, händelser och Bevaka-läge.
+  </Card>
+</CardGroup>
+
+## Arkiv & statistik
+
+<CardGroup cols={2}>
+  <Card title="Utforska arkivet" icon="box-archive" href="/guider/arkivet">
+    Hitta signerade och avslutade dokument.
+  </Card>
+  <Card title="Arkivera dokument" icon="box-archive" href="/guider/archive-document">
+    Arkivera ett färdigsignerat dokument.
+  </Card>
+  <Card title="Papperskorgen" icon="trash-can" href="/guider/trash-document">
+    Flytta dokument till papperskorgen och återställa dem.
+  </Card>
+  <Card title="Statistik" icon="chart-line" href="/guider/statistics">
+    Översikt över nyckeltal och aktivitet.
+  </Card>
+  <Card title="Signeringsuppspelning" icon="video" href="/guider/signing-session-replay">
+    Spela upp en mottagares signeringssession.
+  </Card>
+</CardGroup>
+
+## Konto & personliga inställningar
+
+<CardGroup cols={2}>
+  <Card title="Personliga inställningar" icon="user-gear" href="/guider/personliga-installningar">
+    Hantera ditt konto, lösenord och säkerhet.
+  </Card>
+  <Card title="Kommunikationsinställningar" icon="envelope" href="/guider/settings-communication-preferences">
+    Välj vilka notiser och e-postutskick du vill ha.
+  </Card>
+  <Card title="Inställningar – översikt" icon="list" href="/guider/settings-overview">
+    Förstå skillnaden mellan personliga, arbetsyte- och organisationsinställningar.
+  </Card>
+  <Card title="Preferenser" icon="sliders" href="/guider/settings-preferences">
+    Standardvärden för dokument och e-post.
+  </Card>
+</CardGroup>
+
+## Arbetsyta
+
+<CardGroup cols={2}>
   <Card title="Arbetsytor" icon="grid-2" href="/guider/arbetsytor">
     Organisera ditt arbete med arbetsytor.
   </Card>
   <Card title="Arbetsyteinställningar" icon="table-layout" href="/guider/arbetsyteinstellningar">
     Konfigurera arbetsytor och behörigheter.
   </Card>
-  <Card title="Personliga inställningar" icon="user-gear" href="/guider/personliga-installningar">
-    Konfigurera dina personliga inställningar.
+  <Card title="Medlemmar & roller" icon="users" href="/guider/settings-workspace-members-roles">
+    Bjud in kollegor och tilldela roller.
+  </Card>
+  <Card title="Profilering" icon="palette" href="/guider/settings-branding">
+    Logotyp, färger och dokumentutseende.
+  </Card>
+  <Card title="E-postmallar" icon="envelope-open-text" href="/guider/anpassade-epostmallar">
+    Anpassa e-postmallar per språk.
+  </Card>
+  <Card title="Meddelandemallar" icon="message" href="/guider/settings-message-templates">
+    Spara meddelandemallar för utskick.
+  </Card>
+  <Card title="Anpassade fält" icon="square-plus" href="/guider/anpassade-falt-i-dokument">
+    Skapa egna fält för dokument och kontakter.
+  </Card>
+  <Card title="Taggar" icon="tag" href="/guider/settings-tags">
+    Hantera taggar och färgkoder.
+  </Card>
+  <Card title="AI-inställningar" icon="sparkles" href="/guider/settings-ai">
+    Aktivera AI och välja analysläge.
+  </Card>
+  <Card title="Sökinställningar" icon="magnifying-glass" href="/guider/settings-search">
+    Innehållsindexering och AI-tolkning.
+  </Card>
+  <Card title="Inkorg" icon="inbox" href="/guider/settings-inbox">
+    Skicka in dokument via e-post till sajn.
+  </Card>
+  <Card title="Bädda in" icon="code" href="/guider/settings-embed">
+    Bädda in signering på din egen webbplats.
+  </Card>
+  <Card title="Anpassad signeringssida" icon="paintbrush" href="/guider/custom-signing-page">
+    Anpassa signeringssidan med din branding.
+  </Card>
+  <Card title="Utvecklar-API" icon="key" href="/guider/settings-developer-api">
+    Skapa API-nycklar och hantera utvecklarinställningar.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guider/webhooks">
+    Konfigurera webhooks för dokumenthändelser.
+  </Card>
+  <Card title="Omdirigering efter signering" icon="arrow-right-from-bracket" href="/guider/redirect-after-signing">
+    Skicka mottagaren vidare till en egen URL.
+  </Card>
+  <Card title="Innehållssökning" icon="magnifying-glass-plus" href="/guider/document-content-search">
+    Sök i innehållet av dokument (Enterprise).
   </Card>
 </CardGroup>
+
+## Organisation
+
+<CardGroup cols={2}>
+  <Card title="Organisationsprofil" icon="building" href="/guider/settings-organization-profile">
+    Hantera organisationens profil.
+  </Card>
+  <Card title="Företagsuppgifter" icon="briefcase" href="/guider/settings-organization-business-details">
+    Org.nr, adress och momsregistrering.
+  </Card>
+  <Card title="Medlemmar & roller" icon="user-group" href="/guider/settings-organization-members-roles">
+    Hantera organisationsmedlemmar.
+  </Card>
+  <Card title="Säkerhet" icon="lock" href="/guider/settings-organization-security">
+    Tvingad 2FA och geografiska regler.
+  </Card>
+  <Card title="Dataintegritet" icon="shield" href="/guider/settings-organization-data-privacy">
+    GDPR-export och permanent radering.
+  </Card>
+  <Card title="Granskningslogg" icon="clipboard-list" href="/guider/settings-audit-log">
+    Granska organisationens aktivitetslogg.
+  </Card>
+  <Card title="Abonnemang" icon="credit-card" href="/guider/settings-subscription">
+    Uppgradera eller hantera tillägg.
+  </Card>
+  <Card title="Användning" icon="gauge" href="/guider/settings-usage">
+    Se token- och kostnadsåtgång för AI.
+  </Card>
+</CardGroup>
+
+## Behöver du hjälp?
+
+Hör av dig till oss på [hej@sajn.se](mailto:hej@sajn.se) om du inte hittar svaret på din fråga, eller saknar en guide.

@@ -1,0 +1,60 @@
+---
+title: "GDPR- och integritetsinställningar"
+description: "Exportera organisationens data och hantera permanent radering enligt GDPR"
+---
+
+Sidan **GDPR och integritet** samlar de funktioner som hjälper er hantera personuppgifter i sajn enligt dataskyddsförordningen: ni kan exportera alla data ni har lagrat i organisationen och, som ägare, begära permanent radering av hela organisationen. Den här guiden visar var sidan ligger och vilka sektioner som finns – inga exporter eller raderingar utlöses.
+
+## Innan du börjar
+
+- Du är inloggad och har behörigheten **Administratör** i organisationen, eller är organisationens ägare.
+- Inställningarna är **organisationsövergripande** – de gäller all data i alla arbetsytor som tillhör organisationen.
+- Sektionen **Radera organisation** visas endast för organisationens ägare. Vanliga administratörer ser bara exportverktyget.
+- Den här guiden är skrivskyddad – inga exporter begärs och ingen radering startas.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Organisation → GDPR och integritet i sidomenyn">
+    Sidan ligger under *Organisationsinställningar* tillsammans med övriga företagsuppgifter, inte under en specifik arbetsyta. Beroende på din roll ser du ett eller två avsnitt:
+
+    - **Exportera data** – synligt för organisationsadministratörer och ägare.
+    - **Permanent radering** – synligt endast för organisationens ägare, längst ned på sidan.
+
+    Eftersom sidan inte har några egna formulär eller spara-knappar krävs ingen åtgärd för att lämna den.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-data-privacy/02-open-data-privacy.png" alt="Sidan GDPR och integritet öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Exportera data – välj vilka datatyper som ska ingå i exporten">
+    Här kan du som administratör begära ut all data som organisationen har lagrat i sajn – ett vanligt steg när ni behöver svara på en registrerads begäran om utdrag enligt artikel 15 GDPR eller bara vill ha en lokal säkerhetskopia.
+
+    Fem datatyper kan väljas:
+
+    - **Företag** – namn, organisationsnummer och land för era kundföretag/motparter.
+    - **Kontakter** – namn, e-post, telefon, företag, adress och taggar.
+    - **ID-verifieringar** – namn, status, tidsstämplar och eventuella felorsaker från BankID/eIDAS-kontroller.
+    - **Dokument** – namn, status, parter och tidsstämplar (själva PDF-filerna ingår inte i CSV-exporten).
+    - **Teammedlemmar** – namn, e-post, roll och inloggningshistorik.
+
+    Kryssa i **Välj alla** högst upp för att markera samtliga, eller välj bara de datatyper du behöver.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-data-privacy/04-export-section.png" alt="Sektionen Exportera data med kryssrutor för olika datatyper" />
+    </Frame>
+  </Step>
+  <Step title="Knappen Begär export – sparar en zip-fil med CSV-filer till din e-post">
+    När du klickar på **Begär export** köas ett bakgrundsjobb som samlar ihop den valda datan och skickar en zip-fil med CSV-filer till e-postadressen som är kopplad till ditt användarkonto. Du behöver inte stå kvar på sidan – ett e-postmeddelande kommer när exporten är klar.
+
+    Knappen är inaktiverad så länge inga datatyper är valda. När exporten körs visas en spinner och texten **Begär export…** – starta inte om processen, varje begäran genererar en separat e-post.
+
+    Observera: i den här guiden klickar vi *inte* på knappen – den visas bara för att du ska veta var den ligger.
+
+    **Permanent radering (ägare):** Om du är inloggad som organisationens ägare visas dessutom ett rött varningsfält längst ner på sidan med rubriken *Permanent radering* och knappen **Radera organisation**. Vanliga administratörer ser inte den sektionen. När ägaren bekräftar raderingen pausas organisationen omedelbart, all data raderas efter 30 dagars karens och signerade dokument bevaras för verifiering.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-data-privacy/05-request-export-button.png" alt="Knappen Begär export längst ned i exportsektionen" />
+    </Frame>
+  </Step>
+</Steps>

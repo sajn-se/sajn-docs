@@ -1,0 +1,86 @@
+---
+title: "Se token- och kostnadsåtgång för AI"
+description: "Följ AI-kvot, dokument, signaturer, e-post, SMS och AI-användning per arbetsyta, medlem och period"
+---
+
+På sidan **Användning** följer du hur er organisation utnyttjar sajn – AI-kvot, dokument, signaturer, e-post, SMS och AI-användning per period. Den här guiden visar var sidan ligger, hur du läser AI-kvoten och hur du filtrerar siffrorna per arbetsyta, medlem eller tidsperiod. Allt är skrivskyddat – inga inställningar ändras.
+
+## Innan du börjar
+
+- Du är inloggad och har behörighet att se organisationens användningsstatistik.
+- Sidan ligger under **Organisationsinställningar** – siffrorna gäller hela organisationen, oavsett vilken arbetsyta du står i.
+- AI-kvoten styrs av ert abonnemang. På Basic är AI-funktionerna inte aktiva och kvotbalken kan visa 0 % kvar.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Användning i sidomenyn">
+    Sidan ligger under *Organisationsinställningar*. Brödsmulan högst upp visar **Inställningar → Organisation** så du vet att siffrorna gäller hela organisationen, inte bara den arbetsyta du står i just nu.
+
+    <Frame>
+      <img src="/images/guider/settings-usage/02-open-usage.png" alt="Sidan Användning öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="AI-kvot kvar denna månad – balken visar hur mycket av månadens AI-tokens som finns kvar">
+    Balken är *kvarvarande* andel, inte förbrukad. Den fylls från vänster och har tre lägen:
+
+    - **Blå** – mer än 10 % kvar, normal användning.
+    - **Gul (amber)** – 10 % eller mindre kvar, dags att hålla utkik.
+    - **Röd** – 0 % kvar, kvoten är slut för månaden och AI-funktionerna pausas tills nästa månad eller tills ni uppgraderar.
+
+    Om ert abonnemang har obegränsad AI visas texten **Obegränsat** istället för en procentsats (som i exemplet ovan). Kvoten nollställs i början av varje kalendermånad.
+
+    <Frame>
+      <img src="/images/guider/settings-usage/05-ai-quota.png" alt="AI-kvotbalken som visar kvarvarande tokens denna månad" />
+    </Frame>
+  </Step>
+  <Step title="Filtreringsraden – välj arbetsyta, medlemmar och tidsperiod">
+    Uppe till höger på sidan finns tre filter som styr alla diagram nedanför:
+
+    1. **Alla arbetsytor** – multi-select. Välj en eller flera arbetsytor om du vill begränsa siffrorna till just dem. Tomt val = alla arbetsytor i organisationen.
+    2. **Medlemmar** – multi-select. Filtrera på vem som skapat eller skickat. En liten siffra på knappen visar hur många medlemmar du valt.
+    3. **Tidsperiod** – datumväljare med förinställda intervaller (*Senaste 7 dagarna*, *Senaste 30 dagarna*, *Senaste 3/6 månaderna*, *I år*) eller en egen period.
+
+    När minst ett filter är aktivt dyker länken **Återställ filter** upp till vänster om filtren – klicka för att rensa allt på en gång.
+
+    <Frame>
+      <img src="/images/guider/settings-usage/06-filter-toolbar.png" alt="Filtreringsraden med arbetsyta, medlemmar och tidsperiod" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på tidsperioden för att välja en annan – t.ex. Senaste 3 månaderna eller I år">
+    I popovern listas alla förinställda perioder. Den aktiva perioden är markerad. Du kan också välja ett eget datumintervall via kalendern.
+
+    Obs: att ändra perioden påverkar bara *din vy* – inga inställningar sparas i organisationen, så du kan tryggt klicka runt utan att förändra något för dina kollegor.
+
+    <Frame>
+      <img src="/images/guider/settings-usage/09-period-presets.png" alt="Popovern med förinställda tidsperioder och kalender" />
+    </Frame>
+  </Step>
+  <Step title="AI-tokens – total AI-användning i tokens (input + output) per dag">
+    Det här är diagrammet att titta på om du vill förstå *kostnadsåtgången* för AI. Stapeln för varje dag visar det sammanlagda antalet tokens som AI-funktionerna förbrukat – både det som skickats in (input) och det som AI:n genererat tillbaka (output). Totalen för perioden står uppe till höger.
+
+    Kvotbalken högst upp på sidan räknas från samma siffra, så om grafen pikar kraftigt en viss dag är det också den dagen kvoten dragits ner mest. Använd filtren ovanför (arbetsyta / medlem / period) för att hitta vem eller vad som drev en topp.
+
+    <Frame>
+      <img src="/images/guider/settings-usage/12-ai-tokens-chart.png" alt="AI-tokens-diagrammet med daglig användning över perioden" />
+    </Frame>
+  </Step>
+  <Step title="AI-generationer – antalet PDF→mall-genereringar per dag under vald period">
+    Det här diagrammet visar hur många gånger AI:n har konverterat uppladdade PDF:er till mallar – en av de mer kostnadstunga AI-operationerna per anrop. En enskild generering kan dra många tokens, så även få staplar här kan synas tydligt i *AI-tokens*-grafen ovan.
+
+    Kombinera gärna med medlemsfiltret för att se vilken användare som genererat mest, eller med arbetsytefiltret för att jämföra olika team.
+
+    <Frame>
+      <img src="/images/guider/settings-usage/13-ai-generations-chart.png" alt="AI-generationer-diagrammet med daglig användning" />
+    </Frame>
+  </Step>
+  <Step title="AI-chatmeddelanden – antal meddelanden till AI-chatten per dag">
+    Här ser du hur mycket Bob används som chattassistent. Varje meddelande drar tokens från månadskvoten ovan, så den här grafen är en bra indikator på vad som faktiskt äter upp kvotbalken.
+
+    Längre ner finns även diagram för *Skapade dokument*, *Slutförda dokument*, *Skickade dokument*, *E-post*, *SMS* och *ID-kontroller (sajn ID)* – allt med samma upplägg och samma filterval. Hovra över en stapel i ett diagram för att se exakt värde för den dagen.
+
+    <Frame>
+      <img src="/images/guider/settings-usage/14-ai-chat-chart.png" alt="AI-chatmeddelanden-diagrammet med daglig användning" />
+    </Frame>
+  </Step>
+</Steps>

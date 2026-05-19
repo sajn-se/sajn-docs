@@ -1,0 +1,56 @@
+---
+title: "Importera flera kontakter samtidigt"
+description: "Lägg till många kontakter i bulk från integrationer, andra arbetsytor, CSV eller företagssökning"
+---
+
+När du behöver lägga till många kontakter samtidigt – till exempel när du startar en ny arbetsyta eller flyttar in ett befintligt register – kan du importera dem i bulk i stället för att skapa dem en och en. Importmenyn på sidan **Kontakter** samlar alla bulk-källor: installerade integrationer, andra arbetsytor inom samma organisation, CSV-filer och företagssökning. Den här guiden visar var menyn finns, vilka val du har och hur importflödet ser ut.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och står i arbetsytan som ska ta emot kontakterna.
+- Du har behörighet att skapa kontakter i arbetsytan.
+- För att importera från en annan arbetsyta måste du vara medlem i minst en annan arbetsyta inom organisationen.
+- För att importera från en integration måste integrationen vara installerad i arbetsytan (t.ex. ett CRM).
+
+## Steg
+
+<Steps>
+  <Step title="Öppna Kontakter i sidomenyn">
+    Kontaktlistan är startpunkten för all kontakthantering – både enskild kontaktskapande och bulkimport. Importknappen göms inne i en meny bredvid **Skapa kontakt**-knappen högst upp till höger, så att vyn ser ren ut när du inte behöver den.
+
+    <Frame>
+      <img src="/images/guider/import-contacts/02-open-contacts.png" alt="Kontaktlistan med knappen Skapa kontakt högst upp till höger" />
+    </Frame>
+  </Step>
+  <Step title="Öppna importmenyn bredvid Skapa kontakt">
+    Klicka på pilen bredvid **Skapa kontakt** för att öppna importmenyn. Menyn samlar alla bulk-källor på ett ställe:
+
+    - **Importera från [integration]** – en rad per installerad integration som har kontakter (t.ex. ett CRM eller e-postverktyg). Saknar du integrationen i listan kan en administratör installera den under *Inställningar → Integrationer*.
+    - **Importera från annan arbetsyta** – kopierar valda kontakter från en annan sajn-arbetsyta du är medlem i. Praktiskt när du startar en ny arbetsyta eller delar register mellan team.
+    - **Importera från CSV** – visas som inaktiverad. Den här källan är på väg och blir klickbar så snart funktionen lanseras.
+    - **Sök företag** – inte en import i strikt mening, men en snabbväg att lägga till en kontakt utifrån en företagssökning mot Bolagsverket.
+
+    <Frame>
+      <img src="/images/guider/import-contacts/06-import-menu-open.png" alt="Importmenyn öppen med alla bulk-källor" />
+    </Frame>
+  </Step>
+  <Step title="Importera från en annan arbetsyta">
+    Sidopanelen **Importera från annan arbetsyta** öppnas. Sidopanelen guidar dig i två steg:
+
+    1. **Välj källarbetsyta** – dropdownen längst upp listar alla arbetsytor du är medlem i (förutom den aktuella). Arbetsytorna är grupperade per organisation så att du snabbt hittar rätt om du är medlem i flera.
+    2. **Välj kontakter** – när du har valt en arbetsyta laddas dess kontakter automatiskt. Du kan söka i listan, kryssa enskilda rader eller välja alla på en gång.
+
+    Knappen **Importera** längst ned visar löpande hur många kontakter du har valt och aktiveras först när allt är klart. Dubbletter (samma e-post) hoppas över automatiskt, så det är säkert att välja stora urval. Saknar du andra arbetsytor visar dropdownen meddelandet *Inga andra arbetsytor tillgängliga* – be då en organisationsadministratör att lägga till dig i fler arbetsytor, eller använd någon av de andra källorna i importmenyn.
+
+    <Frame>
+      <img src="/images/guider/import-contacts/09-import-drawer-open.png" alt="Sidopanelen Importera från annan arbetsyta öppen" />
+    </Frame>
+  </Step>
+  <Step title="Tillbaka i kontaktlistan">
+    Stäng panelen och du är tillbaka i kontaktlistan. När importen är klar (eller om du avbryter) stängs panelen och du landar tillbaka i kontaktlistan. Importerade kontakter får märkningen **Importerad** i tabellen, så att du lätt kan filtrera fram dem senare via tagg-filtret. Behöver du importera från fler källor öppnar du bara importmenyn igen – varje import kör i sin egen omgång och du kan blanda källor (integration, annan arbetsyta, CSV när den lanseras).
+
+    <Frame>
+      <img src="/images/guider/import-contacts/12-back-in-contacts.png" alt="Kontaktlistan med importerade kontakter märkta Importerad" />
+    </Frame>
+  </Step>
+</Steps>

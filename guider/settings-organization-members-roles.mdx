@@ -1,0 +1,66 @@
+---
+title: "Hantera organisationens medlemmar och roller"
+description: "Granska medlemmar, bjud in nya och hantera roller på organisationsnivå — inte enskilda arbetsytor"
+---
+
+Den här guiden visar var du administrerar **organisationens** medlemmar och roller – alltså de personer som har tillgång till hela organisationen och de behörighetsuppsättningar som gäller på organisationsnivå. Tänk så här: *organisationen* är den övergripande enheten (företaget eller kontoinnehavet), medan *arbetsytor* är specifika ytor inom organisationen. En medlem som finns på organisationsnivå kan ha åtkomst till flera arbetsytor – men varje enskild arbetsyta har dessutom egna medlemmar och roller. Den här guiden ändrar ingenting – vi rör inga roller och bjuder inte in någon. Vi tittar bara på sidorna och förklarar kolumnerna.
+
+## Innan du börjar
+
+- Du är inloggad som ägare eller administratör för organisationen.
+- Du har behörighet att se sidorna under **Inställningar → Organisation**.
+- Du vet skillnaden mellan *organisation* (övergripande) och *arbetsyta* (specifik yta inom organisationen) – arbetsytespecifika medlemmar hanteras på en separat sida.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Organisation → Medlemmar i sidomenyn">
+    Sidan ligger under *Organisationsinställningar* (inte *Arbetsyteinställningar*). Det betyder att listan visar **alla personer som har åtkomst till organisationen** – oavsett vilken arbetsyta de jobbar i. Brödsmulan högst upp läser *Inställningar › Organisation › Medlemmar* så att det är tydligt på vilken nivå du befinner dig.
+
+    Uppe till höger finns knappen **Lägg till medlem** (vi klickar inte på den i den här guiden).
+
+    <Frame>
+      <img src="/images/guider/settings-organization-members-roles/02-open-organization-members.png" alt="Sidan Medlemmar öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Översikt: status-flikar och medlemstabellen">
+    Högst upp finns fyra statusflikar: **Alla medlemmar**, **Aktiva medlemmar**, **Inbjudningar** och **Inaktiva medlemmar**. Siffran i varje pill visar hur många som matchar respektive status. Klicka på en flik för att filtrera tabellen – URL:en uppdateras så att filtret kan delas via länk.
+
+    Tabellen nedanför har kolumnerna **Namn**, en kolumn för märkningar (t.ex. *Du*, *Innehavare* eller *Inbjudan väntar*), **E-postadress**, **Roll** och **Senast aktiv / Utgår**. Sist finns en trepunktsmeny per rad för åtgärder.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-members-roles/04-members-overview.png" alt="Översikt av medlemssidan med statusflikar och medlemstabell" />
+    </Frame>
+  </Step>
+  <Step title="Kolumnen Roll visar varje medlems organisationsroll">
+    Rollen som syns här är medlemmens **organisationsroll** – alltså vilka behörigheter personen har på organisationsnivå (t.ex. *Owner*, *Admin* eller en egen roll). Det är skilt från eventuella arbetsytespecifika roller som styr åtkomst inom en enskild arbetsyta.
+
+    För att ändra en medlems roll går du in på medlemmens detaljsida via trepunktsmenyn → *Redigera*. Du kan också skicka, skicka om eller ta bort inbjudningar härifrån – vi rör inga av dessa åtgärder i den här guiden.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-members-roles/05-scroll-role-column.png" alt="Kolumnen Roll i medlemstabellen med organisationsroller" />
+    </Frame>
+  </Step>
+  <Step title="Öppna Inställningar → Organisation → Roller">
+    Bredvid *Medlemmar* finns sidan **Roller**, som är *definitionen* av vilka behörighetspaket som finns att tilldela. Här ser du både inbyggda roller (märkta *Inbyggd*) och eventuella egna roller som organisationen har skapat.
+
+    Uppe till höger finns knappen **Skapa roll** om du har behörigheten *MANAGE_ROLES* – den klickar vi inte på.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-members-roles/06-open-organization-roles.png" alt="Sidan Roller öppen under Organisationsinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Översikt: rollistan med kolumnerna Namn, Behörigheter och Antal medlemmar">
+    Tabellen visar varje roll på en rad:
+
+    - **Namn** – rollens namn. Inbyggda roller har en **Inbyggd**-badge och kan inte tas bort.
+    - **Behörigheter** – antalet behörigheter rollen har. Klicka på info-ikonen för att se exakt vilka rättigheter som ingår (varje rad listar både den tekniska nyckeln och en läsbar etikett).
+    - **Antal medlemmar** – hur många medlemmar som just nu har rollen tilldelad. En roll som används av medlemmar kan inte tas bort förrän de medlemmarna har en annan roll.
+
+    Trepunktsmenyn längst till höger på en egen (icke-inbyggd) roll erbjuder *Redigera*, *Gör en kopia* och *Ta bort*. På inbyggda roller är *Redigera* och *Ta bort* otillgängliga av designskäl – behörigheterna i dem är låsta.
+
+    <Frame>
+      <img src="/images/guider/settings-organization-members-roles/08-roles-overview.png" alt="Översikt av rollistan med namn, behörigheter och antal medlemmar" />
+    </Frame>
+  </Step>
+</Steps>

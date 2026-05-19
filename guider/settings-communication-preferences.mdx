@@ -1,0 +1,85 @@
+---
+title: "Notisinställningar — vad du får via e-post och in-app"
+description: "Styr vilka notiser du tar emot från sajn per notistyp och kanal — personliga inställningar"
+---
+
+På sidan **Kommunikationsinställningar** styr du själv vilka notiser du tar emot från sajn – per notistyp och per kanal. Inställningarna är **personliga** och gäller dig som inloggad användare, oavsett vilken arbetsyta du jobbar i. Den här guiden går igenom var sidan ligger, hur sidan är organiserad i flikar och vilka notistyper du kan slå på eller av. Inget ändras under guidens gång – du läser bara igenom alternativen.
+
+## Innan du börjar
+
+- Du är inloggad på sajn.
+- Inställningarna är personliga – varje användare har sin egen uppsättning preferenser.
+- Fliken **API-aviseringar och åtgärder** visas bara om du har behörigheten *Hantera utvecklarinställningar* i organisationen.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Kommunikationsinställningar i sidomenyn">
+    Sidan ligger under dina personliga inställningar. Rubriken längst upp – *Anpassa e-postmeddelanden, sms och pushmeddelanden som du tar emot* – beskriver vad sidan är till för. I dagsläget exponerar gränssnittet två kanaler per notistyp: **In-app** (notiscentret i sajn) och **E-post**.
+
+    <Frame>
+      <img src="/images/guider/settings-communication-preferences/02-open-communication-preferences.png" alt="Sidan Kommunikationsinställningar öppen under personliga inställningar" />
+    </Frame>
+  </Step>
+  <Step title="Sidan är uppdelad i flikar – en per notiskategori">
+    Längst upp ser du flikarna **Dokument** och **Allmänt**, och – om du har utvecklarbehörighet – även **API-aviseringar och åtgärder**.
+
+    Varje flik listar ett antal notistyper med två kryssrutekolumner till höger: **In-app** och **E-post**. Du väljer fritt vilka kanaler du vill ha för varje notistyp. Vill du slå av en notis helt: avmarkera båda kolumnerna för den raden.
+
+    <Frame>
+      <img src="/images/guider/settings-communication-preferences/04-tabs-overview.png" alt="Översikt av flikarna Dokument, Allmänt och API på kommunikationsinställningssidan" />
+    </Frame>
+  </Step>
+  <Step title="Fliken Dokument – aviseringar kopplade till dokument du ansvarar för">
+    Här hittar du notiser för hela dokumentets livscykel:
+
+    - **Dokument signerat** – när en mottagare signerat ett dokument du ansvarar för.
+    - **Dokument slutfört** – när alla mottagare har signerat och dokumentet är klart.
+    - **Dokument avböjt** – när en mottagare avböjt att signera.
+    - **Dokument utgången** – när ett dokument passerat sitt utgångsdatum utan att slutföras.
+    - **Dokument delegerat** – när en mottagare delegerat sin signering till någon annan.
+    - **Dokument öppnat** – när någon öppnar ett dokument du har skapat för första gången.
+
+    Kryssa i **In-app** för att se notisen i sajns notiscenter och/eller **E-post** för att få den i inkorgen.
+
+    <Frame>
+      <img src="/images/guider/settings-communication-preferences/05-tab-dokument.png" alt="Fliken Dokument med dokumentnotiser och kanalval" />
+    </Frame>
+  </Step>
+  <Step title="Fliken Allmänt – konto- och organisationshändelser">
+    Tre notistyper som inte är knutna till ett enskilt dokument:
+
+    - **Ny medlem** – när en ny medlem går med i din organisation.
+    - **Veckosammanfattning** – ett sammandrag av veckans aktiviteter som skickas varje måndag.
+    - **Ovanlig kontoaktivitet** – säkerhetsavisering när sajn upptäcker något avvikande på kontot.
+
+    Veckosammanfattningen är t.ex. typisk en kanal du bara vill ha på e-post – då lämnar du *In-app* tom och kryssar bara *E-post*.
+
+    <Frame>
+      <img src="/images/guider/settings-communication-preferences/08-tab-allmant.png" alt="Fliken Allmänt med konto- och organisationsnotiser" />
+    </Frame>
+  </Step>
+  <Step title="Fliken API-aviseringar och åtgärder – för utvecklarintegrationer">
+    Den här fliken visas endast om du har behörigheten *Hantera utvecklarinställningar* i organisationen. Den samlar notiser som är relevanta när ni använder sajns API:
+
+    - **API-ändringar** – när en API-ändring skapas i organisationen.
+    - **API-nyckel skapad** – när någon skapar en ny API-nyckel.
+    - **API-nyckel borttagen** – när en API-nyckel återkallas.
+    - **Webhooks** – när en webhook misslyckas att leverera.
+
+    De här är typiskt notiser du *vill* ha på e-post även om du har in-app av – misslyckade webhooks i tystnad är svåra att felsöka.
+
+    <Frame>
+      <img src="/images/guider/settings-communication-preferences/11-tab-api.png" alt="Fliken API-aviseringar och åtgärder med utvecklarrelaterade notiser" />
+    </Frame>
+  </Step>
+  <Step title="Längst ned: knappen Spara">
+    Inga ändringar träder i kraft förrän du klickar **Spara**. Knappen är gråad så länge du inte ändrat något – så du kan tryggt klicka runt mellan flikarna och titta på alternativen utan att råka justera dina inställningar.
+
+    När du sparar bekräftas det med ett toast-meddelande och de nya kanalvalen börjar gälla direkt för dig som användare.
+
+    <Frame>
+      <img src="/images/guider/settings-communication-preferences/12-save-button.png" alt="Knappen Spara längst ner på kommunikationsinställningssidan" />
+    </Frame>
+  </Step>
+</Steps>

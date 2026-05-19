@@ -1,0 +1,81 @@
+---
+title: "Hantera ditt personliga konto"
+description: "Uppdatera namn, lösenord, säkerhet, IP-begränsning och organisationer kopplade till ditt sajn-konto"
+---
+
+På sidan **Personuppgifter** hittar du allt som hör till just ditt användarkonto – namn, e-post, lösenord, säkerhetsmetoder som tvåstegsautentisering och inloggningsnycklar, IP-begränsningar samt vilka organisationer du tillhör. Den här guiden visar var sidan ligger och vad varje sektion gör. Den ändrar inga inställningar – du bestämmer själv om något ska justeras.
+
+## Innan du börjar
+
+- Du är inloggad på sajn.
+- Sidan är **personlig** – inställningarna här hör till ditt eget konto, inte till en arbetsyta eller organisation.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Personuppgifter i sidomenyn">
+    Sidan ligger under dina personliga inställningar – allt du ändrar här gäller bara ditt eget konto. Rubriken längst upp sammanfattar vad sidan styr: personuppgifter, lösenord, kommunikationsinställningar och säkerhet.
+
+    <Frame>
+      <img src="/images/guider/settings-user/02-open-user-settings.png" alt="Sidan Personuppgifter öppen under Personliga inställningar" />
+    </Frame>
+  </Step>
+  <Step title="Användare – namn, e-post och lösenord">
+    Översta sektionen visar grunduppgifterna för ditt konto:
+
+    - **E-post** – den adress du loggar in med. Fältet är låst i den här vyn – behöver du byta e-post, kontakta supporten.
+    - **Förnamn** och **Efternamn** – ditt namn som visas i appen, på dokument och i e-postutskick till mottagare.
+    - **Lösenord** – maskeras alltid med prickar. Klicka på **Redigera** uppe till höger för att aktivera redigeringsläget, och välj sedan **Ändra lösenord** för att öppna dialogen där du byter lösenord.
+
+    <Frame>
+      <img src="/images/guider/settings-user/04-user-section.png" alt="Sektionen Användare med fält för e-post, namn och lösenord" />
+    </Frame>
+  </Step>
+  <Step title="Inloggningsnycklar – lösenordsfri inlogging med biometri eller PIN-kod">
+    Här hanterar du *passkeys* – inloggningsnycklar som lagras på din enhet och låter dig logga in med Touch ID, Face ID, Windows Hello eller en hårdvarunyckel istället för lösenord.
+
+    Klicka på **Lägg till inloggningsnyckel** uppe till höger för att registrera en ny nyckel. Befintliga nycklar listas med namn, datum då de lades till och när de senast användes. Via trepunktsmenyn (⋯) kan du byta namn på en nyckel eller ta bort den.
+
+    <Frame>
+      <img src="/images/guider/settings-user/05-passkeys-section.png" alt="Sektionen Inloggningsnycklar med lista över passkeys" />
+    </Frame>
+  </Step>
+  <Step title="Tvåstegsautentisering – extra säkerhet vid inloggning">
+    Tvåfaktorsautentisering (2FA) lägger till ett extra steg vid inloggning utöver lösenord. Klicka på **Lägg till autentiseringsmetod** och välj **Lägg till autentiseringsapp (2FA)** för att koppla en autentiseringsapp som Google Authenticator, Authy eller 1Password.
+
+    Är 2FA redan aktiverat ser du metoden listad här med datum då den lades till. Via trepunktsmenyn kan du **Generera backup-kod** att spara säkert – den fungerar om du tappar bort din telefon – eller **Stäng av** 2FA helt.
+
+    <Frame>
+      <img src="/images/guider/settings-user/06-twofactor-section.png" alt="Sektionen Tvåstegsautentisering med Lägg till autentiseringsmetod" />
+    </Frame>
+  </Step>
+  <Step title="IP-begränsning – tillåt inloggning endast från specifika IP-adresser">
+    För extra säkerhet kan du begränsa inloggning till ditt konto till en eller flera betrodda IP-adresser eller IP-intervall (CIDR).
+
+    Längst upp visas din nuvarande IP-adress. Klicka på **Lägg till IP-adress** för att antingen ange en IP manuellt eller snabbt lägga till **Min nuvarande IP**. När du har minst en regel kan du aktivera funktionen med växlingsknappen **På/Av**. Var försiktig – aktiverar du IP-begränsning utan att inkludera din egen IP riskerar du att låsa ut dig själv.
+
+    <Frame>
+      <img src="/images/guider/settings-user/07-ip-restriction-section.png" alt="Sektionen IP-begränsning med Lägg till IP-adress och växlingsknapp" />
+    </Frame>
+  </Step>
+  <Step title="Organisationer – översikt över organisationer du tillhör">
+    Här ser du alla organisationer där du är medlem, tillsammans med organisationens ID.
+
+    Finns det väntande inbjudningar visas de i en separat tabell ovanför – klicka på **Visa inbjudan** för att acceptera eller avböja.
+
+    Via trepunktsmenyn (⋯) på en organisation kan du **Lämna organisation**. Är du ägare av en organisation är alternativet inaktiverat – då behöver du först överlåta ägarskapet till någon annan. Behöver du en helt ny organisation klickar du på **Skapa ny organisation** uppe till höger.
+
+    <Frame>
+      <img src="/images/guider/settings-user/08-organizations-section.png" alt="Sektionen Organisationer med lista över organisationer du tillhör" />
+    </Frame>
+  </Step>
+  <Step title="Cookie-preferenser – information om nödvändiga cookies">
+    sajn använder endast nödvändiga cookies för att tjänsten ska fungera – för inloggning, säkerhet och grundläggande funktioner. De kan inte stängas av, eftersom appen inte fungerar utan dem.
+
+    Längst ned på sidan visas dessutom ditt unika användar-**ID** och datumet då du blev medlem – praktiskt att referera till om du kontaktar supporten.
+
+    <Frame>
+      <img src="/images/guider/settings-user/09-cookie-section.png" alt="Sektionen Cookie-preferenser med information om nödvändiga cookies" />
+    </Frame>
+  </Step>
+</Steps>

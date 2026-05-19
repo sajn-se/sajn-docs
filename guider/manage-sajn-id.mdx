@@ -1,0 +1,52 @@
+---
+title: "Hantera ett befintligt SajnID"
+description: "Öppna en pågående eller avslutad identitetskontroll, läs verifieringsinformation och följ händelseloggen"
+---
+
+Har du redan skapat en identitetskontroll och vill se hur det går? I sajn ID-listan kan du när som helst öppna en pågående eller avslutad kontroll, läsa verifieringsinformationen och följa hela händelseloggen – från att länken skickades till att BankID-verifieringen genomfördes.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Arbetsytan innehåller minst en befintlig identitetskontroll (skapa annars först en via guiden *Skapa ett SajnID för identifiering*).
+- Du har behörigheten *Hantera sajn ID* i arbetsytan om du vill se känsliga uppgifter.
+
+## Steg
+
+<Steps>
+  <Step title="Öppna sajn ID i sidomenyn">
+    Listan visar samtliga identitetskontroller i den aktuella arbetsytan. För varje kontroll ser du namn, verifieringsmetod (Namn eller Personnummer), kanal (e-post eller telefonnummer), status, vem som skapade den och när. Sökfältet längst upp låter dig snabbt hitta en specifik kontroll på namn, e-post, telefon eller referens, och med statusfiltret kan du till exempel begränsa vyn till bara **Skickat** eller **Verifierat**.
+
+    <Frame>
+      <img src="/images/guider/manage-sajn-id/02-open-sajn-id.png" alt="Listan över identitetskontroller i arbetsytan med sökfält och statusfilter" />
+    </Frame>
+  </Step>
+  <Step title="Skanna listan och hitta den kontroll du vill granska">
+    Statuskolumnen är den snabbaste vägen till en lägesbild: **Skickat** betyder att länken är skickad men inte öppnad, **Öppnat** att mottagaren har klickat på länken, **Verifierat** att BankID-flödet är klart, **Misslyckades** att verifieringen avbröts eller matchade fel, **Utgånget** att den sjudagars länken passerat utan verifiering, och **Avbrutet** att kontrollen återkallades manuellt. Klicka var som helst på raden för att öppna detaljvyn till höger – länken på namnet däremot tar dig till motpartens kontakt.
+
+    <Frame>
+      <img src="/images/guider/manage-sajn-id/04-list-overview.png" alt="Översikt över sajn ID-listan med olika statusar i statuskolumnen" />
+    </Frame>
+  </Step>
+  <Step title="Detaljvyn visar all information om identitetskontrollen">
+    I fliken **Detaljer** ser du namn, verifieringsmetod, kanal (med fullständig e-postadress eller telefonnummer), eventuell referens, vem som skapade kontrollen och när, samt när länken slutar gälla. Om kontrollen redan är verifierad visas dessutom ett **Verifieringsresultat**-block med uppgifterna BankID returnerade – till exempel namnet och en bekräftelse på att personnumret matchade. För misslyckade eller utgångna kontroller hittar du i stället anledningen här.
+
+    <Frame>
+      <img src="/images/guider/manage-sajn-id/07-drawer-details.png" alt="Detaljvyn för en identitetskontroll med fliken Detaljer öppen" />
+    </Frame>
+  </Step>
+  <Step title="Byt till fliken Händelselogg för att följa tidslinjen">
+    Händelseloggen visar varje viktig händelse i kronologisk ordning – när kontrollen skapades, när länken skickades, när mottagaren öppnade den och när BankID-verifieringen genomfördes. Klicka på en rad för att expandera den och se tekniska detaljer som tidsstämpel, händelse-ID, IP-adress och enhet. Detta är samma logg som ligger till grund för det juridiska bevisvärdet – ingenting kan ändras eller tas bort i efterhand.
+
+    <Frame>
+      <img src="/images/guider/manage-sajn-id/10-drawer-logs.png" alt="Fliken Händelselogg med en kronologisk lista över händelser för identitetskontrollen" />
+    </Frame>
+  </Step>
+  <Step title="Använd Bevaka live medan motparten verifierar sig">
+    Knappen **Bevaka live** uppe till höger i panelen sätter igång automatisk uppdatering var femte sekund i upp till två minuter. Det är perfekt om du sitter med kunden i telefon och vill se i realtid när BankID-verifieringen går igenom – statusen i sidhuvudet (klocka, bock eller kryss) växlar direkt när motparten klarar eller misslyckas. Lämnar du fliken eller går två minuter utan ändring stannar bevakningen av sig själv, så att du inte slösar bandbredd i onödan.
+
+    <Frame>
+      <img src="/images/guider/manage-sajn-id/13-highlight-live-monitoring.png" alt="Knappen Bevaka live markerad uppe till höger i detaljpanelen" />
+    </Frame>
+  </Step>
+</Steps>

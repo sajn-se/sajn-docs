@@ -1,0 +1,68 @@
+---
+title: "Skicka in dokument via inbox-e-post"
+description: "Mejla in PDF-bilagor till sajn och få dem automatiskt som arkiverade dokument eller redigerbara utkast"
+---
+
+Inbox-funktionen låter dig (och dina kollegor) mejla in PDF-filer till sajn för att automatiskt skapa dokument – antingen som arkiverade dokument eller som redigerbara utkast. På sidan **Inställningar → Inbox** ser du arbetsytans två inbox-adresser, vilka avsändare som får skicka in PDF:er, och en historik över de senaste mejlen som kommit in. Den här guiden visar var allt ligger – inga adresser eller behörigheter ändras under turnén.
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta där du har behörighet att se inställningarna.
+- Inbox-adresserna är unika per arbetsyta – byter du arbetsyta får du en egen uppsättning adresser.
+- Endast e-postadresser eller domäner som finns i listan **Tillåtna avsändare** kan skicka in PDF:er till inboxen.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Inställningar → Inbox i sidomenyn">
+    Sidan ligger under *Arbetsyteinställningar*. Rubriken **Inbox** högst upp med beskrivningen *Skicka PDF-filer via e-post för att automatiskt skapa dokument* bekräftar att du är på rätt plats. Sidan är uppdelad i tre sektioner ovanifrån och ned: **Tillgängliga e-postadresser**, **Tillåtna avsändare** och **Uppladdningshistorik**.
+
+    <Frame>
+      <img src="/images/guider/settings-inbox/02-open-inbox-settings.png" alt="Sidan Inbox öppen under Arbetsyteinställningar" />
+    </Frame>
+  </Step>
+  <Step title="Tillgängliga e-postadresser – arbetsytans två inbox-adresser">
+    Här hittar du två färdiga adresser för den aktuella arbetsytan:
+
+    - **Arkiv** – `{workspace}.document.archive@inbox.sajn.se`. Mejl till den här adressen skapar **arkiverade dokument** direkt, lämpliga när du vill lägga in färdiga PDF:er i arkivet utan att behöva redigera dem.
+    - **Skapa** – `{workspace}.document.create@inbox.sajn.se`. Mejl till den här adressen skapar **utkast som kan redigeras**, så att du eller en kollega kan komplettera dokumentet och skicka det för signering.
+
+    Klicka på kopieringsikonen till höger om en adress för att lägga den i urklipp – behändigt när du t.ex. ska lägga in adressen som vidarebefordringsregel i din mejlklient. Tipset från beskrivningen: skicka PDF-filen som **bilaga**; mejlets ämne blir dokumentets titel.
+
+    <Frame>
+      <img src="/images/guider/settings-inbox/04-endpoints-section.png" alt="Sektionen Tillgängliga e-postadresser med arkiv- och skapa-adresserna" />
+    </Frame>
+  </Step>
+  <Step title="Tillåtna avsändare – styr vem som får mejla in PDF:er">
+    För att inte vem som helst på internet ska kunna skapa dokument i din arbetsyta måste du lista de avsändare som är okej. Endast adresser eller domäner i listan **Tillåtna e-postadresser** släpps igenom – allt annat avvisas (och syns som *Avböjd* i historiken längre ned).
+
+    Du kan lägga till två slags poster:
+
+    - En **enskild e-postadress**, t.ex. `william@dittforetag.se`.
+    - En **hel domän med wildcard**, t.ex. `*@dittforetag.se`, för att tillåta alla anställda.
+
+    Skriv värdet i fältet och tryck *Enter* för att lägga till det som en tagg; klicka på *×* på en tagg för att ta bort den. Ändringar sparas automatiskt efter en kort fördröjning och bekräftas med ett *Sparat*-meddelande.
+
+    **Tips:** Om mejlets avsändare matchar en användare i organisationen tilldelas det inkomna dokumentet automatiskt till hen.
+
+    <Frame>
+      <img src="/images/guider/settings-inbox/05-allowed-emails-section.png" alt="Sektionen Tillåtna avsändare med tagg-input för adresser och domäner" />
+    </Frame>
+  </Step>
+  <Step title="Uppladdningshistorik – följ vad som händer med inkommande mejl">
+    Tabellen visar de **senaste 100 e-postuppladdningarna** till inbox för arbetsytan, med kolumner för **Status**, **Avsändare**, **Mottagare** (vilken av de två inbox-adresserna det skickades till), **Ämne**, **Dokument** och **Mottagen**.
+
+    Statusen berättar vad som hände med mejlet:
+
+    - **Bearbetad** – PDF:en kom igenom och ett dokument skapades. Klicka på dokumentnamnet i kolumnen *Dokument* för att hoppa direkt till utkastet eller det arkiverade dokumentet.
+    - **Väntar** – mejlet är mottaget men bearbetas fortfarande.
+    - **Avböjd** – avsändaren saknas i listan *Tillåtna avsändare*. Lägg till avsändaren ovanför om det var legitimt.
+    - **Misslyckad** – något gick fel vid bearbetningen (t.ex. en korrupt eller lösenordsskyddad PDF).
+
+    Du kan **söka** på avsändare, mottagare eller ämne i fältet uppe till vänster, eller filtrera på status i rullgardinsmenyn. Det är härifrån du felsöker när någon säger *"jag mejlade in en PDF men det dök inte upp något dokument"*.
+
+    <Frame>
+      <img src="/images/guider/settings-inbox/06-history-section.png" alt="Sektionen Uppladdningshistorik med tabell över senaste e-postuppladdningar" />
+    </Frame>
+  </Step>
+</Steps>

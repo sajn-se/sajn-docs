@@ -1,0 +1,60 @@
+---
+title: "Skapa ett SajnID för identifiering"
+description: "Verifiera någons identitet med BankID via en fristående länk – utan att skicka ett helt avtal"
+---
+
+Behöver du verifiera någons identitet med BankID utan att skicka ett helt avtal? Med **sajn ID** skapar du en fristående identitetskontroll och skickar en länk via e-post eller SMS – personen verifierar sig med BankID och du får en kvitterad bekräftelse direkt i arbetsytan.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Du har behörigheten *Hantera sajn ID* i arbetsytan.
+- Arbetsytans abonnemang inkluderar sajn ID (ingår inte i Basic eller provperiod).
+- Identitetskontrollen hamnar i den arbetsyta du står i just nu – byter du arbetsyta byter du också listan över identitetskontroller.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna sajn ID i sidomenyn">
+    Här ser du alla identitetskontroller i den aktuella arbetsytan – väntande, skickade, verifierade och misslyckade. Filtren längst upp låter dig söka på namn, e-post, telefon eller referens och filtrera per status eller datumintervall. Knappen **Ny identitetskontroll** uppe till höger startar en ny kontroll.
+
+    <Frame>
+      <img src="/images/guider/create-sajn-id/02-open-sajn-id.png" alt="Sidan sajn ID öppen från sidomenyn" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på Ny identitetskontroll högst upp till höger">
+    Knappen syns bara om du har behörigheten *Hantera sajn ID* i arbetsytan. Saknas knappen är det rollens behörigheter du behöver justera, inte abonnemanget.
+
+    <Frame>
+      <img src="/images/guider/create-sajn-id/04-highlight-create-button.png" alt="Knappen Ny identitetskontroll markerad högst upp till höger" />
+    </Frame>
+  </Step>
+  <Step title="Ett formulär öppnas med fälten för identitetskontrollen">
+    Bara **Namn** och **Kanal** är obligatoriska – övriga fält är frivilliga. Till höger ser du en informationsruta som förklarar flödet steg för steg: du fyller i kontaktuppgifterna, väljer kanal, personen får en länk och verifierar sig med BankID, och du får en bekräftelse när det är klart. Länken är giltig i sju dagar.
+
+    <Frame>
+      <img src="/images/guider/create-sajn-id/07-empty-form.png" alt="Tomt formulär för att skapa en ny identitetskontroll" />
+    </Frame>
+  </Step>
+  <Step title="Fyll i Namn, välj Kanal och ange e-postadress eller telefonnummer">
+    **Namn** är det namn som BankID-verifieringen kommer att matcha mot. Personnummer är frivilligt – anger du det görs en exakt matchning mot BankID i stället för en fuzzy namnmatchning. **Kanal** styr hur länken levereras: väljer du **E-post** dyker e-postfältet upp, väljer du **SMS** dyker telefonfältet upp i stället. **Referens** och **Anteckning** är frivilliga – referensen visas i listan och är användbar för att koppla kontrollen till ett ärende eller ett ordernummer.
+
+    <Frame>
+      <img src="/images/guider/create-sajn-id/11-filled-form.png" alt="Ifyllt formulär med namn, kanal och kontaktuppgifter" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på Skicka – identitetskontrollen skapas och du landar tillbaka i listan">
+    När du klickar på **Skicka** skapas identitetskontrollen och länken skickas direkt via den valda kanalen. Du kommer tillbaka till listan där den nya kontrollen ligger högst upp med status **Skickat**. Klicka på raden för att öppna detaljvyn till höger och följa verifieringens framsteg.
+
+    <Frame>
+      <img src="/images/guider/create-sajn-id/14-list-with-new-check.png" alt="Listan med den nya identitetskontrollen högst upp med status Skickat" />
+    </Frame>
+  </Step>
+  <Step title="Detaljvyn visar all information om identitetskontrollen">
+    I detaljvyn ser du namn, verifieringsmetod, kanal, referens, skapad-datum och utgångsdatum. Fliken **Händelselogg** visar tidslinjen för kontrollen – när den skapades, när den skickades, när mottagaren öppnade länken och när BankID-verifieringen genomfördes. Knappen **Bevaka live** uppe till höger uppdaterar vyn var femte sekund i upp till två minuter, vilket är användbart medan motparten verifierar sig.
+
+    <Frame>
+      <img src="/images/guider/create-sajn-id/17-detail-drawer.png" alt="Detaljvyn för identitetskontrollen med fliken Händelselogg" />
+    </Frame>
+  </Step>
+</Steps>
