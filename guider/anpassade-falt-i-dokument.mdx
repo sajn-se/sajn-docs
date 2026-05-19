@@ -1,0 +1,94 @@
+---
+title: "Anpassade fält i dokument"
+description: "Skapa ett anpassat fält och fyll i värdet på ett dokument"
+---
+
+Anpassade fält låter dig lägga till egna metadata på dokument och kontakter — till exempel fakturanummer, projektkod eller avtalsdatum. Den här guiden visar hur du skapar ett fält av typen **Dokument** i arbetsytan och sedan fyller i värdet på ett nytt dokument.
+
+<Note>
+  Anpassade fält kräver att din organisation har en plan där funktionen ingår, och du behöver admin-behörighet i arbetsytan för att skapa nya fält.
+</Note>
+
+## Innan du börjar
+
+- Du är inloggad och har admin-behörighet i arbetsytan.
+- Organisationen har en plan där anpassade fält ingår.
+
+## Skapa ett nytt fält
+
+<Steps>
+  <Step title="Öppna Anpassade fält under Inställningar">
+    Gå till **Inställningar** i sidomenyn och välj **Anpassade fält** under Arbetsyteinställningar. Du kan också navigera direkt till `/{workspace}/settings/custom-fields`.
+
+    <Frame>
+      <img src="/images/guider/anpassade-falt-oversikt.png" alt="Översikt över anpassade fält i arbetsyteinställningarna med en lista över befintliga fält och en knapp för att lägga till nytt fält" />
+    </Frame>
+  </Step>
+  <Step title="Klicka Lägg till fält">
+    Klicka på **Lägg till fält** uppe till höger för att öppna formuläret. Standardvärdena är **Dokument** som tillhörighet och **Text** som fälttyp.
+
+    <Frame>
+      <img src="/images/guider/anpassade-falt-drawer.png" alt="Formulär för att skapa ett nytt anpassat fält med val för tillhörighet, fälttyp och namn" />
+    </Frame>
+
+    <Tip>
+      Du kan välja mellan flera fälttyper — bland annat **Text**, **Nummer**, **Datum**, **Val** och **Ja/Nej**. Välj den typ som bäst matchar det värde du vill spara.
+    </Tip>
+  </Step>
+  <Step title="Ge fältet ett namn">
+    Skriv ett tydligt namn i namnfältet — det är det som visas i dokumentets inställningar. Bra exempel är *Fakturanummer*, *Projektkod* eller *Avtalsdatum*.
+
+    <Frame>
+      <img src="/images/guider/anpassade-falt-namn.png" alt="Formuläret med ett ifyllt namn på det anpassade fältet" />
+    </Frame>
+  </Step>
+  <Step title="Spara fältet">
+    Klicka på **Spara fält**. Det nya fältet visas direkt i listan och är nu tillgängligt på alla dokument och mallar i arbetsytan.
+
+    <Frame>
+      <img src="/images/guider/anpassade-falt-sparat.png" alt="Listan med anpassade fält efter att det nya fältet sparats" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Använd fältet på ett dokument
+
+<Steps>
+  <Step title="Skapa ett nytt dokument">
+    Klicka på **+** i toppmenyn och välj **Skapa blankt dokument**. Du landar direkt i dokumentets redigeringsläge.
+
+    <Frame>
+      <img src="/images/guider/anpassade-falt-nytt-dokument.png" alt="Skapa-menyn i toppen av sajn med valet Skapa blankt dokument" />
+    </Frame>
+  </Step>
+  <Step title="Öppna fliken Inställningar">
+    I dokumentets redigeringsläge, klicka på fliken **Inställningar** i högerpanelen.
+  </Step>
+  <Step title="Expandera Anpassade fält">
+    Scrolla ner till sektionen **Anpassade fält** och expandera den. Ditt nya fält finns med i listan tillsammans med övriga anpassade fält för arbetsytan.
+
+    <Frame>
+      <img src="/images/guider/anpassade-falt-dokument-installningar.png" alt="Inställningsfliken på ett dokument med sektionen Anpassade fält expanderad och det nya fältet synligt" />
+    </Frame>
+  </Step>
+  <Step title="Fyll i värdet">
+    Skriv in värdet i fältet. Allt du fyller i sparas automatiskt på dokumentet, följer med i exporter och kan användas i mallar och integrationer.
+  </Step>
+</Steps>
+
+## Vad händer sedan?
+
+När ett anpassat fält är ifyllt på ett dokument kan värdet:
+
+- **Visas i dokumentlistan** så att du snabbt hittar rätt dokument.
+- **Följa med i exporter** av dokumentdata.
+- **Användas i mallar** så att samma struktur återanvänds över flera dokument.
+- **Skickas via integrationer och webhooks** till externa system, till exempel ert CRM eller affärssystem.
+
+<Tip>
+  Vill du sätta värdet på ett anpassat fält programmatiskt via API:et? Se [Custom Fields](/guides/custom-fields) för en genomgång av API-anropen.
+</Tip>
+
+## Behöver du hjälp?
+
+Hör av dig till oss på [hej@sajn.se](mailto:hej@sajn.se) om något inte fungerar som förväntat, eller om du vill ha hjälp att tänka kring vilka fält som passar bäst i ert flöde.
