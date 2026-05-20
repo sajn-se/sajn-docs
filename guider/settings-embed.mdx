@@ -3,7 +3,7 @@ title: "Bädda in signering på din egen webbplats"
 description: "Konfigurera vilka domäner som får ladda sajns inbäddade signeringsvy via iframe eller embed-SDK"
 ---
 
-Vill du låta dina egna användare signera direkt i ditt produktgränssnitt – utan att de skickas iväg till sajn.se? Då kan du bädda in signeringsvyn som en iframe. På sidan **Inbäddning** styr du vilka domäner som får ladda den inbäddade vyn. Den här guiden visar var sidan ligger och vad du kan konfigurera. Inga ändringar görs – du kan utforska sidan utan att råka spara något.
+Vill du låta dina egna användare signera direkt i ditt produktgränssnitt – utan att de skickas iväg till sajn.se? Då kan du bädda in signeringsvyn som en iframe. På sidan **Inbäddning** styr du vilka domäner som får ladda den inbäddade vyn. Den här guiden visar var sidan ligger och vad du kan konfigurera.
 
 ## Innan du börjar
 
@@ -22,7 +22,7 @@ Vill du låta dina egna användare signera direkt i ditt produktgränssnitt – 
     </Frame>
   </Step>
   <Step title="Översikt av sidan Inbäddning">
-    Sidan består av ett enda formulär: sektionen **Tillåtna domäner**, där du listar de domäner som får bädda in signeringsvyn. Längst ned ligger knappen **Spara ändringar**, som är gråad tills du faktiskt ändrat något – du kan alltså bekanta dig med sidan i lugn och ro utan att råka spara.
+    Sidan består av ett enda formulär: sektionen **Tillåtna domäner**, där du listar de domäner som får bädda in signeringsvyn. Längst ned ligger knappen **Spara ändringar**.
 
     Själva inbäddningen sker från din egen webbplats (med iframe eller sajns embed-SDK). Den här sidan är säkerhetsspärren som avgör vilka ursprung som tillåts ladda vyn.
 
@@ -31,7 +31,7 @@ Vill du låta dina egna användare signera direkt i ditt produktgränssnitt – 
     </Frame>
   </Step>
   <Step title="Tillåtna domäner – kontrollera vilka ursprung som får ladda signeringsvyn">
-    Inmatningsfältet **Domäner** är en tagg-input – skriv en domän och tryck Enter för att lägga till den som en chip. Varje chip kan tas bort med krysset till höger. Befintliga domäner laddas in automatiskt från organisationens inställningar.
+    Skriv en domän i fältet **Domäner** och tryck Enter för att lägga till den. Varje domän kan tas bort med krysset till höger. Befintliga domäner laddas in automatiskt från organisationens inställningar.
 
     Ange domäner utan protokoll, t.ex. `app.exempel.se` eller `kundportal.exempel.se`. Domänlistan jämförs mot `Origin`-headern på inkommande embed-förfrågningar – står domänen inte med så vägras inbäddningen.
 
@@ -50,9 +50,9 @@ Vill du låta dina egna användare signera direkt i ditt produktgränssnitt – 
     </Frame>
   </Step>
   <Step title="Längst ned: knappen Spara ändringar">
-    Ändringar börjar inte gälla förrän du klickar **Spara ändringar**. Knappen är inaktiv så länge formuläret är orört, så du kan tryggt utforska sidan utan att råka spara.
+    Ändringar börjar inte gälla förrän du klickar **Spara ändringar**.
 
-    När du sparat bekräftas det med ett toast-meddelande och den nya domänlistan börjar gälla direkt för alla inbäddningar i organisationen.
+    När du sparat bekräftas det med ett meddelande och den nya domänlistan börjar gälla direkt för alla inbäddningar i organisationen.
 
     <Frame>
       <img src="/images/guider/settings-embed/07-save-button.png" alt="Knappen Spara ändringar längst ner på Inbäddningssidan" />
