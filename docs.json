@@ -262,7 +262,31 @@
               "GET /api/v1/documents/{id}/download",
               "GET /api/v1/documents/{id}/activity",
               "POST /api/v1/documents/{id}/send",
-              "POST /api/v1/documents/{id}/withdraw"
+              "POST /api/v1/documents/{id}/withdraw",
+              "GET /api/v1/documents/{id}/delegations",
+              "GET /api/v1/documents/{id}/reminders",
+              "POST /api/v1/documents/{id}/reminders"
+            ]
+          },
+          {
+            "group": "Document Parties",
+            "pages": [
+              "GET /api/v1/documents/{id}/parties",
+              "POST /api/v1/documents/{id}/parties",
+              "GET /api/v1/documents/{id}/parties/{partyId}",
+              "PATCH /api/v1/documents/{id}/parties/{partyId}",
+              "DELETE /api/v1/documents/{id}/parties/{partyId}",
+              "POST /api/v1/documents/{id}/parties/{partyId}/remind"
+            ]
+          },
+          {
+            "group": "Document Comments",
+            "pages": [
+              "GET /api/v1/documents/{id}/comments",
+              "POST /api/v1/documents/{id}/comments",
+              "PATCH /api/v1/documents/{id}/comments/{threadId}",
+              "DELETE /api/v1/documents/{id}/comments/{threadId}",
+              "POST /api/v1/documents/{id}/comments/{threadId}/messages"
             ]
           },
           {
@@ -270,7 +294,26 @@
             "pages": [
               "GET /api/v1/files",
               "PUT /api/v1/putFile",
-              "GET /api/v1/files/{id}"
+              "GET /api/v1/files/{id}",
+              "DELETE /api/v1/files/{id}"
+            ]
+          },
+          {
+            "group": "Folders",
+            "pages": [
+              "GET /api/v1/folders",
+              "POST /api/v1/folders",
+              "GET /api/v1/folders/{id}",
+              "PATCH /api/v1/folders/{id}",
+              "DELETE /api/v1/folders/{id}"
+            ]
+          },
+          {
+            "group": "Blocks",
+            "pages": [
+              "GET /api/v1/blocks",
+              "GET /api/v1/blocks/{id}",
+              "DELETE /api/v1/blocks/{id}"
             ]
           },
           {
@@ -280,7 +323,18 @@
               "POST /api/v1/documents/{id}/signers",
               "GET /api/v1/documents/{id}/signers/{signerId}",
               "PATCH /api/v1/documents/{id}/signers/{signerId}",
-              "DELETE /api/v1/documents/{id}/signers/{signerId}"
+              "DELETE /api/v1/documents/{id}/signers/{signerId}",
+              "POST /api/v1/documents/{id}/signers/{signerId}/remind"
+            ]
+          },
+          {
+            "group": "Document Approval",
+            "pages": [
+              "GET /api/v1/approvers",
+              "GET /api/v1/documents/{id}/approval",
+              "DELETE /api/v1/documents/{id}/approval",
+              "POST /api/v1/documents/{id}/approval/approve",
+              "POST /api/v1/documents/{id}/approval/reject"
             ]
           },
           {
@@ -365,7 +419,10 @@
               "POST /api/v1/webhooks",
               "GET /api/v1/webhooks/{id}",
               "PATCH /api/v1/webhooks/{id}",
-              "DELETE /api/v1/webhooks/{id}"
+              "DELETE /api/v1/webhooks/{id}",
+              "GET /api/v1/webhooks/{id}/deliveries",
+              "GET /api/v1/webhooks/{id}/deliveries/{deliveryId}",
+              "POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry"
             ]
           },
           {
@@ -374,6 +431,21 @@
               "GET /api/v1/sajn-id",
               "POST /api/v1/sajn-id",
               "GET /api/v1/sajn-id/{id}"
+            ]
+          },
+          {
+            "group": "Organization",
+            "pages": [
+              "GET /api/v1/organization"
+            ]
+          },
+          {
+            "group": "Helpers",
+            "pages": [
+              "GET /api/v1/helpers/countries",
+              "GET /api/v1/helpers/currencies",
+              "GET /api/v1/helpers/languages",
+              "GET /api/v1/helpers/timezones"
             ]
           }
         ]

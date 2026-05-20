@@ -107,6 +107,21 @@ def remove_property_names(obj):
             remove_property_names(item)
 
 
+def fix_exclusive_min_max(obj):
+    """Convert OpenAPI 3.1 numeric exclusiveMinimum/Maximum to 3.0 boolean form."""
+    if isinstance(obj, dict):
+        for keyword, paired in (('exclusiveMinimum', 'minimum'), ('exclusiveMaximum', 'maximum')):
+            value = obj.get(keyword)
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                obj[paired] = value
+                obj[keyword] = True
+        for value in obj.values():
+            fix_exclusive_min_max(value)
+    elif isinstance(obj, list):
+        for item in obj:
+            fix_exclusive_min_max(item)
+
+
 def fix_openapi_spec(file_path):
     """Apply all fixes to an OpenAPI specification file"""
     print(f"Loading OpenAPI spec from: {file_path}")
@@ -127,6 +142,9 @@ def fix_openapi_spec(file_path):
 
     print("  4. Removing invalid 'propertyNames' fields...")
     remove_property_names(spec)
+
+    print("  5. Converting numeric exclusiveMinimum/Maximum to boolean (3.1 -> 3.0)...")
+    fix_exclusive_min_max(spec)
 
     # Write back
     with open(file_path, 'w') as f:
