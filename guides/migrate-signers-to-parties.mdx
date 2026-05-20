@@ -1,0 +1,157 @@
+---
+title: "Migrating from Signers to Parties"
+description: "Move from the deprecated /signers endpoints to the new /parties endpoints before API v2"
+---
+
+# Migrating from Signers to Parties
+
+We've renamed "signer" to **party** across the API. A party is any participant on a document — someone who signs, reviews, accepts, or organizes. The old `/signers` endpoints still work today, but they are **deprecated and will stop working in API v2**.
+
+This guide shows you exactly what to change. The migration is mechanical: same request bodies, same response fields, just new paths and one renamed response key.
+
+<Warning>
+  The `/signers` endpoints are deprecated. Migrate to `/parties` before API v2 to avoid breakage. There is no behavior change — only naming.
+</Warning>
+
+## What changed
+
+Three things, and nothing else:
+
+1. **Path:** `/signers` → `/parties`
+2. **Path parameter:** `{signerId}` → `{partyId}`
+3. **List response key:** the array is now `parties` instead of `signers`
+
+Request bodies are **unchanged**. The fields on each party object (`id`, `email`, `role`, `signingOrder`, `signingStatus`, `signingUrl`, …) are **unchanged**.
+
+## Endpoint mapping
+
+| Deprecated | Replacement |
+|------------|-------------|
+| `GET /api/v1/documents/{id}/signers` | `GET /api/v1/documents/{id}/parties` |
+| `POST /api/v1/documents/{id}/signers` | `POST /api/v1/documents/{id}/parties` |
+| `GET /api/v1/documents/{id}/signers/{signerId}` | `GET /api/v1/documents/{id}/parties/{partyId}` |
+| `PATCH /api/v1/documents/{id}/signers/{signerId}` | `PATCH /api/v1/documents/{id}/parties/{partyId}` |
+| `DELETE /api/v1/documents/{id}/signers/{signerId}` | `DELETE /api/v1/documents/{id}/parties/{partyId}` |
+| `POST /api/v1/documents/{id}/signers/{signerId}/remind` | `POST /api/v1/documents/{id}/parties/{partyId}/remind` |
+
+## Before and after
+
+### Listing participants
+
+```bash
+# Before (deprecated)
+curl -X GET https://app.sajn.se/api/v1/documents/doc_123/signers \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# After
+curl -X GET https://app.sajn.se/api/v1/documents/doc_123/parties \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The only response change is the wrapper key:
+
+```json
+// Before
+{ "signers": [ { "id": "p_1", "name": "Anna Andersson", "role": "SIGNER" } ] }
+
+// After
+{ "parties": [ { "id": "p_1", "name": "Anna Andersson", "role": "SIGNER" } ] }
+```
+
+<Note>
+  Each party object keeps the same `id` field — it is **not** renamed to `partyId`. Only the surrounding array key changed from `signers` to `parties`.
+</Note>
+
+### Adding a participant
+
+The request body is identical — only the path changes.
+
+```bash
+# Before (deprecated)
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/signers \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "contactId": "con_456", "role": "SIGNER" }'
+
+# After
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/parties \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "contactId": "con_456", "role": "SIGNER" }'
+```
+
+### Sending a reminder
+
+```bash
+# Before (deprecated)
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/signers/p_1/remind \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# After
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/parties/p_1/remind \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Migration checklist
+
+<AccordionGroup>
+  <Accordion title="Update endpoint paths">
+    Replace every `/signers` path segment with `/parties` in your API client. Don't forget the `{signerId}` → `{partyId}` path parameter on single-resource and reminder endpoints.
+  </Accordion>
+  <Accordion title="Rename the list response key">
+    Wherever you read `response.signers`, switch to `response.parties`. This is the only field rename in the whole migration.
+  </Accordion>
+  <Accordion title="Leave request bodies alone">
+    Bodies are unchanged. `contactId`, `role`, `signingOrder`, `deliveryMethod`, `requiredSignature`, and `twoStepVerification` all behave exactly as before.
+  </Accordion>
+  <Accordion title="Search for stragglers">
+    Grep your codebase for `signers`, `signerId`, and `/signers` to catch every call site, including tests and fixtures.
+  </Accordion>
+</AccordionGroup>
+
+## Let an AI do it for you
+
+Copy the prompt below and paste it into your LLM of choice (Claude, ChatGPT, Cursor, etc.) alongside your codebase. It points the model at the machine-readable version of this guide so it has the full mapping.
+
+```text AI migration prompt
+You are migrating a codebase from the sajn deprecated "signers" API to the new
+"parties" API. The full migration guide is available as Markdown here:
+
+  https://docs.sajn.se/guides/migrate-signers-to-parties.md
+
+Fetch and follow that guide, then apply these changes across my entire codebase:
+
+1. Replace the path segment "/signers" with "/parties" in every sajn API call.
+2. Replace the path parameter "{signerId}" / signerId with "{partyId}" / partyId
+   in those request URLs.
+3. Rename reads of the list response key from `signers` to `parties`
+   (e.g. response.signers -> response.parties).
+4. Do NOT change request bodies — fields like contactId, role, signingOrder,
+   deliveryMethod, requiredSignature, and twoStepVerification are unchanged.
+5. Keep each party object's `id` field as-is — it is not renamed to partyId.
+6. Update tests, fixtures, types, and docs/comments to match.
+
+Search for "signers", "signerId", and "/signers" to find every call site.
+Show me a diff of each change before applying, and flag anything ambiguous.
+```
+
+<Tip>
+  Every page on docs.sajn.se is available as raw Markdown by adding `.md` to its URL — handy for feeding docs to LLMs or scripts.
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a party" icon="user-plus" href="/api/POST%20/api/v1/documents/{id}/parties">
+    Reference for the new parties endpoints
+  </Card>
+  <Card title="Multi-Party Signing" icon="users" href="/guides/multi-party-signing">
+    Configure parallel and sequential signing
+  </Card>
+  <Card title="Reminders & Expiration" icon="clock" href="/guides/reminders-expiration">
+    Keep signing on track with reminders
+  </Card>
+  <Card title="Signers Concept" icon="user" href="/concepts/signers">
+    Understand participant roles
+  </Card>
+</CardGroup>
