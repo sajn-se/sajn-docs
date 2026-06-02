@@ -38,6 +38,10 @@ graph LR
 
 ## Creating a Verification
 
+<Note>
+  Creating a verification through the API immediately sends it to the recipient over the chosen `channel`. There is no create-without-send step.
+</Note>
+
 ### SSN-Based Verification
 
 Verify both identity and SSN:
@@ -48,8 +52,7 @@ Verify both identity and SSN:
   "ssn": "197001011234",
   "email": "john@example.com",
   "channel": "EMAIL",
-  "reference": "customer_onboarding_123",
-  "sendImmediately": true
+  "reference": "customer_onboarding_123"
 }
 ```
 
@@ -62,8 +65,7 @@ Verify identity without SSN requirement:
   "fullName": "John Doe",
   "email": "john@example.com",
   "channel": "EMAIL",
-  "reference": "age_verification_456",
-  "sendImmediately": true
+  "reference": "age_verification_456"
 }
 ```
 
@@ -89,6 +91,10 @@ Send verification link via SMS:
 }
 ```
 
+<Note>
+  API-created verifications use `EMAIL` or `SMS`. The `channel` field returned by the API may also be `IN_APP` for verifications delivered inside the sajn app.
+</Note>
+
 ## Verification Data
 
 After successful verification, retrieve the BankID response data:
@@ -98,7 +104,7 @@ After successful verification, retrieve the BankID response data:
   "id": "verify_123",
   "status": "VERIFIED",
   "fullName": "John Doe",
-  "usedAt": "2024-01-15T10:30:00Z",
+  "verifiedAt": "2024-01-15T10:30:00Z",
   "data": {
     "completionData": {
       "user": {
@@ -130,9 +136,7 @@ Verify customer identity during account creation:
   "ssn": "197001011234",
   "email": "john@example.com",
   "channel": "EMAIL",
-  "reference": "account_signup",
-  "note": "New customer registration",
-  "sendImmediately": true
+  "reference": "account_signup"
 }
 ```
 
@@ -144,9 +148,7 @@ Verify age without collecting SSN:
   "fullName": "John Doe",
   "email": "john@example.com",
   "channel": "EMAIL",
-  "reference": "age_check",
-  "note": "18+ age verification",
-  "sendImmediately": true
+  "reference": "age_check"
 }
 ```
 
@@ -160,8 +162,7 @@ Verify identity before allowing document signing:
   "email": "john@example.com",
   "channel": "EMAIL",
   "contactId": "contact_123",
-  "reference": "pre_signing_verification",
-  "sendImmediately": true
+  "reference": "pre_signing_verification"
 }
 ```
 
@@ -213,13 +214,15 @@ Every verification includes a complete audit log:
 
 ## Expiration
 
-Verification links expire after a set period (default: 7 days). Set custom expiration:
+The identity check and its verification link expire after a set period (default: 7 days from creation). Set a custom expiration with `expiresAt` when creating the verification — it must be in the future:
 
 ```json
 {
-  "tokenExpiresAt": "2024-01-22T23:59:59Z"
+  "expiresAt": "2024-01-22T23:59:59Z"
 }
 ```
+
+The current expiration is returned as `expiresAt` on the verification object.
 
 ## Billing
 
@@ -252,17 +255,17 @@ Each successful verification is tracked as a billable event, regardless of wheth
 ## Best Practices
 
 <CardGroup cols={2}>
-  <Card title="Clear Purpose" icon="bullseye">
-    Use the `note` field to document why verification is needed
-  </Card>
   <Card title="Reference IDs" icon="link">
-    Always include a reference to link verification to your workflow
+    Always include a `reference` to link the verification to your workflow
+  </Card>
+  <Card title="Set Expiration" icon="clock">
+    Use `expiresAt` to control how long the verification link stays valid
   </Card>
   <Card title="Appropriate Method" icon="scale-balanced">
     Use SSN-based only when legally required; prefer name-based for privacy
   </Card>
-  <Card title="Immediate Sending" icon="paper-plane">
-    Set `sendImmediately: true` for better user experience
+  <Card title="Use Webhooks" icon="webhook">
+    Subscribe to ID events instead of polling for a better user experience
   </Card>
 </CardGroup>
 

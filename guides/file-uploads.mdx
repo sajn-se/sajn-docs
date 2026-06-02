@@ -1,6 +1,6 @@
 ---
 title: File Uploads
-description: 'Complete guide to uploading files using the direct upload API'
+description: 'Upload files with presigned URLs and use them in document fields'
 ---
 
 # File Uploads
@@ -9,88 +9,92 @@ Learn how to securely upload files to sajn for use in document fields.
 
 ## Overview
 
-sajn provides a simple direct upload endpoint for files:
+The recommended way to upload a file is a **two-step presigned flow** that sends the bytes straight to storage, so there is no API-server size limit:
 
-1. **Upload the file** - Send the file directly to the upload API
-2. **Use the storage key** - Reference the uploaded file in document fields
+1. **Request a presigned URL** — call [`POST /api/v1/files`](/api/POST%20/api/v1/files) with the file's metadata and checksum. You receive a `fileId`, a storage `key`, and a presigned `uploadUrl`.
+2. **Upload the bytes** — `PUT` the raw file to the `uploadUrl`. Storage verifies the checksum on write.
+3. **Use the storage key** — reference the returned `key` in document fields.
 
-<Note>
-**Important:** File uploads use a different base URL: `https://upload.sajn.se`
+The file is confirmed automatically the first time it is fetched via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}).
 
-This is separate from the main API at `https://app.sajn.se`.
-</Note>
+<Warning>
+**Deprecated:** The legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `https://upload.sajn.se`) still works but is **deprecated**. Use the presigned flow below for new integrations. See [Legacy upload](#legacy-upload-deprecated).
+</Warning>
 
 ### Benefits
-- **Simple**: Single-step upload process
-- **Secure**: Files are organized by your organization ID
-- **Fast**: Direct upload to cloud storage
-- **Reliable**: Leverages robust cloud infrastructure
 
-## Uploading Files
+- **No size limit at the API**: bytes go directly to cloud storage (up to 100 MB per file).
+- **Integrity-checked**: storage enforces the SHA-256 checksum you provide and rejects mismatched bytes.
+- **Secure**: files are scoped to your organization, private by default.
 
-Send a PUT request to the [Upload File endpoint](/api/PUT%20/api/v1/putFile):
+## Step 1: Request a Presigned URL
+
+Compute the file's **SHA-256 hash, base64-encoded**, then call [`POST /api/v1/files`](/api/POST%20/api/v1/files):
 
 ### Request
 
 ```bash
-curl -X PUT https://upload.sajn.se/api/v1/putFile \
+curl -X POST https://app.sajn.se/api/v1/files \
   -H "Authorization: Bearer YOUR_API_KEY" \
-  -F "file=@contract.pdf"
+  -H "Content-Type: application/json" \
+  -d '{
+    "fileName": "contract.pdf",
+    "mimeType": "application/pdf",
+    "size": 102400,
+    "checksum": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+    "visibility": "PRIVATE"
+  }'
 ```
+
+### Request Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `fileName` | Yes | Original filename including its extension (1–255 chars). |
+| `mimeType` | Yes | MIME type of the file (see [Supported formats](#supported-formats)). |
+| `size` | Yes | File size in bytes (max `104857600` = 100 MB). |
+| `checksum` | Yes | Base64-encoded SHA-256 checksum of the file. Storage enforces it on upload. |
+| `visibility` | No | `PRIVATE` (default) or `PUBLIC`. |
 
 ### Response
 
 ```json
 {
+  "fileId": "file_abc123",
   "key": "f/org_123/abc123def/contract.pdf",
-  "file": {
-    "id": "file_abc123",
-    "filename": "contract.pdf",
-    "mimeType": "application/pdf",
-    "size": 102400,
-    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  }
+  "uploadUrl": "https://storage.sajn.se/...&x-amz-signature=..."
 }
 ```
 
-### Response Fields
+- **`fileId`** — the created file record ID. Its status is `PENDING` until the upload is confirmed on first access.
+- **`key`** — the storage key to reference in document fields.
+- **`uploadUrl`** — presigned `PUT` URL, valid for **1 hour**.
 
-- **`key`** - Storage key to reference in document fields
-- **`file.id`** - Unique file identifier
-- **`file.filename`** - Original filename
-- **`file.mimeType`** - MIME type of the file
-- **`file.size`** - File size in bytes
-- **`file.hash`** - SHA-256 hash for integrity verification
+## Step 2: Upload the Bytes
+
+`PUT` the raw file to the `uploadUrl`. You must send the `Content-Type` and the `x-amz-checksum-sha256` headers — storage verifies the checksum and rejects the upload if it doesn't match:
+
+```bash
+curl -X PUT "PRESIGNED_UPLOAD_URL" \
+  -H "Content-Type: application/pdf" \
+  -H "x-amz-checksum-sha256: 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=" \
+  --data-binary @contract.pdf
+```
+
+<Note>
+Do **not** send your sajn `Authorization` header to the presigned `uploadUrl` — authentication is already baked into the signed URL.
+</Note>
 
 ## File Visibility
 
-Control who can access your uploaded files:
+Control who can access your uploaded files via the `visibility` field in Step 1:
 
-### Private Files (Default)
-
-```bash
-curl -X PUT https://upload.sajn.se/api/v1/putFile \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -F "file=@document.pdf" \
-  -F "visibility=PRIVATE"
-```
-
-Private files require signed URLs for access (valid for 60 minutes).
-
-### Public Files
-
-```bash
-curl -X PUT https://upload.sajn.se/api/v1/putFile \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -F "file=@image.png" \
-  -F "visibility=PUBLIC"
-```
-
-Public files are accessible via direct CloudFront URL.
+- **`PRIVATE`** (default) — access requires a fresh signed URL (valid for 60 minutes), retrieved via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}).
+- **`PUBLIC`** — accessible via a permanent CloudFront URL.
 
 ## Using Uploaded Files in Documents
 
-After successful upload, use the storage key in document field metadata. You can either create a new PDF field or update an existing one:
+After a successful upload, use the storage `key` in document field metadata. You can either create a new PDF field or update an existing one:
 
 <Note>
 PDF fields use `value` for the file storage key, while TEXT and HTML fields use `content` for their data. See the [API Reference](/api/POST%20/api/v1/documents/{id}/fields) for full details on each field type.
@@ -132,75 +136,102 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456 \
 
 ## Complete Upload Workflow
 
-Here's a complete example of uploading a file and adding it to a document:
-
 ### cURL Example
 
 ```bash
-# Step 1: Upload the file
-UPLOAD_RESPONSE=$(curl -s -X PUT https://upload.sajn.se/api/v1/putFile \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -F "file=@contract.pdf")
+FILE="contract.pdf"
+API_BASE="https://app.sajn.se"
 
-# Extract the storage key from the response
-STORAGE_KEY=$(echo "$UPLOAD_RESPONSE" | jq -r '.key')
-echo "Uploaded file with key: $STORAGE_KEY"
+# Compute size and base64-encoded SHA-256 checksum
+SIZE=$(wc -c < "$FILE")
+CHECKSUM=$(openssl dgst -sha256 -binary "$FILE" | base64)
 
-# Step 2: Create a document
-DOC_RESPONSE=$(curl -s -X POST https://app.sajn.se/api/v1/documents \
+# Step 1: Request a presigned URL
+CREATE_RESPONSE=$(curl -s -X POST "$API_BASE/api/v1/files" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{
-    "title": "Employment Contract"
-  }')
+  -d "{
+    \"fileName\": \"$FILE\",
+    \"mimeType\": \"application/pdf\",
+    \"size\": $SIZE,
+    \"checksum\": \"$CHECKSUM\",
+    \"visibility\": \"PRIVATE\"
+  }")
 
-DOC_ID=$(echo "$DOC_RESPONSE" | jq -r '.id')
-echo "Created document: $DOC_ID"
+STORAGE_KEY=$(echo "$CREATE_RESPONSE" | jq -r '.key')
+UPLOAD_URL=$(echo "$CREATE_RESPONSE" | jq -r '.uploadUrl')
+
+# Step 2: Upload the bytes to the presigned URL
+curl -X PUT "$UPLOAD_URL" \
+  -H "Content-Type: application/pdf" \
+  -H "x-amz-checksum-sha256: $CHECKSUM" \
+  --data-binary @"$FILE"
 
 # Step 3: Add the uploaded file as a PDF field
-curl -X POST "https://app.sajn.se/api/v1/documents/${DOC_ID}/fields" \
+curl -X POST "$API_BASE/api/v1/documents/doc_123/fields" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d "{
     \"type\": \"PDF\",
     \"position\": 0,
-    \"fieldMeta\": {
-      \"type\": \"PDF\",
-      \"value\": \"${STORAGE_KEY}\"
-    }
+    \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"$STORAGE_KEY\" }
   }"
 ```
 
-### JavaScript Example
+### Node.js Example
 
 ```javascript
-const UPLOAD_BASE_URL = 'https://upload.sajn.se';
-const API_BASE_URL = 'https://app.sajn.se';
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
-// Step 1: Upload file
-const uploadFile = async (file, apiKey, visibility = 'PRIVATE') => {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('visibility', visibility);
+const API_BASE = 'https://app.sajn.se';
 
-  const response = await fetch(`${UPLOAD_BASE_URL}/api/v1/putFile`, {
-    method: 'PUT',
+const uploadFile = async (filePath, apiKey, mimeType, visibility = 'PRIVATE') => {
+  const bytes = fs.readFileSync(filePath);
+  const checksum = crypto.createHash('sha256').update(bytes).digest('base64');
+
+  // Step 1: Request a presigned URL
+  const createRes = await fetch(`${API_BASE}/api/v1/files`, {
+    method: 'POST',
     headers: {
-      'Authorization': `Bearer ${apiKey}`
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
     },
-    body: formData
+    body: JSON.stringify({
+      fileName: path.basename(filePath),
+      mimeType,
+      size: bytes.length,
+      checksum,
+      visibility
+    })
   });
 
-  if (!response.ok) {
-    throw new Error(`Upload failed: ${response.statusText}`);
+  if (!createRes.ok) {
+    throw new Error(`Could not create file: ${createRes.statusText}`);
   }
 
-  return await response.json();
+  const { fileId, key, uploadUrl } = await createRes.json();
+
+  // Step 2: Upload the bytes (no Authorization header — the URL is signed)
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': mimeType,
+      'x-amz-checksum-sha256': checksum
+    },
+    body: bytes
+  });
+
+  if (!uploadRes.ok) {
+    throw new Error(`Upload failed: ${uploadRes.statusText}`);
+  }
+
+  return { fileId, key };
 };
 
-// Step 2: Add to document
 const addFileToDocument = async (documentId, storageKey, apiKey) => {
-  const response = await fetch(`${API_BASE_URL}/api/v1/documents/${documentId}/fields`, {
+  const res = await fetch(`${API_BASE}/api/v1/documents/${documentId}/fields`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
@@ -209,84 +240,71 @@ const addFileToDocument = async (documentId, storageKey, apiKey) => {
     body: JSON.stringify({
       type: 'PDF',
       position: 0,
-      fieldMeta: {
-        type: 'PDF',
-        value: storageKey
-      }
+      fieldMeta: { type: 'PDF', value: storageKey }
     })
   });
 
-  return await response.json();
+  return await res.json();
 };
 
-// Complete workflow
-const uploadAndAddToDocument = async (documentId, file, apiKey) => {
-  try {
-    // Upload file
-    const { key, file: fileInfo } = await uploadFile(file, apiKey);
-    console.log('File uploaded:', fileInfo.filename, `(${fileInfo.size} bytes)`);
-
-    // Add to document
-    const field = await addFileToDocument(documentId, key, apiKey);
-    console.log('File added to document:', field);
-
-    return field;
-  } catch (error) {
-    console.error('Upload failed:', error);
-    throw error;
-  }
-};
+// Usage
+(async () => {
+  const { key } = await uploadFile('./contract.pdf', 'your-api-key', 'application/pdf');
+  const field = await addFileToDocument('doc_123', key, 'your-api-key');
+  console.log('Added to document:', field);
+})();
 ```
 
 ## File Requirements
 
 ### Supported Formats
 
-- **Documents**: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX
-- **Images**: JPG, PNG, GIF, WEBP, SVG
-- **Video**: MP4, MOV, AVI, WEBM
+| Category | MIME types |
+|----------|------------|
+| Documents | `application/pdf`, `application/msword`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `application/vnd.ms-powerpoint`, `application/vnd.openxmlformats-officedocument.presentationml.presentation` |
+| Images | `image/jpeg`, `image/png`, `image/gif`, `image/webp`, `image/svg+xml` |
+| Video | `video/mp4`, `video/quicktime`, `video/x-msvideo`, `video/webm` |
 
 ### Limits
 
-- **Maximum size**: 100 MB per file
-- **Content-Type**: Automatically detected from file
+- **Maximum size**: 100 MB per file (`104857600` bytes).
+- **Checksum**: a valid base64-encoded SHA-256 of the exact bytes you upload is required.
 
-### Security
+## Legacy Upload (Deprecated)
 
-- Files are automatically organized by **organization ID**
-- Each upload gets a **unique folder ID** for isolation
-- Only authenticated API users can upload files
-- File hash provided for integrity verification
+<Warning>
+The endpoint below is **deprecated** and will eventually be removed. Prefer the [presigned flow](#step-1-request-a-presigned-url) above.
+</Warning>
 
-## Path Structure
+The legacy method sends the file bytes through the API at a separate base URL, `https://upload.sajn.se`:
 
-Uploaded files follow this path structure:
-
-```
-f/{organizationId}/{uniqueFolderId}/{filename}
-```
-
-Example:
-```
-f/org_abc123/def456ghi/employment-contract.pdf
+```bash
+curl -X PUT https://upload.sajn.se/api/v1/putFile \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@contract.pdf" \
+  -F "visibility=PRIVATE"
 ```
 
-- **`f/`** - Files prefix
-- **`organizationId`** - Your organization identifier
-- **`uniqueFolderId`** - Random identifier for isolation
-- **`filename`** - Slugified version of your filename
+### Response
+
+```json
+{
+  "key": "f/org_123/abc123def/contract.pdf",
+  "file": {
+    "id": "file_abc123",
+    "filename": "contract.pdf",
+    "mimeType": "application/pdf",
+    "size": 102400,
+    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
+```
+
+The returned `key` is used in document fields exactly the same way as the presigned flow.
 
 ## Error Handling
 
 ### Common Errors
-
-#### Invalid File Type
-```json
-{
-  "message": "File type not allowed"
-}
-```
-**Solution**: Ensure file type is one of the supported formats.
 
 #### File Too Large
 ```json
@@ -294,7 +312,12 @@ f/org_abc123/def456ghi/employment-contract.pdf
   "message": "File size exceeds limit"
 }
 ```
-**Solution**: Ensure file is under 100MB limit.
+**Solution**: Ensure the file is under the 100 MB limit and that `size` matches the actual byte count.
+
+#### Checksum Mismatch
+When the bytes you `PUT` don't match the `checksum` you declared in Step 1, storage rejects the upload.
+
+**Solution**: Re-compute the base64-encoded SHA-256 over the exact bytes you upload, and send it both in the create request and in the `x-amz-checksum-sha256` header.
 
 #### Missing Authentication
 ```json
@@ -302,151 +325,14 @@ f/org_abc123/def456ghi/employment-contract.pdf
   "message": "API token was not provided"
 }
 ```
-**Solution**: Include valid `Authorization: Bearer` header.
+**Solution**: Include a valid `Authorization: Bearer` header on the `POST /api/v1/files` call (but **not** on the presigned `uploadUrl`).
 
 ### Best Practices
 
-1. **Check file size** before uploading
-2. **Validate file type** on client-side first
-3. **Handle upload errors** gracefully with retries
-4. **Store storage keys** for later reference
-5. **Use unique filenames** to avoid confusion
-
-## Integration Examples
-
-### React/Next.js
-
-```tsx
-import { useState } from 'react';
-
-const UPLOAD_URL = 'https://upload.sajn.se/api/v1/putFile';
-const API_URL = 'https://app.sajn.se/api/v1';
-
-const FileUploader = ({ documentId, apiKey, onUploadComplete }) => {
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    setUploading(true);
-    setError(null);
-
-    try {
-      // Upload file
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const uploadResponse = await fetch(UPLOAD_URL, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${apiKey}` },
-        body: formData
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Upload failed');
-      }
-
-      const { key } = await uploadResponse.json();
-
-      // Add to document
-      const fieldResponse = await fetch(`${API_URL}/documents/${documentId}/fields`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          type: 'PDF',
-          position: 0,
-          fieldMeta: { type: 'PDF', value: key }
-        })
-      });
-
-      const field = await fieldResponse.json();
-      onUploadComplete(field);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div>
-      <input
-        type="file"
-        onChange={handleFileUpload}
-        disabled={uploading}
-      />
-      {uploading && <p>Uploading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
-  );
-};
-```
-
-### Node.js
-
-```javascript
-const fs = require('fs');
-const path = require('path');
-const FormData = require('form-data');
-
-const UPLOAD_URL = 'https://upload.sajn.se/api/v1/putFile';
-const API_URL = 'https://app.sajn.se/api/v1';
-
-const uploadFileToDocument = async (documentId, filePath, apiKey) => {
-  const fileName = path.basename(filePath);
-  const fileStream = fs.createReadStream(filePath);
-
-  // Create form data
-  const formData = new FormData();
-  formData.append('file', fileStream, fileName);
-
-  // Upload file
-  const uploadResponse = await fetch(UPLOAD_URL, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      ...formData.getHeaders()
-    },
-    body: formData
-  });
-
-  if (!uploadResponse.ok) {
-    throw new Error(`Upload failed: ${uploadResponse.statusText}`);
-  }
-
-  const { key, file } = await uploadResponse.json();
-  console.log(`Uploaded: ${file.filename} (${file.size} bytes)`);
-
-  // Add to document
-  const fieldResponse = await fetch(`${API_URL}/documents/${documentId}/fields`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      type: 'PDF',
-      position: 0,
-      fieldMeta: {
-        type: 'PDF',
-        value: key
-      }
-    })
-  });
-
-  return await fieldResponse.json();
-};
-
-// Usage
-uploadFileToDocument('doc_123', './contract.pdf', 'your-api-key')
-  .then(field => console.log('Added to document:', field))
-  .catch(err => console.error('Error:', err));
-```
+1. **Compute size and checksum together** from the same byte buffer you upload.
+2. **Validate file type and size** client-side before requesting a presigned URL.
+3. **Upload promptly** — the presigned `uploadUrl` is only valid for 1 hour.
+4. **Store storage keys** for later reference in document fields.
 
 ## Related Resources
 
@@ -456,7 +342,8 @@ uploadFileToDocument('doc_123', './contract.pdf', 'your-api-key')
 - [Webhooks](/guides/webhooks) - Get notified when documents are signed
 
 ### API Reference
-- [Upload File](/api/PUT%20/api/v1/putFile) - Upload files directly
+- [Create a File (presigned upload)](/api/POST%20/api/v1/files) - Request a presigned upload URL
+- [Get File](/api/GET%20/api/v1/files/{id}) - Retrieve a file and confirm the upload
+- [Upload File (legacy)](/api/PUT%20/api/v1/putFile) - Deprecated byte-through upload
 - [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) - Add fields to documents
 - [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Modify existing fields
-- [Create Document](/api/POST%20/api/v1/documents) - Create new documents

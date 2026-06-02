@@ -267,6 +267,7 @@
               "GET /api/v1/documents/{id}/activity",
               "POST /api/v1/documents/{id}/send",
               "POST /api/v1/documents/{id}/withdraw",
+              "POST /api/v1/documents/{id}/extend-expiration",
               "GET /api/v1/documents/{id}/delegations",
               "GET /api/v1/documents/{id}/reminders",
               "POST /api/v1/documents/{id}/reminders"
@@ -294,8 +295,16 @@
             ]
           },
           {
+            "group": "Document Chat",
+            "pages": [
+              "GET /api/v1/documents/{id}/chat",
+              "POST /api/v1/documents/{id}/chat"
+            ]
+          },
+          {
             "group": "Files",
             "pages": [
+              "POST /api/v1/files",
               "GET /api/v1/files",
               "PUT /api/v1/putFile",
               "GET /api/v1/files/{id}",

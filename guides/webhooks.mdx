@@ -221,7 +221,7 @@ Used by identity check events (`ID_CREATED`, `ID_SENT`, `ID_OPENED`, `ID_VERIFIE
 | `fullName` | string | Full name of the person being verified. |
 | `email` | string or null | Email address. |
 | `phone` | string or null | Phone number. |
-| `channel` | string | Delivery channel: `EMAIL` or `SMS`. |
+| `channel` | string | Delivery channel: `EMAIL`, `SMS`, or `IN_APP`. |
 | `reference` | string or null | Your custom reference string. |
 | `status` | string | One of: `CREATED`, `SENT`, `OPENED`, `VERIFIED`, `FAILED`, `EXPIRED`, `CANCELED`. |
 | `failureReason` | string or null | Reason for failure (only set when status is `FAILED`). |

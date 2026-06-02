@@ -5,7 +5,6 @@
       "get": {
         "description": "Check API health status and get version information. This endpoint does not require authentication.",
         "summary": "Health check",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -34,7 +33,9 @@
                       ]
                     },
                     "timestamp": {
-                      "description": "Current server timestamp"
+                      "description": "Current server timestamp",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "version": {
                       "type": "string",
@@ -59,7 +60,6 @@
       "get": {
         "description": "Retrieve a paginated list of all documents in your organization.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including signers.\n\n**Pagination:** Use 'page' and 'perPage' query parameters to control pagination.",
         "summary": "List all documents",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -280,8 +280,9 @@
                           },
                           "expiresAt": {
                             "description": "Date and time when the document expires",
+                            "nullable": true,
                             "type": "string",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "name": {
                             "type": "string",
@@ -361,15 +362,20 @@
                             "nullable": true
                           },
                           "createdAt": {
-                            "description": "Date and time when the document was created"
+                            "description": "Date and time when the document was created",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when the document was last updated"
+                            "description": "Date and time when the document was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "completedAt": {
                             "description": "Date and time when all signers completed signing",
+                            "nullable": true,
                             "type": "string",
-                            "nullable": true
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -453,7 +459,6 @@
       "post": {
         "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields and template parties are automatically copied unless `parties` are explicitly provided in the request.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n> **Note:** The legacy `signers` field is also accepted as input for backwards compatibility, but is deprecated and will stop working in API v2. Use `parties` going forward. If both are provided, `parties` takes precedence.\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, party IDs, tokens, and signing URLs for all added parties. The legacy `signers` field is also included in the response (same content as `parties`) for backwards compatibility, but is deprecated.",
         "summary": "Create a new document",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -485,8 +490,9 @@
                   },
                   "expiresAt": {
                     "description": "Expiration date for the document",
+                    "nullable": true,
                     "type": "string",
-                    "nullable": true
+                    "format": "date-time"
                   },
                   "type": {
                     "description": "Document type: SIGNABLE (default), ACCEPTABLE, or ARCHIVE_IMPORTED",
@@ -994,8 +1000,9 @@
                     },
                     "expiresAt": {
                       "description": "Document expiration date",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "signers": {
                       "type": "array",
@@ -1213,7 +1220,6 @@
       "get": {
         "description": "Retrieve detailed information about a specific document including all parties, tags, and custom field values.\n\nThe response includes:\n- Document metadata (subject, message, signing order, etc.)\n- All document parties with their status (exposed under both `parties` and the deprecated `signers` field \u2014 same content)\n- Applied tags\n- Custom field values\n- Document timestamps (created, updated, completed, archived)",
         "summary": "Get a document by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -1253,8 +1259,9 @@
                     },
                     "expiresAt": {
                       "description": "Date and time when the document expires",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "name": {
                       "type": "string",
@@ -1334,15 +1341,20 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the document was created"
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the document was last updated"
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "completedAt": {
                       "description": "Date and time when all signers completed signing",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "signers": {
                       "description": "**[DEPRECATED \u2014 use `parties` instead, will be removed in API v2]** Array of document signers. Same content as `parties`.",
@@ -1426,8 +1438,9 @@
                           },
                           "signedAt": {
                             "description": "Date and time when the signer signed (null if not signed)",
+                            "nullable": true,
                             "type": "string",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "readStatus": {
                             "type": "string",
@@ -1590,8 +1603,9 @@
                           },
                           "signedAt": {
                             "description": "Date and time when the signer signed (null if not signed)",
+                            "nullable": true,
                             "type": "string",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "readStatus": {
                             "type": "string",
@@ -1811,7 +1825,6 @@
       "patch": {
         "description": "Update document properties. Only DRAFT documents can have all fields updated. Sent documents have restrictions.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `responsibleUserId` - User ID of responsible team member (must be in your organization)\n- `documentMeta` - Metadata including subject, message, and signing order\n- `customFields` - Custom field values\n\n**Per-Signer Settings:** Delivery method and signature type are configured per-signer via the signers endpoint, not at the document level.\n\n**Note:** Some fields like signing order cannot be modified after the document is sent.",
         "summary": "Update a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -1846,7 +1859,6 @@
                     "type": "string"
                   },
                   "expiresAt": {
-                    "type": "string",
                     "nullable": true
                   },
                   "responsibleUserId": {
@@ -2033,8 +2045,9 @@
                     },
                     "expiresAt": {
                       "description": "Date and time when the document expires",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "name": {
                       "type": "string",
@@ -2114,15 +2127,20 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the document was created"
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the document was last updated"
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "completedAt": {
                       "description": "Date and time when all signers completed signing",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -2192,7 +2210,6 @@
       "delete": {
         "description": "Soft delete a document. The document is marked as deleted but not permanently removed from the database.\n\n**Note:** Deleted documents are not included in list responses but can be retrieved by ID if you have the document ID.",
         "summary": "Delete a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -2232,8 +2249,9 @@
                     },
                     "expiresAt": {
                       "description": "Date and time when the document expires",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "name": {
                       "type": "string",
@@ -2313,15 +2331,20 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the document was created"
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the document was last updated"
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "completedAt": {
                       "description": "Date and time when all signers completed signing",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -2393,7 +2416,6 @@
       "get": {
         "description": "Retrieve the activity/audit log for a specific document. Returns all activity events sorted newest-first.\n\n**Response includes:**\n- Event type (e.g., DOCUMENT_CREATED, DOCUMENT_SIGNED, EMAIL_SENT)\n- Timestamp of the event\n- Event-specific data payload\n- Name and email of the person who triggered the event (when available)\n\n**Privacy:** Sensitive fields such as IP address, user agent, and request metadata are not included in the response.",
         "summary": "Get document activity log",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -2432,7 +2454,9 @@
                             "description": "Unique audit log entry ID"
                           },
                           "createdAt": {
-                            "description": "Timestamp when the event occurred"
+                            "description": "Timestamp when the event occurred",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "type": {
                             "type": "string",
@@ -2529,7 +2553,6 @@
       "get": {
         "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `downloadOriginalDocument` (boolean): If true, downloads the original unsigned document. If false (default), downloads the signed/sealed version.\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- For signed documents: Document must be in COMPLETED status\n- For original documents: Available for all document statuses",
         "summary": "Download signed document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -2643,7 +2666,6 @@
       "post": {
         "description": "Send a document to signers for signing.\n\n**Request Body:**\n- `customMessage` (optional) - Custom message to include in the signing invitation emails/SMS. Supports newline characters (`\\n`) for line breaks. Available template variables (use `{{variableName}}` syntax): `{{firstName}}`, `{{lastName}}`, `{{fullName}}`, `{{recipientFirstName}}`, `{{recipientLastName}}`, `{{recipientFullName}}`, `{{recipientEmail}}`, `{{recipientPhone}}`, `{{senderFirstName}}`, `{{senderLastName}}`, `{{senderFullName}}`, `{{senderEmail}}`, `{{documentName}}`, `{{signUrl}}`.\n- `approverId` (optional) - User ID of the approver. Required if you lack the SEND_WITHOUT_APPROVAL permission. Use `GET /api/v1/approvers` to list eligible approvers.\n\n**Prerequisites:**\n- Document must have at least one signer added via `POST /documents/{id}/signers` or when creating the document\n- Each signer's delivery method (`EMAIL`, `SMS`, or `NONE`) and signature type (`DRAWING`, `BANKID`, `CLICK_TO_SIGN`) are configured per-signer when adding them\n\n**Responses:**\n- **200** - Document sent directly. Status changes from DRAFT to PENDING.\n- **202** - Document submitted for approval. Status changes from DRAFT to PENDING_APPROVAL. The designated approver must approve before the document is sent.\n- **403** with `code: \"APPROVAL_REQUIRED\"` - You lack permission to send directly. Provide an `approverId` to submit for approval.\n\n**What happens when you send:**\n1. Document status changes from `DRAFT` to `PENDING`\n2. Signing invitations are sent to each signer based on their individual `deliveryMethod` setting\n3. Signers with `deliveryMethod: NONE` won't receive notifications - use their signing URLs directly",
         "summary": "Send document for signing",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -2705,8 +2727,9 @@
                     },
                     "expiresAt": {
                       "description": "Date and time when the document expires",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "name": {
                       "type": "string",
@@ -2786,15 +2809,20 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the document was created"
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the document was last updated"
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "completedAt": {
                       "description": "Date and time when all signers completed signing",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -2827,8 +2855,9 @@
                     },
                     "expiresAt": {
                       "description": "Date and time when the document expires",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "name": {
                       "type": "string",
@@ -2908,15 +2937,20 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the document was created"
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the document was last updated"
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "completedAt": {
                       "description": "Date and time when all signers completed signing",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -3013,7 +3047,6 @@
       "post": {
         "description": "Withdraw (cancel) a document that has been sent out for signing. The document is returned to `DRAFT` status and signers are notified.\n\n**Status Requirements:**\n- Document must be in `PENDING` or `SENDING` status. Use `DELETE /api/v1/documents/{id}` for documents in `DRAFT`, and the approval cancel endpoint for `PENDING_APPROVAL`.\n\n**Permissions:**\n- Requires the `EDIT_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `reason` (optional) - Free-text reason. Included in withdrawal emails to signers and stored on the audit log.\n\n**What happens when you withdraw:**\n1. Document status is set back to `DRAFT`\n2. Any existing signatures and signer verifications are removed\n3. Each signer's signing/sending/read status is reset\n4. Pending signing reminders are cancelled\n5. A withdrawal email is sent to every signer that had been notified\n6. The `document.withdrawn` webhook is triggered",
         "summary": "Withdraw a sent document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -3071,8 +3104,9 @@
                     },
                     "expiresAt": {
                       "description": "Date and time when the document expires",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "name": {
                       "type": "string",
@@ -3152,15 +3186,298 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the document was created"
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the document was last updated"
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "completedAt": {
                       "description": "Date and time when all signers completed signing",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{id}/extend-expiration": {
+      "post": {
+        "description": "Extend the expiration date of a document that has already been sent for signing.\n\n**Status Requirements:**\n- Document must be in `PENDING` status. For `DRAFT` documents, set `expiresAt` via `PATCH /api/v1/documents/{id}` instead.\n\n**Permissions:**\n- Requires the `EDIT_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `expiresAt` (required) - The new expiration date/time (ISO 8601). Must be in the future and strictly later than the current expiration date.\n\n**What happens:**\n1. The document's `expiresAt` is updated.\n2. An audit log entry is recorded.\n3. Every recipient that is still notifiable (has an email, notifications enabled, delivery method other than `NONE`, and has not rejected) is emailed that the signing deadline has moved.",
+        "summary": "Extend a document's expiration date",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "extendDocumentExpiration",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expiresAt": {
+                    "description": "New expiration date/time (ISO 8601). Must be in the future and strictly later than the current expiration.",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "expiresAt"
+                ],
+                "additionalProperties": false,
+                "description": "Extend the expiration date of a PENDING document. Recipients are notified that the deadline moved."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique document identifier"
+                    },
+                    "externalId": {
+                      "description": "Your external reference ID for this document",
                       "type": "string",
                       "nullable": true
+                    },
+                    "expiresAt": {
+                      "description": "Date and time when the document expires",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Document name/title"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Document status: DRAFT, SENDING, PENDING, COMPLETED, EXPIRED, CANCELLED, or IMPORTED"
+                    },
+                    "documentMeta": {
+                      "description": "Document metadata including subject, message, signing order, etc.",
+                      "type": "object",
+                      "properties": {
+                        "subject": {
+                          "description": "Email subject line when sending document",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message": {
+                          "description": "Custom message included in signing invitation",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "signingOrder": {
+                          "description": "Signing order: PARALLEL (all signers can sign simultaneously) or SEQUENTIAL (signers must sign in order)",
+                          "type": "string",
+                          "enum": [
+                            "PARALLEL",
+                            "SEQUENTIAL"
+                          ],
+                          "nullable": true
+                        },
+                        "forceReadFullDocument": {
+                          "description": "Whether signers must read the entire document before signing",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "showChatToSigners": {
+                          "description": "Whether to show document chat to signers",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "preferredLanguage": {
+                          "description": "Preferred language for the signing interface: sv (Swedish), en (English), no (Norwegian), da (Danish), or fi (Finnish)",
+                          "type": "string",
+                          "enum": [
+                            "sv",
+                            "en",
+                            "no",
+                            "da",
+                            "fi",
+                            "de",
+                            "is",
+                            "es",
+                            "fr",
+                            "it"
+                          ],
+                          "nullable": true
+                        },
+                        "value": {
+                          "description": "Monetary value of the document (for contracts)",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectUrl": {
+                          "description": "URL to redirect signers to after signing is complete",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "redirectEnabled": {
+                          "description": "Whether redirect after signing is enabled",
+                          "type": "boolean",
+                          "nullable": true
+                        }
+                      },
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "completedAt": {
+                      "description": "Date and time when all signers completed signing",
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -3282,7 +3599,6 @@
       "post": {
         "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `POST /api/v1/documents/:id/parties` instead \u2014 \"party\" is the correct term for a document participant.\n\nAdd a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
         "summary": "[DEPRECATED] Add a signer to document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -3455,8 +3771,9 @@
                     },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "readStatus": {
                       "type": "string",
@@ -3644,7 +3961,6 @@
       "get": {
         "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `GET /api/v1/documents/:id/parties` instead \u2014 \"party\" is the correct term for a document participant.\n\nRetrieve all signers for a document WITHOUT signing URLs.\n\nThis endpoint returns signer information for display purposes. Signing URLs are not included for security reasons.\n\nTo get a signer's signing URL (which creates an audit log entry), use the GET /documents/:id/signers/:signerId endpoint.",
         "summary": "[DEPRECATED] List all signers for a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -3754,8 +4070,9 @@
                           },
                           "signedAt": {
                             "description": "Date and time when the signer signed (null if not signed)",
+                            "nullable": true,
                             "type": "string",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "readStatus": {
                             "type": "string",
@@ -3902,7 +4219,6 @@
       "patch": {
         "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `PATCH /api/v1/documents/:id/parties/:partyId` instead \u2014 \"party\" is the correct term for a document participant.\n\nUpdate signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` or `SMS_BEFORE_SIGNING`\n\n**Restrictions:** Cannot update after signer has signed the document.",
         "summary": "[DEPRECATED] Update a signer",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -4107,8 +4423,9 @@
                     },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "readStatus": {
                       "type": "string",
@@ -4296,7 +4613,6 @@
       "delete": {
         "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `DELETE /api/v1/documents/:id/parties/:partyId` instead \u2014 \"party\" is the correct term for a document participant.\n\nRemove a signer from a document. This operation is only allowed for DRAFT documents.\n\n**Note:** Once a document is sent, signers cannot be removed. You must cancel the document first.",
         "summary": "[DEPRECATED] Remove a signer from document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -4409,8 +4725,9 @@
                     },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "readStatus": {
                       "type": "string",
@@ -4598,7 +4915,6 @@
       "get": {
         "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `GET /api/v1/documents/:id/parties/:partyId` instead \u2014 \"party\" is the correct term for a document participant.\n\nRetrieve a specific signer including their signing URL.\n\n**Security Note:** This endpoint creates an audit log entry each time a signing URL is accessed. Use this endpoint when you need the signing URL to share with the signer.\n\n**Response includes:**\n- Signer details (name, email, phone, company info)\n- Signing status (NOT_SIGNED, SIGNED, REJECTED)\n- Read status (NOT_OPENED, OPENED, READ)\n- Complete signing URL with token",
         "summary": "[DEPRECATED] Get a signer with signing URL",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -4715,8 +5031,9 @@
                     },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "readStatus": {
                       "type": "string",
@@ -4862,7 +5179,6 @@
       "post": {
         "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `POST /api/v1/documents/:id/parties/:partyId/remind` instead \u2014 \"party\" is the correct term for a document participant.\n\nSend a manual reminder email to a specific signer who has not yet signed.\n\n**Prerequisites:**\n- Document must be in `PENDING` status\n- Signer must have a delivery method other than `NONE`\n- Signer must have an email address and must have already been sent the document\n- Signer must not have already signed or rejected the document\n- Document must not have expired\n\n**Rate limiting:** Only one reminder can be sent to a given signer per 24 hours.",
         "summary": "[DEPRECATED] Send a reminder to a signer",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -4904,7 +5220,9 @@
                       "description": "Whether the reminder was sent successfully"
                     },
                     "sentAt": {
-                      "description": "Timestamp when the reminder was sent"
+                      "description": "Timestamp when the reminder was sent",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -5023,7 +5341,6 @@
       "post": {
         "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party. Use GET /documents/:id/parties/:partyId to retrieve the signing URL.",
         "summary": "Add a party to document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -5196,8 +5513,9 @@
                     },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "readStatus": {
                       "type": "string",
@@ -5385,7 +5703,6 @@
       "get": {
         "description": "Retrieve all parties for a document WITHOUT signing URLs.\n\nThis endpoint returns party information for display purposes. Signing URLs are not included for security reasons.\n\nTo get a party's signing URL (which creates an audit log entry), use the GET /documents/:id/parties/:partyId endpoint.",
         "summary": "List all parties for a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -5495,8 +5812,9 @@
                           },
                           "signedAt": {
                             "description": "Date and time when the signer signed (null if not signed)",
+                            "nullable": true,
                             "type": "string",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "readStatus": {
                             "type": "string",
@@ -5643,7 +5961,6 @@
       "patch": {
         "description": "Update party information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Party's full name\n- `email` - Party's email address\n- `phone` - Party's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Party role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` or `SMS_BEFORE_SIGNING`\n\n**Restrictions:** Cannot update after party has signed the document.",
         "summary": "Update a party",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -5848,8 +6165,9 @@
                     },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "readStatus": {
                       "type": "string",
@@ -6037,7 +6355,6 @@
       "delete": {
         "description": "Remove a party from a document. This operation is only allowed for DRAFT documents.\n\n**Note:** Once a document is sent, parties cannot be removed. You must cancel the document first.",
         "summary": "Remove a party from document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -6150,8 +6467,9 @@
                     },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "readStatus": {
                       "type": "string",
@@ -6339,7 +6657,6 @@
       "get": {
         "description": "Retrieve a specific party including their signing URL.\n\n**Security Note:** This endpoint creates an audit log entry each time a signing URL is accessed. Use this endpoint when you need the signing URL to share with the party.\n\n**Response includes:**\n- Party details (name, email, phone, company info)\n- Signing status (NOT_SIGNED, SIGNED, REJECTED)\n- Read status (NOT_OPENED, OPENED, READ)\n- Complete signing URL with token",
         "summary": "Get a party with signing URL",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -6456,8 +6773,9 @@
                     },
                     "signedAt": {
                       "description": "Date and time when the signer signed (null if not signed)",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "readStatus": {
                       "type": "string",
@@ -6603,7 +6921,6 @@
       "post": {
         "description": "Send a manual reminder email to a specific party who has not yet signed.\n\n**Prerequisites:**\n- Document must be in `PENDING` status\n- Party must have a delivery method other than `NONE`\n- Party must have an email address and must have already been sent the document\n- Party must not have already signed or rejected the document\n- Document must not have expired\n\n**Rate limiting:** Only one reminder can be sent to a given party per 24 hours.",
         "summary": "Send a reminder to a party",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -6645,7 +6962,9 @@
                       "description": "Whether the reminder was sent successfully"
                     },
                     "sentAt": {
-                      "description": "Timestamp when the reminder was sent"
+                      "description": "Timestamp when the reminder was sent",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -6764,7 +7083,6 @@
       "get": {
         "description": "Retrieve a paginated list of all contacts in your organization.\n\nContacts are individuals that can be added as signers to documents. Each contact can optionally be associated with a company.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.",
         "summary": "List all contacts",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -6888,10 +7206,14 @@
                             "nullable": true
                           },
                           "createdAt": {
-                            "description": "Date and time when contact was created"
+                            "description": "Date and time when contact was created",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when contact was last updated"
+                            "description": "Date and time when contact was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "companyRole": {
                             "description": "Role/title within the associated company",
@@ -7002,7 +7324,6 @@
       "post": {
         "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n- `lastName` - Contact's last name\n\n**Optional Fields:**\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `ssn` - Swedish personal number (for BankID)\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
         "summary": "Create a new contact",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -7110,10 +7431,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when contact was created"
+                      "description": "Date and time when contact was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when contact was last updated"
+                      "description": "Date and time when contact was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "companyRole": {
                       "description": "Role/title within the associated company",
@@ -7215,7 +7540,6 @@
       "get": {
         "description": "Search for contacts by email, phone number, or external ID.\n\n**Query Parameters (at least one required):**\n- `email` - Search by exact email address match\n- `phone` - Search by exact phone number match\n- `externalId` - Search by exact external ID match\n\n**Response:** Returns an array of matching contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization.",
         "summary": "Search contacts",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -7312,10 +7636,14 @@
                             "nullable": true
                           },
                           "createdAt": {
-                            "description": "Date and time when contact was created"
+                            "description": "Date and time when contact was created",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when contact was last updated"
+                            "description": "Date and time when contact was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "companyRole": {
                             "description": "Role/title within the associated company",
@@ -7425,7 +7753,6 @@
       "get": {
         "description": "Retrieve detailed information about a specific contact including associated company information.",
         "summary": "Get a contact by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -7487,10 +7814,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when contact was created"
+                      "description": "Date and time when contact was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when contact was last updated"
+                      "description": "Date and time when contact was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "companyRole": {
                       "description": "Role/title within the associated company",
@@ -7590,7 +7921,6 @@
       "patch": {
         "description": "Update contact information. All fields are optional.\n\n**Note:** Updating a contact does not affect existing document signers. Changes only apply to new documents.",
         "summary": "Update a contact",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -7700,10 +8030,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when contact was created"
+                      "description": "Date and time when contact was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when contact was last updated"
+                      "description": "Date and time when contact was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "companyRole": {
                       "description": "Role/title within the associated company",
@@ -7803,7 +8137,6 @@
       "delete": {
         "description": "Soft delete a contact. The contact is marked as deleted but existing document signers remain unaffected.",
         "summary": "Delete a contact",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -7865,10 +8198,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when contact was created"
+                      "description": "Date and time when contact was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when contact was last updated"
+                      "description": "Date and time when contact was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "companyRole": {
                       "description": "Role/title within the associated company",
@@ -7970,7 +8307,6 @@
       "get": {
         "description": "Retrieve a list of all companies in your organization.\n\nCompanies can be associated with contacts to track organizational relationships.",
         "summary": "List all companies",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -8057,7 +8393,6 @@
       "post": {
         "description": "Create a new company in your organization.\n\n**Required Fields:**\n- `name` - Company name\n\n**Optional Fields:**\n- `orgNumber` - Organization number (must be unique if provided)\n- `country` - Country name\n\n**Note:** If a company with the same organization number exists, a 409 Conflict error is returned.",
         "summary": "Create a new company",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -8210,7 +8545,6 @@
       "get": {
         "description": "Search for companies by organization number or name.\n\n**Query Parameters (at least one required):**\n- `orgNumber` - Search by exact organization number match\n- `name` - Search by exact company name match (case-insensitive)\n\n**Response:** Returns an array of matching companies with their associated contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization.",
         "summary": "Search companies",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -8313,10 +8647,14 @@
                                   "nullable": true
                                 },
                                 "createdAt": {
-                                  "description": "Date and time when contact was created"
+                                  "description": "Date and time when contact was created",
+                                  "type": "string",
+                                  "format": "date-time"
                                 },
                                 "updatedAt": {
-                                  "description": "Date and time when contact was last updated"
+                                  "description": "Date and time when contact was last updated",
+                                  "type": "string",
+                                  "format": "date-time"
                                 },
                                 "companyRole": {
                                   "description": "Role/title within the associated company",
@@ -8433,7 +8771,6 @@
       "get": {
         "description": "Look up a company in the external company registry by organization number and retrieve detailed information including signatories.\n\n**Query Parameters:**\n- `orgNr` (required) - Organization number to search for\n\n**Response includes:**\n- Basic company info (name, status, org number)\n- Contact information (phone, address)\n- Legal information (company form, domicile, registration dates)\n- Tax information (employer status, F-tax, VAT)\n- Business info (SNI codes, activity description, company signature)\n- Responsible persons (executives, board members, auditors, owners)\n- Location coordinates\n\n**Rate Limit:** This endpoint is rate limited to 2 requests per minute.\n\n**Note:** This searches an external registry, not your local workspace companies. Results are cached for 3 days.",
         "summary": "Lookup company in external registry",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -8887,7 +9224,6 @@
       "get": {
         "description": "Retrieve detailed information about a company including all associated contacts.",
         "summary": "Get a company by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -8972,10 +9308,14 @@
                                 "nullable": true
                               },
                               "createdAt": {
-                                "description": "Date and time when contact was created"
+                                "description": "Date and time when contact was created",
+                                "type": "string",
+                                "format": "date-time"
                               },
                               "updatedAt": {
-                                "description": "Date and time when contact was last updated"
+                                "description": "Date and time when contact was last updated",
+                                "type": "string",
+                                "format": "date-time"
                               },
                               "companyRole": {
                                 "description": "Role/title within the associated company",
@@ -9086,9 +9426,8 @@
     },
     "/api/v1/documents/{id}/fields": {
       "post": {
-        "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
+        "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
         "summary": "Create a document field",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -10475,7 +10814,6 @@
       "patch": {
         "description": "Update a document field's properties. Only DRAFT documents can have fields updated.\n\n**Field Identifier:**\n- `fieldId` - Can be either database ID or key-based reference (prefix with `key:`)\n- Example: `/api/v1/documents/{docId}/fields/key:recipient-name`\n\n**Updatable Properties:**\n- `type` - Field type (cannot change if field has data)\n- `position` - Field order/position\n- `fieldMeta` - Field-specific metadata\n- `key` - Unique key identifier for API access\n\n**Regular Field Updates (by ID):**\nPass the full field structure including type and complete fieldMeta for that field type.\n\n**Example - Update TEXT field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"TEXT\",\n  \"fieldMeta\": {\n    \"type\": \"TEXT\",\n    \"content\": \"<p>Updated content</p>\"\n  }\n}\n```\n\n**Example - Update HTML field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1 style='color: #003366'>Contract Title</h1><img src='https://example.com/logo.png' alt='Company Logo' style='max-width: 200px' /><p>Custom styled content with <span style='color: red'>highlighted text</span></p></div>\"\n  }\n}\n```\n\n**Example - Update FORM field:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"FORM\",\n  \"fieldMeta\": {\n    \"type\": \"FORM\",\n    \"columns\": 2,\n    \"fields\": [...]\n  }\n}\n```\n\n**Key-Based Updates for FORM Subfields:**\nFor FORM fields with subfield keys, use `key:your-field-key` as the fieldId to update a specific subfield by its key.\n\nWhen updating a FORM subfield by key, only pass the `fieldMeta` property with the subfield's metadata structure. All other properties (type, position, key) are ignored.\n\n**Example - Update FORM subfield value:**\n```json\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\n    \"type\": \"input\",\n    \"value\": \"Andreas\"\n  }\n}\n```\n\nThis will update only the `value` property of the subfield with key \"name\", preserving all other properties like label, placeholder, and description.",
         "summary": "Update a document field",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -10622,7 +10960,6 @@
       "delete": {
         "description": "Remove a field from a document. Only allowed for DRAFT documents.",
         "summary": "Delete a document field",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -10734,7 +11071,6 @@
       "get": {
         "description": "Retrieve a paginated list of all tags in your organization.\n\nTags help organize and categorize documents, templates, and contacts.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.",
         "summary": "List all tags",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -10808,10 +11144,14 @@
                             "description": "Where this tag can be used: DOCUMENT, TEMPLATE, and/or CONTACT"
                           },
                           "createdAt": {
-                            "description": "Date and time when tag was created"
+                            "description": "Date and time when tag was created",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when tag was last updated"
+                            "description": "Date and time when tag was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -10868,7 +11208,6 @@
       "post": {
         "description": "Create a new tag for organizing documents, templates, or contacts.\n\n**Required Fields:**\n- `name` - Tag name (must be unique)\n- `availableFor` - Where tag can be used: DOCUMENT, TEMPLATE, or CONTACT\n\n**Optional Fields:**\n- `color` - Hex color code (e.g., #FF5733)",
         "summary": "Create a new tag",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -10950,10 +11289,14 @@
                       "description": "Where this tag can be used: DOCUMENT, TEMPLATE, and/or CONTACT"
                     },
                     "createdAt": {
-                      "description": "Date and time when tag was created"
+                      "description": "Date and time when tag was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when tag was last updated"
+                      "description": "Date and time when tag was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -11051,7 +11394,6 @@
       "patch": {
         "description": "Update tag properties. All fields are optional.",
         "summary": "Update a tag",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -11133,10 +11475,14 @@
                       "description": "Where this tag can be used: DOCUMENT, TEMPLATE, and/or CONTACT"
                     },
                     "createdAt": {
-                      "description": "Date and time when tag was created"
+                      "description": "Date and time when tag was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when tag was last updated"
+                      "description": "Date and time when tag was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -11234,7 +11580,6 @@
       "post": {
         "description": "Associate a tag with a document.\n\n**Note:** Tag must be configured for DOCUMENT use (availableFor includes 'DOCUMENT').",
         "summary": "Add tag to document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -11377,7 +11722,6 @@
       "delete": {
         "description": "Remove a tag association from a document.",
         "summary": "Remove tag from document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -11508,7 +11852,6 @@
       "get": {
         "description": "Retrieve a paginated list of custom field definitions.\n\nCustom fields allow you to add additional structured data to documents or contacts.\n\n**Query Parameters:**\n- `page` - Page number\n- `perPage` - Items per page\n- `type` - Filter by type (DOCUMENT or CONTACT)",
         "summary": "List all custom fields",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -11624,10 +11967,14 @@
                             "nullable": true
                           },
                           "createdAt": {
-                            "description": "Date and time when custom field was created"
+                            "description": "Date and time when custom field was created",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when custom field was last updated"
+                            "description": "Date and time when custom field was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -11687,7 +12034,6 @@
       "post": {
         "description": "Create a new custom field definition.\n\n**Required Fields:**\n- `name` - Field name\n- `type` - DOCUMENT or CONTACT\n- `inputType` - Input type (TEXT, NUMBER, DATE, CHECKBOX, SELECT, TEXTAREA)\n\n**Optional Fields:**\n- `defaultValue` - Default value for the field\n- `required` - Whether field is required (default: false)\n- `options` - For SELECT type, comma-separated options",
         "summary": "Create a custom field definition",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -11819,10 +12165,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when custom field was created"
+                      "description": "Date and time when custom field was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when custom field was last updated"
+                      "description": "Date and time when custom field was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -11898,7 +12248,6 @@
       "get": {
         "description": "Retrieve detailed information about a custom field definition.",
         "summary": "Get a custom field by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -11974,10 +12323,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when custom field was created"
+                      "description": "Date and time when custom field was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when custom field was last updated"
+                      "description": "Date and time when custom field was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -12051,7 +12404,6 @@
       "patch": {
         "description": "Update custom field properties. All fields are optional.\n\n**Note:** Changing field type may affect existing data.",
         "summary": "Update a custom field definition",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -12170,10 +12522,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when custom field was created"
+                      "description": "Date and time when custom field was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when custom field was last updated"
+                      "description": "Date and time when custom field was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -12272,7 +12628,6 @@
       "delete": {
         "description": "Delete a custom field definition.\n\n**Warning:** This will remove all values associated with this field from all documents/contacts.",
         "summary": "Delete a custom field definition",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -12348,10 +12703,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when custom field was created"
+                      "description": "Date and time when custom field was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when custom field was last updated"
+                      "description": "Date and time when custom field was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -12427,7 +12786,6 @@
       "get": {
         "description": "Retrieve a paginated list of all sajn ID identity verifications in your organization.\n\nsajn ID enables secure identity verification using Swedish BankID, either with SSN validation or name-based verification.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.\n\n**Filtering:**\n- `status` - Filter by verification status (can specify multiple)\n- `dateFrom` - Filter by creation date from\n- `dateTo` - Filter by creation date to",
         "summary": "List all sajn ID verifications",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -12558,7 +12916,8 @@
                             "type": "string",
                             "enum": [
                               "EMAIL",
-                              "SMS"
+                              "SMS",
+                              "IN_APP"
                             ],
                             "description": "Delivery channel used"
                           },
@@ -12580,26 +12939,15 @@
                             "type": "string",
                             "nullable": true
                           },
-                          "note": {
-                            "description": "Internal note",
-                            "type": "string",
-                            "nullable": true
-                          },
                           "locale": {
                             "type": "string",
                             "description": "Locale for messages"
                           },
-                          "tokenExpiresAt": {
-                            "description": "When the verification token expires"
+                          "expiresAt": {
+                            "description": "When the identity check (and its link) expires"
                           },
-                          "usedAt": {
+                          "verifiedAt": {
                             "description": "When the verification was completed",
-                            "type": "string",
-                            "nullable": true
-                          },
-                          "failureReason": {
-                            "description": "Reason for failure (if status is FAILED)",
-                            "type": "string",
                             "nullable": true
                           },
                           "createdAt": {
@@ -12672,7 +13020,7 @@
                           "channel",
                           "status",
                           "locale",
-                          "tokenExpiresAt",
+                          "expiresAt",
                           "createdAt",
                           "updatedAt"
                         ],
@@ -12724,7 +13072,6 @@
       "post": {
         "description": "Create a new identity verification request. Optionally send it immediately to the recipient.\n\n**Required Fields:**\n- `fullName` - Full name of person to verify (required)\n- `channel` - Delivery channel: EMAIL or SMS (required)\n- Channel-specific: `email` (for EMAIL) or `phone` (for SMS)\n\n**Optional Fields:**\n- `ssn` - Swedish personal number for SSN-based verification (without SSN, name-based verification is used)\n- `reference` - External reference ID for tracking\n- `note` - Internal note about this verification\n- `contactId` - Link to existing contact\n- `locale` - Message locale (default: sv-SE)\n\n**Verification Methods:**\n- **SSN-based**: When `ssn` is provided, BankID verification validates both identity and SSN match\n- **Name-based**: Without `ssn`, BankID verifies identity and name match\n\n**Response:** Returns verification details including token and verification URL (only on creation, never exposed later).\n\n**Billing:** Creating a sajn ID verification counts toward your monthly sajn ID quota and is billed accordingly.",
         "summary": "Create a new sajn ID verification",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -12795,10 +13142,6 @@
                     "description": "Optional reference/external ID for tracking",
                     "type": "string"
                   },
-                  "note": {
-                    "description": "Internal note about this verification",
-                    "type": "string"
-                  },
                   "contactId": {
                     "description": "Optional contact ID to link this verification to",
                     "type": "string"
@@ -12807,6 +13150,9 @@
                     "default": "sv-SE",
                     "description": "Locale for verification messages (default: sv-SE)",
                     "type": "string"
+                  },
+                  "expiresAt": {
+                    "description": "When the identity check (and its link) expires. Must be in the future. Defaults to 7 days from creation if omitted."
                   }
                 },
                 "required": [
@@ -12854,7 +13200,8 @@
                       "type": "string",
                       "enum": [
                         "EMAIL",
-                        "SMS"
+                        "SMS",
+                        "IN_APP"
                       ],
                       "description": "Delivery channel used"
                     },
@@ -12876,26 +13223,15 @@
                       "type": "string",
                       "nullable": true
                     },
-                    "note": {
-                      "description": "Internal note",
-                      "type": "string",
-                      "nullable": true
-                    },
                     "locale": {
                       "type": "string",
                       "description": "Locale for messages"
                     },
-                    "tokenExpiresAt": {
-                      "description": "When the verification token expires"
+                    "expiresAt": {
+                      "description": "When the identity check (and its link) expires"
                     },
-                    "usedAt": {
+                    "verifiedAt": {
                       "description": "When the verification was completed",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "failureReason": {
-                      "description": "Reason for failure (if status is FAILED)",
-                      "type": "string",
                       "nullable": true
                     },
                     "createdAt": {
@@ -13034,7 +13370,7 @@
                     "channel",
                     "status",
                     "locale",
-                    "tokenExpiresAt",
+                    "expiresAt",
                     "createdAt",
                     "updatedAt"
                   ],
@@ -13125,7 +13461,6 @@
       "get": {
         "description": "Retrieve detailed information about a specific sajn ID verification including status, audit logs, and verification data.\n\nThe response includes:\n- Verification status and timestamps\n- Contact information (email/phone based on channel)\n- Linked contact details (if applicable)\n- Complete audit log of all verification events\n- Verification data (e.g., BankID response for verified identities)\n\n**Note:** Sensitive information like SSN is encrypted and not returned in the API response.",
         "summary": "Get a sajn ID verification by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -13180,7 +13515,8 @@
                       "type": "string",
                       "enum": [
                         "EMAIL",
-                        "SMS"
+                        "SMS",
+                        "IN_APP"
                       ],
                       "description": "Delivery channel used"
                     },
@@ -13202,26 +13538,15 @@
                       "type": "string",
                       "nullable": true
                     },
-                    "note": {
-                      "description": "Internal note",
-                      "type": "string",
-                      "nullable": true
-                    },
                     "locale": {
                       "type": "string",
                       "description": "Locale for messages"
                     },
-                    "tokenExpiresAt": {
-                      "description": "When the verification token expires"
+                    "expiresAt": {
+                      "description": "When the identity check (and its link) expires"
                     },
-                    "usedAt": {
+                    "verifiedAt": {
                       "description": "When the verification was completed",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "failureReason": {
-                      "description": "Reason for failure (if status is FAILED)",
-                      "type": "string",
                       "nullable": true
                     },
                     "createdAt": {
@@ -13360,7 +13685,7 @@
                     "channel",
                     "status",
                     "locale",
-                    "tokenExpiresAt",
+                    "expiresAt",
                     "createdAt",
                     "updatedAt"
                   ],
@@ -13426,7 +13751,6 @@
       "get": {
         "description": "Retrieve file information and access URL.\n\n**URL Generation:**\n- For `PRIVATE` files: Returns a fresh signed URL (valid for 60 minutes)\n- For `PUBLIC` files: Returns the permanent CloudFront URL\n\n**Response includes:**\n- File metadata (filename, size, MIME type)\n- Visibility setting\n- Access URL\n- Upload information",
         "summary": "Get file by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -13485,10 +13809,14 @@
                       "description": "URL to access the file (signed URL for private, direct URL for public)"
                     },
                     "createdAt": {
-                      "description": "Date and time when file was uploaded"
+                      "description": "Date and time when file was uploaded",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when file was last updated"
+                      "description": "Date and time when file was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "uploadedBy": {
                       "type": "object",
@@ -13590,7 +13918,6 @@
       "delete": {
         "description": "Delete a file from storage and database.\n\n**Warning:** This operation is irreversible. The file will be permanently deleted from both S3 and the database.",
         "summary": "Delete a file",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -13611,14 +13938,6 @@
           }
         ],
         "operationId": "deleteFile",
-        "requestBody": {
-          "description": "Body",
-          "content": {
-            "application/json": {
-              "schema": {}
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Delete file response",
@@ -13695,10 +14014,154 @@
       }
     },
     "/api/v1/files": {
+      "post": {
+        "description": "Create a file record and get a presigned URL to upload the bytes **directly to storage**.\n\nThis is the recommended upload method. It replaces the legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `upload.sajn.se`), which is **deprecated**.\n\n**Flow:**\n1. Compute the file's SHA-256 hash and base64-encode it.\n2. Call this endpoint with the filename, MIME type, size, and checksum. You receive a `fileId` and a presigned `uploadUrl`.\n3. `PUT` the raw bytes to `uploadUrl` with headers `Content-Type: <mimeType>` and `x-amz-checksum-sha256: <checksum>`. S3 verifies the checksum on write.\n4. The file is confirmed automatically the first time it is fetched via `GET /api/v1/files/:id`.\n\n**Why:** the bytes go straight to storage, so there is no API-server size limit.",
+        "summary": "Create a file (presigned upload)",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "createFile",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "description": "Original filename including its extension"
+                  },
+                  "mimeType": {
+                    "type": "string",
+                    "enum": [
+                      "application/pdf",
+                      "application/msword",
+                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                      "application/vnd.ms-excel",
+                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                      "application/vnd.ms-powerpoint",
+                      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                      "video/mp4",
+                      "video/quicktime",
+                      "video/x-msvideo",
+                      "video/webm",
+                      "image/jpeg",
+                      "image/png",
+                      "image/gif",
+                      "image/webp",
+                      "image/svg+xml"
+                    ],
+                    "description": "MIME type of the file"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "maximum": 104857600,
+                    "description": "File size in bytes (max 100 MB)",
+                    "minimum": 0
+                  },
+                  "checksum": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Base64-encoded SHA-256 checksum of the file. S3 enforces it on upload, so a mismatch rejects the bytes."
+                  },
+                  "visibility": {
+                    "default": "PRIVATE",
+                    "description": "File visibility (default PRIVATE)",
+                    "type": "string",
+                    "enum": [
+                      "PRIVATE",
+                      "PUBLIC"
+                    ]
+                  }
+                },
+                "required": [
+                  "fileName",
+                  "mimeType",
+                  "size",
+                  "checksum",
+                  "visibility"
+                ],
+                "additionalProperties": false,
+                "description": "Request a presigned upload URL and create a pending file record"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Presigned upload details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "fileId": {
+                      "type": "string",
+                      "description": "The created file record id. Status is PENDING until the upload is confirmed on first access."
+                    },
+                    "key": {
+                      "type": "string",
+                      "description": "The S3 object key the file will be stored under"
+                    },
+                    "uploadUrl": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Presigned PUT URL (valid 1 hour). Upload the bytes here with headers Content-Type: <mimeType> and x-amz-checksum-sha256: <checksum>."
+                    }
+                  },
+                  "required": [
+                    "fileId",
+                    "key",
+                    "uploadUrl"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Presigned upload details"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "description": "Retrieve a paginated list of files in your organization.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.\n\n**Filtering:** Optionally filter by visibility (PRIVATE or PUBLIC).\n\n**Response:**\n- Files are sorted by creation date (newest first)\n- Use the 'getFile' endpoint to retrieve file access URLs",
         "summary": "List files",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -13796,10 +14259,14 @@
                             "description": "File visibility"
                           },
                           "createdAt": {
-                            "description": "Date and time when file was uploaded"
+                            "description": "Date and time when file was uploaded",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when file was last updated"
+                            "description": "Date and time when file was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "uploadedBy": {
                             "type": "object",
@@ -13891,7 +14358,6 @@
       "get": {
         "description": "Retrieve a paginated list of all webhooks in your organization.\n\nWebhooks allow you to receive real-time notifications when events occur in your workspace (e.g., document signed, contact created).\n\n**Pagination:** Use 'page' and 'perPage' query parameters.",
         "summary": "List all webhooks",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -13978,10 +14444,14 @@
                             "description": "List of event types this webhook subscribes to"
                           },
                           "createdAt": {
-                            "description": "Date and time when webhook was created"
+                            "description": "Date and time when webhook was created",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when webhook was last updated"
+                            "description": "Date and time when webhook was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -14042,7 +14512,6 @@
       "post": {
         "description": "Create a new webhook subscription for your workspace.\n\n**Required Fields:**\n- `webhookUrl` - URL that will receive POST requests when events occur\n- `eventTriggers` - Array of event types to subscribe to\n\n**Optional Fields:**\n- `secret` - Secret string used to sign payloads (sent as X-Sajn-Secret header)\n- `enabled` - Whether the webhook is active (default: true)\n\n**Available Event Types:**\n- Document: `DOCUMENT_CREATED`, `DOCUMENT_SENT`, `DOCUMENT_OPENED`, `DOCUMENT_SIGNED`, `DOCUMENT_COMPLETED`, `DOCUMENT_REJECTED`, `DOCUMENT_WITHDRAWN`, `DOCUMENT_ARCHIVE_UPLOADED`\n- ID Check: `ID_CREATED`, `ID_SENT`, `ID_OPENED`, `ID_VERIFIED`, `ID_FAILED`, `ID_CANCELED`\n- Contact: `CONTACT_CREATED`, `CONTACT_UPDATED`, `CONTACT_DELETED`\n\n**Plan Requirement:** Requires SOLO plan or higher.",
         "summary": "Create a new webhook",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -14184,10 +14653,14 @@
                       "description": "List of event types this webhook subscribes to"
                     },
                     "createdAt": {
-                      "description": "Date and time when webhook was created"
+                      "description": "Date and time when webhook was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when webhook was last updated"
+                      "description": "Date and time when webhook was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -14263,7 +14736,6 @@
       "get": {
         "description": "Retrieve detailed information about a specific webhook including its subscribed event triggers.",
         "summary": "Get a webhook by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -14322,10 +14794,14 @@
                       "description": "List of event types this webhook subscribes to"
                     },
                     "createdAt": {
-                      "description": "Date and time when webhook was created"
+                      "description": "Date and time when webhook was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when webhook was last updated"
+                      "description": "Date and time when webhook was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -14399,7 +14875,6 @@
       "patch": {
         "description": "Update webhook properties. All fields are optional - only provided fields will be updated.\n\n**Plan Requirement:** Requires SOLO plan or higher.",
         "summary": "Update a webhook",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -14543,10 +15018,14 @@
                       "description": "List of event types this webhook subscribes to"
                     },
                     "createdAt": {
-                      "description": "Date and time when webhook was created"
+                      "description": "Date and time when webhook was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when webhook was last updated"
+                      "description": "Date and time when webhook was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -14645,7 +15124,6 @@
       "delete": {
         "description": "Delete a webhook subscription. All associated event subscriptions and call logs will also be deleted.\n\n**Plan Requirement:** Requires SOLO plan or higher.",
         "summary": "Delete a webhook",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -14666,14 +15144,6 @@
           }
         ],
         "operationId": "deleteWebhook",
-        "requestBody": {
-          "description": "Body",
-          "content": {
-            "application/json": {
-              "schema": {}
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "200",
@@ -14751,7 +15221,6 @@
       "get": {
         "description": "List workspace members who have the APPROVE_DOCUMENT permission. Use the returned user IDs when submitting a document for approval via `POST /api/v1/documents/{id}/send` with an `approverId`.",
         "summary": "List eligible approvers",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -14848,7 +15317,6 @@
       "get": {
         "description": "Get the current approval status for a document. Returns the approval details including status, approver, and requester information.",
         "summary": "Get document approval status",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -15003,7 +15471,6 @@
                     },
                     "resolvedAt": {
                       "description": "When the approval was resolved",
-                      "type": "string",
                       "nullable": true
                     }
                   },
@@ -15080,7 +15547,6 @@
       "delete": {
         "description": "Cancel a pending approval request. Only the user who submitted the approval can cancel it. The document status returns to DRAFT.",
         "summary": "Cancel a pending approval",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -15101,14 +15567,6 @@
           }
         ],
         "operationId": "cancelApproval",
-        "requestBody": {
-          "description": "Body",
-          "content": {
-            "application/json": {
-              "schema": {}
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "200",
@@ -15236,7 +15694,6 @@
       "post": {
         "description": "Approve a pending document and send it for signing. You must be the designated approver or a workspace admin. The document status changes from PENDING_APPROVAL to PENDING as it is sent.",
         "summary": "Approve a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -15294,8 +15751,9 @@
                     },
                     "expiresAt": {
                       "description": "Date and time when the document expires",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "name": {
                       "type": "string",
@@ -15375,15 +15833,20 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the document was created"
+                      "description": "Date and time when the document was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the document was last updated"
+                      "description": "Date and time when the document was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "completedAt": {
                       "description": "Date and time when all signers completed signing",
+                      "nullable": true,
                       "type": "string",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -15505,7 +15968,6 @@
       "post": {
         "description": "Reject a pending document. A comment is required explaining the reason. The document status returns to DRAFT so the creator can make changes and resubmit.",
         "summary": "Reject a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -15682,7 +16144,6 @@
                     },
                     "resolvedAt": {
                       "description": "When the approval was resolved",
-                      "type": "string",
                       "nullable": true
                     }
                   },
@@ -15811,7 +16272,6 @@
       "get": {
         "description": "Retrieve a paginated list of all templates in your workspace.\n\nTemplates let you predefine document structure, fields, and default parties, then spawn documents from them via `POST /api/v1/documents` with `templateId`.\n\n**Pagination:** Use `page` and `perPage` query parameters.\n**Search:** Use `search` to filter by template name.",
         "summary": "List all templates",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -16036,10 +16496,14 @@
                             "nullable": true
                           },
                           "createdAt": {
-                            "description": "Date and time when the template was created"
+                            "description": "Date and time when the template was created",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when the template was last updated"
+                            "description": "Date and time when the template was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -16099,7 +16563,6 @@
       "post": {
         "description": "Create a new template in your workspace.\n\n**Required Fields:**\n- `name` - Template name\n\n**Optional Fields:**\n- `initialFields` - Array of fields to create with the template. Each field has `type`, `position`, and `fieldMeta`.\n\n**Usage:** After creating a template, add default parties via `POST /api/v1/templates/:id/parties` and tags via `POST /api/v1/templates/:id/tags`. Then create documents from it using `POST /api/v1/documents` with `templateId`.",
         "summary": "Create a new template",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -16879,10 +17342,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the template was created"
+                      "description": "Date and time when the template was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the template was last updated"
+                      "description": "Date and time when the template was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -16957,7 +17424,6 @@
       "get": {
         "description": "Retrieve detailed information about a specific template including all fields, parties, and tags.",
         "summary": "Get a template by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -17087,10 +17553,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the template was created"
+                      "description": "Date and time when the template was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the template was last updated"
+                      "description": "Date and time when the template was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "fields": {
                       "description": "Template fields/sections",
@@ -17336,7 +17806,6 @@
       "patch": {
         "description": "Update template properties.\n\n**Updatable Fields:**\n- `name` - Template name\n- `templateMeta` - Default settings for documents created from this template (signing order, preferred language, etc.)",
         "summary": "Update a template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -17540,10 +18009,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the template was created"
+                      "description": "Date and time when the template was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the template was last updated"
+                      "description": "Date and time when the template was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -17641,7 +18114,6 @@
       "delete": {
         "description": "Permanently delete a template. Documents already created from this template are not affected.",
         "summary": "Delete a template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -17739,7 +18211,6 @@
       "post": {
         "description": "Create a copy of an existing template. The copy includes all fields and parties from the original.",
         "summary": "Duplicate a template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -17869,10 +18340,14 @@
                       "nullable": true
                     },
                     "createdAt": {
-                      "description": "Date and time when the template was created"
+                      "description": "Date and time when the template was created",
+                      "type": "string",
+                      "format": "date-time"
                     },
                     "updatedAt": {
-                      "description": "Date and time when the template was last updated"
+                      "description": "Date and time when the template was last updated",
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -17947,7 +18422,6 @@
       "post": {
         "description": "Add a field/section to a template. Same semantics as `createField` on documents \u2014 can create single field or multiple fields at once.",
         "summary": "Create a template field",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -19334,7 +19808,6 @@
       "patch": {
         "description": "Update a template field's properties. Supports `key:` prefix for FORM subfield updates, same as the documents endpoint.",
         "summary": "Update a template field",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -19481,7 +19954,6 @@
       "delete": {
         "description": "Remove a field from a template.",
         "summary": "Delete a template field",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -19593,7 +20065,6 @@
       "get": {
         "description": "Retrieve all default parties configured on a template. These are copied to new documents created from this template unless overridden.",
         "summary": "List all parties for a template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -19827,7 +20298,6 @@
       "post": {
         "description": "Add a default party/signer to a template. You can either reference an existing contact via `contactId`, or provide `name` with optional email/phone/company details manually.\n\nThese parties are inherited as signers when a document is created from this template (unless overridden).",
         "summary": "Add a party to template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -20236,7 +20706,6 @@
       "patch": {
         "description": "Update an existing template party.",
         "summary": "Update a template party",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -20573,7 +21042,6 @@
       "delete": {
         "description": "Remove a default party from a template.",
         "summary": "Remove a party from template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -20602,14 +21070,6 @@
           }
         ],
         "operationId": "deleteTemplateParty",
-        "requestBody": {
-          "description": "Body",
-          "content": {
-            "application/json": {
-              "schema": {}
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "200",
@@ -20712,7 +21172,6 @@
       "post": {
         "description": "Associate a tag with a template. Tag must be configured for TEMPLATE use (`availableFor` includes `TEMPLATE`).",
         "summary": "Add tag to template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -20855,7 +21314,6 @@
       "delete": {
         "description": "Remove a tag association from a template.",
         "summary": "Remove tag from template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -20884,14 +21342,6 @@
           }
         ],
         "operationId": "removeTagFromTemplate",
-        "requestBody": {
-          "description": "Body",
-          "content": {
-            "application/json": {
-              "schema": {}
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "200",
@@ -20994,7 +21444,6 @@
       "get": {
         "description": "Returns the authenticated user, the workspace the API token is bound to, and the parent organization. Used by Zapier and other integrations to verify the connection and label it for users.",
         "summary": "Get authenticated user + workspace context",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -21107,7 +21556,6 @@
       "get": {
         "description": "Returns the workspaces in the authenticated user's organization that they are a member of. The workspace bound to the current API token is marked with `isCurrent: true`.",
         "summary": "List accessible workspaces",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -21205,7 +21653,6 @@
       "post": {
         "description": "Add an existing organization member to this workspace, or invite a new user to the org and grant them workspace access.\n\nIf the email matches an existing org member, they are added directly. Otherwise an invitation email is sent (when `sendInvite` is true) and `invited: true` is returned.\n\n`roleId` must reference a workspace role on the current workspace \u2014 discover available roles via GET /api/v1/workspace-roles.\n\n**Permission required:** `MANAGE_MEMBERS` on the workspace.",
         "summary": "Add a member to the workspace",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -21416,7 +21863,6 @@
       "get": {
         "description": "Returns the workspace roles defined on the workspace bound to the current API token. Use the `id` values when calling addMember; role `name`s are user-editable and not stable across renames.",
         "summary": "List workspace roles",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -21505,7 +21951,6 @@
       "get": {
         "description": "Returns documents that were created from the given template, paginated.",
         "summary": "List documents created from a template",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -21591,8 +22036,9 @@
                           },
                           "expiresAt": {
                             "description": "Date and time when the document expires",
+                            "nullable": true,
                             "type": "string",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "name": {
                             "type": "string",
@@ -21672,15 +22118,20 @@
                             "nullable": true
                           },
                           "createdAt": {
-                            "description": "Date and time when the document was created"
+                            "description": "Date and time when the document was created",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "updatedAt": {
-                            "description": "Date and time when the document was last updated"
+                            "description": "Date and time when the document was last updated",
+                            "type": "string",
+                            "format": "date-time"
                           },
                           "completedAt": {
                             "description": "Date and time when all signers completed signing",
+                            "nullable": true,
                             "type": "string",
-                            "nullable": true
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -21766,7 +22217,6 @@
       "get": {
         "description": "List folders in the current workspace, filtered by type (DOCUMENT or TEMPLATE) and optionally by parent folder.\n\nPass `parentFolderId` to list direct children of a specific folder. Omit it to list top-level folders.",
         "summary": "List folders",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -21921,7 +22371,6 @@
       "post": {
         "description": "Create a new folder for documents or templates.\n\n`type` selects which entity the folder organizes. Pass `parentFolderId` to nest under an existing folder.",
         "summary": "Create a folder",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -22091,7 +22540,6 @@
       "get": {
         "description": "Retrieve a single folder. The folder must belong to the current workspace.",
         "summary": "Get a folder by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -22232,7 +22680,6 @@
       "patch": {
         "description": "Rename a folder (`name`) and/or move it under another parent (`parentFolderId`). Pass `parentFolderId: null` to move to top-level.",
         "summary": "Rename or move a folder",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -22421,7 +22868,6 @@
       "delete": {
         "description": "Soft-deletes a folder. The folder must be empty \u2014 move out all child folders, documents, and templates first.",
         "summary": "Delete a folder",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -22551,7 +22997,6 @@
       "get": {
         "description": "Returns all comment threads attached to a document, with their messages. Filter by `status` (OPEN, RESOLVED, ALL).",
         "summary": "List comment threads on a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -22629,7 +23074,6 @@
                             "type": "string"
                           },
                           "resolvedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "createdBy": {
@@ -22713,11 +23157,9 @@
                                   "type": "string"
                                 },
                                 "editedAt": {
-                                  "type": "string",
                                   "nullable": true
                                 },
                                 "deletedAt": {
-                                  "type": "string",
                                   "nullable": true
                                 },
                                 "author": {
@@ -22839,7 +23281,6 @@
       "post": {
         "description": "Start a new comment thread on a document with an initial message. Mention users by passing their user IDs in `mentions`.",
         "summary": "Create a comment thread on a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -22922,7 +23363,6 @@
                     "createdAt": {},
                     "updatedAt": {},
                     "resolvedAt": {
-                      "type": "string",
                       "nullable": true
                     },
                     "createdBy": {
@@ -23006,11 +23446,9 @@
                             "type": "string"
                           },
                           "editedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "deletedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "author": {
@@ -23152,7 +23590,6 @@
       "post": {
         "description": "Append a reply or new message to an existing comment thread on a document. Posting to a resolved thread will reopen it.",
         "summary": "Add a message to a comment thread",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -23250,11 +23687,9 @@
                     },
                     "createdAt": {},
                     "editedAt": {
-                      "type": "string",
                       "nullable": true
                     },
                     "deletedAt": {
-                      "type": "string",
                       "nullable": true
                     },
                     "author": {
@@ -23380,7 +23815,6 @@
       "patch": {
         "description": "Toggle a thread between `OPEN` and `RESOLVED`.",
         "summary": "Resolve or reopen a comment thread",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -23462,7 +23896,6 @@
                     "createdAt": {},
                     "updatedAt": {},
                     "resolvedAt": {
-                      "type": "string",
                       "nullable": true
                     },
                     "createdBy": {
@@ -23546,11 +23979,9 @@
                             "type": "string"
                           },
                           "editedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "deletedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "author": {
@@ -23690,7 +24121,6 @@
       "delete": {
         "description": "Permanently delete a comment thread and all its messages. Only the thread creator may delete it (AI-created threads are deletable by anyone with permission).",
         "summary": "Delete a comment thread",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -23824,11 +24254,408 @@
         }
       }
     },
+    "/api/v1/documents/{id}/chat": {
+      "get": {
+        "description": "Returns a document's chat messages (newest first), including both external messages (visible to signers) and internal messages (workspace-only). Per-signer private notes are not returned.",
+        "summary": "List chat messages on a document",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of messages to return (default: 50, max: 100)",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": 50,
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Pagination cursor \u2014 pass the `nextCursor` from a previous response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "operationId": "getDocumentChat",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "documentId": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "internal": {
+                            "type": "boolean",
+                            "description": "true = internal (workspace-only); false = external (visible to signers, sends notifications)"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          },
+                          "author": {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "USER",
+                                  "SIGNER"
+                                ],
+                                "description": "Whether the author is a workspace member (USER) or a document signer (SIGNER)"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "email": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "name",
+                              "email"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "documentId",
+                          "content",
+                          "internal",
+                          "createdAt",
+                          "updatedAt",
+                          "author"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "hasNextPage": {
+                      "type": "boolean"
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "chats",
+                    "hasNextPage",
+                    "nextCursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Post a message to a document's chat. Set `internal: true` to keep it visible only to workspace members; omit it or set `internal: false` to post an external message that is visible to the document's signers and triggers their email notifications.",
+        "summary": "Post a chat message to a document",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "createDocumentChat",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "Message content"
+                  },
+                  "internal": {
+                    "default": false,
+                    "description": "When true the message is internal (visible only to workspace members). When false (default) it is external \u2014 visible to the document signers and triggers their email notifications.",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "content",
+                  "internal"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "documentId": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string"
+                    },
+                    "internal": {
+                      "type": "boolean",
+                      "description": "true = internal (workspace-only); false = external (visible to signers, sends notifications)"
+                    },
+                    "createdAt": {},
+                    "updatedAt": {},
+                    "author": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "USER",
+                            "SIGNER"
+                          ],
+                          "description": "Whether the author is a workspace member (USER) or a document signer (SIGNER)"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "id",
+                        "name",
+                        "email"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "documentId",
+                    "content",
+                    "internal",
+                    "createdAt",
+                    "updatedAt",
+                    "author"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/helpers/languages": {
       "get": {
         "description": "Returns the language codes supported by the platform for signing UI, emails, and document metadata.",
         "summary": "List supported languages",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -23911,7 +24738,6 @@
       "get": {
         "description": "Returns the country codes (ISO 3166-1 alpha-2) and English labels. Useful for address fields and party country selection.",
         "summary": "List ISO 3166-1 alpha-2 countries",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -23994,7 +24820,6 @@
       "get": {
         "description": "Returns the supported currency codes (ISO 4217). Useful when modelling monetary contract values.",
         "summary": "List ISO 4217 currencies",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -24077,7 +24902,6 @@
       "get": {
         "description": "Returns IANA timezone identifiers (e.g. `Europe/Stockholm`). Useful for scheduling, expiry, and reminder configuration.",
         "summary": "List IANA timezones",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -24160,7 +24984,6 @@
       "post": {
         "description": "Send manual reminders to signers on a PENDING document.\n\nIf `signerIds` is omitted, a reminder is sent to every signer that has not yet signed (and is eligible \u2014 has email, has been sent the document, etc.).\n\n**Rate limiting:** Each signer can only receive one reminder per 24 hours. Signers that are rate-limited or otherwise not eligible are returned in the response with `status: SKIPPED` and a `reason`.",
         "summary": "Send reminders to one or more signers",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -24189,7 +25012,14 @@
                 "type": "object",
                 "properties": {
                   "signerIds": {
-                    "description": "Specific signer IDs to remind. Omit to remind every pending signer on the document.",
+                    "description": "**[DEPRECATED \u2014 use `partyIds` instead, will be removed in API v2]** Specific signer IDs to remind. If both `signerIds` and `partyIds` are provided, `partyIds` takes precedence.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "partyIds": {
+                    "description": "Specific party IDs to remind. Omit (along with `signerIds`) to remind every pending party on the document.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -24355,7 +25185,6 @@
       "get": {
         "description": "Returns all reminder events for a document (both manual and automatic), newest-first.",
         "summary": "List reminders sent for a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -24505,7 +25334,6 @@
       "get": {
         "description": "Returns metadata for the organization that owns the API token's workspace \u2014 name, address, legal numbers, logo, and branding settings.",
         "summary": "Get the authenticated organization",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -24677,7 +25505,6 @@
       "get": {
         "description": "Returns past delivery attempts (`WebhookCall` records) for a webhook, newest-first. Filter by `status` (SUCCESS/FAILED) or by `event` type.",
         "summary": "List webhook deliveries",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -24808,7 +25635,6 @@
                             "type": "string"
                           },
                           "responseBody": {
-                            "type": "string",
                             "nullable": true
                           },
                           "createdAt": {
@@ -24904,7 +25730,6 @@
       "get": {
         "description": "Returns the full payload and response of a webhook delivery, including request/response headers and bodies.",
         "summary": "Get a single webhook delivery",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -24979,7 +25804,6 @@
                     },
                     "requestBody": {},
                     "responseBody": {
-                      "type": "string",
                       "nullable": true
                     },
                     "createdAt": {}
@@ -25060,7 +25884,6 @@
       "post": {
         "description": "Queue a replay of a past webhook delivery with the original payload. The webhook must be enabled.\n\nThe response indicates only that the replay was queued; the new delivery will appear as a separate `WebhookCall` with `replayOfId` set to this delivery's id.",
         "summary": "Replay a webhook delivery",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -25198,7 +26021,6 @@
       "get": {
         "description": "Returns all delegation events on a document \u2014 when a signer hands off signing to someone else. Useful for compliance and audit integrations.",
         "summary": "List signer delegations for a document",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -25278,19 +26100,15 @@
                             "type": "string"
                           },
                           "acceptedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "declinedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "revokedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "completedAt": {
-                            "type": "string",
                             "nullable": true
                           },
                           "originalSigner": {
@@ -25426,7 +26244,6 @@
       "get": {
         "description": "List reusable content blocks (library entries) visible to the authenticated user.\n\nScope filter:\n- `all` (default) \u2014 all blocks the user can see\n- `private` \u2014 only the user's private blocks in this workspace\n- `workspace` \u2014 blocks shared at workspace level\n- `organization` \u2014 blocks shared at organization level\n- `shared` \u2014 sajn-curated blocks available to everyone",
         "summary": "List reusable content blocks",
-        "tags": [],
         "parameters": [
           {
             "name": "authorization",
@@ -25695,7 +26512,6 @@
       "get": {
         "description": "Retrieve a single content block including its field metadata.",
         "summary": "Get a content block by ID",
-        "tags": [],
         "parameters": [
           {
             "name": "id",
@@ -25876,7 +26692,6 @@
       "delete": {
         "description": "Delete a content block. PRIVATE blocks can only be deleted by their creator. WORKSPACE and ORGANIZATION blocks can be deleted by their creator or an organization administrator. sajn-curated globals cannot be deleted via the API.",
         "summary": "Delete a content block",
-        "tags": [],
         "parameters": [
           {
             "name": "id",

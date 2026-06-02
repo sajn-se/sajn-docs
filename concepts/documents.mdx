@@ -96,7 +96,7 @@ Documents can have rich metadata to control the signing process:
   </Accordion>
 
   <Accordion title="preferredLanguage">
-    Language for the signing interface: `sv` (Swedish), `en` (English), `no` (Norwegian), `da` (Danish), or `fi` (Finnish).
+    Language for the signing interface: `sv` (Swedish), `en` (English), `no` (Norwegian), `da` (Danish), `fi` (Finnish), `de` (German), `is` (Icelandic), `es` (Spanish), `fr` (French), or `it` (Italian).
   </Accordion>
 </AccordionGroup>
 
@@ -105,9 +105,11 @@ Documents can have rich metadata to control the signing process:
 Documents can contain different types of fields:
 
 - **TEXT**: Rich text content sections
+- **HTML**: Raw HTML content with custom styling (API-only, sanitized server-side)
 - **FORM**: Form fields for signers to fill out
 - **PDF**: Embedded PDF files
 - **PRODUCT_TABLE**: Tables with products/services and pricing
+- **TABLE**: Simple tables with custom rows and columns
 
 Learn more in the [Document Fields API reference](/api/POST%20/api/v1/documents/{id}/fields).
 

@@ -39,9 +39,9 @@ curl -X POST https://app.sajn.se/api/v1/documents \
   <img src="/images/guides/document-expiration.png" alt="Document settings showing expiration date configuration" />
 </Frame>
 
-### Updating Expiration on Existing Documents
+### Updating Expiration on Draft Documents
 
-Extend or shorten the expiration period:
+For documents still in `DRAFT`, update the expiration with a `PATCH`:
 
 ```bash
 curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123 \
@@ -54,6 +54,29 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123 \
 
 <Note>
   You can only update expiration on documents that haven't been completed or expired yet.
+</Note>
+
+### Extending Expiration on Sent Documents
+
+Once a document has been sent and is in `PENDING` status, use the dedicated [Extend Expiration endpoint](/api/POST%20/api/v1/documents/{id}/extend-expiration) instead of `PATCH`. The new `expiresAt` must be in the future and **strictly later** than the current expiration:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/extend-expiration \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "expiresAt": "2024-03-01T23:59:59Z"
+  }'
+```
+
+When you extend a sent document:
+
+1. The document's `expiresAt` is updated.
+2. An audit log entry is recorded.
+3. Every notifiable recipient (one with an email, notifications enabled, a delivery method other than `NONE`, and who hasn't rejected) is emailed that the signing deadline has moved.
+
+<Note>
+  Extending expiration requires the `EDIT_DOCUMENT` workspace permission.
 </Note>
 
 ## What Happens When Documents Expire
@@ -95,25 +118,33 @@ Reminders help move stalled documents forward by prompting signers to take actio
 
 ### Manual Reminders
 
-Send a reminder to all pending signers on a document:
+Send a reminder to every pending party on a document by calling the [Send Reminders endpoint](/api/POST%20/api/v1/documents/{id}/reminders) with an empty body:
 
 ```bash
-curl -X POST https://app.sajn.se/api/v1/documents/doc_123/remind \
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/reminders \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
 
-### Reminder to Specific Signer
+### Reminder to Specific Parties
 
-Send a reminder to a single signer:
+Limit the reminder to specific recipients by passing their party IDs in `partyIds`:
 
 ```bash
-curl -X POST https://app.sajn.se/api/v1/documents/doc_123/signers/signer_456/remind \
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/reminders \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{}'
+  -d '{
+    "partyIds": ["party_456"]
+  }'
 ```
+
+<Note>
+  The legacy `signerIds` field is still accepted for backwards compatibility but is **deprecated** and will be removed in API v2. Use `partyIds` going forward — if both are provided, `partyIds` takes precedence.
+</Note>
+
+You can also remind a single party directly via [`POST /api/v1/documents/{id}/parties/{partyId}/remind`](/api/POST%20/api/v1/documents/{id}/parties/{partyId}/remind).
 
 ### Automatic Reminders
 

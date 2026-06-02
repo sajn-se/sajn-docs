@@ -25,12 +25,15 @@ curl -X POST https://app.sajn.se/api/v1/sajn-id \
   -d '{
     "fullName": "John Doe",
     "email": "john@example.com",
-    "channel": "EMAIL",
-    "sendImmediately": true
+    "channel": "EMAIL"
   }'
 ```
 
 The user receives an email with a verification link and completes BankID authentication.
+
+<Note>
+  Creating a verification immediately sends it to the recipient over the chosen `channel` — there is no separate send step.
+</Note>
 
 ## Use Cases
 
@@ -44,9 +47,7 @@ Verify identity during account creation:
   "ssn": "197001011234",
   "email": "john@example.com",
   "channel": "EMAIL",
-  "reference": "customer_signup_2024_001",
-  "note": "New customer registration",
-  "sendImmediately": true
+  "reference": "customer_signup_2024_001"
 }
 ```
 
@@ -59,9 +60,7 @@ Verify someone is 18+ without collecting SSN:
   "fullName": "Jane Smith",
   "email": "jane@example.com",
   "channel": "EMAIL",
-  "reference": "age_verification",
-  "note": "18+ age check for alcohol purchase",
-  "sendImmediately": true
+  "reference": "age_verification"
 }
 ```
 
@@ -76,9 +75,7 @@ Verify identity before allowing document signing:
   "email": "john@example.com",
   "channel": "EMAIL",
   "contactId": "contact_123",
-  "reference": "pre_contract_verification",
-  "note": "ID check before loan agreement",
-  "sendImmediately": true
+  "reference": "pre_contract_verification"
 }
 ```
 
@@ -140,7 +137,7 @@ Response when pending:
   "status": "SENT",
   "fullName": "John Doe",
   "email": "john@example.com",
-  "usedAt": null
+  "verifiedAt": null
 }
 ```
 
@@ -152,7 +149,7 @@ Response when completed:
   "status": "VERIFIED",
   "fullName": "John Doe",
   "email": "john@example.com",
-  "usedAt": "2024-01-15T10:30:00Z",
+  "verifiedAt": "2024-01-15T10:30:00Z",
   "data": {
     "completionData": {
       "user": {
@@ -214,8 +211,7 @@ const verification = await fetch('https://app.sajn.se/api/v1/sajn-id', {
     fullName: 'John Doe',
     email: 'john@example.com',
     channel: 'EMAIL',
-    reference: 'signup_123',
-    sendImmediately: true
+    reference: 'signup_123'
   })
 }).then(r => r.json());
 
@@ -233,8 +229,8 @@ const checkStatus = async (verificationId) => {
     console.log('Verified:', status.data);
     return true;
   } else if (status.status === 'FAILED' || status.status === 'EXPIRED') {
-    // Verification failed
-    console.log('Failed:', status.failureReason);
+    // Verification failed or expired
+    console.log('Verification not completed:', status.status);
     return false;
   }
 
@@ -266,11 +262,11 @@ const checkStatus = async (verificationId) => {
 ## Best Practices
 
 <CardGroup cols={2}>
-  <Card title="Clear Purpose" icon="bullseye">
-    Use the `note` field to document why verification is needed for compliance.
-  </Card>
   <Card title="Reference IDs" icon="link">
-    Always include a reference to link verification to your workflow.
+    Always include a `reference` to link the verification to your workflow and trace it for compliance.
+  </Card>
+  <Card title="Control Expiry" icon="clock">
+    Set `expiresAt` to control how long the verification link stays valid (defaults to 7 days).
   </Card>
   <Card title="Minimal Data" icon="shield">
     Use name-based verification when SSN isn't legally required.
