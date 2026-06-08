@@ -2612,8 +2612,8 @@
     },
     "/api/v1/documents/{id}/download": {
       "get": {
-        "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL): Which file to download. Defaults to SIGNED. Takes precedence over `downloadOriginalDocument`.\n- `downloadOriginalDocument` (boolean, **deprecated**): Use `fileType` instead. If true, downloads the original unsigned document. Ignored when `fileType` is set.\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- SIGNED / JOURNAL: Document must be in COMPLETED status\n- ORIGINAL: Available for all document statuses\n\nReturns 404 if the requested file does not exist for this document.",
-        "summary": "Download signed document",
+        "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL, optional): Which file to download. Defaults to SIGNED.\n\nFor new integrations prefer `GET /api/v1/documents/:id/download/:fileType`, which requires the file type explicitly.\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- SIGNED / JOURNAL: Document must be in COMPLETED status\n- ORIGINAL: Available for all document statuses\n\nReturns 404 if the requested file does not exist for this document.",
+        "summary": "Download a document file",
         "tags": [],
         "parameters": [
           {
@@ -2636,7 +2636,7 @@
           {
             "name": "fileType",
             "in": "query",
-            "description": "Which file to download. Takes precedence over `downloadOriginalDocument` when set. Defaults to SIGNED.",
+            "description": "Which file to download: ORIGINAL, SIGNED, or JOURNAL. Defaults to SIGNED.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2649,23 +2649,135 @@
                 }
               }
             }
-          },
-          {
-            "name": "downloadOriginalDocument",
-            "in": "query",
-            "description": "Deprecated: use `fileType` instead. If true, downloads the original unsigned document. Ignored when `fileType` is set.",
-            "required": true,
+          }
+        ],
+        "operationId": "downloadSignedDocument",
+        "responses": {
+          "200": {
+            "description": "Document download response",
             "content": {
               "application/json": {
                 "schema": {
-                  "default": false,
-                  "type": "boolean"
+                  "type": "object",
+                  "properties": {
+                    "downloadUrl": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Pre-signed URL for downloading the document (valid for 1 hour)"
+                    }
+                  },
+                  "required": [
+                    "downloadUrl"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Document download response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
                 }
               }
             }
           }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/documents/{id}/download/{fileType}": {
+      "get": {
+        "description": "Get a download URL for a specific file of a document. The file type is part of the path and is required.\n\n**Path Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL): Which file to download.\n    - `ORIGINAL` \u2014 the unsigned source document (available for all statuses).\n    - `SIGNED` \u2014 the signed/sealed copy (document must be COMPLETED).\n    - `JOURNAL` \u2014 the signing journal / audit trail (document must be COMPLETED).\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\nReturns 404 if the requested file does not exist for this document.",
+        "summary": "Download a document file by type",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Document ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileType",
+            "in": "path",
+            "description": "Which file to download: the unsigned ORIGINAL, the SIGNED/sealed copy, or the JOURNAL (audit trail).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ORIGINAL",
+                "SIGNED",
+                "JOURNAL"
+              ]
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "operationId": "downloadSignedDocument",
+        "operationId": "downloadDocument",
         "responses": {
           "200": {
             "description": "Document download response",
@@ -14512,7 +14624,7 @@
     },
     "/api/v1/files": {
       "post": {
-        "description": "Create a file record and get a presigned URL to upload the bytes **directly to storage**.\n\nThis is the recommended upload method. It replaces the legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `upload.sajn.se`), which is **deprecated**.\n\n**Flow:**\n1. Compute the file's SHA-256 hash and base64-encode it.\n2. Call this endpoint with the filename, MIME type, size, and checksum. You receive a `fileId` and a presigned `uploadUrl`.\n3. `PUT` the raw bytes to `uploadUrl` with headers `Content-Type: <mimeType>` and `x-amz-checksum-sha256: <checksum>`. S3 verifies the checksum on write.\n4. The file is confirmed automatically the first time it is fetched via `GET /api/v1/files/:id`.\n\n**Why:** the bytes go straight to storage, so there is no API-server size limit.",
+        "description": "Create a file record and get a presigned URL to upload the bytes **directly to storage**.\n\nThis is the recommended upload method. It replaces the legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `upload.sajn.se`), which is **deprecated**.\n\n**Flow:**\n1. Compute the file's SHA-256 hash and base64-encode it.\n2. Call this endpoint with the filename, MIME type, size, and checksum. You receive a `fileId` and a presigned `uploadUrl`.\n3. `PUT` the raw bytes to `uploadUrl` with headers `Content-Type: <mimeType>` and `x-amz-checksum-sha256: <checksum>`. S3 verifies the checksum on write.\n4. (Recommended) Call `POST /api/v1/files/:id/confirm` to verify the upload and flip the record to `CONFIRMED` immediately. Otherwise it is confirmed automatically the first time it is fetched via `GET /api/v1/files/:id`.\n\n**Why:** the bytes go straight to storage, so there is no API-server size limit.",
         "summary": "Create a file (presigned upload)",
         "tags": [],
         "parameters": [
@@ -14861,6 +14973,142 @@
           {
             "oauth2": [
               "documents:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/files/{id}/confirm": {
+      "post": {
+        "description": "Confirm a previously-created file after its bytes have been uploaded to the presigned URL.\n\nThe server reads the persisted object back from storage (`HeadObject`), verifies the size and \u2014 when the backend records it \u2014 that the SHA-256 matches the checksum supplied at create time, then flips the file from `PENDING` to `CONFIRMED`.\n\n**When to call:** right after the upload `PUT` returns `200`. It is optional but recommended \u2014 a file is otherwise confirmed lazily the first time it is fetched via `GET /api/v1/files/:id`. Idempotent: confirming an already-confirmed file returns its recorded state.",
+        "summary": "Confirm an uploaded file",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "confirmFile",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File confirmation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The confirmed file id"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "File status after confirmation",
+                      "enum": [
+                        "CONFIRMED"
+                      ]
+                    },
+                    "size": {
+                      "type": "number",
+                      "description": "Size in bytes of the persisted object, read back from storage"
+                    },
+                    "checksumVerified": {
+                      "type": "boolean",
+                      "description": "Whether the storage backend reported a SHA-256 that matched the checksum recorded at create time. False when the backend did not record one (confirmed on size alone)."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "size",
+                    "checksumVerified"
+                  ],
+                  "additionalProperties": false,
+                  "description": "File confirmation result"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents:write"
             ]
           },
           {

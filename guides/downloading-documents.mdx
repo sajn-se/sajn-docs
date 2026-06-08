@@ -39,7 +39,7 @@ curl -L "https://files.sajn.se/documents/doc_123/signed.pdf?signature=..." \
 
 ### Choosing which file to download
 
-Use the `fileType` query parameter to select which file the pre-signed URL points to:
+Choose which file the pre-signed URL points to with the `fileType` value:
 
 | `fileType` | Returns | Availability |
 |------------|---------|--------------|
@@ -47,19 +47,23 @@ Use the `fileType` query parameter to select which file the pre-signed URL point
 | `ORIGINAL` | The original, unsigned document | Any status |
 | `JOURNAL` | The signing journal / audit trail | Document must be `COMPLETED` |
 
+There are two forms of the endpoint:
+
+<Tip>
+  **For new integrations, prefer the path form** `GET /api/v1/documents/{id}/download/{fileType}` — the file type is explicit and required, which avoids ambiguity.
+</Tip>
+
 ```bash
-# Original (unsigned) document
-curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download?fileType=ORIGINAL" \
+# Path form (recommended) — file type is part of the URL
+curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download/ORIGINAL" \
   -H "Authorization: Bearer YOUR_API_KEY"
 
-# Signing journal (audit trail)
+# Query form — fileType is optional and defaults to SIGNED
 curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download?fileType=JOURNAL" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-<Warning>
-  The `downloadOriginalDocument` boolean parameter is **deprecated** — use `fileType=ORIGINAL` instead. When `fileType` is set, `downloadOriginalDocument` is ignored.
-</Warning>
+Both forms return the same `{ "downloadUrl": "..." }` JSON response.
 
 The endpoint returns `404` if the requested file doesn't exist for the document (for example, requesting `JOURNAL` before the document is completed).
 

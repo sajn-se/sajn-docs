@@ -9,13 +9,16 @@ Learn how to securely upload files to sajn for use in document fields.
 
 ## Overview
 
-The recommended way to upload a file is a **two-step presigned flow** that sends the bytes straight to storage, so there is no API-server size limit:
+The recommended way to upload a file is a **presigned flow** that sends the bytes straight to storage, so there is no API-server size limit:
 
 1. **Request a presigned URL** — call [`POST /api/v1/files`](/api/POST%20/api/v1/files) with the file's metadata and checksum. You receive a `fileId`, a storage `key`, and a presigned `uploadUrl`.
 2. **Upload the bytes** — `PUT` the raw file to the `uploadUrl`. Storage verifies the checksum on write.
-3. **Use the storage key** — reference the returned `key` in document fields.
+3. **Confirm the upload** *(recommended)* — call [`POST /api/v1/files/{id}/confirm`](/api/POST%20/api/v1/files/{id}/confirm) to verify the stored object and flip the record from `PENDING` to `CONFIRMED` immediately.
+4. **Use the storage key** — reference the returned `key` in document fields.
 
-The file is confirmed automatically the first time it is fetched via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}).
+<Note>
+Confirming is optional. If you skip step 3, the file is confirmed lazily the first time it is fetched via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}). Calling confirm explicitly verifies the upload up front and is idempotent.
+</Note>
 
 <Warning>
 **Deprecated:** The legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `https://upload.sajn.se`) still works but is **deprecated**. Use the presigned flow below for new integrations. See [Legacy upload](#legacy-upload-deprecated).
@@ -84,6 +87,33 @@ curl -X PUT "PRESIGNED_UPLOAD_URL" \
 <Note>
 Do **not** send your sajn `Authorization` header to the presigned `uploadUrl` — authentication is already baked into the signed URL.
 </Note>
+
+## Step 3: Confirm the Upload (Recommended)
+
+Right after the upload `PUT` returns `200`, call [`POST /api/v1/files/{id}/confirm`](/api/POST%20/api/v1/files/{id}/confirm). The server reads the persisted object back from storage, verifies its size and checksum, then flips the file from `PENDING` to `CONFIRMED`:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/files/file_abc123/confirm \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+```json
+{
+  "id": "file_abc123",
+  "status": "CONFIRMED",
+  "size": 102400,
+  "checksumVerified": true
+}
+```
+
+- **`size`** — the byte size of the persisted object, read back from storage.
+- **`checksumVerified`** — whether the storage backend reported a SHA-256 that matched the checksum you supplied at create time.
+
+<Tip>
+Confirming is **optional but recommended** and **idempotent** — confirming an already-confirmed file returns its recorded state. If you skip it, the file is confirmed automatically the first time it is fetched via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}).
+</Tip>
 
 ## File Visibility
 
@@ -158,6 +188,7 @@ CREATE_RESPONSE=$(curl -s -X POST "$API_BASE/api/v1/files" \
     \"visibility\": \"PRIVATE\"
   }")
 
+FILE_ID=$(echo "$CREATE_RESPONSE" | jq -r '.fileId')
 STORAGE_KEY=$(echo "$CREATE_RESPONSE" | jq -r '.key')
 UPLOAD_URL=$(echo "$CREATE_RESPONSE" | jq -r '.uploadUrl')
 
@@ -167,7 +198,11 @@ curl -X PUT "$UPLOAD_URL" \
   -H "x-amz-checksum-sha256: $CHECKSUM" \
   --data-binary @"$FILE"
 
-# Step 3: Add the uploaded file as a PDF field
+# Step 3: Confirm the upload (recommended)
+curl -s -X POST "$API_BASE/api/v1/files/$FILE_ID/confirm" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Step 4: Add the uploaded file as a PDF field
 curl -X POST "$API_BASE/api/v1/documents/doc_123/fields" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
@@ -226,6 +261,13 @@ const uploadFile = async (filePath, apiKey, mimeType, visibility = 'PRIVATE') =>
   if (!uploadRes.ok) {
     throw new Error(`Upload failed: ${uploadRes.statusText}`);
   }
+
+  // Step 3: Confirm the upload (recommended) — verifies the stored object
+  // and flips the record from PENDING to CONFIRMED
+  await fetch(`${API_BASE}/api/v1/files/${fileId}/confirm`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${apiKey}` }
+  });
 
   return { fileId, key };
 };
@@ -343,7 +385,8 @@ When the bytes you `PUT` don't match the `checksum` you declared in Step 1, stor
 
 ### API Reference
 - [Create a File (presigned upload)](/api/POST%20/api/v1/files) - Request a presigned upload URL
-- [Get File](/api/GET%20/api/v1/files/{id}) - Retrieve a file and confirm the upload
+- [Confirm a File](/api/POST%20/api/v1/files/{id}/confirm) - Verify the upload and mark it CONFIRMED
+- [Get File](/api/GET%20/api/v1/files/{id}) - Retrieve a file (confirms the upload on first fetch)
 - [Upload File (legacy)](/api/PUT%20/api/v1/putFile) - Deprecated byte-through upload
 - [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) - Add fields to documents
 - [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Modify existing fields

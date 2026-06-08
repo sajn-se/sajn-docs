@@ -287,6 +287,7 @@
               "PATCH /api/v1/documents/{id}",
               "DELETE /api/v1/documents/{id}",
               "GET /api/v1/documents/{id}/download",
+              "GET /api/v1/documents/{id}/download/{fileType}",
               "GET /api/v1/documents/{id}/activity",
               "POST /api/v1/documents/{id}/send",
               "POST /api/v1/documents/{id}/withdraw",
@@ -328,6 +329,7 @@
             "group": "Files",
             "pages": [
               "POST /api/v1/files",
+              "POST /api/v1/files/{id}/confirm",
               "GET /api/v1/files",
               "PUT /api/v1/putFile",
               "GET /api/v1/files/{id}",
