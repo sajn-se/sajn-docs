@@ -1,0 +1,101 @@
+---
+title: "Verifieringssida och dokumentförsegling"
+description: "Förstå certifikatssidan som läggs till på alla signerade dokument, hur sajn förseglar dokumentet med ett betrott certifikat och hur vem som helst verifierar äktheten"
+---
+
+När alla parter har signerat färdigställer sajn dokumentet i två steg som tillsammans gör det till ett juridiskt bevis: vi **lägger till en verifieringssida** (en certifikatssida) sist i PDF:en, och vi **förseglar hela dokumentet med vårt betrodda certifikat**. Verifieringssidan är till för människor att läsa, och förseglingen är det som maskiner och PDF-läsare kontrollerar. Den här guiden förklarar vad sidan innehåller, vad förseglingen skyddar och hur vem som helst kan verifiera att ett dokument är äkta.
+
+<Note>
+  Verifieringssidan och förseglingen läggs till automatiskt – du behöver inte göra något. De finns på varje färdigsignerat dokument oavsett vilken signaturtyp parterna använde ([BankID, klicksignering eller ritad signatur](/guider/signing-methods)).
+</Note>
+
+## Verifieringssidan
+
+Sist i det färdiga dokumentet lägger sajn till en sida med rubriken **Parter** som sammanfattar exakt vem som signerade, hur och när. Den följer dokumentet vart det än tar vägen – laddar du ner PDF:en, vidarebefordrar den eller skriver ut den följer verifieringssidan med.
+
+<Frame>
+  <img src="/images/guider/verifiera-dokument/verifieringssida-exempel.png" alt="Exempel på en verifieringssida med två signerande parter, signeringsmetod, tidsstämplar, referensnummer, IP-adress, plats och en QR-kod för verifiering" />
+</Frame>
+
+### Vad sidan innehåller
+
+För varje part visas:
+
+| Uppgift | Beskrivning |
+|---------|-------------|
+| **Namn** och grön bock | Partens namn. Den gröna bocken markerar att identiteten är bekräftad. |
+| **Personnummer** | Visas när parten identifierat sig med BankID. |
+| **E-post** | Adressen dokumentet skickades till. |
+| **Signeringsmetod** | Hur parten signerade – t.ex. *Svenskt BankID*, *Klicksignering* eller *Ritad signatur*. BankID-signering visas med BankID-logotypen. |
+| **Signerat** | Exakt datum och tid då parten signerade. |
+| **Ref** | Ett unikt referensnummer för just den signaturen. |
+| **Företag** | Företagsnamn och organisationsnummer om parten signerade i en organisations namn. |
+| **IP-adress** och **plats** | IP-adressen parten signerade från och den ungefärliga geografiska platsen (land och stad). |
+
+Längst ner på sidan visas tidpunkten då dokumentet **slutfördes** (när sista parten signerade) och sidnumret. I marginalen löper dokumentets unika **förseglings-id** (`sajn #…`) – samma id som binder ihop verifieringssidan med den förseglade filen.
+
+## Förseglingen
+
+Utöver den läsbara sidan bäddar sajn in information direkt i PDF-filen och **förseglar hela dokumentet med vårt betrodda digitala certifikat**. Förseglingen är en kryptografisk signatur som omfattar både originalinnehållet och verifieringssidan.
+
+<CardGroup cols={2}>
+  <Card title="Manipuleringssäkert" icon="shield-check">
+    Om någon ändrar så mycket som ett tecken efter att dokumentet förseglats bryts förseglingen och ändringen blir synlig. Du vet alltid om du tittar på originalet.
+  </Card>
+  <Card title="Betrott certifikat" icon="certificate">
+    Förseglingen utfärdas med sajns certifikat. PDF-läsare som Adobe Acrobat känner igen det och visar att dokumentet är signerat och oförändrat sedan det förseglades.
+  </Card>
+  <Card title="Inbäddade bevis" icon="file-lock">
+    Signeringsmetod, tidsstämplar, referensnummer och övriga bevisdata bäddas in i själva filen – inte bara på den synliga sidan.
+  </Card>
+  <Card title="Fristående" icon="box">
+    Allt som behövs för att kontrollera dokumentet finns i filen. Den kan verifieras även utan internetuppkoppling i en PDF-läsare som stödjer signaturer.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Öppnar du den nedladdade PDF:en i Adobe Acrobat eller en annan läsare som stödjer digitala signaturer, ser du en signaturpanel som bekräftar att dokumentet är förseglat av sajn och inte har ändrats sedan dess.
+</Tip>
+
+## Verifiera ett dokuments äkthet
+
+Verifieringssidan innehåller en **QR-kod** och en **verifieringslänk** (`https://app.sajn.se/verify/…`). Vem som helst som har dokumentet – även någon utan sajn-konto – kan kontrollera att det är äkta:
+
+<Steps>
+  <Step title="Öppna verifieringslänken">
+    Skanna QR-koden på verifieringssidan eller skriv in länken i en webbläsare.
+  </Step>
+  <Step title="Jämför med sajns register">
+    sajn visar dokumentets status och uppgifterna om signeringen direkt från vårt register. Stämmer de med det du har framför dig är dokumentet äkta och oförändrat.
+  </Step>
+</Steps>
+
+Du kan alltså verifiera ett dokument på två sätt som kompletterar varandra: **online** via verifieringslänken eller QR-koden, och **offline** genom att kontrollera den inbäddade förseglingen i en PDF-läsare.
+
+## Vanliga frågor
+
+<AccordionGroup>
+  <Accordion title="Måste jag ha kvar verifieringssidan?">
+    Ja – behåll hela PDF:en som den är. Verifieringssidan och förseglingen hör ihop med dokumentet och utgör beviset för att det har signerats. Tar du bort sidan eller ändrar filen bryts förseglingen.
+  </Accordion>
+  <Accordion title="Vilket språk är verifieringssidan på?">
+    Sidan följer dokumentets språk så att alla parter kan läsa den.
+  </Accordion>
+  <Accordion title="Gäller det här även dokument som inte signerats med BankID?">
+    Ja. Alla färdigsignerade dokument får en verifieringssida och förseglas, oavsett signaturtyp. Personnummer visas dock bara för parter som identifierat sig med BankID.
+  </Accordion>
+  <Accordion title="Vad är förseglings-id:t i marginalen?">
+    Det är dokumentets unika id (`sajn #…`). Det binder ihop den synliga verifieringssidan med den förseglade filen och med posten i sajns register.
+  </Accordion>
+</AccordionGroup>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Utforska arkivet" icon="box-archive" href="/guider/arkivet">
+    Hitta och ladda ner dina signerade och förseglade dokument.
+  </Card>
+  <Card title="Signaturtyper" icon="signature" href="/guider/signing-methods">
+    BankID, klicksignering eller ritad signatur.
+  </Card>
+</CardGroup>
