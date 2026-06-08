@@ -34,6 +34,8 @@ Each workspace has its own isolated set of data:
 | Files | Uploaded PDFs and other files |
 | Webhooks | Event notifications |
 | API Tokens | Credentials for API access |
+| Members | People with access to the workspace |
+| Roles | Permission sets that control what members can do |
 
 <Note>
   Data is completely isolated between workspaces. A document in one workspace cannot access contacts from another workspace.
@@ -90,6 +92,25 @@ When using the API, your API token is scoped to a specific workspace. All API op
 curl -H "Authorization: Bearer YOUR_WORKSPACE_TOKEN" \
   https://api.sajn.se/api/v1/documents
 ```
+
+### Managing Members and Roles
+
+You can administer a workspace's team programmatically:
+
+| Resource | Endpoints |
+|----------|-----------|
+| **Members** | List, fetch, update a member's role, and remove members — `GET/PATCH/DELETE /api/v1/members` |
+| **Invitations** | List pending invites, resend, and revoke — `GET /api/v1/member-invites`, `POST /api/v1/member-invites/{id}/resend` |
+| **Roles** | Create, fetch, update, and delete custom roles — `GET/POST/PATCH/DELETE /api/v1/workspace-roles` |
+| **Permissions** | List every permission key assignable to a role — `GET /api/v1/workspace-permissions` |
+
+<Note>
+  Member and role endpoints require the `MANAGE_WORKSPACE_MEMBERS` and `MANAGE_WORKSPACE_ROLES` permissions respectively.
+</Note>
+
+### Plan Limits and Usage
+
+Check the organization's plan quotas, current usage, and remaining allowances for the billing month — documents, BankID signatures, members, AI tokens, identity checks, and workspaces — with `GET /api/v1/limits`. Unlimited quotas are returned as `null`.
 
 ## Next Steps
 

@@ -9,21 +9,63 @@ Once all signers have completed a document, you can download the signed PDF alon
 
 ## Download Endpoint
 
-Retrieve a signed document using the download endpoint:
+The download endpoint returns a short-lived, **pre-signed URL** — not the file bytes directly. Request the URL, then fetch it to retrieve the PDF.
 
 ```bash
-curl -X GET https://app.sajn.se/api/v1/documents/doc_123/download \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+# 1. Request a download URL (defaults to the signed document)
+curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json
+{
+  "downloadUrl": "https://files.sajn.se/documents/doc_123/signed.pdf?signature=..."
+}
+```
+
+```bash
+# 2. Fetch the file from the pre-signed URL
+curl -L "https://files.sajn.se/documents/doc_123/signed.pdf?signature=..." \
   -o "signed-document.pdf"
 ```
 
-The response is the signed PDF file with all signatures embedded.
+<Note>
+  The `downloadUrl` is valid for **1 hour**. Request a fresh one if it expires.
+</Note>
 
 <Frame>
   <img src="/images/guides/signed-document.png" alt="Signed document showing embedded signatures from all parties" />
 </Frame>
 
-### Response Headers
+### Choosing which file to download
+
+Use the `fileType` query parameter to select which file the pre-signed URL points to:
+
+| `fileType` | Returns | Availability |
+|------------|---------|--------------|
+| `SIGNED` *(default)* | The signed, sealed PDF with all signatures embedded | Document must be `COMPLETED` |
+| `ORIGINAL` | The original, unsigned document | Any status |
+| `JOURNAL` | The signing journal / audit trail | Document must be `COMPLETED` |
+
+```bash
+# Original (unsigned) document
+curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download?fileType=ORIGINAL" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Signing journal (audit trail)
+curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download?fileType=JOURNAL" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Warning>
+  The `downloadOriginalDocument` boolean parameter is **deprecated** — use `fileType=ORIGINAL` instead. When `fileType` is set, `downloadOriginalDocument` is ignored.
+</Warning>
+
+The endpoint returns `404` if the requested file doesn't exist for the document (for example, requesting `JOURNAL` before the document is completed).
+
+### Response Headers on the pre-signed URL
+
+When you fetch the `downloadUrl`, the file is served with:
 
 | Header | Description |
 |--------|-------------|
@@ -31,31 +73,15 @@ The response is the signed PDF file with all signatures embedded.
 | `Content-Disposition` | `attachment; filename="document-name.pdf"` |
 | `Content-Length` | File size in bytes |
 
-### Download Options
-
-Specify what to include in the download:
-
-```bash
-# Download signed document only
-curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -o "signed-document.pdf"
-
-# Download with audit certificate
-curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download?includeCertificate=true" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -o "signed-document-with-certificate.pdf"
-```
-
-## Audit Trail / Certificate
+## Audit Trail / Signing Journal
 
 <Frame>
   <img src="/images/guides/audit-certificate.png" alt="Audit certificate showing signature events and verification details" />
 </Frame>
 
-The audit certificate provides a detailed record of all signing events:
+The signing journal provides a detailed record of all signing events:
 
-### Certificate Contents
+### Journal Contents
 
 | Information | Description |
 |-------------|-------------|
@@ -65,12 +91,17 @@ The audit certificate provides a detailed record of all signing events:
 | Signature Events | Timestamp, IP address, signature method for each signature |
 | Verification | Cryptographic proof of document integrity |
 
-### Downloading the Certificate Separately
+### Downloading the Journal
+
+The signing journal is a separate file — download it with `fileType=JOURNAL`:
 
 ```bash
-curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/certificate" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -o "audit-certificate.pdf"
+# 1. Get a pre-signed URL for the journal
+curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/download?fileType=JOURNAL" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# 2. Fetch it from the returned downloadUrl
+curl -L "<downloadUrl from step 1>" -o "audit-journal.pdf"
 ```
 
 ## Storing Signed Documents
@@ -81,18 +112,20 @@ curl -X GET "https://app.sajn.se/api/v1/documents/doc_123/certificate" \
 const fs = require('fs');
 const axios = require('axios');
 
-async function downloadDocument(documentId, outputPath) {
-  const response = await axios({
-    method: 'GET',
-    url: `https://app.sajn.se/api/v1/documents/${documentId}/download`,
-    headers: {
-      'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
-    },
-    responseType: 'stream'
-  });
+async function downloadDocument(documentId, outputPath, fileType = 'SIGNED') {
+  // 1. Request a pre-signed download URL
+  const { data } = await axios.get(
+    `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+    {
+      headers: { 'Authorization': `Bearer ${process.env.SAJN_API_KEY}` },
+      params: { fileType }
+    }
+  );
 
+  // 2. Stream the file from the pre-signed URL
+  const file = await axios.get(data.downloadUrl, { responseType: 'stream' });
   const writer = fs.createWriteStream(outputPath);
-  response.data.pipe(writer);
+  file.data.pipe(writer);
 
   return new Promise((resolve, reject) => {
     writer.on('finish', resolve);
@@ -115,21 +148,18 @@ const axios = require('axios');
 const s3 = new AWS.S3();
 
 async function downloadAndUploadToS3(documentId, bucket, key) {
-  // Download from sajn
-  const response = await axios({
-    method: 'GET',
-    url: `https://app.sajn.se/api/v1/documents/${documentId}/download`,
-    headers: {
-      'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
-    },
-    responseType: 'arraybuffer'
-  });
+  // Get a pre-signed download URL from sajn, then fetch the file
+  const { data } = await axios.get(
+    `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+    { headers: { 'Authorization': `Bearer ${process.env.SAJN_API_KEY}` } }
+  );
+  const file = await axios.get(data.downloadUrl, { responseType: 'arraybuffer' });
 
   // Upload to S3
   await s3.putObject({
     Bucket: bucket,
     Key: key,
-    Body: response.data,
+    Body: file.data,
     ContentType: 'application/pdf'
   }).promise();
 
@@ -146,17 +176,15 @@ const axios = require('axios');
 const storage = new Storage();
 
 async function downloadAndUploadToGCS(documentId, bucket, fileName) {
-  const response = await axios({
-    method: 'GET',
-    url: `https://app.sajn.se/api/v1/documents/${documentId}/download`,
-    headers: {
-      'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
-    },
-    responseType: 'arraybuffer'
-  });
+  // Get a pre-signed download URL from sajn, then fetch the file
+  const { data } = await axios.get(
+    `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+    { headers: { 'Authorization': `Bearer ${process.env.SAJN_API_KEY}` } }
+  );
+  const download = await axios.get(data.downloadUrl, { responseType: 'arraybuffer' });
 
   const file = storage.bucket(bucket).file(fileName);
-  await file.save(response.data, {
+  await file.save(download.data, {
     contentType: 'application/pdf'
   });
 
@@ -205,22 +233,32 @@ app.post('/webhooks/sajn', async (req, res) => {
   res.status(200).send('OK');
 });
 
+// Fetch one file type and return its bytes
+async function fetchFile(documentId, fileType) {
+  const { data } = await axios.get(
+    `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+    {
+      headers: { 'Authorization': `Bearer ${process.env.SAJN_API_KEY}` },
+      params: { fileType }
+    }
+  );
+  const file = await axios.get(data.downloadUrl, { responseType: 'arraybuffer' });
+  return file.data;
+}
+
 async function downloadAndArchive(documentId, externalId) {
-  // Download the signed document
-  const response = await axios({
-    method: 'GET',
-    url: `https://app.sajn.se/api/v1/documents/${documentId}/download?includeCertificate=true`,
-    headers: {
-      'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
-    },
-    responseType: 'arraybuffer'
-  });
+  // Archive both the signed document and its signing journal
+  const [pdf, journal] = await Promise.all([
+    fetchFile(documentId, 'SIGNED'),
+    fetchFile(documentId, 'JOURNAL')
+  ]);
 
   // Store in your system (database, file system, cloud storage)
   await saveToArchive({
     documentId,
     externalId,
-    pdf: response.data,
+    pdf,
+    journal,
     archivedAt: new Date()
   });
 }
@@ -263,16 +301,21 @@ def webhook():
     return 'OK', 200
 
 def download_and_archive(document_id, external_id):
-    response = requests.get(
+    # 1. Request a pre-signed download URL (defaults to the signed document)
+    res = requests.get(
         f'https://app.sajn.se/api/v1/documents/{document_id}/download',
         headers={'Authorization': f'Bearer {os.environ["SAJN_API_KEY"]}'},
-        params={'includeCertificate': 'true'}
+        params={'fileType': 'SIGNED'}
     )
+    download_url = res.json()['downloadUrl']
+
+    # 2. Fetch the file from the pre-signed URL
+    pdf = requests.get(download_url).content
 
     # Save to your archive
     filename = f'contracts/{external_id or document_id}.pdf'
     with open(filename, 'wb') as f:
-        f.write(response.content)
+        f.write(pdf)
 
     print(f'Archived document to {filename}')
 ```
@@ -284,8 +327,8 @@ def download_and_archive(document_id, external_id):
     Set up a webhook handler to download documents as soon as they're completed. This ensures you always have a copy, even if the document is later deleted from sajn.
   </Accordion>
 
-  <Accordion title="Include the audit certificate">
-    Always download with `includeCertificate=true` for legal purposes. The audit certificate provides proof of signing events.
+  <Accordion title="Download the signing journal">
+    Always download the signing journal (`fileType=JOURNAL`) alongside the signed PDF for legal purposes. The journal provides proof of signing events.
   </Accordion>
 
   <Accordion title="Use external IDs for organization">
@@ -313,12 +356,12 @@ def download_and_archive(document_id, external_id):
 
 ### Document Not Ready
 
-If the document isn't completed yet:
+If the requested file isn't available yet (for example, the signed PDF or journal before completion), the endpoint returns `404` with a JSON body:
 
 ```json
 {
-  "error": "DOCUMENT_NOT_COMPLETED",
-  "message": "Document is not yet fully signed. Current status: SENT"
+  "message": "Document is not yet fully signed. Current status: SENT",
+  "code": "DOCUMENT_NOT_COMPLETED"
 }
 ```
 
@@ -326,37 +369,34 @@ If the document isn't completed yet:
 
 ```json
 {
-  "error": "DOCUMENT_NOT_FOUND",
-  "message": "Document with ID doc_123 was not found"
+  "message": "Document with ID doc_123 was not found",
+  "code": "DOCUMENT_NOT_FOUND"
 }
 ```
 
 ### Handling Errors
 
 ```javascript
-async function safeDownload(documentId) {
+async function safeDownload(documentId, fileType = 'SIGNED') {
   try {
-    const response = await axios({
-      method: 'GET',
-      url: `https://app.sajn.se/api/v1/documents/${documentId}/download`,
-      headers: {
-        'Authorization': `Bearer ${process.env.SAJN_API_KEY}`
-      },
-      responseType: 'arraybuffer',
-      validateStatus: (status) => status < 500
-    });
+    // Request the pre-signed URL (404 if the file isn't available yet)
+    const response = await axios.get(
+      `https://app.sajn.se/api/v1/documents/${documentId}/download`,
+      {
+        headers: { 'Authorization': `Bearer ${process.env.SAJN_API_KEY}` },
+        params: { fileType },
+        validateStatus: (status) => status < 500
+      }
+    );
 
     if (response.status === 404) {
-      console.error('Document not found');
+      console.error(`File not available (${response.data?.code ?? 'NOT_FOUND'})`);
       return null;
     }
 
-    if (response.status === 400) {
-      console.error('Document not yet completed');
-      return null;
-    }
-
-    return response.data;
+    // Fetch the actual file from the pre-signed URL
+    const file = await axios.get(response.data.downloadUrl, { responseType: 'arraybuffer' });
+    return file.data;
   } catch (error) {
     console.error(`Download failed: ${error.message}`);
     throw error;

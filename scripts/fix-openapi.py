@@ -107,6 +107,49 @@ def remove_property_names(obj):
             remove_property_names(item)
 
 
+def fix_invalid_property_schemas(obj):
+    """Fix property schemas that are bare strings (invalid JSON Schema)."""
+    if isinstance(obj, dict):
+        if 'properties' in obj and isinstance(obj['properties'], dict):
+            for prop_name, prop_schema in list(obj['properties'].items()):
+                if isinstance(prop_schema, str):
+                    obj['properties'][prop_name] = {'type': prop_schema}
+        for value in obj.values():
+            fix_invalid_property_schemas(value)
+    elif isinstance(obj, list):
+        for item in obj:
+            fix_invalid_property_schemas(item)
+
+
+def remove_empty_request_bodies(spec):
+    """Remove requestBody from operations with no meaningful body schema."""
+    paths = spec.get('paths', {})
+    for path, methods in paths.items():
+        if not isinstance(methods, dict):
+            continue
+        for method, operation in methods.items():
+            if method not in ('get', 'put', 'post', 'patch', 'delete', 'options', 'head', 'trace'):
+                continue
+            if not isinstance(operation, dict):
+                continue
+            request_body = operation.get('requestBody')
+            if not isinstance(request_body, dict):
+                continue
+            content = request_body.get('content', {})
+            json_content = content.get('application/json', {})
+            schema = json_content.get('schema', {})
+            if not isinstance(schema, dict):
+                continue
+            properties = schema.get('properties', {})
+            if schema.get('type') != 'object' or not isinstance(properties, dict):
+                continue
+            if not properties:
+                del operation['requestBody']
+                continue
+            if all(isinstance(value, str) for value in properties.values()):
+                del operation['requestBody']
+
+
 def fix_exclusive_min_max(obj):
     """Convert OpenAPI 3.1 numeric exclusiveMinimum/Maximum to 3.0 boolean form."""
     if isinstance(obj, dict):
@@ -143,7 +186,13 @@ def fix_openapi_spec(file_path):
     print("  4. Removing invalid 'propertyNames' fields...")
     remove_property_names(spec)
 
-    print("  5. Converting numeric exclusiveMinimum/Maximum to boolean (3.1 -> 3.0)...")
+    print("  5. Removing empty or malformed request bodies...")
+    remove_empty_request_bodies(spec)
+
+    print("  6. Fixing invalid property schemas (bare string types)...")
+    fix_invalid_property_schemas(spec)
+
+    print("  7. Converting numeric exclusiveMinimum/Maximum to boolean (3.1 -> 3.0)...")
     fix_exclusive_min_max(spec)
 
     # Write back

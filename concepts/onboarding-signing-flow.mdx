@@ -135,7 +135,7 @@ Use this as a *UX signal only* — show a success screen, maybe poll your own ba
 
 ## Step 6 — Webhook fires and you archive the PDF
 
-When the document is sealed, sajn POSTs `DOCUMENT_COMPLETED` to your webhook. This is where you get the authoritative signal. Download the PDF (with the audit certificate) and store it:
+When the document is sealed, sajn POSTs `DOCUMENT_COMPLETED` to your webhook. This is where you get the authoritative signal. The download endpoint returns a pre-signed URL — fetch it to get the bytes, then store them:
 
 ```javascript
 app.post('/webhooks/sajn', async (req, res) => {
@@ -147,10 +147,14 @@ app.post('/webhooks/sajn', async (req, res) => {
   const { event, payload } = req.body;
 
   if (event === 'DOCUMENT_COMPLETED') {
-    const signedPdf = await fetch(
-      `https://app.sajn.se/api/v1/documents/${payload.id}/download?includeCertificate=true`,
+    // 1. Ask for a pre-signed download URL (defaults to the signed document)
+    const { downloadUrl } = await fetch(
+      `https://app.sajn.se/api/v1/documents/${payload.id}/download?fileType=SIGNED`,
       { headers: { Authorization: `Bearer ${process.env.SAJN_API_KEY}` } }
-    ).then(r => r.arrayBuffer());
+    ).then(r => r.json());
+
+    // 2. Fetch the file from the pre-signed URL
+    const signedPdf = await fetch(downloadUrl).then(r => r.arrayBuffer());
 
     // payload has externalId, so you can find the signup
     await storeSignedAgreement({

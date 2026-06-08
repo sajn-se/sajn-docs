@@ -252,8 +252,30 @@
             "group": "Workspaces",
             "pages": [
               "GET /api/v1/workspaces",
+              "GET /api/v1/workspace-permissions"
+            ]
+          },
+          {
+            "group": "Members",
+            "pages": [
+              "GET /api/v1/members",
               "POST /api/v1/members",
-              "GET /api/v1/workspace-roles"
+              "GET /api/v1/members/{userId}",
+              "PATCH /api/v1/members/{userId}",
+              "DELETE /api/v1/members/{userId}",
+              "GET /api/v1/member-invites",
+              "POST /api/v1/member-invites/{id}/resend",
+              "DELETE /api/v1/member-invites/{id}"
+            ]
+          },
+          {
+            "group": "Workspace Roles",
+            "pages": [
+              "GET /api/v1/workspace-roles",
+              "POST /api/v1/workspace-roles",
+              "GET /api/v1/workspace-roles/{id}",
+              "PATCH /api/v1/workspace-roles/{id}",
+              "DELETE /api/v1/workspace-roles/{id}"
             ]
           },
           {
@@ -450,7 +472,8 @@
           {
             "group": "Organization",
             "pages": [
-              "GET /api/v1/organization"
+              "GET /api/v1/organization",
+              "GET /api/v1/limits"
             ]
           },
           {
