@@ -56,6 +56,91 @@
         "security": []
       }
     },
+    "/api/v1/dev-updates/subscribe": {
+      "post": {
+        "description": "Subscribe to the sajn developer updates mailing list. \ud83c\udf89\n\nNo body needed \u2014 we pull the email (and name) straight from your authenticated account.",
+        "summary": "Subscribe to sajn dev updates",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "subscribeToDevUpdates",
+        "responses": {
+          "200": {
+            "description": "Dev updates subscription response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Whether the subscription was accepted",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-friendly confirmation message"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Dev updates subscription response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "profile:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/documents": {
       "get": {
         "description": "Retrieve a paginated list of all documents in your organization.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including signers.\n\n**Pagination:** Use 'page' and 'perPage' query parameters to control pagination.",
@@ -462,7 +547,7 @@
         ]
       },
       "post": {
-        "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields and template parties are automatically copied unless `parties` are explicitly provided in the request.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n> **Note:** The legacy `signers` field is also accepted as input for backwards compatibility, but is deprecated and will stop working in API v2. Use `parties` going forward. If both are provided, `parties` takes precedence.\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, party IDs, tokens, and signing URLs for all added parties. The legacy `signers` field is also included in the response (same content as `parties`) for backwards compatibility, but is deprecated.",
+        "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields and template parties are automatically copied unless `parties` are explicitly provided in the request.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n> **Note:** The legacy `signers` field is also accepted as input for backwards compatibility, but is deprecated and will stop working in API v2. Use `parties` going forward. If both are provided, `parties` takes precedence.\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default), `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or `BANKID_BEFORE_SIGNING`\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, party IDs, tokens, and signing URLs for all added parties. The legacy `signers` field is also included in the response (same content as `parties`) for backwards compatibility, but is deprecated.",
         "summary": "Create a new document",
         "tags": [],
         "parameters": [
@@ -710,12 +795,13 @@
                               ]
                             },
                             "twoStepVerification": {
-                              "description": "Per-party 2FA: NONE (default) or SMS_BEFORE_SIGNING",
+                              "description": "Per-party 2FA: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                               "type": "string",
                               "enum": [
                                 "NONE",
                                 "SMS_BEFORE_SIGNING",
-                                "EMAIL_BEFORE_SIGNING"
+                                "EMAIL_BEFORE_SIGNING",
+                                "BANKID_BEFORE_SIGNING"
                               ]
                             }
                           },
@@ -793,12 +879,13 @@
                               ]
                             },
                             "twoStepVerification": {
-                              "description": "Per-party 2FA: NONE (default) or SMS_BEFORE_SIGNING",
+                              "description": "Per-party 2FA: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                               "type": "string",
                               "enum": [
                                 "NONE",
                                 "SMS_BEFORE_SIGNING",
-                                "EMAIL_BEFORE_SIGNING"
+                                "EMAIL_BEFORE_SIGNING",
+                                "BANKID_BEFORE_SIGNING"
                               ]
                             }
                           },
@@ -863,12 +950,13 @@
                               ]
                             },
                             "twoStepVerification": {
-                              "description": "Per-party 2FA: NONE (default) or SMS_BEFORE_SIGNING",
+                              "description": "Per-party 2FA: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                               "type": "string",
                               "enum": [
                                 "NONE",
                                 "SMS_BEFORE_SIGNING",
-                                "EMAIL_BEFORE_SIGNING"
+                                "EMAIL_BEFORE_SIGNING",
+                                "BANKID_BEFORE_SIGNING"
                               ]
                             }
                           },
@@ -946,12 +1034,13 @@
                               ]
                             },
                             "twoStepVerification": {
-                              "description": "Per-party 2FA: NONE (default) or SMS_BEFORE_SIGNING",
+                              "description": "Per-party 2FA: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                               "type": "string",
                               "enum": [
                                 "NONE",
                                 "SMS_BEFORE_SIGNING",
-                                "EMAIL_BEFORE_SIGNING"
+                                "EMAIL_BEFORE_SIGNING",
+                                "BANKID_BEFORE_SIGNING"
                               ]
                             }
                           },
@@ -1514,12 +1603,13 @@
                             "nullable": true
                           },
                           "twoStepVerification": {
-                            "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                            "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                             "type": "string",
                             "enum": [
                               "NONE",
                               "SMS_BEFORE_SIGNING",
-                              "EMAIL_BEFORE_SIGNING"
+                              "EMAIL_BEFORE_SIGNING",
+                              "BANKID_BEFORE_SIGNING"
                             ],
                             "nullable": true
                           },
@@ -1679,12 +1769,13 @@
                             "nullable": true
                           },
                           "twoStepVerification": {
-                            "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                            "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                             "type": "string",
                             "enum": [
                               "NONE",
                               "SMS_BEFORE_SIGNING",
-                              "EMAIL_BEFORE_SIGNING"
+                              "EMAIL_BEFORE_SIGNING",
+                              "BANKID_BEFORE_SIGNING"
                             ],
                             "nullable": true
                           },
@@ -3806,7 +3897,7 @@
     },
     "/api/v1/documents/{id}/signers": {
       "post": {
-        "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `POST /api/v1/documents/:id/parties` instead \u2014 \"party\" is the correct term for a document participant.\n\nAdd a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
+        "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `POST /api/v1/documents/:id/parties` instead \u2014 \"party\" is the correct term for a document participant.\n\nAdd a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default), `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or `BANKID_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
         "summary": "[DEPRECATED] Add a signer to document",
         "tags": [],
         "parameters": [
@@ -3879,12 +3970,13 @@
                     ]
                   },
                   "twoStepVerification": {
-                    "description": "Two-step verification: NONE (default) or SMS_BEFORE_SIGNING",
+                    "description": "Two-step verification: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                     "type": "string",
                     "enum": [
                       "NONE",
                       "SMS_BEFORE_SIGNING",
-                      "EMAIL_BEFORE_SIGNING"
+                      "EMAIL_BEFORE_SIGNING",
+                      "BANKID_BEFORE_SIGNING"
                     ]
                   }
                 },
@@ -4027,12 +4119,13 @@
                       "nullable": true
                     },
                     "twoStepVerification": {
-                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                       "type": "string",
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -4337,12 +4430,13 @@
                             "nullable": true
                           },
                           "twoStepVerification": {
-                            "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                            "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                             "type": "string",
                             "enum": [
                               "NONE",
                               "SMS_BEFORE_SIGNING",
-                              "EMAIL_BEFORE_SIGNING"
+                              "EMAIL_BEFORE_SIGNING",
+                              "BANKID_BEFORE_SIGNING"
                             ],
                             "nullable": true
                           },
@@ -4449,7 +4543,7 @@
     },
     "/api/v1/documents/{id}/signers/{signerId}": {
       "patch": {
-        "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `PATCH /api/v1/documents/:id/parties/:partyId` instead \u2014 \"party\" is the correct term for a document participant.\n\nUpdate signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` or `SMS_BEFORE_SIGNING`\n\n**Restrictions:** Cannot update after signer has signed the document.",
+        "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `PATCH /api/v1/documents/:id/parties/:partyId` instead \u2014 \"party\" is the correct term for a document participant.\n\nUpdate signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or `BANKID_BEFORE_SIGNING`\n\n**Restrictions:** Cannot update after signer has signed the document.",
         "summary": "[DEPRECATED] Update a signer",
         "tags": [],
         "parameters": [
@@ -4556,12 +4650,13 @@
                     ]
                   },
                   "twoStepVerification": {
-                    "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                    "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                     "type": "string",
                     "enum": [
                       "NONE",
                       "SMS_BEFORE_SIGNING",
-                      "EMAIL_BEFORE_SIGNING"
+                      "EMAIL_BEFORE_SIGNING",
+                      "BANKID_BEFORE_SIGNING"
                     ]
                   }
                 },
@@ -4702,12 +4797,13 @@
                       "nullable": true
                     },
                     "twoStepVerification": {
-                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                       "type": "string",
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -5015,12 +5111,13 @@
                       "nullable": true
                     },
                     "twoStepVerification": {
-                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                       "type": "string",
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -5332,12 +5429,13 @@
                       "nullable": true
                     },
                     "twoStepVerification": {
-                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                       "type": "string",
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -5614,7 +5712,7 @@
     },
     "/api/v1/documents/{id}/parties": {
       "post": {
-        "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default) or `SMS_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party. Use GET /documents/:id/parties/:partyId to retrieve the signing URL.",
+        "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - Accepts terms (for acceptance documents)\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` (default), `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or `BANKID_BEFORE_SIGNING`\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party. Use GET /documents/:id/parties/:partyId to retrieve the signing URL.",
         "summary": "Add a party to document",
         "tags": [],
         "parameters": [
@@ -5687,12 +5785,13 @@
                     ]
                   },
                   "twoStepVerification": {
-                    "description": "Two-step verification: NONE (default) or SMS_BEFORE_SIGNING",
+                    "description": "Two-step verification: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                     "type": "string",
                     "enum": [
                       "NONE",
                       "SMS_BEFORE_SIGNING",
-                      "EMAIL_BEFORE_SIGNING"
+                      "EMAIL_BEFORE_SIGNING",
+                      "BANKID_BEFORE_SIGNING"
                     ]
                   }
                 },
@@ -5835,12 +5934,13 @@
                       "nullable": true
                     },
                     "twoStepVerification": {
-                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                       "type": "string",
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -6145,12 +6245,13 @@
                             "nullable": true
                           },
                           "twoStepVerification": {
-                            "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                            "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                             "type": "string",
                             "enum": [
                               "NONE",
                               "SMS_BEFORE_SIGNING",
-                              "EMAIL_BEFORE_SIGNING"
+                              "EMAIL_BEFORE_SIGNING",
+                              "BANKID_BEFORE_SIGNING"
                             ],
                             "nullable": true
                           },
@@ -6257,7 +6358,7 @@
     },
     "/api/v1/documents/{id}/parties/{partyId}": {
       "patch": {
-        "description": "Update party information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Party's full name\n- `email` - Party's email address\n- `phone` - Party's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Party role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE` or `SMS_BEFORE_SIGNING`\n\n**Restrictions:** Cannot update after party has signed the document.",
+        "description": "Update party information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Party's full name\n- `email` - Party's email address\n- `phone` - Party's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Party role (SIGNER, ORGANIZER, REVIEWER, ACCEPTOR)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID`, or `CLICK_TO_SIGN`\n- `twoStepVerification` - 2FA: `NONE`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or `BANKID_BEFORE_SIGNING`\n\n**Restrictions:** Cannot update after party has signed the document.",
         "summary": "Update a party",
         "tags": [],
         "parameters": [
@@ -6364,12 +6465,13 @@
                     ]
                   },
                   "twoStepVerification": {
-                    "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                    "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                     "type": "string",
                     "enum": [
                       "NONE",
                       "SMS_BEFORE_SIGNING",
-                      "EMAIL_BEFORE_SIGNING"
+                      "EMAIL_BEFORE_SIGNING",
+                      "BANKID_BEFORE_SIGNING"
                     ]
                   }
                 },
@@ -6510,12 +6612,13 @@
                       "nullable": true
                     },
                     "twoStepVerification": {
-                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                       "type": "string",
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -6823,12 +6926,13 @@
                       "nullable": true
                     },
                     "twoStepVerification": {
-                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                       "type": "string",
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -7140,12 +7244,13 @@
                       "nullable": true
                     },
                     "twoStepVerification": {
-                      "description": "Two-step verification: NONE or SMS_BEFORE_SIGNING",
+                      "description": "Two-step verification: NONE, SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
                       "type": "string",
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "nullable": true
                     },
@@ -10124,7 +10229,10 @@
                                         "input",
                                         "text",
                                         "select",
-                                        "datepicker"
+                                        "datepicker",
+                                        "radio",
+                                        "checkbox",
+                                        "number"
                                       ]
                                     },
                                     "row": {
@@ -10277,6 +10385,141 @@
                                               "type": "string",
                                               "enum": [
                                                 "datepicker"
+                                              ]
+                                            },
+                                            "value": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "label": {
+                                              "type": "string"
+                                            },
+                                            "placeholder": {
+                                              "type": "string"
+                                            },
+                                            "description": {
+                                              "type": "string"
+                                            },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "radio"
+                                              ]
+                                            },
+                                            "options": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "value": {
+                                                    "type": "string"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "value"
+                                                ],
+                                                "additionalProperties": false
+                                              }
+                                            },
+                                            "value": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "label": {
+                                              "type": "string"
+                                            },
+                                            "placeholder": {
+                                              "type": "string"
+                                            },
+                                            "description": {
+                                              "type": "string"
+                                            },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "checkbox"
+                                              ]
+                                            },
+                                            "options": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "value": {
+                                                    "type": "string"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "value"
+                                                ],
+                                                "additionalProperties": false
+                                              }
+                                            },
+                                            "values": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string"
+                                              }
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "label": {
+                                              "type": "string"
+                                            },
+                                            "placeholder": {
+                                              "type": "string"
+                                            },
+                                            "description": {
+                                              "type": "string"
+                                            },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "number"
                                               ]
                                             },
                                             "value": {
@@ -10764,7 +11007,10 @@
                                           "input",
                                           "text",
                                           "select",
-                                          "datepicker"
+                                          "datepicker",
+                                          "radio",
+                                          "checkbox",
+                                          "number"
                                         ]
                                       },
                                       "row": {
@@ -10917,6 +11163,141 @@
                                                 "type": "string",
                                                 "enum": [
                                                   "datepicker"
+                                                ]
+                                              },
+                                              "value": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "radio"
+                                                ]
+                                              },
+                                              "options": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "value": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "value"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              },
+                                              "value": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "checkbox"
+                                                ]
+                                              },
+                                              "options": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "value": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "value"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              },
+                                              "values": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "number"
                                                 ]
                                               },
                                               "value": {
@@ -11169,6 +11550,210 @@
           }
         },
         "responses": {
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents:write"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "description": "Update several FORM subfield values by key in a single atomic request. Only DRAFT documents can have fields updated.\n\nUse this instead of looping single-key `PATCH .../fields/key:<key>` calls. Because all FORM subfields share one underlying field row, concurrent single-key requests read-modify-write the same row and overwrite each other (lost updates). This endpoint applies all changes against one read per affected field, so nothing is clobbered.\n\n**Body:**\n```json\nPATCH /api/v1/documents/{docId}/fields\n{\n  \"updates\": [\n    { \"key\": \"name\",  \"fieldMeta\": { \"type\": \"input\", \"value\": \"Andreas\" } },\n    { \"key\": \"phone\", \"fieldMeta\": { \"type\": \"input\", \"value\": \"070-1234567\" } },\n    { \"key\": \"email\", \"fieldMeta\": { \"type\": \"input\", \"value\": \"a@example.com\" } }\n  ]\n}\n```\n\nEach entry's `fieldMeta` is merged into the existing subfield metadata (preserving label, placeholder, description, etc.), identical to the single-key endpoint. Max 50 updates per request.\n\n**Response:** Returns a per-key result array so partial failures (e.g. an unknown key) are reported individually while valid updates still apply. `success` is `true` only when every update succeeded.",
+        "summary": "Update multiple FORM subfields by key in one request",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "batchUpdateFields",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "updates": {
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Field key to update"
+                        },
+                        "fieldMeta": {
+                          "description": "Field metadata to merge with existing subfield metadata"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "fieldMeta"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Array of field updates (max 50)"
+                  }
+                },
+                "required": [
+                  "updates"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Whether all updates succeeded"
+                    },
+                    "updated": {
+                      "type": "number",
+                      "description": "Number of fields successfully updated"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "description": "Field key that was updated"
+                          },
+                          "success": {
+                            "type": "boolean",
+                            "description": "Whether this specific update succeeded"
+                          },
+                          "error": {
+                            "description": "Error message if update failed",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "success"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Per-field update results"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "updated",
+                    "results"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
           "400": {
             "description": "Error response",
             "content": {
@@ -15322,8 +15907,10 @@
                         "DOCUMENT_WITHDRAWN",
                         "DOCUMENT_RECREATED",
                         "DOCUMENT_DELETED",
+                        "DOCUMENT_RESTORED",
                         "DOCUMENT_ARCHIVED",
                         "DOCUMENT_UNARCHIVED",
+                        "DOCUMENT_EXPIRATION_EXTENDED",
                         "DOCUMENT_PARTY_SENT",
                         "DOCUMENT_PARTY_DELIVERY_FAILED",
                         "DOCUMENT_PARTY_OPENED",
@@ -15334,7 +15921,6 @@
                         "DOCUMENT_PARTY_AUTH_FAILED",
                         "DOCUMENT_REMINDER_AUTOMATIC",
                         "DOCUMENT_REMINDER_MANUAL",
-                        "DOCUMENT_OPENED",
                         "DOCUMENT_ARCHIVE_UPLOADED",
                         "ID_CREATED",
                         "ID_SENT",
@@ -15349,10 +15935,7 @@
                         "TEMPLATE_UPDATED",
                         "TEMPLATE_DELETED",
                         "WORKSPACE_CREATED",
-                        "MEMBER_ADDED",
-                        "WORKFLOW_STARTED",
-                        "WORKFLOW_COMPLETED",
-                        "WORKFLOW_FAILED"
+                        "MEMBER_ADDED"
                       ]
                     },
                     "description": "List of event types to subscribe to"
@@ -15708,8 +16291,10 @@
                         "DOCUMENT_WITHDRAWN",
                         "DOCUMENT_RECREATED",
                         "DOCUMENT_DELETED",
+                        "DOCUMENT_RESTORED",
                         "DOCUMENT_ARCHIVED",
                         "DOCUMENT_UNARCHIVED",
+                        "DOCUMENT_EXPIRATION_EXTENDED",
                         "DOCUMENT_PARTY_SENT",
                         "DOCUMENT_PARTY_DELIVERY_FAILED",
                         "DOCUMENT_PARTY_OPENED",
@@ -15720,7 +16305,6 @@
                         "DOCUMENT_PARTY_AUTH_FAILED",
                         "DOCUMENT_REMINDER_AUTOMATIC",
                         "DOCUMENT_REMINDER_MANUAL",
-                        "DOCUMENT_OPENED",
                         "DOCUMENT_ARCHIVE_UPLOADED",
                         "ID_CREATED",
                         "ID_SENT",
@@ -15735,10 +16319,7 @@
                         "TEMPLATE_UPDATED",
                         "TEMPLATE_DELETED",
                         "WORKSPACE_CREATED",
-                        "MEMBER_ADDED",
-                        "WORKFLOW_STARTED",
-                        "WORKFLOW_COMPLETED",
-                        "WORKFLOW_FAILED"
+                        "MEMBER_ADDED"
                       ]
                     }
                   },
@@ -17360,6 +17941,17 @@
                                 "description": "Default responsible user ID",
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "accessVerification": {
+                                "description": "Document-wide verification required to open the document",
+                                "type": "string",
+                                "enum": [
+                                  "NONE",
+                                  "SMS_BEFORE_SIGNING",
+                                  "EMAIL_BEFORE_SIGNING",
+                                  "BANKID_BEFORE_SIGNING"
+                                ],
+                                "nullable": true
                               }
                             },
                             "additionalProperties": false,
@@ -17703,7 +18295,10 @@
                                           "input",
                                           "text",
                                           "select",
-                                          "datepicker"
+                                          "datepicker",
+                                          "radio",
+                                          "checkbox",
+                                          "number"
                                         ]
                                       },
                                       "row": {
@@ -17856,6 +18451,141 @@
                                                 "type": "string",
                                                 "enum": [
                                                   "datepicker"
+                                                ]
+                                              },
+                                              "value": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "radio"
+                                                ]
+                                              },
+                                              "options": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "value": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "value"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              },
+                                              "value": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "checkbox"
+                                                ]
+                                              },
+                                              "options": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "value": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "value"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              },
+                                              "values": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "number"
                                                 ]
                                               },
                                               "value": {
@@ -18216,6 +18946,17 @@
                           "description": "Default responsible user ID",
                           "type": "string",
                           "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -18434,6 +19175,17 @@
                           "description": "Default responsible user ID",
                           "type": "string",
                           "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -18570,7 +19322,8 @@
                             "enum": [
                               "NONE",
                               "SMS_BEFORE_SIGNING",
-                              "EMAIL_BEFORE_SIGNING"
+                              "EMAIL_BEFORE_SIGNING",
+                              "BANKID_BEFORE_SIGNING"
                             ],
                             "description": "Default two-step verification"
                           },
@@ -18784,6 +19537,16 @@
                       },
                       "responsibleUserId": {
                         "type": "string"
+                      },
+                      "accessVerification": {
+                        "description": "Document-wide verification required to open: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
+                        "type": "string",
+                        "enum": [
+                          "NONE",
+                          "SMS_BEFORE_SIGNING",
+                          "EMAIL_BEFORE_SIGNING",
+                          "BANKID_BEFORE_SIGNING"
+                        ]
                       }
                     },
                     "additionalProperties": false
@@ -18897,6 +19660,17 @@
                         "responsibleUserId": {
                           "description": "Default responsible user ID",
                           "type": "string",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING"
+                          ],
                           "nullable": true
                         }
                       },
@@ -19246,6 +20020,17 @@
                         "responsibleUserId": {
                           "description": "Default responsible user ID",
                           "type": "string",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING"
+                          ],
                           "nullable": true
                         }
                       },
@@ -19607,7 +20392,10 @@
                                         "input",
                                         "text",
                                         "select",
-                                        "datepicker"
+                                        "datepicker",
+                                        "radio",
+                                        "checkbox",
+                                        "number"
                                       ]
                                     },
                                     "row": {
@@ -19760,6 +20548,141 @@
                                               "type": "string",
                                               "enum": [
                                                 "datepicker"
+                                              ]
+                                            },
+                                            "value": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "label": {
+                                              "type": "string"
+                                            },
+                                            "placeholder": {
+                                              "type": "string"
+                                            },
+                                            "description": {
+                                              "type": "string"
+                                            },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "radio"
+                                              ]
+                                            },
+                                            "options": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "value": {
+                                                    "type": "string"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "value"
+                                                ],
+                                                "additionalProperties": false
+                                              }
+                                            },
+                                            "value": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "label": {
+                                              "type": "string"
+                                            },
+                                            "placeholder": {
+                                              "type": "string"
+                                            },
+                                            "description": {
+                                              "type": "string"
+                                            },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "checkbox"
+                                              ]
+                                            },
+                                            "options": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "value": {
+                                                    "type": "string"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "value"
+                                                ],
+                                                "additionalProperties": false
+                                              }
+                                            },
+                                            "values": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string"
+                                              }
+                                            }
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "label": {
+                                              "type": "string"
+                                            },
+                                            "placeholder": {
+                                              "type": "string"
+                                            },
+                                            "description": {
+                                              "type": "string"
+                                            },
+                                            "signerId": {
+                                              "type": "string",
+                                              "nullable": true
+                                            },
+                                            "required": {
+                                              "type": "boolean"
+                                            },
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "number"
                                               ]
                                             },
                                             "value": {
@@ -20247,7 +21170,10 @@
                                           "input",
                                           "text",
                                           "select",
-                                          "datepicker"
+                                          "datepicker",
+                                          "radio",
+                                          "checkbox",
+                                          "number"
                                         ]
                                       },
                                       "row": {
@@ -20400,6 +21326,141 @@
                                                 "type": "string",
                                                 "enum": [
                                                   "datepicker"
+                                                ]
+                                              },
+                                              "value": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "radio"
+                                                ]
+                                              },
+                                              "options": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "value": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "value"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              },
+                                              "value": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "checkbox"
+                                                ]
+                                              },
+                                              "options": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "value": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "value"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              },
+                                              "values": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "type"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "label": {
+                                                "type": "string"
+                                              },
+                                              "placeholder": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "signerId": {
+                                                "type": "string",
+                                                "nullable": true
+                                              },
+                                              "required": {
+                                                "type": "boolean"
+                                              },
+                                              "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "number"
                                                 ]
                                               },
                                               "value": {
@@ -21169,7 +22230,8 @@
                             "enum": [
                               "NONE",
                               "SMS_BEFORE_SIGNING",
-                              "EMAIL_BEFORE_SIGNING"
+                              "EMAIL_BEFORE_SIGNING",
+                              "BANKID_BEFORE_SIGNING"
                             ],
                             "description": "Default two-step verification"
                           },
@@ -21346,7 +22408,8 @@
                         "enum": [
                           "NONE",
                           "SMS_BEFORE_SIGNING",
-                          "EMAIL_BEFORE_SIGNING"
+                          "EMAIL_BEFORE_SIGNING",
+                          "BANKID_BEFORE_SIGNING"
                         ]
                       }
                     },
@@ -21439,7 +22502,8 @@
                         "enum": [
                           "NONE",
                           "SMS_BEFORE_SIGNING",
-                          "EMAIL_BEFORE_SIGNING"
+                          "EMAIL_BEFORE_SIGNING",
+                          "BANKID_BEFORE_SIGNING"
                         ]
                       }
                     },
@@ -21575,7 +22639,8 @@
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "description": "Default two-step verification"
                     },
@@ -21796,7 +22861,8 @@
                     "enum": [
                       "NONE",
                       "SMS_BEFORE_SIGNING",
-                      "EMAIL_BEFORE_SIGNING"
+                      "EMAIL_BEFORE_SIGNING",
+                      "BANKID_BEFORE_SIGNING"
                     ]
                   }
                 },
@@ -21926,7 +22992,8 @@
                       "enum": [
                         "NONE",
                         "SMS_BEFORE_SIGNING",
-                        "EMAIL_BEFORE_SIGNING"
+                        "EMAIL_BEFORE_SIGNING",
+                        "BANKID_BEFORE_SIGNING"
                       ],
                       "description": "Default two-step verification"
                     },
@@ -22733,6 +23800,9 @@
                           "type": "number"
                         },
                         "aiTokens": {
+                          "type": "number"
+                        },
+                        "aiTokensSigner": {
                           "type": "number"
                         },
                         "identityChecks": {

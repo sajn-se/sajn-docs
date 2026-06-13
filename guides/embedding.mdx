@@ -156,6 +156,21 @@ interface DocumentErrorData {
 - HTTPS is required for production environments
 - The `allow="camera"` attribute is needed on the iframe if using identity verification
 
+<Note>
+  **Access verification ("verify before opening") and embedding**
+
+  If a document has an access-verification requirement (SMS, email, or BankID
+  *before opening*), the embedded signer must clear that gate before any document
+  content is loaded — the same as on the hosted signing page. Document content is
+  never sent to the iframe until verification passes.
+
+  Because embedded signing usually runs inside an application that has *already*
+  authenticated the user, this extra step is often redundant. If you want the
+  embedded flow to open directly, avoid enabling access verification on documents
+  you intend to embed. (The per-signer **signing** verification — the gate at the
+  moment of signing — always applies, regardless of embedding.)
+</Note>
+
 ## Live Demo
 
 See the embedding in action at [sajn-embedding-demo.vercel.app](https://sajn-embedding-demo.vercel.app/). The source code is available on [GitHub](https://github.com/sajn-se/sajn-embedding-demo).

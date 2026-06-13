@@ -168,7 +168,8 @@
               "quickstart",
               "authentication",
               "postman",
-              "mcp"
+              "docs-mcp",
+              "developer-mcp"
             ]
           },
           {
@@ -379,6 +380,7 @@
             "group": "Document Fields",
             "pages": [
               "POST /api/v1/documents/{id}/fields",
+              "PATCH /api/v1/documents/{id}/fields",
               "PATCH /api/v1/documents/{id}/fields/{fieldId}",
               "DELETE /api/v1/documents/{id}/fields/{fieldId}"
             ]

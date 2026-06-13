@@ -1,0 +1,186 @@
+---
+title: Developer MCP Server
+description: 'Connect an AI assistant to your sajn workspace to debug API logs, webhook deliveries, documents and more over the Model Context Protocol'
+---
+
+# Developer MCP Server
+
+The **Developer MCP Server** lets an AI assistant act on your live sajn **workspace** — read your documents, templates and contacts, and debug your integration by inspecting **API request logs** and **outbound webhook deliveries**. It speaks the same authentication and permission model as the [REST API](/api/introduction).
+
+<Note>
+This is **not** the same as the [documentation MCP server](/docs-mcp) at `https://docs.sajn.se/mcp`. That one only searches these docs and needs no login. The Developer MCP server connects to your **real account data** and requires authentication.
+</Note>
+
+| | Documentation MCP | Developer MCP |
+|---|---|---|
+| **URL** | `https://docs.sajn.se/mcp` | `https://app.sajn.se/api/mcp` |
+| **Auth** | None (public) | OAuth 2.0 / API key |
+| **Data** | Documentation only | Your live workspace |
+| **Use for** | "How do I…" questions | Debugging logs & webhooks, acting on documents |
+
+## Server URL
+
+```
+https://app.sajn.se/api/mcp
+```
+
+The server is a stateless [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports) endpoint — every request carries its own bearer token, so any standard remote-MCP client works.
+
+## Authentication
+
+The Developer MCP server is bound to a single **workspace** and enforces the same `role ∩ scope` rule as the REST API. There are two ways to authenticate:
+
+<Tabs>
+  <Tab title="OAuth (recommended)">
+    Most MCP clients (Claude, Cursor, …) discover and complete OAuth automatically. When you add the server, the client opens a sajn consent screen where you pick the **workspace** and approve the **scopes** the assistant may use. Read-only access is the default — write and destructive tools only appear after you grant the matching scope.
+
+    No tokens to copy or rotate; the client refreshes them for you.
+  </Tab>
+  <Tab title="API key">
+    For clients that send a static `Authorization: Bearer <token>` header, you can use a workspace [API key](/authentication). The connection then has exactly the role and scopes of that key.
+
+    To use the debugging tools, the key must carry the `audit:read` scope and belong to a member with the **Manage developer** workspace permission (see below).
+  </Tab>
+</Tabs>
+
+<Warning>
+The Developer MCP server requires a **paid plan**. Connections on the free plan are rejected.
+</Warning>
+
+### Scopes and permissions
+
+Every tool requires specific OAuth scopes, and tools are **filtered to what your connection is allowed to see** — a read-only connection never even lists the write tools. The developer debugging tools additionally require the **Manage developer** workspace permission, so only developers can read raw request and webhook traffic.
+
+| Tool group | Required scope | Required permission |
+|---|---|---|
+| Read documents / templates / contacts / sajn IDs | `documents:read`, `contacts:read`, … | — |
+| **Debugging: API logs & webhook deliveries** | `audit:read` | Manage developer |
+| Send / remind / withdraw / delete documents | `documents:write`, `documents:delete` | matching role |
+| Create contacts | `contacts:write` | matching role |
+
+## Debugging tools
+
+These are the tools most useful for diagnosing an integration. All are read-only and require the `audit:read` scope plus the **Manage developer** permission.
+
+### API request logs
+
+<ResponseField name="list_api_logs" type="read-only">
+  List recent v1 REST API requests for the workspace, newest first. Filter by `method` (GET/POST/PATCH/DELETE), `statusCode` (`200`/`400`/`500` for a class, or an exact code), or `search` (path or IP). Paginated (`page`, `perPage`, max 100). Returns lean rows — method, path, status, duration, time.
+</ResponseField>
+
+<ResponseField name="get_api_log" type="read-only">
+  Fetch a single API request log by `logId` (from `list_api_logs`) with its full **headers, request body and response body** — to see exactly what a client sent and what sajn returned.
+</ResponseField>
+
+### Webhook deliveries
+
+<ResponseField name="list_webhook_deliveries" type="read-only">
+  List recent outbound webhook deliveries, newest first. Filter by `webhookId`, `status` (`SUCCESS`/`FAILED`), or `search` (target URL). Paginated. Returns target URL, event, status, response code and attempt number.
+</ResponseField>
+
+<ResponseField name="get_webhook_delivery" type="read-only">
+  Fetch a single delivery by `deliveryId` (from `list_webhook_deliveries`) with its full **request headers, request body and response body** — to see exactly what sajn sent to an endpoint and how it responded.
+</ResponseField>
+
+### Other tools
+
+Beyond debugging, the same connection exposes read tools (`whoami`, `list_documents`, `get_document`, `list_templates`, `get_template`, `search_contacts`, `list_sajn_ids`, `get_sajn_id`) and — once you grant the matching scope — write tools (`send_document`, `send_reminders`, `withdraw_document`, `delete_document`, `create_contact`). Destructive tools carry a `destructive` hint so clients can prompt before running them.
+
+## Setup
+
+<Tabs>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add --transport http sajn https://app.sajn.se/api/mcp
+    ```
+
+    On first use Claude Code opens the sajn OAuth consent screen in your browser. Pick the workspace and approve the scopes. Verify with:
+
+    ```bash
+    claude mcp list
+    ```
+  </Tab>
+
+  <Tab title="Claude Desktop">
+    1. Open **Settings** > **Connectors** > **Add Connector**
+    2. Enter:
+       - **Name**: sajn
+       - **URL**: `https://app.sajn.se/api/mcp`
+    3. Click **Save**, then complete the OAuth consent flow when prompted.
+  </Tab>
+
+  <Tab title="Cursor">
+    Open **Cursor Settings: Open MCP Config** and add:
+
+    ```json
+    {
+      "mcpServers": {
+        "sajn": {
+          "url": "https://app.sajn.se/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Restart Cursor and complete the OAuth flow.
+  </Tab>
+
+  <Tab title="VS Code">
+    Create `.vscode/mcp.json`:
+
+    ```json
+    {
+      "servers": {
+        "sajn": {
+          "type": "http",
+          "url": "https://app.sajn.se/api/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Example prompts
+
+Once connected, ask your assistant to debug your integration:
+
+- "List the failed webhook deliveries from the last day and show me the response body of the first one."
+- "Find the API requests that returned 4xx today and tell me what's wrong with them."
+- "Get the full request and response for API log `<id>`."
+- "Which webhook endpoint is failing, and what status code is it returning?"
+- "Show the most recent POST requests to `/api/v1/documents` and their status codes."
+
+## Security
+
+- **Workspace-scoped** — a connection only ever sees data in the workspace you approved at consent.
+- **Least privilege** — tools are filtered to the granted scopes; read-only by default, and the debugging tools are further gated behind the **Manage developer** permission.
+- **Same enforcement as REST** — scopes and role permissions are re-checked on every tool call, not just at listing time.
+- **Rate limited** — per-IP and per-organization limits apply, the same as the REST API.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The debugging tools don't show up">
+    The connection must have the `audit:read` scope **and** the member must hold the **Manage developer** workspace permission. Re-run the OAuth consent and make sure `audit:read` is granted, or use an API key that has it.
+  </Accordion>
+  <Accordion title="Connection rejected / 401">
+    - Confirm the URL is `https://app.sajn.se/api/mcp` (note `/api/mcp`, not `/mcp`).
+    - The account must be on a **paid plan**.
+    - For API-key auth, send the key as `Authorization: Bearer <key>`.
+  </Accordion>
+  <Accordion title="Write or delete tools are missing">
+    They are hidden until you grant the matching scope (`documents:write`, `documents:delete`, `contacts:write`) at consent. Reconnect and approve the additional scopes.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/authentication">
+    API keys, scopes and OAuth
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/api/introduction">
+    Set up and debug webhook endpoints
+  </Card>
+</CardGroup>

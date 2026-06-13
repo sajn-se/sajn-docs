@@ -189,24 +189,21 @@ const createAndFillTemplate = async (templateId, formData, signers) => {
     const document = await createResponse.json();
     const documentId = document.documentId;
     
-    // Step 2: Fill form fields
-    const fieldUpdates = Object.entries(formData.fields).map(async ([key, value]) => {
-      return fetch(`${baseUrl}/documents/${documentId}/fields/key:${key}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          fieldMeta: {
-            type: 'input',
-            value: value
-          }
-        })
-      });
+    // Step 2: Fill form fields — send all values in one atomic batch request.
+    // (Don't fire parallel single-key PATCHes; they would overwrite each other.)
+    await fetch(`${baseUrl}/documents/${documentId}/fields`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        updates: Object.entries(formData.fields).map(([key, value]) => ({
+          key,
+          fieldMeta: { type: 'input', value }
+        }))
+      })
     });
-    
-    await Promise.all(fieldUpdates);
     
     // Step 3: Add signers
     const signerUpdates = signers.map(async (signer) => {
@@ -303,29 +300,32 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_xyz789/send \
 
 ### Bulk Field Updates
 
-Update multiple fields efficiently:
+Update multiple FORM fields in a single atomic request with the batch endpoint `PATCH /documents/{documentId}/fields`:
 
 ```javascript
 const updateMultipleFields = async (documentId, fieldUpdates) => {
-  const updatePromises = Object.entries(fieldUpdates).map(([key, value]) => {
-    return fetch(`/api/v1/documents/${documentId}/fields/key:${key}`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        fieldMeta: {
-          type: 'input',
-          value: value
-        }
-      })
-    });
+  const response = await fetch(`/api/v1/documents/${documentId}/fields`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      updates: Object.entries(fieldUpdates).map(([key, value]) => ({
+        key,
+        fieldMeta: { type: 'input', value }
+      }))
+    })
   });
-  
-  const results = await Promise.all(updatePromises);
-  return results;
+
+  // { success, updated, results: [{ key, success, error? }] }
+  return response.json();
 };
+```
+
+<Warning>
+Don't update fields by firing parallel single-key `PATCH .../fields/key:<key>` requests (e.g. `Promise.all`). All FORM subfields share one underlying record, so concurrent single-key writes read-modify-write the same data and clobber each other — only the last one survives. The batch endpoint applies every change against a single read, so nothing is lost.
+</Warning>
 
 // Usage
 await updateMultipleFields('doc_xyz789', {
@@ -524,66 +524,57 @@ const validateFieldValue = (fieldType, value) => {
 };
 ```
 
-### 2. Batch Processing
-```javascript
-const BATCH_SIZE = 5;
+### 2. Many Fields (more than 50)
 
-const updateFieldsInBatches = async (documentId, fieldUpdates) => {
-  const entries = Object.entries(fieldUpdates);
+The batch endpoint accepts up to **50 updates per request**. If you have more than that, send the chunks **sequentially** — `await` each request before the next. Don't run batch requests for the same document in parallel: they each read-modify-write the same FORM record and would clobber each other, just like parallel single-key calls.
+
+```javascript
+const CHUNK_SIZE = 50;
+
+const updateFieldsInChunks = async (documentId, fieldUpdates) => {
+  const updates = Object.entries(fieldUpdates).map(([key, value]) => ({
+    key,
+    fieldMeta: { type: 'input', value }
+  }));
   const results = [];
-  
-  for (let i = 0; i < entries.length; i += BATCH_SIZE) {
-    const batch = entries.slice(i, i + BATCH_SIZE);
-    const batchPromises = batch.map(([key, value]) => 
-      safeFieldUpdate(documentId, key, value)
-    );
-    
-    const batchResults = await Promise.all(batchPromises);
-    results.push(...batchResults);
-    
-    // Small delay between batches to avoid rate limiting
-    if (i + BATCH_SIZE < entries.length) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
+
+  for (let i = 0; i < updates.length; i += CHUNK_SIZE) {
+    const chunk = updates.slice(i, i + CHUNK_SIZE);
+
+    // Sequential — never Promise.all these chunks.
+    const response = await fetch(`/api/v1/documents/${documentId}/fields`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ updates: chunk })
+    });
+
+    const body = await response.json();
+    results.push(...body.results);
   }
-  
+
   return results;
 };
 ```
 
-### 3. Progress Tracking
-```javascript
-const updateFieldsWithProgress = async (documentId, fieldUpdates, onProgress) => {
-  const entries = Object.entries(fieldUpdates);
-  const total = entries.length;
-  let completed = 0;
-  
-  const results = await Promise.all(
-    entries.map(async ([key, value]) => {
-      try {
-        const result = await safeFieldUpdate(documentId, key, value);
-        completed++;
-        onProgress?.(completed, total, key);
-        return result;
-      } catch (error) {
-        completed++;
-        onProgress?.(completed, total, key, error);
-        return null;
-      }
-    })
-  );
-  
-  return results;
-};
+### 3. Handling Partial Failures
 
-// Usage with progress callback
-await updateFieldsWithProgress('doc_xyz789', fieldData, (completed, total, key, error) => {
-  if (error) {
-    console.log(`Failed to update ${key}: ${error.message}`);
-  } else {
-    console.log(`Updated ${key} (${completed}/${total})`);
+The batch response reports each key individually, so you can surface the ones that failed (e.g. an unknown key) while the valid updates still apply. `success` is `true` only when every update in the request succeeded.
+
+```javascript
+const result = await updateMultipleFields('doc_xyz789', fieldData);
+
+if (!result.success) {
+  for (const { key, success, error } of result.results) {
+    if (!success) {
+      console.log(`Failed to update ${key}: ${error}`);
+    }
   }
-});
+}
+
+console.log(`Updated ${result.updated} of ${result.results.length} fields`);
 ```
 
 ## Integration Examples
@@ -712,5 +703,6 @@ app.post('/api/create-employment-contract', async (req, res) => {
 - [Signer-Fillable Fields](/guides/signer-fields) - Let signers fill in fields during signing
 - [Creating Documents](/guides/create-document) - Learn about document creation
 - [Send for Signing](/guides/send-for-signing) - Complete the signing workflow
-- [Document Fields API](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Field update reference
+- [Document Fields API](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Single field update reference
+- [Batch Field Updates API](/api/PATCH%20/api/v1/documents/{id}/fields) - Update many FORM fields in one request
 - [File Uploads](/guides/file-uploads) - Add PDF attachments to templates
