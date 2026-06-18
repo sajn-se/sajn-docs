@@ -1,0 +1,61 @@
+---
+title: "Samma fält till olika mottagare varje gång"
+description: "Bygg ett ifyllbart formulär en gång i en mall och skicka det till nya mottagare gång på gång – utan att göra om fälten"
+---
+
+Vill du skicka samma ifyllbara dokument till olika personer, där alla ska fylla i samma uppgifter? Då bygger du formuläret **en gång i en mall** och kopplar fälten till en **part**. En part är en *plats* för en signerare, inte en fast person – fälten hänger ihop med parten, inte med e-postadressen. Varje gång du skapar ett dokument från mallen byter du bara ut vem parten är, och alla fält följer med automatiskt.
+
+<Tip>
+  Grunderna för parter och fält finns i [Lägg till sektioner och fält i en mall](/guider/add-fields-to-template) och [Tilldela fält till rätt part](/guider/tilldela-falt-till-part). Den här guiden visar hur du återanvänder upplägget för nya mottagare.
+</Tip>
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta där du får skapa mallar.
+- Du vet vilka uppgifter mottagaren ska fylla i (t.ex. namn, personnummer, adress).
+
+## Så fungerar det
+
+En part i en mall är en rollplats – t.ex. *Mottagare* eller *Kund*. Du behöver inte ange vem det är redan i mallen; **e-post är valfri**. När du sedan skapar ett dokument från mallen fyller du i den verkliga personen på parten. Eftersom fälten är *tilldelade parten* och inte en specifik e-postadress ställer du in dem en enda gång – sedan återanvänder du samma mall hur många gånger du vill.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Skapa en mall">
+    Öppna **Mallar** i sidomenyn och klicka **Skapa ny mall**. Ge mallen ett tydligt namn, t.ex. *Inhämtning av uppgifter*.
+  </Step>
+  <Step title="Lägg till en part och döp den efter rollen">
+    Gå till fliken **Parter** och lägg till en part. Döp den efter rollen i stället för en person – t.ex. **Mottagare**. Du kan lämna **E-post** tom; den fyller du i per dokument.
+
+    <Note>
+      E-post är valfri i mallen. Den röda asterisken vid E-post dyker bara upp om du väljer **E-post** som leveransmetod – då anger du adressen när du skickar dokumentet.
+    </Note>
+  </Step>
+  <Step title="Lägg till ett formulär">
+    Klicka **Lägg till sektion** och välj **Formulär**. Lägg till de fält mottagaren ska fylla i, t.ex. *Namn*, *Personnummer* och *Adress*.
+  </Step>
+  <Step title="Tilldela fälten till parten">
+    Öppna varje fält, gå till **Avancerat** och välj **Mottagare** i menyn **Tilldelad part**. Slå på **Obligatoriskt** för de uppgifter som måste fyllas i före signering. Spara mallen.
+  </Step>
+  <Step title="Skapa ett dokument när du ska skicka">
+    Öppna mallen och välj **Skapa dokument** i trepunktsmenyn (⋯). Dokumentet ärver formuläret och parten *Mottagare* – fälten är redan på plats.
+  </Step>
+  <Step title="Fyll i den verkliga mottagaren och skicka">
+    I sidopanelen **Parter** klickar du på parten *Mottagare* och fyller i personens **Namn** och **E-post**. Skicka dokumentet för signering. Mottagaren öppnar länken och fyller i fälten.
+  </Step>
+  <Step title="Upprepa för nästa person">
+    Nästa gång skapar du bara ett nytt dokument från samma mall och byter ut mottagaren. Formuläret och fältkopplingarna är identiska varje gång – du gör aldrig om dem.
+  </Step>
+</Steps>
+
+## Skicka till många samtidigt
+
+Ska samma formulär gå ut till flera mottagare i en omgång? Använd **Massutskick** – ladda upp mottagarna och skicka alla på en gång, med samma fält kopplade till parten.
+
+## Nästa steg
+
+- [Tilldela fält till rätt part](/guider/tilldela-falt-till-part) – fördjupning om fältkopplingar och variabler.
+- [Använd en mall för att skapa ett nytt dokument](/guider/use-template).
+- [Lås mallen](/guider/lock-template) så att upplägget inte ändras av misstag.
+</content>
+</invoke>
