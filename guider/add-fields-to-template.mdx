@@ -30,10 +30,12 @@ Skillnaden i mallar är att signerare definieras som **parter** (rollbaserade pl
 
     En *part* är en platshållare för en signerare — t.ex. *Säljaren*, *Köparen* eller *VD*. När mallen sedan används till ett verkligt dokument fyller du i vilka personer som är vilka parter. Klicka på **Sök eller lägg till parter...** för att lägga till första parten.
   </Step>
-  <Step title="Fyll i namn och e-post för rollen">
+  <Step title="Döp rollen — e-post och telefon kan lämnas tomma">
     ![Lägg till part-dialogen](/images/guider/add-fields-to-template/08-add-party-dialog.png)
 
-    **Namn** och **E-post** är obligatoriska (markerade med röd asterisk). Övriga fält är valfria: *Land* (defaultar till Sverige), *Telefonnummer*, *Personnummer* (krävs vid BankID-signering), *Externt ID* (för API-integrationer), företagsinformation samt signaturmetod, leveransmetod och tvåstegsverifiering under *Signering och leverans*.
+    Bara **Namn** är obligatoriskt. Lämna **E-post** och **Telefonnummer** tomma för att lägga till en ren *roll* (t.ex. *Köparen*) — du kopplar fält till rollen i mallen och fyller i den riktiga personen först när du skapar dokumentet. Den röda asterisken vid E-post respektive Telefonnummer dyker bara upp om du väljer E-post eller SMS som leveransmetod, och då anges kontaktuppgiften per dokument innan utskick.
+
+    Övriga fält är valfria: *Land* (defaultar till Sverige), *Personnummer* (krävs vid BankID-signering), *Externt ID* (för API-integrationer), företagsinformation samt signaturmetod, leveransmetod och tvåstegsverifiering under *Signering och leverans*.
   </Step>
   <Step title="Parten är sparad i mallen">
     ![Parten i listan](/images/guider/add-fields-to-template/12-party-in-list.png)

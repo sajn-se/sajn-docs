@@ -1,0 +1,54 @@
+---
+title: "AI i sajn"
+description: "En överblick av sajns AI-assistent Bob – vad den kan göra och hur era data hanteras (Zero Data Retention, ingen modellträning)"
+---
+
+sajns AI-assistent **Bob** hjälper er genom hela dokumentflödet – från att tolka uppladdade PDF:er till att svara på frågor under signeringen. Den här sidan ger en överblick av vad AI:n kan göra och, lika viktigt, hur era data hanteras när den körs. Vill du justera inställningarna hittar du dem under [AI-inställningar](/guider/settings-ai) i arbetsytan.
+
+## Vad Bob kan göra
+
+- **Analysera uppladdade PDF:er** – Bob läser inkommande PDF:er och föreslår parter, signeringsinställningar och titel direkt på dokumentet. Se [AI-analys av dokument](/guider/document-ai-analysis).
+- **Generera och redigera innehåll** – skapa mallavsnitt och redigera text med AI. Se [Generera mallavsnitt med AI](/guider/ai-generate-template-section) och [Redigera text med AI](/guider/document-ai-text-edit).
+- **Chatt för signerare** – en assistent på signeringssidan som svarar på frågor om dokumentet, utifrån dokumentets eget innehåll.
+- **Anpassad kontext** – ni kan ge AI:n bakgrund om er verksamhet så att svaren passar er bransch och ert tonläge.
+
+AI-funktioner ingår i betalplanerna (Solo, Team och Enterprise) och styrs per arbetsyta.
+
+## Slå på eller av AI
+
+AI är en huvudströmbrytare per arbetsyta. Vill ni av integritets- eller policyskäl inte att AI används i en viss arbetsyta slår ni av den under [AI-inställningar](/guider/settings-ai) – då är samtliga AI-funktioner helt inaktiva.
+
+## Datahantering och integritet
+
+AI-funktionerna är byggda för att kunna användas utan att tumma på sekretessen. Så här hanteras era data när AI:n körs:
+
+### Zero Data Retention (ZDR)
+
+sajn kör med **Zero Data Retention** mot vår AI-leverantör. Det innebär att det innehåll som skickas till språkmodellen – dokumenttext, dina chattmeddelanden och liknande – **inte sparas hos leverantören** efter att svaret har genererats. Innehållet används enbart för att producera just det svar du efterfrågar, och raderas därefter på leverantörens sida.
+
+### När AI är avstängt skickas ingenting
+
+Är AI-funktionerna avstängda för arbetsytan skickas och lagras ingenting alls till AI:n. Inga dokument, ingen text och inga meddelanden lämnar systemet för AI-bearbetning.
+
+### Vi tränar aldrig på era data
+
+Varken sajn eller vår AI-leverantör använder ert innehåll för att träna eller finjustera AI-modeller. Era dokument, era parters uppgifter och era chattar blir aldrig en del av någon modells träningsdata.
+
+### Chattar och feedback
+
+De chattar du har med Bob och den feedback du aktivt skickar in (till exempel tummen upp/ner på ett svar) sparas hos sajn. Syftet är begränsat: vi använder det för att kunna hjälpa er i supportärenden och förbättra kvaliteten på AI-svaren. Det säljs aldrig vidare och används aldrig för modellträning.
+
+### Anonymiserad användningsstatistik
+
+För att förstå hur AI-funktionerna används samlar vi **anonymiserad** användningsstatistik – exempelvis hur ofta en funktion används eller om ett anrop lyckades. Den **tränas aldrig på**, och **privata uppgifter maskeras** innan något sparas.
+
+| | Skickas till AI-leverantör | Sparas hos sajn | Används för träning |
+|---|---|---|---|
+| Dokument & innehåll (AI på) | Ja, med ZDR – sparas inte hos leverantören | Nej | Nej |
+| Allt (AI av) | Nej | Nej | Nej |
+| Chattar & inskickad feedback | Ja, med ZDR | Ja, för support och kvalitet | Nej |
+| Användningsstatistik | – | Ja, anonymiserad och maskerad | Nej |
+
+<Note>
+Behöver ni exportera eller permanent radera organisationens data enligt GDPR gör ni det under [GDPR och integritet](/guider/settings-organization-data-privacy) i organisationsinställningarna.
+</Note>
