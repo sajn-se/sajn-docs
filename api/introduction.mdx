@@ -26,16 +26,24 @@ Get your API key from **Organization Settings > API Keys** in the [sajn dashboar
 
 ## Rate Limits
 
-- **100 requests per minute** per API key
-- **1000 requests per hour** per API key
+Rate limits apply **per organization** and scale with your plan. There are two limits:
 
-Rate limit headers are included in all responses:
+- A **per-minute** limit that protects against bursts of traffic.
+- A **daily** limit on total request volume.
+
+Higher plans get higher limits — if you consistently hit them, upgrading your plan raises both. Rather than hard-coding numbers, read your current limits from the response headers, which are included on every response:
 
 ```
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1640000000
+X-RateLimit-Limit: 120           # per-minute limit
+X-RateLimit-Remaining: 118       # per-minute requests left in the current window
+X-RateLimit-Reset: 1640000000    # unix time when the per-minute window resets
+
+X-RateLimit-Daily-Limit: 10000   # requests allowed per rolling 24h
+X-RateLimit-Daily-Remaining: 9980
+X-RateLimit-Daily-Reset: 1640086400
 ```
+
+When either limit is exceeded you receive a `429 Too Many Requests` response with a `Retry-After` header (seconds to wait). Build clients to back off on `429` and honour `Retry-After`.
 
 ## Response Format
 

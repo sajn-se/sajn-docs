@@ -77,7 +77,11 @@ curl -X POST https://app.sajn.se/api/v1/documents \
   <img src="/images/guides/signing-sequential.png" alt="Diagram showing sequential signing with numbered steps" />
 </Frame>
 
-In sequential signing, signers receive the document one at a time in a specified order. The next signer only receives the document after the previous one has signed.
+In sequential signing, signers receive the document one at a time in a specified order. Each signer is emailed (or sent an SMS) **only when it becomes their turn** — a downstream signer gets no notification at send time. The next signer is contacted automatically after the previous step is complete.
+
+<Note>
+  Until a signer's turn arrives they have not been contacted, and in the dashboard they show as **"Väntar på tur" (Waiting for turn)** rather than "Sent". This is expected — it is not a delivery failure.
+</Note>
 
 ### Configuration
 

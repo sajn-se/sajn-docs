@@ -49,9 +49,9 @@ Med **webhooks** kan din integration ta emot HTTP-callbacks i realtid när dokum
   <Step title="Välj bland tillgängliga händelser">
     Händelsenamnen följer mönstret `<resurs>.<verb>` och grupperas i tre kategorier:
 
-    **Dokumentnivå** – `document.created`, `document.sent`, `document.signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.recreated`, `document.deleted`, `document.archived`, `document.unarchived`.
+    **Dokumentnivå** – `document.created`, `document.sent`, `document.signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.modified`, `document.deleted`, `document.archived`, `document.unarchived`.
 
-    **Mottagarnivå (per signerare)** – `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`.
+    **Mottagarnivå (per signerare)** – `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`, `document.party.added`, `document.party.removed`.
 
     **Påminnelser** – `document.reminder.automatic`, `document.reminder.manual`.
 

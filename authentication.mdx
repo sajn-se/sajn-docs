@@ -116,17 +116,18 @@ Common authentication errors:
 
 ## Rate Limiting
 
-API requests are rate limited per API key:
+API requests are rate limited **per organization**, with limits that scale with your plan. There is a per-minute burst limit and a rolling 24-hour volume limit; higher plans get higher limits.
 
-- **100 requests per minute**
-- **1000 requests per hour**
-
-Rate limit information is included in response headers:
+Read your current limits from the response headers rather than hard-coding them — they're included on every response:
 
 ```
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
+X-RateLimit-Limit: 120           # per-minute limit
+X-RateLimit-Remaining: 118
 X-RateLimit-Reset: 1640000000
+
+X-RateLimit-Daily-Limit: 10000   # requests per rolling 24h
+X-RateLimit-Daily-Remaining: 9980
+X-RateLimit-Daily-Reset: 1640086400
 ```
 
-When you exceed the rate limit, you'll receive a `429 Too Many Requests` response.
+When you exceed either limit you'll receive a `429 Too Many Requests` response with a `Retry-After` header. Clients should back off and retry after the indicated delay. If you consistently hit your limits, upgrade your plan for higher throughput.

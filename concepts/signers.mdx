@@ -122,7 +122,7 @@ When using sequential signing (`signingOrder: "SEQUENTIAL"`), assign each signer
 }
 ```
 
-The manager must sign first before the employee can access the document.
+The manager must sign first before the employee can access the document. Each signer is notified (email or SMS) **only when it becomes their turn** — the employee receives no invitation until the manager has signed.
 
 <Note>
   For parallel signing, `signingOrder` is optional and will be ignored.
