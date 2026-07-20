@@ -15209,7 +15209,7 @@
     },
     "/api/v1/files": {
       "post": {
-        "description": "Create a file record and get a presigned URL to upload the bytes **directly to storage**.\n\nThis is the recommended upload method. It replaces the legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `upload.sajn.se`), which is **deprecated**.\n\n**Flow:**\n1. Compute the file's SHA-256 hash and base64-encode it.\n2. Call this endpoint with the filename, MIME type, size, and checksum. You receive a `fileId` and a presigned `uploadUrl`.\n3. `PUT` the raw bytes to `uploadUrl` with headers `Content-Type: <mimeType>` and `x-amz-checksum-sha256: <checksum>`. S3 verifies the checksum on write.\n4. (Recommended) Call `POST /api/v1/files/:id/confirm` to verify the upload and flip the record to `CONFIRMED` immediately. Otherwise it is confirmed automatically the first time it is fetched via `GET /api/v1/files/:id`.\n\n**Why:** the bytes go straight to storage, so there is no API-server size limit.",
+        "description": "Create a file record and get a presigned URL to upload the bytes **directly to storage**.\n\n**Flow:**\n1. Compute the file's SHA-256 hash and base64-encode it.\n2. Call this endpoint with the filename, MIME type, size, and checksum. You receive a `fileId` and a presigned `uploadUrl`.\n3. `PUT` the raw bytes to `uploadUrl` with headers `Content-Type: <mimeType>` and `x-amz-checksum-sha256: <checksum>`. S3 verifies the checksum on write.\n4. (Recommended) Call `POST /api/v1/files/:id/confirm` to verify the upload and flip the record to `CONFIRMED` immediately. Otherwise it is confirmed automatically the first time it is fetched via `GET /api/v1/files/:id`.\n\n**Why:** the bytes go straight to storage, so there is no API-server size limit.",
         "summary": "Create a file (presigned upload)",
         "tags": [],
         "parameters": [
@@ -32187,162 +32187,12 @@
           }
         ]
       }
-    },
-    "/api/v1/putFile": {
-      "put": {
-        "description": "Upload a file directly to sajn storage.\n\n**Important:** This endpoint uses `https://upload.sajn.se` as the base URL, not `https://app.sajn.se`.\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Example Upload:**\n```bash\n# Private file (default)\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/document.pdf\"\n\n# Public file\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/image.png\" \\\n  -F \"visibility=PUBLIC\"\n```",
-        "summary": "Upload file",
-        "tags": [],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Bearer token for API authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "operationId": "putFile",
-        "requestBody": {
-          "description": "Multipart form data with file and optional visibility",
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "description": "File upload request",
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "description": "The file to upload. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG",
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "visibility": {
-                    "description": "File visibility: PRIVATE (requires signed URL) or PUBLIC (direct access)",
-                    "default": "PRIVATE",
-                    "type": "string",
-                    "enum": [
-                      "PRIVATE",
-                      "PUBLIC"
-                    ]
-                  }
-                },
-                "required": [
-                  "file"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "File uploaded successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "File upload response",
-                  "type": "object",
-                  "properties": {
-                    "key": {
-                      "description": "Storage key for the uploaded file",
-                      "type": "string"
-                    },
-                    "file": {
-                      "description": "File metadata",
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "description": "Unique file identifier",
-                          "type": "string"
-                        },
-                        "filename": {
-                          "description": "Original filename",
-                          "type": "string"
-                        },
-                        "mimeType": {
-                          "description": "MIME type of the file",
-                          "type": "string"
-                        },
-                        "size": {
-                          "description": "File size in bytes",
-                          "type": "integer"
-                        },
-                        "hash": {
-                          "description": "SHA-256 hash of the file",
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "filename",
-                        "mimeType",
-                        "size",
-                        "hash"
-                      ],
-                      "additionalProperties": false
-                    }
-                  },
-                  "required": [
-                    "key",
-                    "file"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Error response",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Error message describing what went wrong",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "info": {
     "title": "sajn API",
     "version": "1.0.0",
-    "description": "# sajn - API v1\n\nWelcome to the sajn API documentation. This RESTful API allows you to integrate digital document signing capabilities into your applications.\n\n## Overview\n\nsajn is a Swedish digital document signing platform that enables you to:\n- Create and manage digital documents\n- Add signers and participants to documents\n- Send documents for signing via email or SMS\n- Track document status and signatures\n- Manage contacts and companies\n- Organize documents with tags and custom fields\n- Perform identity verification with sajn ID (BankID integration)\n\n## Authentication\n\nEvery endpoint (except the health check) requires a bearer token in the Authorization header:\n\n```\nAuthorization: Bearer YOUR_TOKEN\n```\n\nTwo kinds of token are accepted:\n\n- **Personal API key** (`sajn_sk_...`) \u2014 generated from your workspace developer settings. Acts as the issuing user; can reach any endpoint the user's workspace role permits.\n- **OAuth 2.0 access token** \u2014 issued via the authorization-code flow (PKCE for public clients) to a connected application. Bound to one workspace and limited to the **scopes** the user granted at consent \u2014 effective access is *workspace role \u2229 granted scopes*.\n\nEach operation below lists the OAuth scope(s) it requires under its security section. The scopes are coarse and resource-oriented (e.g. `documents:read`, `documents:write`, `documents:delete`, `contacts:read`). Personal API keys are not scope-limited; OAuth tokens are.\n\n## Rate Limiting\n\nAPI requests are rate limited **per organization**, with limits that scale with your plan. There are two limits: a per-minute burst limit and a rolling 24-hour volume limit. Higher plans get higher limits.\n\nRead your current limits from the response headers (included on every response) rather than hard-coding them:\n- `X-RateLimit-Limit` / `X-RateLimit-Remaining` / `X-RateLimit-Reset` — the per-minute limit\n- `X-RateLimit-Daily-Limit` / `X-RateLimit-Daily-Remaining` / `X-RateLimit-Daily-Reset` — the rolling 24h limit\n\nExceeding either limit returns `429 Too Many Requests` with a `Retry-After` header; clients should back off and retry after the indicated delay. If you consistently hit your limits, upgrade your plan for higher throughput.\n\n## Pagination\n\nList endpoints support pagination with the following query parameters:\n- `page` - Page number (default: 1)\n- `perPage` - Items per page (default: 10, max: 100)\n\n## Webhooks\n\nConfigure webhooks to receive real-time notifications about document events:\n- `DOCUMENT_CREATED` - When a document is created\n- `DOCUMENT_SENT` - When a document is sent for signing\n- `DOCUMENT_OPENED` - When a signer opens a document\n- `DOCUMENT_SIGNED` - When a signer signs a document\n- `DOCUMENT_COMPLETED` - When all signers have signed\n- `DOCUMENT_REJECTED` - When a signer rejects a document\n\n## Error Handling\n\nThe API uses standard HTTP status codes and returns error details in JSON format:\n\n```json\n{\n  \"message\": \"Error description\"\n}\n```\n\nCommon status codes:\n- 200: Success\n- 400: Bad Request - Invalid parameters\n- 401: Unauthorized - Invalid or missing API key\n- 404: Not Found - Resource doesn't exist\n- 409: Conflict - Resource already exists\n- 500: Internal Server Error\n\n## Support\n\nFor API support, documentation, or questions:\n- Email: dev@sajn.se\n- Documentation: https://docs.sajn.se\n- Status: https://status.sajn.se",
+    "description": "# sajn - API v1\n\nWelcome to the sajn API documentation. This RESTful API allows you to integrate digital document signing capabilities into your applications.\n\n## Overview\n\nsajn is a Swedish digital document signing platform that enables you to:\n- Create and manage digital documents\n- Add signers and participants to documents\n- Send documents for signing via email or SMS\n- Track document status and signatures\n- Manage contacts and companies\n- Organize documents with tags and custom fields\n- Perform identity verification with sajn ID (BankID integration)\n\n## Authentication\n\nEvery endpoint (except the health check) requires a bearer token in the Authorization header:\n\n```\nAuthorization: Bearer YOUR_TOKEN\n```\n\nTwo kinds of token are accepted:\n\n- **Personal API key** (`sajn_sk_...`) \u2014 generated from your workspace developer settings. Acts as the issuing user; can reach any endpoint the user's workspace role permits.\n- **OAuth 2.0 access token** \u2014 issued via the authorization-code flow (PKCE for public clients) to a connected application. Bound to one workspace and limited to the **scopes** the user granted at consent \u2014 effective access is *workspace role \u2229 granted scopes*.\n\nEach operation below lists the OAuth scope(s) it requires under its security section. The scopes are coarse and resource-oriented (e.g. `documents:read`, `documents:write`, `documents:delete`, `contacts:read`). Personal API keys are not scope-limited; OAuth tokens are.\n\n## Rate Limiting\n\nAPI requests are rate limited **per organization**, with limits that scale with your plan. There are two limits: a per-minute burst limit and a rolling 24-hour volume limit. Higher plans get higher limits.\n\nRead your current limits from the response headers (included on every response) rather than hard-coding them:\n- `X-RateLimit-Limit` / `X-RateLimit-Remaining` / `X-RateLimit-Reset` \u2014 the per-minute limit\n- `X-RateLimit-Daily-Limit` / `X-RateLimit-Daily-Remaining` / `X-RateLimit-Daily-Reset` \u2014 the rolling 24h limit\n\nExceeding either limit returns `429 Too Many Requests` with a `Retry-After` header; clients should back off and retry after the indicated delay. If you consistently hit your limits, upgrade your plan for higher throughput.\n\n## Pagination\n\nList endpoints support pagination with the following query parameters:\n- `page` - Page number (default: 1)\n- `perPage` - Items per page (default: 10, max: 100)\n\n## Webhooks\n\nConfigure webhooks to receive real-time notifications about document events:\n- `DOCUMENT_CREATED` - When a document is created\n- `DOCUMENT_SENT` - When a document is sent for signing\n- `DOCUMENT_OPENED` - When a signer opens a document\n- `DOCUMENT_SIGNED` - When a signer signs a document\n- `DOCUMENT_COMPLETED` - When all signers have signed\n- `DOCUMENT_REJECTED` - When a signer rejects a document\n\n## Error Handling\n\nThe API uses standard HTTP status codes and returns error details in JSON format:\n\n```json\n{\n  \"message\": \"Error description\"\n}\n```\n\nCommon status codes:\n- 200: Success\n- 400: Bad Request - Invalid parameters\n- 401: Unauthorized - Invalid or missing API key\n- 404: Not Found - Resource doesn't exist\n- 409: Conflict - Resource already exists\n- 500: Internal Server Error\n\n## Support\n\nFor API support, documentation, or questions:\n- Email: dev@sajn.se\n- Documentation: https://docs.sajn.se\n- Status: https://status.sajn.se",
     "contact": {
       "name": "sajn Support",
       "email": "hej@sajn.se",
@@ -32447,7 +32297,7 @@
     },
     {
       "name": "Files",
-      "description": "Upload and manage files. File uploads are handled by a dedicated upload server (upload.sajn.se)."
+      "description": "Upload and manage files using presigned upload URLs."
     },
     {
       "name": "Folders",

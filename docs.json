@@ -248,7 +248,8 @@
           {
             "group": "Account",
             "pages": [
-              "GET /api/v1/me"
+              "GET /api/v1/me",
+              "POST /api/v1/dev-updates/subscribe"
             ]
           },
           {
@@ -334,7 +335,6 @@
               "POST /api/v1/files",
               "POST /api/v1/files/{id}/confirm",
               "GET /api/v1/files",
-              "PUT /api/v1/putFile",
               "GET /api/v1/files/{id}",
               "DELETE /api/v1/files/{id}"
             ]

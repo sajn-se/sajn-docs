@@ -9,7 +9,7 @@ Learn how to securely upload files to sajn for use in document fields.
 
 ## Overview
 
-The recommended way to upload a file is a **presigned flow** that sends the bytes straight to storage, so there is no API-server size limit:
+Uploading a file uses a **presigned flow** that sends the bytes straight to storage, so there is no API-server size limit:
 
 1. **Request a presigned URL** — call [`POST /api/v1/files`](/api/POST%20/api/v1/files) with the file's metadata and checksum. You receive a `fileId`, a storage `key`, and a presigned `uploadUrl`.
 2. **Upload the bytes** — `PUT` the raw file to the `uploadUrl`. Storage verifies the checksum on write.
@@ -21,7 +21,7 @@ Confirming is optional. If you skip step 3, the file is confirmed lazily the fir
 </Note>
 
 <Warning>
-**Deprecated:** The legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `https://upload.sajn.se`) still works but is **deprecated**. Use the presigned flow below for new integrations. See [Legacy upload](#legacy-upload-deprecated).
+**Removed:** The legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `https://upload.sajn.se`) is no longer available. Use the presigned flow described below.
 </Warning>
 
 ### Benefits
@@ -312,38 +312,6 @@ const addFileToDocument = async (documentId, storageKey, apiKey) => {
 - **Maximum size**: 100 MB per file (`104857600` bytes).
 - **Checksum**: a valid base64-encoded SHA-256 of the exact bytes you upload is required.
 
-## Legacy Upload (Deprecated)
-
-<Warning>
-The endpoint below is **deprecated** and will eventually be removed. Prefer the [presigned flow](#step-1-request-a-presigned-url) above.
-</Warning>
-
-The legacy method sends the file bytes through the API at a separate base URL, `https://upload.sajn.se`:
-
-```bash
-curl -X PUT https://upload.sajn.se/api/v1/putFile \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -F "file=@contract.pdf" \
-  -F "visibility=PRIVATE"
-```
-
-### Response
-
-```json
-{
-  "key": "f/org_123/abc123def/contract.pdf",
-  "file": {
-    "id": "file_abc123",
-    "filename": "contract.pdf",
-    "mimeType": "application/pdf",
-    "size": 102400,
-    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  }
-}
-```
-
-The returned `key` is used in document fields exactly the same way as the presigned flow.
-
 ## Error Handling
 
 ### Common Errors
@@ -387,6 +355,5 @@ When the bytes you `PUT` don't match the `checksum` you declared in Step 1, stor
 - [Create a File (presigned upload)](/api/POST%20/api/v1/files) - Request a presigned upload URL
 - [Confirm a File](/api/POST%20/api/v1/files/{id}/confirm) - Verify the upload and mark it CONFIRMED
 - [Get File](/api/GET%20/api/v1/files/{id}) - Retrieve a file (confirms the upload on first fetch)
-- [Upload File (legacy)](/api/PUT%20/api/v1/putFile) - Deprecated byte-through upload
 - [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) - Add fields to documents
 - [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Modify existing fields
