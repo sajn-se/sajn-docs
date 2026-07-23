@@ -18,18 +18,21 @@ The webhooks API lets you programmatically manage webhook subscriptions for your
 
 ## Available Events
 
-When creating or updating webhooks, you subscribe to one or more event types:
+When creating or updating webhooks, you subscribe to one or more event types.
+The most common ones are below — see [Webhooks](/guides/webhooks#events) for the
+complete list of all 41 events and their payloads.
 
 | Category | Event | Description |
 |----------|-------|-------------|
 | Document | `DOCUMENT_CREATED` | A new document was created |
 | Document | `DOCUMENT_SENT` | A document was sent to signers |
-| Document | `DOCUMENT_OPENED` | A signer opened a document |
-| Document | `DOCUMENT_SIGNED` | A signer signed a document |
-| Document | `DOCUMENT_COMPLETED` | All signers have signed |
+| Document | `DOCUMENT_PARTY_OPENED` | A signer opened a document |
+| Document | `DOCUMENT_PARTY_SIGNED` | A signer signed a document |
+| Document | `DOCUMENT_SIGNED` | **All** signers have signed |
+| Document | `DOCUMENT_COMPLETED` | The document was sealed and completed |
 | Document | `DOCUMENT_REJECTED` | A signer rejected a document |
 | Document | `DOCUMENT_WITHDRAWN` | A document was withdrawn |
-| Document | `DOCUMENT_ARCHIVE_UPLOADED` | Archive copy was uploaded |
+| Document | `DOCUMENT_ARCHIVE_UPLOADED` | A document was created from an inbound email attachment |
 | ID Check | `ID_CREATED` | An ID check was created |
 | ID Check | `ID_SENT` | An ID check was sent |
 | ID Check | `ID_OPENED` | An ID check was opened |

@@ -325,7 +325,7 @@ curl -X DELETE https://app.sajn.se/api/v1/templates/tmpl_abc123/parties/tp_xyz \
 | `SIGNER` | Must sign the document |
 | `ORGANIZER` | Prepares and sends; does not sign |
 | `REVIEWER` | Reviews but does not sign |
-| `ACCEPTOR` | Accepts without a signature step |
+| `ACCEPTOR` | **Deprecated** — accepted on input, treated as `SIGNER`; never returned |
 
 ## Managing Template Tags
 

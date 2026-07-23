@@ -29,6 +29,10 @@ Before choosing a signing method, it's important to understand the two categorie
 | **BANKID** | AES | Swedish SSN | Medium | Legal contracts, identity verification |
 | **MANUAL** | N/A | Physical presence | N/A | In-person signing, legacy documents |
 
+Beyond Swedish BankID, sajn supports national eIDs across the Nordics and the
+Netherlands — see [European eID](#european-eid) for the full list and their
+wire values.
+
 ---
 
 ## Drawing Signature
@@ -207,6 +211,67 @@ The BankID flow progresses through these states:
 
 ---
 
+## European eID
+
+Signers outside Sweden authenticate with their own national eID. Each scheme is
+an Advanced Electronic Signature (AES) backed by the country's identity
+infrastructure, so it carries the same legal weight as BankID does in Sweden.
+
+| Wire value | Scheme | Country | Notes |
+|---|---|---|---|
+| `DK_MITID` | MitID | 🇩🇰 Denmark | Personal identity — the default for Danish signers |
+| `DK_MITID_ERHVERV` | MitID Erhverv | 🇩🇰 Denmark | **Organization** identity, not personal — for signing on a company's behalf |
+| `FI_FTN` | FTN (Finnish Trust Network) | 🇫🇮 Finland | Finnish bank credentials and Mobile ID |
+| `NO_BANKID_BIOMETRIC` | BankID (Norge) | 🇳🇴 Norway | The default for Norwegian signers |
+| `NO_BANKID_HIGH` | BankID (Norge, høy sikkerhet) | 🇳🇴 Norway | Higher-assurance tier, where it's required |
+| `NO_QES` | BankID QES (Norge) | 🇳🇴 Norway | **Qualified** signature (QES) — the highest eIDAS tier |
+| `NL_IDIN` | iDIN | 🇳🇱 Netherlands | Dutch bank-issued identity |
+
+<Note>
+  Availability is per-account. Not every scheme is enabled for every
+  organization — if you send a `requiredSignature` your account doesn't have
+  enabled, the API rejects it with `This eID scheme is not yet available`.
+  Contact support to have a scheme enabled for your market.
+</Note>
+
+### How It Works
+
+1. Signer opens the signing link
+2. Reviews the document content
+3. Chooses (or is routed straight to) their national eID
+4. Authenticates with the provider — app, card reader, or bank credentials, depending on the scheme
+5. Returns to sajn with a verified identity and the signature applied
+
+### API Configuration
+
+Set `requiredSignature` to the wire value, exactly as with `BANKID`:
+
+```json
+{
+  "name": "Mette Hansen",
+  "email": "mette@example.dk",
+  "role": "SIGNER",
+  "deliveryMethod": "EMAIL",
+  "requiredSignature": "DK_MITID"
+}
+```
+
+<Warning>
+  `ssn` is Swedish-specific and only applies to `BANKID`. The other schemes
+  collect and verify identity through their own provider — don't send `ssn` with
+  them.
+</Warning>
+
+### A Note on `BANKID` vs `SE_BANKID`
+
+Internally, Swedish BankID is named `SE_BANKID` alongside its sibling schemes.
+The public API keeps **`BANKID`** as a permanent alias: responses always return
+`BANKID`, and both spellings are accepted on input. Existing integrations need
+no change. The same applies to the verification gate:
+`BANKID_BEFORE_SIGNING` ⇄ `SE_BANKID_BEFORE_SIGNING`.
+
+---
+
 ## Manual Signing
 
 <CardGroup cols={2}>
@@ -277,7 +342,11 @@ The BankID flow progresses through these states:
   </Accordion>
 
   <Accordion title="I have international signers">
-    Use **DRAWING** or **CLICK_TO_SIGN**. BankID only works for signers with Swedish personal numbers.
+    If they're in Denmark, Finland, Norway or the Netherlands, use their national eID — see [European eID](#european-eid). Anywhere else, use **DRAWING** or **CLICK_TO_SIGN**: `BANKID` only works for signers with a Swedish personal number.
+  </Accordion>
+
+  <Accordion title="A company is signing, not a person">
+    In Denmark, use **DK_MITID_ERHVERV** — it verifies organization identity rather than the individual's.
   </Accordion>
 </AccordionGroup>
 
@@ -288,7 +357,9 @@ The BankID flow progresses through these states:
 | Employment contracts | DRAWING or BANKID | Personal touch or verified identity |
 | Terms acceptance | CLICK_TO_SIGN | Minimal friction |
 | Real estate | BANKID | Legal requirement for identity |
-| International agreements | DRAWING | No Swedish ID required |
+| Nordic / Dutch signers | DK_MITID, FI_FTN, NO_BANKID_BIOMETRIC, NL_IDIN | Verified identity in the signer's own country |
+| Danish company signing | DK_MITID_ERHVERV | Organization identity rather than personal |
+| Other international agreements | DRAWING | No national eID required |
 | Internal approvals | CLICK_TO_SIGN | Speed and convenience |
 | Notarized documents | MANUAL | Requires physical presence |
 

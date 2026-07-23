@@ -38,8 +38,10 @@ The person who organized the document. Receives notifications but doesn't need t
 ### REVIEWER
 Reviews the document and can leave comments, but doesn't need to sign.
 
-### ACCEPTOR
-For acceptance-type documents - accepts rather than signs the document.
+### ACCEPTOR (deprecated)
+Removed. The API still accepts `ACCEPTOR` on input and silently treats it as
+`SIGNER`, so existing integrations keep working, but it is never returned in a
+response. Use `SIGNER` instead.
 
 ## Signer Information
 
@@ -152,19 +154,49 @@ The signature type required from this signer:
 | `BANKID` | Swedish BankID electronic signature (AES) - requires SSN |
 | `CLICK_TO_SIGN` | Simple click-to-sign (SES) |
 | `MANUAL` | For in-person signing |
+| `DK_MITID` | Danish MitID (AES) |
+| `DK_MITID_ERHVERV` | Danish MitID Erhverv — organization identity (AES) |
+| `FI_FTN` | Finnish Trust Network (AES) |
+| `NO_BANKID_BIOMETRIC` | Norwegian BankID (AES) |
+| `NO_BANKID_HIGH` | Norwegian BankID, high assurance (AES) |
+| `NO_QES` | Norwegian BankID QES — qualified signature |
+| `NL_IDIN` | Dutch iDIN (AES) |
+
+<Note>
+  The eID schemes are enabled per account. See [Signing
+  Methods](/concepts/signing-methods#european-eid) for what each one requires.
+</Note>
 
 ### twoStepVerification
 
 Additional verification before signing:
 
+A gate the signer must pass **before** the document opens. Independent of
+`requiredSignature` — you can gate a click-to-sign document behind MitID, for
+example.
+
 | Value | Description |
 |-------|-------------|
 | `NONE` | No additional verification (default) |
+| `PIN_BEFORE_SIGNING` | A PIN you set, shared with the signer out of band |
 | `SMS_BEFORE_SIGNING` | SMS code required before signing |
+| `EMAIL_BEFORE_SIGNING` | Email code required before signing |
+| `BANKID_BEFORE_SIGNING` | Swedish BankID identity check |
+| `DK_MITID_BEFORE_SIGNING` | Danish MitID identity check |
+| `DK_MITID_ERHVERV_BEFORE_SIGNING` | Danish MitID Erhverv identity check |
+| `FI_FTN_BEFORE_SIGNING` | Finnish Trust Network identity check |
+| `NO_BANKID_BIOMETRIC_BEFORE_SIGNING` | Norwegian BankID identity check |
+| `NO_BANKID_HIGH_BEFORE_SIGNING` | Norwegian BankID, high assurance |
+| `NL_IDIN_BEFORE_SIGNING` | Dutch iDIN identity check |
 
 <Tip>
   For SMS verification before signing, use `twoStepVerification: "SMS_BEFORE_SIGNING"` combined with your chosen signature type.
 </Tip>
+
+<Note>
+  The eID gates are subject to the same per-account availability as the signing
+  methods, and `NO_QES` is a signing tier only — it is not offered as a gate.
+</Note>
 
 ## Signer Status
 
