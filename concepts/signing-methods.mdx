@@ -228,11 +228,34 @@ infrastructure, so it carries the same legal weight as BankID does in Sweden.
 | `NL_IDIN` | iDIN | 🇳🇱 Netherlands | Dutch bank-issued identity |
 
 <Note>
-  Availability is per-account. Not every scheme is enabled for every
-  organization — if you send a `requiredSignature` your account doesn't have
-  enabled, the API rejects it with `This eID scheme is not yet available`.
-  Contact support to have a scheme enabled for your market.
+  Schemes are switched on market by market. Sending a `requiredSignature` that
+  isn't available yet is rejected with `This eID scheme is not yet available`.
 </Note>
+
+### Building a signature-method picker
+
+Don't hard-code the list — as schemes go live, a static list silently goes
+stale. Call **`GET /api/v1/helpers/signature-methods`** instead. It returns
+exactly the values the API will accept right now, with display labels:
+
+```json
+{
+  "items": [
+    { "code": "BANKID",           "label": "BankID" },
+    { "code": "DK_MITID",         "label": "MitID" },
+    { "code": "DK_MITID_ERHVERV", "label": "MitID Erhverv" },
+    { "code": "FI_FTN",           "label": "FTN (Finnish Trust Network)" },
+    { "code": "DRAWING",          "label": "Drawn signature" },
+    { "code": "CLICK_TO_SIGN",    "label": "Click to sign" },
+    { "code": "MANUAL",           "label": "Manual (in person)" },
+    { "code": "NONE",             "label": "No signature" }
+  ]
+}
+```
+
+It needs only `profile:read`, and the list is driven by the same registry that
+gates the write boundary — so anything it returns is accepted, and anything it
+omits is not.
 
 ### How It Works
 

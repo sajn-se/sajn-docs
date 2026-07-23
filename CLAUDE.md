@@ -26,7 +26,7 @@ mint update
 ## Project Structure
 
 - **docs.json**: Central configuration file defining navigation, theme, colors, and OpenAPI integration
-- **api/openapi.json**: OpenAPI specification that auto-generates API documentation pages
+- **api/openapi.json**: OpenAPI specification that auto-generates API documentation pages. **Generated from the `sajn-app` contract — never hand-edit** (see [OpenAPI Integration](#openapi-integration))
 - **MDX files**: Documentation content with YAML frontmatter and Mintlify components
 - **Key directories**:
   - `api/`: API documentation and OpenAPI spec
@@ -77,10 +77,29 @@ The site uses Mintlify-specific MDX components:
 
 ## OpenAPI Integration
 
-The API Reference tab is powered by `api/openapi.json`. When updating the API:
-1. Modify the OpenAPI spec in openapi.json
+The API Reference tab is powered by `api/openapi.json`.
+
+> **`api/openapi.json` is GENERATED — never hand-edit it.** It is built from the
+> ts-rest contract in the **`sajn-app`** repo (`lib/api/v1/{contract,schema,openapi}.ts`).
+> Any manual edit is silently overwritten on the next regeneration, and in the
+> meantime the reference documents an API that doesn't exist.
+
+When the API changes:
+1. Change the contract in `sajn-app` (`lib/api/v1/contract.ts` + `schema.ts`), then regenerate
+   into this repo from the `sajn-app` checkout:
+   ```bash
+   cd ../sajn-app && pnpm generate:openapi:v1 ../sajn-docs/api/openapi.json
+   ```
+   (`SKIP_MINTLIFY_VALIDATION=1` skips the Mintlify CLI step if it isn't installed.)
 2. Ensure endpoint paths match the navigation structure in docs.json
 3. The format uses HTTP method + path (e.g., `"GET /api/v1/documents"`) in the navigation
+
+The generator deliberately injects one path that is **not** in the ts-rest contract:
+`/api/v1/putFile`, the direct upload against `upload.sajn.se`. It is not drift — don't
+"clean" it out.
+
+Hand-written `.mdx` pages (guides, concepts) are the opposite: those are the source of
+truth and are edited here.
 
 ## Git Workflow
 
