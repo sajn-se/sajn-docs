@@ -321,11 +321,6 @@ const updateMultipleFields = async (documentId, fieldUpdates) => {
   // { success, updated, results: [{ key, success, error? }] }
   return response.json();
 };
-```
-
-<Warning>
-Don't update fields by firing parallel single-key `PATCH .../fields/key:<key>` requests (e.g. `Promise.all`). All FORM subfields share one underlying record, so concurrent single-key writes read-modify-write the same data and clobber each other — only the last one survives. The batch endpoint applies every change against a single read, so nothing is lost.
-</Warning>
 
 // Usage
 await updateMultipleFields('doc_xyz789', {
@@ -335,6 +330,10 @@ await updateMultipleFields('doc_xyz789', {
   department: 'Engineering'
 });
 ```
+
+<Warning>
+Don't update fields by firing parallel single-key `PATCH .../fields/key:<key>` requests (e.g. `Promise.all`). All FORM subfields share one underlying record, so concurrent single-key writes read-modify-write the same data and clobber each other — only the last one survives. The batch endpoint applies every change against a single read, so nothing is lost.
+</Warning>
 
 ### Conditional Field Updates
 

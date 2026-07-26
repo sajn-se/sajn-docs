@@ -1,0 +1,323 @@
+---
+title: sajn MCP Server
+description: 'Connect an AI assistant to your sajn workspace over the Model Context Protocol — draft documents, fill them in, manage parties, send for signing, chase signatures, and debug your integration'
+---
+
+# sajn MCP Server
+
+The **sajn MCP Server** lets an AI assistant work in your live sajn **workspace** — not just look at it. Find and read documents, draft them, fill them in, manage parties, send for signing, chase signatures, and follow status. It also carries the developer tools for debugging an integration: API request logs and outbound webhook deliveries.
+
+Connect it to Claude Desktop, Claude Code, Cursor or any other MCP client and you can run the everyday signing workflow from wherever you already work. It speaks the same authentication and permission model as the [REST API](/api/introduction), so an assistant can never do more than you can.
+
+<Note>
+This is **not** the same as the [documentation MCP server](/docs-mcp) at `https://docs.sajn.se/mcp`. That one only searches these docs and needs no login. The sajn MCP server connects to your **real account data** and requires authentication.
+</Note>
+
+| | Documentation MCP | sajn MCP |
+|---|---|---|
+| **URL** | `https://docs.sajn.se/mcp` | `https://app.sajn.se/api/mcp` |
+| **Auth** | None (public) | OAuth 2.0 / API key |
+| **Data** | Documentation only | Your live workspace |
+| **Use for** | "How do I…" questions | Working on real documents, debugging logs & webhooks |
+
+## Server URL
+
+```
+https://app.sajn.se/api/mcp
+```
+
+The server is a stateless [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports) endpoint — every request carries its own bearer token, so any standard remote-MCP client works.
+
+## Authentication
+
+The sajn MCP server is bound to a single **workspace** and enforces the same `role ∩ scope` rule as the REST API. There are two ways to authenticate:
+
+<Tabs>
+  <Tab title="OAuth (recommended)">
+    Most MCP clients (Claude, Cursor, …) discover and complete OAuth automatically. When you add the server, the client opens a sajn consent screen where you pick the **workspace** and approve the **scopes** the assistant may use. Read-only access is the default — write and destructive tools only appear after you grant the matching scope.
+
+    No tokens to copy or rotate; the client refreshes them for you.
+  </Tab>
+  <Tab title="API key">
+    For clients that send a static `Authorization: Bearer <token>` header, you can use a workspace [API key](/authentication). The connection then has exactly the role and scopes of that key.
+
+    To use the debugging tools, the key must carry the `audit:read` scope and belong to a member with the **Manage developer** workspace permission (see below).
+  </Tab>
+</Tabs>
+
+<Warning>
+The sajn MCP server requires a **paid plan**. Connections on the free plan are rejected.
+</Warning>
+
+### Scopes and permissions
+
+Every tool declares the OAuth scopes it needs, and the tool list is **filtered to what your connection is allowed to see** — a read-only connection never even lists the write tools. On top of that, your workspace role is re-checked on every call, so an assistant can never do more than you can.
+
+| Scope | Unlocks |
+|---|---|
+| `documents:read` | Finding and reading documents, fields, parties and settings |
+| `documents:write` | Drafting, filling in, managing parties, sending, chasing |
+| `documents:delete` | Deleting documents |
+| `templates:read` | Listing templates and their roles |
+| `contacts:read` / `contacts:write` | Reading and creating/updating contacts and companies |
+| `audit:read` | Document history, API logs, webhook deliveries |
+| `webhooks:read` / `webhooks:write` | Managing webhook endpoints |
+| `sajnid:read` | sajn ID verifications |
+| `profile:read` | `whoami` |
+
+Some tools need a workspace permission as well as a scope — most notably the developer tools, which require **Manage developer** (API logs) or **Manage webhooks**, so only developers can read raw traffic.
+
+## Tools
+
+### Finding documents
+
+| Tool | Scope | What it does |
+|---|---|---|
+| `listDocuments` | `documents:read` | Count and list documents, optionally filtered by status |
+| `findDocuments` | `documents:read` | Search documents by title |
+| `searchDocumentContent` | `documents:read` | Search what documents actually say, not just their titles |
+| `findDocumentsByDate` | `documents:read` | Find documents by created/sent date |
+| `findDocumentsByExpiration` | `documents:read` | Find documents by expiry — what's running out |
+| `findDocumentsByCustomField` | `documents:read` | Find documents by a custom field value |
+| `findDocumentsByParty` | `documents:read` | Find documents involving a given person or company |
+| `getPendingSignatures` | `documents:read` | What is waiting for a signature right now |
+
+### Reading a document
+
+| Tool | Scope | What it does |
+|---|---|---|
+| `getDocumentDetails` | `documents:read` | Status, dates, value, tags, owner, source template, signing progress |
+| `getDocumentParties` | `documents:read` | The parties and where each one is in the flow |
+| `getDocumentSigners` | `documents:read` | The parties with the ids used to update or remove them |
+| `getDocumentSettings` | `documents:read` | Subject, message, signing order, language, reminder cadence, verification |
+| `listFields` | `documents:read` | The blocks the document is built from |
+| `getField` | `documents:read` | One block in full, including its subfields |
+| `listFillableFields` | `documents:read` | Every value that can be filled in, what's missing, and who fills it |
+| `checkDocumentReadiness` | `documents:read` | Whether the document is ready to send |
+| `getDocumentShareLink` | `documents:read` | Create a view-only link for someone without an account |
+| `getDocumentAuditLog` | `audit:read` | The document's history |
+
+### Building a document
+
+| Tool | Scope | What it does |
+|---|---|---|
+| `createDocument` | `documents:write` | Create a document, optionally from a template |
+| `renameDocument` | `documents:write` | Rename it |
+| `duplicateDocument` | `documents:write` | Copy an existing document |
+| `addTextField` | `documents:write` | Add a text block — clauses, paragraphs, contract prose |
+| `updateTextField` | `documents:write` | Rewrite a text block |
+| `addFormField` | `documents:write` | Add a form block of fields to fill in |
+| `updateFormField` | `documents:write` | Change a form block's fields or layout |
+| `addTable` | `documents:write` | Add a data table (no prices) |
+| `addProductTable` | `documents:write` | Add a price table with quantities, units and VAT |
+| `removeField` | `documents:write` | Remove a block <sup>destructive</sup> |
+| `addTagToDocument` / `removeTagFromDocument` | `documents:write` | Tag it |
+| `moveDocumentToFolder` | `documents:write` | File it |
+
+### Filling in values
+
+| Tool | Scope | What it does |
+|---|---|---|
+| `listFillableFields` | `documents:read` | See every slot, its current value and who fills it |
+| `fillFields` | `documents:write` | Fill one or many values in a single call, by key or by label |
+
+`fillFields` covers form fields **and** fields on an uploaded PDF — both the PDF's own form fields and any fields placed on top of it. Slots assigned to a party are listed but not writable: those are filled by that party at signing.
+
+### Parties
+
+| Tool | Scope | What it does |
+|---|---|---|
+| `addSignerToDocument` | `documents:write` | Add a party to a draft |
+| `updateSignerOnDocument` | `documents:write` | Change a party's details, role, order, delivery or signing method |
+| `removeSignerFromDocument` | `documents:write` | Remove a party from a draft |
+| `addPartyToSentDocument` | `documents:write` | Add and invite one party to an already-sent document <sup>destructive</sup> |
+| `removePartyFromSentDocument` | `documents:write` | Revoke one party's access on a sent document <sup>destructive</sup> |
+| `listSigningMethods` | `documents:read` | Which signing methods and identity checks this account can actually use |
+
+<Tip>
+Signing methods and eID schemes are enabled market by market. Call `listSigningMethods` before setting `requiredSignature` or `twoStepVerification` rather than assuming a fixed list.
+</Tip>
+
+### Sending and following up
+
+| Tool | Scope | What it does |
+|---|---|---|
+| `sendDocument` | `documents:write` | Send for signing <sup>destructive</sup> |
+| `sendDocumentReminder` | `documents:write` | Chase whoever hasn't signed <sup>destructive</sup> |
+| `setDocumentExpiration` | `documents:write` | Set the signing deadline |
+| `extendDocumentExpiration` | `documents:write` | Push the deadline out |
+| `withdrawDocument` | `documents:write` | Recall a sent document so it can be edited <sup>destructive</sup> |
+| `archiveDocument` / `unarchiveDocument` | `documents:write` | Move it out of the way, or back |
+| `deleteDocument` | `documents:delete` | Delete it <sup>destructive</sup> |
+| `restoreDocument` | `documents:write` | Restore a deleted document |
+| `getPendingApprovals` | `documents:read` | What is waiting for internal approval |
+| `submitForApproval` | `documents:write` | Send a draft for internal approval <sup>destructive</sup> |
+
+### Templates, contacts and folders
+
+| Tool | Scope | What it does |
+|---|---|---|
+| `findTemplates` | `templates:read` | Find templates |
+| `getTemplateDetails` | `templates:read` | A template's details |
+| `getTemplateParties` | `templates:read` | The roles a template expects |
+| `findContact` / `getContactDetails` | `contacts:read` | Find and read contacts |
+| `findCompanies` / `getCompanyDetails` | `contacts:read` | Find and read companies |
+| `createContact` / `updateContact` | `contacts:write` | Create and update contacts |
+| `findFolders` | `documents:read` | List folders |
+| `createFolder` | `documents:write` | Create a folder |
+
+### Developer tools
+
+These are the tools for diagnosing an integration. They are read-only unless noted, and each needs a workspace permission on top of its scope.
+
+| Tool | Scope | Permission | What it does |
+|---|---|---|---|
+| `whoami` | `profile:read` | — | Which user, workspace and scopes this connection is acting as |
+| `list_api_logs` | `audit:read` | Manage developer | Recent v1 REST requests; filter by method, status class or path |
+| `get_api_log` | `audit:read` | Manage developer | One request with full headers, request body and response body |
+| `list_webhook_deliveries` | `audit:read` | Manage webhooks | Recent outbound deliveries; filter by webhook, status or URL |
+| `get_webhook_delivery` | `audit:read` | Manage webhooks | One delivery with full request and response bodies |
+| `list_webhooks` / `get_webhook` | `webhooks:read` | Manage webhooks | Your webhook endpoints |
+| `create_webhook` / `update_webhook` / `delete_webhook` | `webhooks:write` | Manage webhooks | Manage webhook endpoints |
+| `list_sajn_ids` / `get_sajn_id` | `sajnid:read` | View sajn ID | sajn ID verifications |
+
+## Uploading a PDF
+
+Files cannot be sent through a tool call — an MCP tool call carries JSON, not file bytes, and a real PDF would be far too large to encode into one. So uploading is handed back to you:
+
+1. The assistant calls `createDocument` and gives you the link it returns.
+2. You open the link and **drag the PDF onto the document**.
+3. You tell the assistant it's uploaded, and it continues — `listFields` to see the PDF, `listFillableFields` to see what can be filled in, then parties and sending as usual.
+
+<Note>
+The link is an ordinary document URL, not a token — opening it requires your own sajn login. An assistant that offers to receive the file directly, or asks you to paste a document's contents, is getting it wrong.
+</Note>
+
+## Setup
+
+<Tabs>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add --transport http sajn https://app.sajn.se/api/mcp
+    ```
+
+    On first use Claude Code opens the sajn OAuth consent screen in your browser. Pick the workspace and approve the scopes. Verify with:
+
+    ```bash
+    claude mcp list
+    ```
+  </Tab>
+
+  <Tab title="Claude Desktop">
+    1. Open **Settings** > **Connectors** > **Add Connector**
+    2. Enter:
+       - **Name**: sajn
+       - **URL**: `https://app.sajn.se/api/mcp`
+    3. Click **Save**, then complete the OAuth consent flow when prompted.
+  </Tab>
+
+  <Tab title="Cursor">
+    Open **Cursor Settings: Open MCP Config** and add:
+
+    ```json
+    {
+      "mcpServers": {
+        "sajn": {
+          "url": "https://app.sajn.se/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Restart Cursor and complete the OAuth flow.
+  </Tab>
+
+  <Tab title="VS Code">
+    Create `.vscode/mcp.json`:
+
+    ```json
+    {
+      "servers": {
+        "sajn": {
+          "type": "http",
+          "url": "https://app.sajn.se/api/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Example prompts
+
+**Working on documents**
+
+- "Draft an NDA from our standard template, add Anna at Ribban as signer with BankID, and show it to me before sending."
+- "What's still missing on the Volvo agreement before I can send it?"
+- "Fill in the amount as 45 000 SEK and the start date as 1 September, then send it."
+- "Add a price table with 10 hours of consulting at 1 200 SEK, 25% VAT."
+
+**Following up**
+
+- "Which documents are waiting for signatures, and who's holding them up?"
+- "Remind everyone who hasn't signed the Q3 contracts."
+- "What expires in the next 30 days?"
+- "Push the deadline on the Ribban agreement out by two weeks."
+
+**Debugging an integration**
+
+- "List the failed webhook deliveries from the last day and show me the response body of the first one."
+- "Find the API requests that returned 4xx today and tell me what's wrong with them."
+- "Which webhook endpoint is failing, and what status code is it returning?"
+
+## What the MCP server does not do
+
+Some things are deliberately kept in the sajn app rather than exposed to a connected assistant:
+
+- **Approving or rejecting** a document — approval is a person accepting responsibility, so it happens where you can see the document.
+- **Members, roles and permissions** — account administration isn't something a connected app should reach.
+- **Deleting templates, contacts or folders** — destructive on shared assets the whole workspace depends on.
+- **Reports, statistics and organization settings.**
+
+## Security
+
+- **Workspace-scoped** — a connection only ever sees data in the workspace you approved at consent.
+- **Least privilege** — tools are filtered to the granted scopes; read-only by default, and developer tools are further gated behind a workspace permission.
+- **Same enforcement as REST** — scopes and role permissions are re-checked on every tool call, not just at listing time.
+- **Confirmation hints** — tools that email or SMS a counterparty, or destroy work, are marked destructive so your client can prompt first.
+- **Rate limited** — per-IP and per-organization limits apply, the same as the REST API.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Tool names changed — my scripts broke">
+    Tool names are now camelCase and match the platform's own vocabulary: `list_documents` → `listDocuments`, `get_document` → `getDocumentDetails`, `send_document` → `sendDocument`, `withdraw_document` → `withdrawDocument`, `delete_document` → `deleteDocument`, `send_reminders` → `sendDocumentReminder`, `list_templates` → `findTemplates`, `get_template` → `getTemplateDetails`, `search_contacts` → `findContact`, `create_contact` → `createContact`.
+
+    The developer tools (`whoami`, `list_api_logs`, `get_api_log`, webhook and sajn ID tools) kept their names.
+  </Accordion>
+  <Accordion title="The debugging tools don't show up">
+    The connection must have the `audit:read` scope **and** the member must hold the matching workspace permission — **Manage developer** for API logs, **Manage webhooks** for deliveries. Re-run the OAuth consent and make sure `audit:read` is granted, or use an API key that has it.
+  </Accordion>
+  <Accordion title="Connection rejected / 401">
+    - Confirm the URL is `https://app.sajn.se/api/mcp` (note `/api/mcp`, not `/mcp`).
+    - The account must be on a **paid plan**.
+    - For API-key auth, send the key as `Authorization: Bearer <key>`.
+  </Accordion>
+  <Accordion title="Write or delete tools are missing">
+    They are hidden until you grant the matching scope (`documents:write`, `documents:delete`, `contacts:write`) at consent. Reconnect and approve the additional scopes.
+  </Accordion>
+  <Accordion title="The assistant says it can't edit a sent document">
+    That's correct — parties, fields and content are locked once a document is out for signing. Withdraw it with `withdrawDocument` to make it a draft again (the parties are notified), or extend the deadline with `extendDocumentExpiration` if that's all you need.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/authentication">
+    API keys, scopes and OAuth
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/api/introduction">
+    Set up and debug webhook endpoints
+  </Card>
+</CardGroup>
