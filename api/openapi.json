@@ -1,64 +1,10 @@
 {
   "openapi": "3.0.2",
   "paths": {
-    "/api/v1/health": {
-      "get": {
-        "description": "Check API health status and get version information. This endpoint does not require authentication.",
-        "summary": "Health check",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Bearer token for API authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "operationId": "root",
-        "responses": {
-          "200": {
-            "description": "Health check response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "const": "ok",
-                      "description": "API status"
-                    },
-                    "timestamp": {
-                      "description": "Current server timestamp",
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "version": {
-                      "type": "string",
-                      "description": "API version number"
-                    }
-                  },
-                  "required": [
-                    "status",
-                    "timestamp",
-                    "version"
-                  ],
-                  "additionalProperties": false,
-                  "description": "Health check response"
-                }
-              }
-            }
-          }
-        },
-        "security": []
-      }
-    },
-    "/api/v1/dev-updates/subscribe": {
+    "/api/v1/login/sessions": {
       "post": {
-        "description": "Subscribe to the sajn developer updates mailing list. 🎉\n\nNo body needed — we pull the email (and name) straight from your authenticated account.",
-        "summary": "Subscribe to sajn dev updates",
+        "description": "Create a hosted login session and get a URL to send the user to.\n\nUse this when you don't want to run an OIDC client — typically a native app that opens `loginUrl` in an in-app browser.\n\n**Flow:**\n1. `POST` here to get `loginUrl`\n2. Open it; the user authenticates with BankID on sajn's hosted page\n3. We redirect to your `redirectUri` with `?sessionId=…` (and `?state=…` if you sent one)\n4. `GET /api/v1/login/sessions/{id}` **from your server** to read the result\n\n**The redirect is only a handle.** Never trust it as proof of authentication — anyone can craft that URL. The server-side `GET` is the authoritative read, because it is authenticated as your organization.\n\n`redirectUri` must be registered on the client. Custom schemes (`myapp://auth`) are supported so the in-app browser can dismiss straight back into your app.",
+        "summary": "Start a sajn Login session",
         "parameters": [
           {
             "name": "authorization",
@@ -70,44 +16,89 @@
             }
           }
         ],
-        "operationId": "subscribeToDevUpdates",
+        "operationId": "createLoginSession",
         "requestBody": {
           "description": "Body",
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {},
-                "additionalProperties": false,
-                "description": "Dev updates subscription request (no body)"
+                "properties": {
+                  "clientId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The sajn Login client to authenticate against."
+                  },
+                  "redirectUri": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Where to send the user when authentication finishes. Must be registered on the client."
+                  },
+                  "state": {
+                    "description": "Opaque value echoed back on the redirect and in the session result.",
+                    "type": "string",
+                    "maxLength": 512
+                  }
+                },
+                "required": [
+                  "clientId",
+                  "redirectUri"
+                ],
+                "additionalProperties": false
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Dev updates subscription response",
+            "description": "200",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "const": true,
-                      "description": "Whether the subscription was accepted"
+                    "id": {
+                      "type": "string"
                     },
-                    "message": {
+                    "loginUrl": {
                       "type": "string",
-                      "description": "Human-friendly confirmation message"
+                      "description": "Open this in a browser or in-app browser to authenticate the user."
+                    },
+                    "expiresAt": {
+                      "type": "string"
                     }
                   },
                   "required": [
-                    "success",
+                    "id",
+                    "loginUrl",
+                    "expiresAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
                     "message"
                   ],
                   "additionalProperties": false,
-                  "description": "Dev updates subscription response"
+                  "description": "Error response"
                 }
               }
             }
@@ -136,18 +127,304 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
           }
         },
         "security": [
           {
             "oauth2": [
-              "profile:read"
+              "login:write"
             ]
           },
           {
             "bearerAuth": []
           }
         ]
+      }
+    },
+    "/api/v1/login/sessions/{id}": {
+      "get": {
+        "description": "Authoritative read of a login session. Call this from your server after the redirect.\n\n`claims` and `sub` are populated only once `status` is `complete`, and contain exactly the fields your client is approved for — the same projection the OIDC `id_token` uses.\n\n`sub` is stable per person **per organization**: the same individual logging into any of your clients always yields the same `sub`, and it can never be correlated with their identifier at another sajn customer.",
+        "summary": "Read the result of a sajn Login session",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getLoginSession",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending",
+                        "complete",
+                        "failed",
+                        "expired"
+                      ]
+                    },
+                    "method": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "completedAt": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "state": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "sub": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "claims": {
+                      "type": "object",
+                      "properties": {
+                        "sub": {
+                          "type": "string"
+                        },
+                        "amr": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "auth_time": {
+                          "type": "number"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "given_name": {
+                          "type": "string"
+                        },
+                        "family_name": {
+                          "type": "string"
+                        },
+                        "birthdate": {
+                          "type": "string"
+                        },
+                        "nin": {
+                          "type": "string"
+                        },
+                        "nin_type": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "sub",
+                        "amr",
+                        "auth_time"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "method",
+                    "completedAt",
+                    "state",
+                    "sub",
+                    "claims"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "login:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "description": "Check API health status and get version information. This endpoint does not require authentication.",
+        "summary": "Health check",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "root",
+        "responses": {
+          "200": {
+            "description": "Health check response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "API status",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "timestamp": {
+                      "description": "Current server timestamp",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "API version number"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "timestamp",
+                    "version"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Health check response"
+                }
+              }
+            }
+          }
+        },
+        "security": []
       }
     },
     "/api/v1/documents": {
@@ -2688,9 +2965,6 @@
                           },
                           "data": {
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {},
                             "description": "Event-specific data payload"
                           },
@@ -10305,7 +10579,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "TEXT"
+                                "enum": [
+                                  "TEXT"
+                                ]
                               },
                               "content": {
                                 "type": "string"
@@ -10324,7 +10600,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "HTML"
+                                "enum": [
+                                  "HTML"
+                                ]
                               },
                               "content": {
                                 "type": "string"
@@ -10343,13 +10621,20 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PDF"
+                                "enum": [
+                                  "PDF"
+                                ]
                               },
                               "value": {
                                 "type": "string"
                               },
                               "numPages": {
                                 "type": "number"
+                              },
+                              "pageIndex": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
                               },
                               "instruction": {
                                 "type": "string"
@@ -10402,29 +10687,39 @@
                                     },
                                     "pageWidth": {
                                       "type": "number",
-                                      "exclusiveMinimum": 0
+                                      "exclusiveMinimum": true,
+                                      "minimum": 0
                                     },
                                     "pageHeight": {
                                       "type": "number",
-                                      "exclusiveMinimum": 0
+                                      "exclusiveMinimum": true,
+                                      "minimum": 0
                                     },
                                     "pageRotation": {
                                       "anyOf": [
                                         {
                                           "type": "number",
-                                          "const": 0
+                                          "enum": [
+                                            0
+                                          ]
                                         },
                                         {
                                           "type": "number",
-                                          "const": 90
+                                          "enum": [
+                                            90
+                                          ]
                                         },
                                         {
                                           "type": "number",
-                                          "const": 180
+                                          "enum": [
+                                            180
+                                          ]
                                         },
                                         {
                                           "type": "number",
-                                          "const": 270
+                                          "enum": [
+                                            270
+                                          ]
                                         }
                                       ]
                                     },
@@ -10457,9 +10752,6 @@
                               },
                               "formValues": {
                                 "type": "object",
-                                "propertyNames": {
-                                  "type": "string"
-                                },
                                 "additionalProperties": {
                                   "anyOf": [
                                     {
@@ -10498,11 +10790,13 @@
                                             },
                                             "width": {
                                               "type": "number",
-                                              "exclusiveMinimum": 0
+                                              "exclusiveMinimum": true,
+                                              "minimum": 0
                                             },
                                             "height": {
                                               "type": "number",
-                                              "exclusiveMinimum": 0
+                                              "exclusiveMinimum": true,
+                                              "minimum": 0
                                             }
                                           },
                                           "required": [
@@ -10515,29 +10809,39 @@
                                         },
                                         "pageWidth": {
                                           "type": "number",
-                                          "exclusiveMinimum": 0
+                                          "exclusiveMinimum": true,
+                                          "minimum": 0
                                         },
                                         "pageHeight": {
                                           "type": "number",
-                                          "exclusiveMinimum": 0
+                                          "exclusiveMinimum": true,
+                                          "minimum": 0
                                         },
                                         "pageRotation": {
                                           "anyOf": [
                                             {
                                               "type": "number",
-                                              "const": 0
+                                              "enum": [
+                                                0
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 90
+                                              "enum": [
+                                                90
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 180
+                                              "enum": [
+                                                180
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 270
+                                              "enum": [
+                                                270
+                                              ]
                                             }
                                           ]
                                         },
@@ -10578,7 +10882,9 @@
                                         },
                                         "kind": {
                                           "type": "string",
-                                          "const": "input"
+                                          "enum": [
+                                            "input"
+                                          ]
                                         },
                                         "inputType": {
                                           "type": "string",
@@ -10597,8 +10903,9 @@
                                           "type": "string",
                                           "enum": [
                                             "signer",
-                                            "variable",
-                                            "none"
+                                            "fixed",
+                                            "none",
+                                            "variable"
                                           ]
                                         },
                                         "signerId": {
@@ -10654,11 +10961,13 @@
                                             },
                                             "width": {
                                               "type": "number",
-                                              "exclusiveMinimum": 0
+                                              "exclusiveMinimum": true,
+                                              "minimum": 0
                                             },
                                             "height": {
                                               "type": "number",
-                                              "exclusiveMinimum": 0
+                                              "exclusiveMinimum": true,
+                                              "minimum": 0
                                             }
                                           },
                                           "required": [
@@ -10671,29 +10980,39 @@
                                         },
                                         "pageWidth": {
                                           "type": "number",
-                                          "exclusiveMinimum": 0
+                                          "exclusiveMinimum": true,
+                                          "minimum": 0
                                         },
                                         "pageHeight": {
                                           "type": "number",
-                                          "exclusiveMinimum": 0
+                                          "exclusiveMinimum": true,
+                                          "minimum": 0
                                         },
                                         "pageRotation": {
                                           "anyOf": [
                                             {
                                               "type": "number",
-                                              "const": 0
+                                              "enum": [
+                                                0
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 90
+                                              "enum": [
+                                                90
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 180
+                                              "enum": [
+                                                180
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 270
+                                              "enum": [
+                                                270
+                                              ]
                                             }
                                           ]
                                         },
@@ -10734,7 +11053,9 @@
                                         },
                                         "kind": {
                                           "type": "string",
-                                          "const": "static"
+                                          "enum": [
+                                            "static"
+                                          ]
                                         },
                                         "content": {
                                           "type": "string"
@@ -10770,7 +11091,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "FORM"
+                                "enum": [
+                                  "FORM"
+                                ]
                               },
                               "columns": {
                                 "type": "number",
@@ -10812,8 +11135,9 @@
                                     },
                                     "colSpan": {
                                       "type": "integer",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 9007199254740991
+                                      "exclusiveMinimum": true,
+                                      "maximum": 9007199254740991,
+                                      "minimum": 0
                                     },
                                     "fieldMeta": {
                                       "oneOf": [
@@ -10838,7 +11162,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "input"
+                                              "enum": [
+                                                "input"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -10870,7 +11196,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "text"
+                                              "enum": [
+                                                "text"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -10902,7 +11230,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "select"
+                                              "enum": [
+                                                "select"
+                                              ]
                                             },
                                             "options": {
                                               "type": "array",
@@ -10949,7 +11279,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "datepicker"
+                                              "enum": [
+                                                "datepicker"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -10981,7 +11313,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "radio"
+                                              "enum": [
+                                                "radio"
+                                              ]
                                             },
                                             "options": {
                                               "type": "array",
@@ -11028,7 +11362,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "checkbox"
+                                              "enum": [
+                                                "checkbox"
+                                              ]
                                             },
                                             "options": {
                                               "type": "array",
@@ -11078,7 +11414,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "number"
+                                              "enum": [
+                                                "number"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -11110,7 +11448,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "attachment"
+                                              "enum": [
+                                                "attachment"
+                                              ]
                                             },
                                             "appendixLabel": {
                                               "type": "string"
@@ -11189,7 +11529,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PRODUCT_TABLE"
+                                "enum": [
+                                  "PRODUCT_TABLE"
+                                ]
                               },
                               "name": {
                                 "type": "string"
@@ -11199,9 +11541,6 @@
                               },
                               "columns": {
                                 "type": "object",
-                                "propertyNames": {
-                                  "type": "string"
-                                },
                                 "additionalProperties": {
                                   "type": "object",
                                   "properties": {
@@ -11372,7 +11711,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "TABLE"
+                                "enum": [
+                                  "TABLE"
+                                ]
                               },
                               "columns": {
                                 "type": "array",
@@ -11474,7 +11815,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "SPACER"
+                                "enum": [
+                                  "SPACER"
+                                ]
                               },
                               "size": {
                                 "type": "string",
@@ -11499,7 +11842,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PAGE_BREAK"
+                                "enum": [
+                                  "PAGE_BREAK"
+                                ]
                               },
                               "locked": {
                                 "type": "boolean"
@@ -11515,7 +11860,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "DURATION"
+                                "enum": [
+                                  "DURATION"
+                                ]
                               },
                               "durationType": {
                                 "type": "string",
@@ -11532,8 +11879,9 @@
                                 "properties": {
                                   "value": {
                                     "type": "integer",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 9007199254740991
+                                    "exclusiveMinimum": true,
+                                    "maximum": 9007199254740991,
+                                    "minimum": 0
                                   },
                                   "unit": {
                                     "type": "string",
@@ -11556,8 +11904,9 @@
                                 "properties": {
                                   "value": {
                                     "type": "integer",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 9007199254740991
+                                    "exclusiveMinimum": true,
+                                    "maximum": 9007199254740991,
+                                    "minimum": 0
                                   },
                                   "unit": {
                                     "type": "string",
@@ -11634,7 +11983,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TEXT"
+                                  "enum": [
+                                    "TEXT"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -11653,7 +12004,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "HTML"
+                                  "enum": [
+                                    "HTML"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -11672,13 +12025,20 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PDF"
+                                  "enum": [
+                                    "PDF"
+                                  ]
                                 },
                                 "value": {
                                   "type": "string"
                                 },
                                 "numPages": {
                                   "type": "number"
+                                },
+                                "pageIndex": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
                                 },
                                 "instruction": {
                                   "type": "string"
@@ -11731,29 +12091,39 @@
                                       },
                                       "pageWidth": {
                                         "type": "number",
-                                        "exclusiveMinimum": 0
+                                        "exclusiveMinimum": true,
+                                        "minimum": 0
                                       },
                                       "pageHeight": {
                                         "type": "number",
-                                        "exclusiveMinimum": 0
+                                        "exclusiveMinimum": true,
+                                        "minimum": 0
                                       },
                                       "pageRotation": {
                                         "anyOf": [
                                           {
                                             "type": "number",
-                                            "const": 0
+                                            "enum": [
+                                              0
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 90
+                                            "enum": [
+                                              90
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 180
+                                            "enum": [
+                                              180
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 270
+                                            "enum": [
+                                              270
+                                            ]
                                           }
                                         ]
                                       },
@@ -11786,9 +12156,6 @@
                                 },
                                 "formValues": {
                                   "type": "object",
-                                  "propertyNames": {
-                                    "type": "string"
-                                  },
                                   "additionalProperties": {
                                     "anyOf": [
                                       {
@@ -11827,11 +12194,13 @@
                                               },
                                               "width": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               },
                                               "height": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               }
                                             },
                                             "required": [
@@ -11844,29 +12213,39 @@
                                           },
                                           "pageWidth": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageHeight": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageRotation": {
                                             "anyOf": [
                                               {
                                                 "type": "number",
-                                                "const": 0
+                                                "enum": [
+                                                  0
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 90
+                                                "enum": [
+                                                  90
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 180
+                                                "enum": [
+                                                  180
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 270
+                                                "enum": [
+                                                  270
+                                                ]
                                               }
                                             ]
                                           },
@@ -11907,7 +12286,9 @@
                                           },
                                           "kind": {
                                             "type": "string",
-                                            "const": "input"
+                                            "enum": [
+                                              "input"
+                                            ]
                                           },
                                           "inputType": {
                                             "type": "string",
@@ -11926,8 +12307,9 @@
                                             "type": "string",
                                             "enum": [
                                               "signer",
-                                              "variable",
-                                              "none"
+                                              "fixed",
+                                              "none",
+                                              "variable"
                                             ]
                                           },
                                           "signerId": {
@@ -11983,11 +12365,13 @@
                                               },
                                               "width": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               },
                                               "height": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               }
                                             },
                                             "required": [
@@ -12000,29 +12384,39 @@
                                           },
                                           "pageWidth": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageHeight": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageRotation": {
                                             "anyOf": [
                                               {
                                                 "type": "number",
-                                                "const": 0
+                                                "enum": [
+                                                  0
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 90
+                                                "enum": [
+                                                  90
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 180
+                                                "enum": [
+                                                  180
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 270
+                                                "enum": [
+                                                  270
+                                                ]
                                               }
                                             ]
                                           },
@@ -12063,7 +12457,9 @@
                                           },
                                           "kind": {
                                             "type": "string",
-                                            "const": "static"
+                                            "enum": [
+                                              "static"
+                                            ]
                                           },
                                           "content": {
                                             "type": "string"
@@ -12099,7 +12495,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "FORM"
+                                  "enum": [
+                                    "FORM"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "number",
@@ -12141,8 +12539,9 @@
                                       },
                                       "colSpan": {
                                         "type": "integer",
-                                        "exclusiveMinimum": 0,
-                                        "maximum": 9007199254740991
+                                        "exclusiveMinimum": true,
+                                        "maximum": 9007199254740991,
+                                        "minimum": 0
                                       },
                                       "fieldMeta": {
                                         "oneOf": [
@@ -12167,7 +12566,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "input"
+                                                "enum": [
+                                                  "input"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -12199,7 +12600,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "text"
+                                                "enum": [
+                                                  "text"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -12231,7 +12634,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "select"
+                                                "enum": [
+                                                  "select"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -12278,7 +12683,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "datepicker"
+                                                "enum": [
+                                                  "datepicker"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -12310,7 +12717,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "radio"
+                                                "enum": [
+                                                  "radio"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -12357,7 +12766,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "checkbox"
+                                                "enum": [
+                                                  "checkbox"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -12407,7 +12818,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "number"
+                                                "enum": [
+                                                  "number"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -12439,7 +12852,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "attachment"
+                                                "enum": [
+                                                  "attachment"
+                                                ]
                                               },
                                               "appendixLabel": {
                                                 "type": "string"
@@ -12518,7 +12933,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PRODUCT_TABLE"
+                                  "enum": [
+                                    "PRODUCT_TABLE"
+                                  ]
                                 },
                                 "name": {
                                   "type": "string"
@@ -12528,9 +12945,6 @@
                                 },
                                 "columns": {
                                   "type": "object",
-                                  "propertyNames": {
-                                    "type": "string"
-                                  },
                                   "additionalProperties": {
                                     "type": "object",
                                     "properties": {
@@ -12701,7 +13115,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TABLE"
+                                  "enum": [
+                                    "TABLE"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "array",
@@ -12803,7 +13219,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "SPACER"
+                                  "enum": [
+                                    "SPACER"
+                                  ]
                                 },
                                 "size": {
                                   "type": "string",
@@ -12828,7 +13246,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PAGE_BREAK"
+                                  "enum": [
+                                    "PAGE_BREAK"
+                                  ]
                                 },
                                 "locked": {
                                   "type": "boolean"
@@ -12844,7 +13264,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "DURATION"
+                                  "enum": [
+                                    "DURATION"
+                                  ]
                                 },
                                 "durationType": {
                                   "type": "string",
@@ -12861,8 +13283,9 @@
                                   "properties": {
                                     "value": {
                                       "type": "integer",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 9007199254740991
+                                      "exclusiveMinimum": true,
+                                      "maximum": 9007199254740991,
+                                      "minimum": 0
                                     },
                                     "unit": {
                                       "type": "string",
@@ -12885,8 +13308,9 @@
                                   "properties": {
                                     "value": {
                                       "type": "integer",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 9007199254740991
+                                      "exclusiveMinimum": true,
+                                      "maximum": 9007199254740991,
+                                      "minimum": 0
                                     },
                                     "unit": {
                                       "type": "string",
@@ -16179,7 +16603,9 @@
                       },
                       {
                         "type": "string",
-                        "const": ""
+                        "enum": [
+                          ""
+                        ]
                       }
                     ],
                     "description": "Email address (required for EMAIL channel)"
@@ -16191,7 +16617,9 @@
                       },
                       {
                         "type": "string",
-                        "const": ""
+                        "enum": [
+                          ""
+                        ]
                       }
                     ],
                     "description": "Phone number (required for SMS channel)"
@@ -16389,9 +16817,6 @@
                           },
                           "data": {
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {},
                             "description": "Event-specific data"
                           },
@@ -16428,9 +16853,6 @@
                     "data": {
                       "description": "Verification data (e.g., BankID response)",
                       "type": "object",
-                      "propertyNames": {
-                        "type": "string"
-                      },
                       "additionalProperties": {},
                       "nullable": true
                     }
@@ -16720,9 +17142,6 @@
                           },
                           "data": {
                             "type": "object",
-                            "propertyNames": {
-                              "type": "string"
-                            },
                             "additionalProperties": {},
                             "description": "Event-specific data"
                           },
@@ -16759,9 +17178,6 @@
                     "data": {
                       "description": "Verification data (e.g., BankID response)",
                       "type": "object",
-                      "propertyNames": {
-                        "type": "string"
-                      },
                       "additionalProperties": {},
                       "nullable": true
                     }
@@ -17184,9 +17600,10 @@
                   },
                   "size": {
                     "type": "integer",
-                    "exclusiveMinimum": 0,
+                    "exclusiveMinimum": true,
                     "maximum": 104857600,
-                    "description": "File size in bytes (max 100 MB)"
+                    "description": "File size in bytes (max 100 MB)",
+                    "minimum": 0
                   },
                   "checksum": {
                     "type": "string",
@@ -17529,8 +17946,10 @@
                     },
                     "status": {
                       "type": "string",
-                      "const": "CONFIRMED",
-                      "description": "File status after confirmation"
+                      "description": "File status after confirmation",
+                      "enum": [
+                        "CONFIRMED"
+                      ]
                     },
                     "size": {
                       "type": "number",
@@ -19978,7 +20397,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TEXT"
+                                  "enum": [
+                                    "TEXT"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -19997,7 +20418,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "HTML"
+                                  "enum": [
+                                    "HTML"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -20016,13 +20439,20 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PDF"
+                                  "enum": [
+                                    "PDF"
+                                  ]
                                 },
                                 "value": {
                                   "type": "string"
                                 },
                                 "numPages": {
                                   "type": "number"
+                                },
+                                "pageIndex": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
                                 },
                                 "instruction": {
                                   "type": "string"
@@ -20075,29 +20505,39 @@
                                       },
                                       "pageWidth": {
                                         "type": "number",
-                                        "exclusiveMinimum": 0
+                                        "exclusiveMinimum": true,
+                                        "minimum": 0
                                       },
                                       "pageHeight": {
                                         "type": "number",
-                                        "exclusiveMinimum": 0
+                                        "exclusiveMinimum": true,
+                                        "minimum": 0
                                       },
                                       "pageRotation": {
                                         "anyOf": [
                                           {
                                             "type": "number",
-                                            "const": 0
+                                            "enum": [
+                                              0
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 90
+                                            "enum": [
+                                              90
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 180
+                                            "enum": [
+                                              180
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 270
+                                            "enum": [
+                                              270
+                                            ]
                                           }
                                         ]
                                       },
@@ -20130,9 +20570,6 @@
                                 },
                                 "formValues": {
                                   "type": "object",
-                                  "propertyNames": {
-                                    "type": "string"
-                                  },
                                   "additionalProperties": {
                                     "anyOf": [
                                       {
@@ -20171,11 +20608,13 @@
                                               },
                                               "width": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               },
                                               "height": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               }
                                             },
                                             "required": [
@@ -20188,29 +20627,39 @@
                                           },
                                           "pageWidth": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageHeight": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageRotation": {
                                             "anyOf": [
                                               {
                                                 "type": "number",
-                                                "const": 0
+                                                "enum": [
+                                                  0
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 90
+                                                "enum": [
+                                                  90
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 180
+                                                "enum": [
+                                                  180
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 270
+                                                "enum": [
+                                                  270
+                                                ]
                                               }
                                             ]
                                           },
@@ -20251,7 +20700,9 @@
                                           },
                                           "kind": {
                                             "type": "string",
-                                            "const": "input"
+                                            "enum": [
+                                              "input"
+                                            ]
                                           },
                                           "inputType": {
                                             "type": "string",
@@ -20270,8 +20721,9 @@
                                             "type": "string",
                                             "enum": [
                                               "signer",
-                                              "variable",
-                                              "none"
+                                              "fixed",
+                                              "none",
+                                              "variable"
                                             ]
                                           },
                                           "signerId": {
@@ -20327,11 +20779,13 @@
                                               },
                                               "width": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               },
                                               "height": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               }
                                             },
                                             "required": [
@@ -20344,29 +20798,39 @@
                                           },
                                           "pageWidth": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageHeight": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageRotation": {
                                             "anyOf": [
                                               {
                                                 "type": "number",
-                                                "const": 0
+                                                "enum": [
+                                                  0
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 90
+                                                "enum": [
+                                                  90
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 180
+                                                "enum": [
+                                                  180
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 270
+                                                "enum": [
+                                                  270
+                                                ]
                                               }
                                             ]
                                           },
@@ -20407,7 +20871,9 @@
                                           },
                                           "kind": {
                                             "type": "string",
-                                            "const": "static"
+                                            "enum": [
+                                              "static"
+                                            ]
                                           },
                                           "content": {
                                             "type": "string"
@@ -20443,7 +20909,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "FORM"
+                                  "enum": [
+                                    "FORM"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "number",
@@ -20485,8 +20953,9 @@
                                       },
                                       "colSpan": {
                                         "type": "integer",
-                                        "exclusiveMinimum": 0,
-                                        "maximum": 9007199254740991
+                                        "exclusiveMinimum": true,
+                                        "maximum": 9007199254740991,
+                                        "minimum": 0
                                       },
                                       "fieldMeta": {
                                         "oneOf": [
@@ -20511,7 +20980,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "input"
+                                                "enum": [
+                                                  "input"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -20543,7 +21014,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "text"
+                                                "enum": [
+                                                  "text"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -20575,7 +21048,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "select"
+                                                "enum": [
+                                                  "select"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -20622,7 +21097,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "datepicker"
+                                                "enum": [
+                                                  "datepicker"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -20654,7 +21131,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "radio"
+                                                "enum": [
+                                                  "radio"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -20701,7 +21180,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "checkbox"
+                                                "enum": [
+                                                  "checkbox"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -20751,7 +21232,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "number"
+                                                "enum": [
+                                                  "number"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -20783,7 +21266,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "attachment"
+                                                "enum": [
+                                                  "attachment"
+                                                ]
                                               },
                                               "appendixLabel": {
                                                 "type": "string"
@@ -20862,7 +21347,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PRODUCT_TABLE"
+                                  "enum": [
+                                    "PRODUCT_TABLE"
+                                  ]
                                 },
                                 "name": {
                                   "type": "string"
@@ -20872,9 +21359,6 @@
                                 },
                                 "columns": {
                                   "type": "object",
-                                  "propertyNames": {
-                                    "type": "string"
-                                  },
                                   "additionalProperties": {
                                     "type": "object",
                                     "properties": {
@@ -21045,7 +21529,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TABLE"
+                                  "enum": [
+                                    "TABLE"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "array",
@@ -21147,7 +21633,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "SPACER"
+                                  "enum": [
+                                    "SPACER"
+                                  ]
                                 },
                                 "size": {
                                   "type": "string",
@@ -21172,7 +21660,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PAGE_BREAK"
+                                  "enum": [
+                                    "PAGE_BREAK"
+                                  ]
                                 },
                                 "locked": {
                                   "type": "boolean"
@@ -21188,7 +21678,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "DURATION"
+                                  "enum": [
+                                    "DURATION"
+                                  ]
                                 },
                                 "durationType": {
                                   "type": "string",
@@ -21205,8 +21697,9 @@
                                   "properties": {
                                     "value": {
                                       "type": "integer",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 9007199254740991
+                                      "exclusiveMinimum": true,
+                                      "maximum": 9007199254740991,
+                                      "minimum": 0
                                     },
                                     "unit": {
                                       "type": "string",
@@ -21229,8 +21722,9 @@
                                   "properties": {
                                     "value": {
                                       "type": "integer",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 9007199254740991
+                                      "exclusiveMinimum": true,
+                                      "maximum": 9007199254740991,
+                                      "minimum": 0
                                     },
                                     "unit": {
                                       "type": "string",
@@ -22679,7 +23173,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "TEXT"
+                                "enum": [
+                                  "TEXT"
+                                ]
                               },
                               "content": {
                                 "type": "string"
@@ -22698,7 +23194,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "HTML"
+                                "enum": [
+                                  "HTML"
+                                ]
                               },
                               "content": {
                                 "type": "string"
@@ -22717,13 +23215,20 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PDF"
+                                "enum": [
+                                  "PDF"
+                                ]
                               },
                               "value": {
                                 "type": "string"
                               },
                               "numPages": {
                                 "type": "number"
+                              },
+                              "pageIndex": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
                               },
                               "instruction": {
                                 "type": "string"
@@ -22776,29 +23281,39 @@
                                     },
                                     "pageWidth": {
                                       "type": "number",
-                                      "exclusiveMinimum": 0
+                                      "exclusiveMinimum": true,
+                                      "minimum": 0
                                     },
                                     "pageHeight": {
                                       "type": "number",
-                                      "exclusiveMinimum": 0
+                                      "exclusiveMinimum": true,
+                                      "minimum": 0
                                     },
                                     "pageRotation": {
                                       "anyOf": [
                                         {
                                           "type": "number",
-                                          "const": 0
+                                          "enum": [
+                                            0
+                                          ]
                                         },
                                         {
                                           "type": "number",
-                                          "const": 90
+                                          "enum": [
+                                            90
+                                          ]
                                         },
                                         {
                                           "type": "number",
-                                          "const": 180
+                                          "enum": [
+                                            180
+                                          ]
                                         },
                                         {
                                           "type": "number",
-                                          "const": 270
+                                          "enum": [
+                                            270
+                                          ]
                                         }
                                       ]
                                     },
@@ -22831,9 +23346,6 @@
                               },
                               "formValues": {
                                 "type": "object",
-                                "propertyNames": {
-                                  "type": "string"
-                                },
                                 "additionalProperties": {
                                   "anyOf": [
                                     {
@@ -22872,11 +23384,13 @@
                                             },
                                             "width": {
                                               "type": "number",
-                                              "exclusiveMinimum": 0
+                                              "exclusiveMinimum": true,
+                                              "minimum": 0
                                             },
                                             "height": {
                                               "type": "number",
-                                              "exclusiveMinimum": 0
+                                              "exclusiveMinimum": true,
+                                              "minimum": 0
                                             }
                                           },
                                           "required": [
@@ -22889,29 +23403,39 @@
                                         },
                                         "pageWidth": {
                                           "type": "number",
-                                          "exclusiveMinimum": 0
+                                          "exclusiveMinimum": true,
+                                          "minimum": 0
                                         },
                                         "pageHeight": {
                                           "type": "number",
-                                          "exclusiveMinimum": 0
+                                          "exclusiveMinimum": true,
+                                          "minimum": 0
                                         },
                                         "pageRotation": {
                                           "anyOf": [
                                             {
                                               "type": "number",
-                                              "const": 0
+                                              "enum": [
+                                                0
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 90
+                                              "enum": [
+                                                90
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 180
+                                              "enum": [
+                                                180
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 270
+                                              "enum": [
+                                                270
+                                              ]
                                             }
                                           ]
                                         },
@@ -22952,7 +23476,9 @@
                                         },
                                         "kind": {
                                           "type": "string",
-                                          "const": "input"
+                                          "enum": [
+                                            "input"
+                                          ]
                                         },
                                         "inputType": {
                                           "type": "string",
@@ -22971,8 +23497,9 @@
                                           "type": "string",
                                           "enum": [
                                             "signer",
-                                            "variable",
-                                            "none"
+                                            "fixed",
+                                            "none",
+                                            "variable"
                                           ]
                                         },
                                         "signerId": {
@@ -23028,11 +23555,13 @@
                                             },
                                             "width": {
                                               "type": "number",
-                                              "exclusiveMinimum": 0
+                                              "exclusiveMinimum": true,
+                                              "minimum": 0
                                             },
                                             "height": {
                                               "type": "number",
-                                              "exclusiveMinimum": 0
+                                              "exclusiveMinimum": true,
+                                              "minimum": 0
                                             }
                                           },
                                           "required": [
@@ -23045,29 +23574,39 @@
                                         },
                                         "pageWidth": {
                                           "type": "number",
-                                          "exclusiveMinimum": 0
+                                          "exclusiveMinimum": true,
+                                          "minimum": 0
                                         },
                                         "pageHeight": {
                                           "type": "number",
-                                          "exclusiveMinimum": 0
+                                          "exclusiveMinimum": true,
+                                          "minimum": 0
                                         },
                                         "pageRotation": {
                                           "anyOf": [
                                             {
                                               "type": "number",
-                                              "const": 0
+                                              "enum": [
+                                                0
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 90
+                                              "enum": [
+                                                90
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 180
+                                              "enum": [
+                                                180
+                                              ]
                                             },
                                             {
                                               "type": "number",
-                                              "const": 270
+                                              "enum": [
+                                                270
+                                              ]
                                             }
                                           ]
                                         },
@@ -23108,7 +23647,9 @@
                                         },
                                         "kind": {
                                           "type": "string",
-                                          "const": "static"
+                                          "enum": [
+                                            "static"
+                                          ]
                                         },
                                         "content": {
                                           "type": "string"
@@ -23144,7 +23685,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "FORM"
+                                "enum": [
+                                  "FORM"
+                                ]
                               },
                               "columns": {
                                 "type": "number",
@@ -23186,8 +23729,9 @@
                                     },
                                     "colSpan": {
                                       "type": "integer",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 9007199254740991
+                                      "exclusiveMinimum": true,
+                                      "maximum": 9007199254740991,
+                                      "minimum": 0
                                     },
                                     "fieldMeta": {
                                       "oneOf": [
@@ -23212,7 +23756,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "input"
+                                              "enum": [
+                                                "input"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -23244,7 +23790,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "text"
+                                              "enum": [
+                                                "text"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -23276,7 +23824,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "select"
+                                              "enum": [
+                                                "select"
+                                              ]
                                             },
                                             "options": {
                                               "type": "array",
@@ -23323,7 +23873,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "datepicker"
+                                              "enum": [
+                                                "datepicker"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -23355,7 +23907,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "radio"
+                                              "enum": [
+                                                "radio"
+                                              ]
                                             },
                                             "options": {
                                               "type": "array",
@@ -23402,7 +23956,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "checkbox"
+                                              "enum": [
+                                                "checkbox"
+                                              ]
                                             },
                                             "options": {
                                               "type": "array",
@@ -23452,7 +24008,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "number"
+                                              "enum": [
+                                                "number"
+                                              ]
                                             },
                                             "value": {
                                               "type": "string"
@@ -23484,7 +24042,9 @@
                                             },
                                             "type": {
                                               "type": "string",
-                                              "const": "attachment"
+                                              "enum": [
+                                                "attachment"
+                                              ]
                                             },
                                             "appendixLabel": {
                                               "type": "string"
@@ -23563,7 +24123,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PRODUCT_TABLE"
+                                "enum": [
+                                  "PRODUCT_TABLE"
+                                ]
                               },
                               "name": {
                                 "type": "string"
@@ -23573,9 +24135,6 @@
                               },
                               "columns": {
                                 "type": "object",
-                                "propertyNames": {
-                                  "type": "string"
-                                },
                                 "additionalProperties": {
                                   "type": "object",
                                   "properties": {
@@ -23746,7 +24305,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "TABLE"
+                                "enum": [
+                                  "TABLE"
+                                ]
                               },
                               "columns": {
                                 "type": "array",
@@ -23848,7 +24409,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "SPACER"
+                                "enum": [
+                                  "SPACER"
+                                ]
                               },
                               "size": {
                                 "type": "string",
@@ -23873,7 +24436,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "PAGE_BREAK"
+                                "enum": [
+                                  "PAGE_BREAK"
+                                ]
                               },
                               "locked": {
                                 "type": "boolean"
@@ -23889,7 +24454,9 @@
                             "properties": {
                               "type": {
                                 "type": "string",
-                                "const": "DURATION"
+                                "enum": [
+                                  "DURATION"
+                                ]
                               },
                               "durationType": {
                                 "type": "string",
@@ -23906,8 +24473,9 @@
                                 "properties": {
                                   "value": {
                                     "type": "integer",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 9007199254740991
+                                    "exclusiveMinimum": true,
+                                    "maximum": 9007199254740991,
+                                    "minimum": 0
                                   },
                                   "unit": {
                                     "type": "string",
@@ -23930,8 +24498,9 @@
                                 "properties": {
                                   "value": {
                                     "type": "integer",
-                                    "exclusiveMinimum": 0,
-                                    "maximum": 9007199254740991
+                                    "exclusiveMinimum": true,
+                                    "maximum": 9007199254740991,
+                                    "minimum": 0
                                   },
                                   "unit": {
                                     "type": "string",
@@ -24008,7 +24577,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TEXT"
+                                  "enum": [
+                                    "TEXT"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -24027,7 +24598,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "HTML"
+                                  "enum": [
+                                    "HTML"
+                                  ]
                                 },
                                 "content": {
                                   "type": "string"
@@ -24046,13 +24619,20 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PDF"
+                                  "enum": [
+                                    "PDF"
+                                  ]
                                 },
                                 "value": {
                                   "type": "string"
                                 },
                                 "numPages": {
                                   "type": "number"
+                                },
+                                "pageIndex": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
                                 },
                                 "instruction": {
                                   "type": "string"
@@ -24105,29 +24685,39 @@
                                       },
                                       "pageWidth": {
                                         "type": "number",
-                                        "exclusiveMinimum": 0
+                                        "exclusiveMinimum": true,
+                                        "minimum": 0
                                       },
                                       "pageHeight": {
                                         "type": "number",
-                                        "exclusiveMinimum": 0
+                                        "exclusiveMinimum": true,
+                                        "minimum": 0
                                       },
                                       "pageRotation": {
                                         "anyOf": [
                                           {
                                             "type": "number",
-                                            "const": 0
+                                            "enum": [
+                                              0
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 90
+                                            "enum": [
+                                              90
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 180
+                                            "enum": [
+                                              180
+                                            ]
                                           },
                                           {
                                             "type": "number",
-                                            "const": 270
+                                            "enum": [
+                                              270
+                                            ]
                                           }
                                         ]
                                       },
@@ -24160,9 +24750,6 @@
                                 },
                                 "formValues": {
                                   "type": "object",
-                                  "propertyNames": {
-                                    "type": "string"
-                                  },
                                   "additionalProperties": {
                                     "anyOf": [
                                       {
@@ -24201,11 +24788,13 @@
                                               },
                                               "width": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               },
                                               "height": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               }
                                             },
                                             "required": [
@@ -24218,29 +24807,39 @@
                                           },
                                           "pageWidth": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageHeight": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageRotation": {
                                             "anyOf": [
                                               {
                                                 "type": "number",
-                                                "const": 0
+                                                "enum": [
+                                                  0
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 90
+                                                "enum": [
+                                                  90
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 180
+                                                "enum": [
+                                                  180
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 270
+                                                "enum": [
+                                                  270
+                                                ]
                                               }
                                             ]
                                           },
@@ -24281,7 +24880,9 @@
                                           },
                                           "kind": {
                                             "type": "string",
-                                            "const": "input"
+                                            "enum": [
+                                              "input"
+                                            ]
                                           },
                                           "inputType": {
                                             "type": "string",
@@ -24300,8 +24901,9 @@
                                             "type": "string",
                                             "enum": [
                                               "signer",
-                                              "variable",
-                                              "none"
+                                              "fixed",
+                                              "none",
+                                              "variable"
                                             ]
                                           },
                                           "signerId": {
@@ -24357,11 +24959,13 @@
                                               },
                                               "width": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               },
                                               "height": {
                                                 "type": "number",
-                                                "exclusiveMinimum": 0
+                                                "exclusiveMinimum": true,
+                                                "minimum": 0
                                               }
                                             },
                                             "required": [
@@ -24374,29 +24978,39 @@
                                           },
                                           "pageWidth": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageHeight": {
                                             "type": "number",
-                                            "exclusiveMinimum": 0
+                                            "exclusiveMinimum": true,
+                                            "minimum": 0
                                           },
                                           "pageRotation": {
                                             "anyOf": [
                                               {
                                                 "type": "number",
-                                                "const": 0
+                                                "enum": [
+                                                  0
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 90
+                                                "enum": [
+                                                  90
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 180
+                                                "enum": [
+                                                  180
+                                                ]
                                               },
                                               {
                                                 "type": "number",
-                                                "const": 270
+                                                "enum": [
+                                                  270
+                                                ]
                                               }
                                             ]
                                           },
@@ -24437,7 +25051,9 @@
                                           },
                                           "kind": {
                                             "type": "string",
-                                            "const": "static"
+                                            "enum": [
+                                              "static"
+                                            ]
                                           },
                                           "content": {
                                             "type": "string"
@@ -24473,7 +25089,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "FORM"
+                                  "enum": [
+                                    "FORM"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "number",
@@ -24515,8 +25133,9 @@
                                       },
                                       "colSpan": {
                                         "type": "integer",
-                                        "exclusiveMinimum": 0,
-                                        "maximum": 9007199254740991
+                                        "exclusiveMinimum": true,
+                                        "maximum": 9007199254740991,
+                                        "minimum": 0
                                       },
                                       "fieldMeta": {
                                         "oneOf": [
@@ -24541,7 +25160,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "input"
+                                                "enum": [
+                                                  "input"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -24573,7 +25194,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "text"
+                                                "enum": [
+                                                  "text"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -24605,7 +25228,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "select"
+                                                "enum": [
+                                                  "select"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -24652,7 +25277,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "datepicker"
+                                                "enum": [
+                                                  "datepicker"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -24684,7 +25311,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "radio"
+                                                "enum": [
+                                                  "radio"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -24731,7 +25360,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "checkbox"
+                                                "enum": [
+                                                  "checkbox"
+                                                ]
                                               },
                                               "options": {
                                                 "type": "array",
@@ -24781,7 +25412,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "number"
+                                                "enum": [
+                                                  "number"
+                                                ]
                                               },
                                               "value": {
                                                 "type": "string"
@@ -24813,7 +25446,9 @@
                                               },
                                               "type": {
                                                 "type": "string",
-                                                "const": "attachment"
+                                                "enum": [
+                                                  "attachment"
+                                                ]
                                               },
                                               "appendixLabel": {
                                                 "type": "string"
@@ -24892,7 +25527,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PRODUCT_TABLE"
+                                  "enum": [
+                                    "PRODUCT_TABLE"
+                                  ]
                                 },
                                 "name": {
                                   "type": "string"
@@ -24902,9 +25539,6 @@
                                 },
                                 "columns": {
                                   "type": "object",
-                                  "propertyNames": {
-                                    "type": "string"
-                                  },
                                   "additionalProperties": {
                                     "type": "object",
                                     "properties": {
@@ -25075,7 +25709,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "TABLE"
+                                  "enum": [
+                                    "TABLE"
+                                  ]
                                 },
                                 "columns": {
                                   "type": "array",
@@ -25177,7 +25813,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "SPACER"
+                                  "enum": [
+                                    "SPACER"
+                                  ]
                                 },
                                 "size": {
                                   "type": "string",
@@ -25202,7 +25840,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "PAGE_BREAK"
+                                  "enum": [
+                                    "PAGE_BREAK"
+                                  ]
                                 },
                                 "locked": {
                                   "type": "boolean"
@@ -25218,7 +25858,9 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "const": "DURATION"
+                                  "enum": [
+                                    "DURATION"
+                                  ]
                                 },
                                 "durationType": {
                                   "type": "string",
@@ -25235,8 +25877,9 @@
                                   "properties": {
                                     "value": {
                                       "type": "integer",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 9007199254740991
+                                      "exclusiveMinimum": true,
+                                      "maximum": 9007199254740991,
+                                      "minimum": 0
                                     },
                                     "unit": {
                                       "type": "string",
@@ -25259,8 +25902,9 @@
                                   "properties": {
                                     "value": {
                                       "type": "integer",
-                                      "exclusiveMinimum": 0,
-                                      "maximum": 9007199254740991
+                                      "exclusiveMinimum": true,
+                                      "maximum": 9007199254740991,
+                                      "minimum": 0
                                     },
                                     "unit": {
                                       "type": "string",
@@ -27343,9 +27987,6 @@
                       "properties": {
                         "signatures": {
                           "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
                           "additionalProperties": {
                             "type": "number"
                           }
@@ -27357,7 +27998,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27374,7 +28017,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27385,7 +28030,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27396,7 +28043,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27407,7 +28056,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27418,7 +28069,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         }
@@ -27441,9 +28094,6 @@
                       "properties": {
                         "signatures": {
                           "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
                           "additionalProperties": {
                             "type": "number"
                           }
@@ -27490,9 +28140,6 @@
                       "properties": {
                         "signatures": {
                           "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
                           "additionalProperties": {
                             "type": "number"
                           }
@@ -27504,7 +28151,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27515,7 +28164,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27526,7 +28177,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27537,7 +28190,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27548,7 +28203,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         },
@@ -27559,7 +28216,9 @@
                             },
                             {
                               "type": "number",
-                              "const": null
+                              "enum": [
+                                null
+                              ]
                             }
                           ]
                         }
@@ -31759,7 +32418,9 @@
                     },
                     "deleted": {
                       "type": "boolean",
-                      "const": true
+                      "enum": [
+                        true
+                      ]
                     }
                   },
                   "required": [
@@ -33058,7 +33719,9 @@
                     },
                     "deleted": {
                       "type": "boolean",
-                      "const": true
+                      "enum": [
+                        true
+                      ]
                     }
                   },
                   "required": [
@@ -35110,7 +35773,9 @@
                   "properties": {
                     "ok": {
                       "type": "boolean",
-                      "const": true
+                      "enum": [
+                        true
+                      ]
                     },
                     "queuedReplayOf": {
                       "type": "string"
@@ -35939,7 +36604,9 @@
                     },
                     "deleted": {
                       "type": "boolean",
-                      "const": true
+                      "enum": [
+                        true
+                      ]
                     }
                   },
                   "required": [
@@ -36166,6 +36833,8 @@
               "audit:read": "Tillgång till att läsa dokumentaktivitet och händelseloggar",
               "sajnid:read": "Tillgång till att läsa sajn-id-verifieringar",
               "sajnid:write": "Tillgång till att skapa sajn-id-verifieringar",
+              "login:read": "Tillgång till att läsa resultatet av inloggningar via sajn Login",
+              "login:write": "Tillgång till att starta inloggningar via sajn Login",
               "webhooks:read": "Tillgång till att läsa webhooks och deras leveranser",
               "webhooks:write": "Tillgång till att skapa, redigera och ta bort webhooks",
               "members:read": "Tillgång till att läsa arbetsytans medlemmar",

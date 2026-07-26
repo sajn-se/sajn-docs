@@ -120,23 +120,9 @@ Receive real-time notifications about document events. See the [Webhooks Guide](
 
 ## Developer Updates
 
-Subscribe to the developer newsletter to hear about new endpoints, breaking changes, and deprecations before they ship.
+Hear about new endpoints, breaking changes, and deprecations before they ship.
 
-```bash
-curl -X POST https://app.sajn.se/api/v1/dev-updates/subscribe \
-  -H "Authorization: Bearer YOUR_API_KEY"
-```
-
-No request body is needed — we use the email and name on your authenticated account:
-
-```json
-{
-  "success": true,
-  "message": "You're subscribed to sajn dev updates"
-}
-```
-
-See [Subscribe to sajn dev updates](/api/POST%20/api/v1/dev-updates/subscribe) for the full reference. You can unsubscribe from any newsletter email.
+Turn it on in the sajn app under **Inställningar → Utvecklare**, or in the *Utvecklare* section of your [notification settings](https://app.sajn.se). Updates go to your account's email address, and you can unsubscribe from any newsletter email.
 
 ## Support
 
