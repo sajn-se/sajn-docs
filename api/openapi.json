@@ -177,6 +177,81 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -308,6 +383,31 @@
               }
             }
           },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Error response",
             "content": {
@@ -333,7 +433,107 @@
               }
             }
           },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
           "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "500": {
             "description": "Error response",
             "content": {
               "application/json": {
@@ -18273,7 +18473,9 @@
                         "TEMPLATE_DELETED",
                         "TEMPLATE_RESTORED",
                         "WORKSPACE_CREATED",
-                        "MEMBER_ADDED"
+                        "MEMBER_ADDED",
+                        "LOGIN_COMPLETED",
+                        "LOGIN_FAILED"
                       ]
                     },
                     "description": "List of event types to subscribe to"
@@ -18666,7 +18868,9 @@
                         "TEMPLATE_DELETED",
                         "TEMPLATE_RESTORED",
                         "WORKSPACE_CREATED",
-                        "MEMBER_ADDED"
+                        "MEMBER_ADDED",
+                        "LOGIN_COMPLETED",
+                        "LOGIN_FAILED"
                       ]
                     }
                   },

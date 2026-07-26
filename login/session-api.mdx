@@ -1,0 +1,143 @@
+---
+title: "Session API"
+description: "Start a BankID login and read the result with two REST calls — no OIDC library required"
+---
+
+# Session API
+
+The REST alternative to [OpenID Connect](/login/oidc). Two calls: one to start a login, one to
+read the result. Same hosted page, same BankID engine, same claims — only the plumbing differs.
+
+Use it when running an OIDC client is more trouble than it is worth. The typical case is a
+**native mobile app**: your server starts the login, the app opens the URL in an in-app browser,
+and a custom-scheme redirect drops the user straight back into the app.
+
+<Note>
+  Authenticated with your normal sajn API key, scoped `login:write` and `login:read`. See
+  [Authentication](/authentication).
+</Note>
+
+## 1. Start a login
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/login/sessions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "clientId": "YOUR_CLIENT_ID",
+    "redirectUri": "acme://auth",
+    "state": "your-internal-reference"
+  }'
+```
+
+```json Response
+{
+  "id": "kZ8f3c…",
+  "loginUrl": "https://login.sajn.se/session/acme/kZ8f3c…",
+  "expiresAt": "2026-07-26T12:15:00.000Z"
+}
+```
+
+`redirectUri` must be registered on the client. Custom schemes are supported precisely so an
+in-app browser can dismiss itself back into your app.
+
+## 2. Send the user to `loginUrl`
+
+Open it in a browser, in-app browser or web view. The user authenticates with BankID on sajn's
+hosted page.
+
+When they finish, we redirect to your `redirectUri`:
+
+```
+acme://auth?sessionId=kZ8f3c…&state=your-internal-reference
+```
+
+<Warning>
+  **The redirect is only a handle — never treat it as proof of authentication.** Anyone can craft
+  that URL. The identity lives behind step 3, which is authenticated as your organization.
+</Warning>
+
+## 3. Read the result, from your server
+
+```bash
+curl https://app.sajn.se/api/v1/login/sessions/kZ8f3c… \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json Completed
+{
+  "id": "kZ8f3c…",
+  "status": "complete",
+  "method": "BANKID_SE",
+  "completedAt": "2026-07-26T12:03:45.000Z",
+  "state": "your-internal-reference",
+  "sub": "clx7f2k9v0001…",
+  "claims": {
+    "sub": "clx7f2k9v0001…",
+    "amr": ["BANKID_SE"],
+    "auth_time": 1785016190,
+    "name": "Anna Andersson",
+    "given_name": "Anna",
+    "family_name": "Andersson",
+    "birthdate": "1985-03-15"
+  }
+}
+```
+
+`claims` and `sub` are populated only once `status` is `complete`, and contain exactly what your
+client is approved for — the same projection the OIDC `id_token` uses.
+
+| `status` | Meaning |
+| --- | --- |
+| `pending` | Still in progress — the user has not finished |
+| `complete` | Authenticated. Read `claims` |
+| `failed` | The user cancelled, or BankID rejected it |
+| `expired` | The session ran out before completion |
+
+A completed result stays readable for **30 minutes**, which is room for a retry or a brief outage
+on your side. After that it is gone; the authentication itself is still recorded for billing.
+
+<Note>
+  Sessions belonging to another workspace return `404`, not `403` — "exists but isn't yours" is
+  itself information.
+</Note>
+
+## Handling the user who never comes back
+
+The in-app browser case has a real failure mode: the user completes BankID, then closes the
+browser before the redirect fires. Your app never learns what happened.
+
+Two ways to cover it:
+
+<CardGroup cols={2}>
+  <Card title="Webhook" icon="webhook" href="/login/webhooks">
+    Subscribe to `LOGIN_COMPLETED`. It fires whether or not the redirect arrives.
+  </Card>
+  <Card title="Poll" icon="rotate">
+    `GET` the session until it leaves `pending`. Simple, and fine at low volume.
+  </Card>
+</CardGroup>
+
+The authentication completes on our side regardless — a background watchdog finishes the flow if
+the browser stops responding, so the result is there when you ask for it.
+
+## Differences from OIDC
+
+| | Session API | OIDC |
+| --- | --- | --- |
+| Starting a login | `POST` from your server | Browser redirect to `/oidc/authorize` |
+| Credential | sajn API key | Client id + secret + PKCE |
+| Result delivery | Authenticated `GET` | `id_token` from the token endpoint |
+| Scopes | Everything the client is approved for | Requested per authorization request |
+| Signature to verify | None — the API call is the trust boundary | Verify the `id_token` against JWKS |
+
+## Reference
+
+<CardGroup cols={2}>
+  <Card title="POST /api/v1/login/sessions" icon="code" href="/api-reference/endpoint/post-api-v1-login-sessions">
+    Full request and response schema
+  </Card>
+  <Card title="GET /api/v1/login/sessions/{id}" icon="code" href="/api-reference/endpoint/get-api-v1-login-sessions-id">
+    Full response schema
+  </Card>
+</CardGroup>

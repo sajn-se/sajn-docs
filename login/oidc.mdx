@@ -1,0 +1,207 @@
+---
+title: "OpenID Connect"
+description: "Endpoints, parameters and token validation for sajn Login's OIDC provider"
+---
+
+# OpenID Connect
+
+sajn Login is a standard OpenID Connect provider implementing **Authorization Code flow with
+PKCE**. Any conformant library works — you should rarely need this page, but here is everything
+it does.
+
+## Discovery
+
+```
+https://login.sajn.se/.well-known/openid-configuration
+```
+
+Point your library at the issuer `https://login.sajn.se` and it will find everything below.
+
+<Warning>
+  The issuer is compared byte-for-byte when your library validates a token. It is
+  `https://login.sajn.se` — no trailing slash, no per-customer subdomain.
+</Warning>
+
+## Endpoints
+
+| Endpoint | URL |
+| --- | --- |
+| Discovery | `GET /.well-known/openid-configuration` |
+| Authorization | `GET /oidc/authorize` |
+| Token | `POST /oidc/token` |
+| UserInfo | `GET /oidc/userinfo` |
+| JWKS | `GET /oidc/jwks` |
+
+## What we support
+
+| | |
+| --- | --- |
+| `response_types_supported` | `code` |
+| `grant_types_supported` | `authorization_code` |
+| `code_challenge_methods_supported` | `S256` |
+| `id_token_signing_alg_values_supported` | `ES256` |
+| `subject_types_supported` | `pairwise` |
+| `token_endpoint_auth_methods_supported` | `client_secret_post` |
+| `scopes_supported` | `openid`, `profile`, `nin` |
+
+Deliberately absent: **refresh tokens** (a login mints claims; your app owns the session),
+**an end-session endpoint** (there is no sajn-side session to end), and **implicit/hybrid
+flows**.
+
+## Authorization request
+
+`GET https://login.sajn.se/oidc/authorize`
+
+| Parameter | Required | Notes |
+| --- | --- | --- |
+| `client_id` | Yes | From your approved client |
+| `redirect_uri` | Yes | Must be registered. `https` matches **exactly** |
+| `response_type` | Yes | `code` |
+| `scope` | Yes | Must include `openid` |
+| `code_challenge` | Yes | `BASE64URL(SHA256(verifier))` |
+| `code_challenge_method` | Yes | `S256` |
+| `state` | Recommended | Returned unchanged; use it for CSRF |
+| `nonce` | Recommended | Echoed into the `id_token` for replay checking |
+| `prompt` | No | `none` always returns `login_required` — see below |
+
+### Where errors go
+
+This distinction matters when you are debugging:
+
+- **Before** `redirect_uri` is verified to belong to the client (unknown `client_id`, unregistered
+  URI), the request fails with a **400 in the browser**. Nothing is redirected — otherwise the
+  endpoint would be an open redirector.
+- **After** it is verified, errors go back to your `redirect_uri` as
+  `?error=…&error_description=…&state=…`, per RFC 6749.
+
+| `error` | Meaning |
+| --- | --- |
+| `unauthorized_client` | Client unknown, not approved, or the organization does not have sajn Login |
+| `invalid_request` | Missing or malformed parameter, or PKCE absent |
+| `invalid_scope` | Unknown scope, `openid` missing, or a scope the client is not approved for |
+| `unsupported_response_type` | Anything other than `code` |
+| `login_required` | `prompt=none` — every sajn Login is a fresh BankID, so silent auth is impossible |
+
+## Token request
+
+`POST https://login.sajn.se/oidc/token` — `application/x-www-form-urlencoded`
+
+| Parameter | Required |
+| --- | --- |
+| `grant_type` | `authorization_code` |
+| `code` | The one-time code |
+| `redirect_uri` | Byte-identical to the authorize request |
+| `client_id` | Your client id |
+| `client_secret` | Your client secret |
+| `code_verifier` | The PKCE verifier |
+
+```json Response
+{
+  "access_token": "8f3c…",
+  "token_type": "Bearer",
+  "expires_in": 600,
+  "id_token": "eyJhbGciOiJFUzI1NiIs…",
+  "scope": "openid profile nin"
+}
+```
+
+| `error` | Meaning |
+| --- | --- |
+| `invalid_client` | Wrong `client_id` / `client_secret` (HTTP 401) |
+| `invalid_grant` | Code unknown, expired, already used, `redirect_uri` mismatch, or PKCE failed |
+| `unsupported_grant_type` | Anything other than `authorization_code` |
+
+<Warning>
+  The code is single-use with a **60-second** lifetime, and it is consumed even by a failed
+  exchange. An attacker who steals one gets no retries.
+</Warning>
+
+## Tokens
+
+### id_token
+
+An ES256 JWT carrying the scope-projected claims. This is the product — validate it and read it.
+
+```json
+{
+  "iss": "https://login.sajn.se",
+  "aud": "YOUR_CLIENT_ID",
+  "sub": "clx7f2k9v0001…",
+  "exp": 1785016800,
+  "iat": 1785016200,
+  "auth_time": 1785016190,
+  "amr": ["BANKID_SE"],
+  "nonce": "…",
+  "name": "Anna Andersson",
+  "given_name": "Anna",
+  "family_name": "Andersson",
+  "birthdate": "1985-03-15"
+}
+```
+
+Validate: signature against JWKS, `iss`, `aud`, `exp`, and `nonce` if you sent one.
+
+### access_token
+
+**Opaque, not a JWT.** It exists only to call `/oidc/userinfo` and lives ~10 minutes.
+
+<Note>
+  It is deliberately opaque. Under the `nin` scope the claims include a personnummer, and a
+  self-contained token would carry that into your logs and every proxy in between. Because it is
+  server-backed we can also revoke it, which a JWT could not offer.
+</Note>
+
+## UserInfo
+
+```bash
+curl https://login.sajn.se/oidc/userinfo \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+Returns the same claims as the `id_token` — the projection is shared, so no channel reveals more
+than another. An expired or unknown token returns `401` with a `WWW-Authenticate` header.
+
+Most integrations never need this: the `id_token` already contains everything.
+
+## JWKS and key rotation
+
+```
+GET https://login.sajn.se/oidc/jwks
+```
+
+Public ES256 keys, each with a `kid`. Rotation is **additive**: a new key is published alongside
+the previous one, which stays until the last token signed with it has expired. Nothing breaks
+mid-rotation.
+
+Use a library that caches JWKS and refetches on an unknown `kid` (`createRemoteJWKSet` in
+`jose`, or your framework's equivalent) rather than pinning a key.
+
+## Security model
+
+<AccordionGroup>
+  <Accordion title="PKCE is mandatory for every client" icon="lock">
+    Including confidential ones. It costs an integrator nothing and removes authorization-code
+    interception as a class of attack. There is no public/PKCE-only client type — every client
+    has a secret **and** uses PKCE.
+  </Accordion>
+
+  <Accordion title="Redirect URIs match strictly" icon="arrow-right-to-bracket">
+    `https` URIs match **exactly** — no subpaths, no trailing-slash leniency. An open redirect
+    anywhere under your domain would otherwise let someone else receive your codes.
+
+    Custom schemes for native apps (`acme://auth`) match on a path boundary, so `acme://auth/done`
+    is accepted but `acme://authelse` is not. Fragments are rejected everywhere.
+  </Accordion>
+
+  <Accordion title="The completion redirect is pinned" icon="thumbtack">
+    `redirect_uri` is validated when the login starts and stored server-side. The final redirect
+    uses that stored value, never a request parameter — so a login in flight cannot be steered
+    somewhere else.
+  </Accordion>
+
+  <Accordion title="A leaked login URL is worthless" icon="link-slash">
+    Login URLs are single-use, expire in 15 minutes, and contain nothing about the user. The worst
+    an attacker with one can do is authenticate as *themselves* — your server then receives a
+    different `sub`, and the code is useless without your client secret and PKCE verifier.
+  </Accordion>
+</AccordionGroup>

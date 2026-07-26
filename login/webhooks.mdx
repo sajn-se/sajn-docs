@@ -1,0 +1,107 @@
+---
+title: "Login webhooks"
+description: "Get notified when a sajn Login authentication completes or fails"
+---
+
+# Login webhooks
+
+Two events tell you the outcome of a login without waiting for the browser to come back.
+
+| Event | Fires when |
+| --- | --- |
+| `LOGIN_COMPLETED` | A user finished authenticating |
+| `LOGIN_FAILED` | A login ended in a state the user cannot retry out of |
+
+They use the same webhook system as the rest of sajn — same signing, same retries, same delivery
+log. See [Webhooks](/guides/webhooks) for setup and signature verification.
+
+## Why you might want them
+
+The normal flow is synchronous: the user is redirected back and you exchange the code. Webhooks
+matter for the case that redirect never arrives.
+
+The common one is mobile. A user opens the login in an in-app browser, authenticates, and closes
+the browser before it redirects. They believe they logged in; your app never heard anything.
+
+sajn completes the authentication server-side regardless — a background watchdog finishes the
+flow if the browser stops responding — so the result exists. The webhook is how you learn about
+it.
+
+<Note>
+  If you use [OpenID Connect](/login/oidc), a `LOGIN_COMPLETED` webhook cannot be exchanged for an
+  `id_token` — the authorization code goes to the browser and expires in 60 seconds. Treat the
+  webhook as a signal to prompt the user to try again, or to reconcile your own records. With the
+  [Session API](/login/session-api) you can act on it directly: `GET` the session for the claims.
+</Note>
+
+## `LOGIN_COMPLETED`
+
+```json
+{
+  "event": "LOGIN_COMPLETED",
+  "data": {
+    "id": "clx9a…",
+    "sessionId": "kZ8f3c…",
+    "clientId": "clx7b…",
+    "mode": "SESSION",
+    "method": "BANKID_SE",
+    "sub": "clx7f2k9v0001…",
+    "authenticatedAt": "2026-07-26T12:03:45.000Z",
+    "state": "your-internal-reference"
+  }
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `id` | The authentication record — also what you are billed for |
+| `sessionId` | The login session; use it with the Session API to fetch claims |
+| `mode` | `OIDC` or `SESSION` |
+| `sub` | The pseudonymous subject — same value your `id_token` carries |
+| `state` | Your own value from the login request, if you sent one |
+
+<Warning>
+  **The payload deliberately contains no identity.** No name, no personnummer — only the
+  pairwise `sub`. A webhook body lands in your logs and every proxy between us, so the claims stay
+  behind an authenticated read.
+</Warning>
+
+## `LOGIN_FAILED`
+
+```json
+{
+  "event": "LOGIN_FAILED",
+  "data": {
+    "sessionId": "kZ8f3c…",
+    "clientId": "clx7b…",
+    "mode": "SESSION",
+    "reason": "expiredTransaction",
+    "failedAt": "2026-07-26T12:08:12.000Z",
+    "state": "your-internal-reference"
+  }
+}
+```
+
+This fires only for **terminal** failures. Recoverable ones — the user cancelled, the QR failed to
+scan, the app was not found — do not fire, because the login page offers a retry within the same
+session and notifying on each would flood your endpoint.
+
+Typical `reason` values: `expiredTransaction`, `certificateErr`. The full list is in
+[Errors](/login/errors).
+
+## Delivery
+
+Standard sajn webhook behaviour: signed, retried with backoff, and visible in the delivery log
+under **Inställningar → Utvecklare → Webhooks**.
+
+Two rules worth repeating:
+
+- **Verify the signature** before acting on a payload.
+- **Expect duplicates.** Deliveries are at-least-once. `data.id` on `LOGIN_COMPLETED` is stable
+  per authentication — use it as an idempotency key.
+
+<Warning>
+  Never treat a webhook as an authentication in itself. It says *an* authentication happened; it
+  is not a credential and does not establish a session for whoever is holding a browser. Bind the
+  session through the redirect, or through the Session API read.
+</Warning>

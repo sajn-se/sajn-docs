@@ -1,0 +1,146 @@
+---
+title: "Scopes and claims"
+description: "What sajn Login can tell you about a user, and how the pseudonymous subject works"
+---
+
+# Scopes and claims
+
+Scopes decide what your application learns about a user. Every scope beyond `openid` is reviewed
+before your client is approved, so ask for what you need and no more.
+
+## Scopes
+
+| Scope | Required | Claims |
+| --- | --- | --- |
+| `openid` | Always | `sub` |
+| `profile` | Optional | `name`, `given_name`, `family_name`, `birthdate` |
+| `nin` | Optional | `nin`, `nin_type` |
+
+`openid` is implicit — it is always included and cannot be removed.
+
+Two claims are present on every authentication regardless of scope:
+
+| Claim | Meaning |
+| --- | --- |
+| `amr` | How they authenticated, e.g. `["BANKID_SE"]` |
+| `auth_time` | When they completed the eID, as a Unix timestamp — not when tokens were minted |
+
+<Warning>
+  Changing your client's scopes returns it to review. An approval covers a specific set of data,
+  not just an application name.
+</Warning>
+
+## The subject (`sub`)
+
+`sub` is a **pairwise pseudonymous identifier**: stable for a person within your organization,
+and meaningless outside it.
+
+<CardGroup cols={2}>
+  <Card title="Stable" icon="anchor">
+    The same person signing in to any of your applications always gets the same `sub`, today and
+    in five years.
+  </Card>
+  <Card title="Un-linkable" icon="user-secret">
+    Their `sub` at another sajn customer is a completely different value. The two cannot be
+    correlated, even by us.
+  </Card>
+  <Card title="Irreversible" icon="lock">
+    The personnummer cannot be derived from it. It is not a hash you can brute-force — the
+    mapping is server-side only.
+  </Card>
+  <Card title="The right user key" icon="key">
+    Store `sub`. It is what identifies a returning user without you holding a national ID number.
+  </Card>
+</CardGroup>
+
+```json
+{
+  "sub": "clx7f2k9v0001abcdefghijkl"
+}
+```
+
+<Tip>
+  If you already identify users by personnummer, you can request `nin` and match on it once, then
+  store `sub` going forward. New systems should skip the personnummer entirely.
+</Tip>
+
+## `profile`
+
+```json
+{
+  "name": "Anna Andersson",
+  "given_name": "Anna",
+  "family_name": "Andersson",
+  "birthdate": "1985-03-15"
+}
+```
+
+Names come from BankID's completion data — the name registered to that BankID, not something the
+user typed.
+
+`birthdate` is `YYYY-MM-DD`, derived from the personnummer and correct for coordination numbers
+(*samordningsnummer*, where the day is offset by 60). You get a date of birth **without**
+requesting `nin`, which is often all an age check needs.
+
+## `nin`
+
+```json
+{
+  "nin": "198503151234",
+  "nin_type": "SE_PERSONNUMMER"
+}
+```
+
+The full Swedish personnummer, normalised to 12 digits (no separator).
+
+<Warning>
+  This is the most sensitive thing sajn Login can give you, and it is reviewed accordingly.
+  Request it only if you have a concrete need — a legal requirement, or an existing system keyed
+  on personnummer. For "who is this returning user", `sub` is better and safer.
+</Warning>
+
+Notes on handling:
+
+- `nin_type` is namespaced against a future where other countries' identifiers appear. Do not
+  assume the value.
+- It arrives in the `id_token`, which lands in your logs if you log tokens. The **access token is
+  deliberately opaque** for the same reason — so the personnummer is never sitting inside a bearer
+  string in a proxy trace.
+
+## Full example
+
+An `id_token` payload with all three scopes:
+
+```json
+{
+  "iss": "https://login.sajn.se",
+  "aud": "YOUR_CLIENT_ID",
+  "sub": "clx7f2k9v0001abcdefghijkl",
+  "iat": 1785016200,
+  "exp": 1785016800,
+  "auth_time": 1785016190,
+  "amr": ["BANKID_SE"],
+  "nonce": "n-0S6_WzA2Mj",
+
+  "name": "Anna Andersson",
+  "given_name": "Anna",
+  "family_name": "Andersson",
+  "birthdate": "1985-03-15",
+
+  "nin": "198503151234",
+  "nin_type": "SE_PERSONNUMMER"
+}
+```
+
+## One projection, every channel
+
+The same claims appear in the `id_token`, from `/oidc/userinfo`, and in the
+[Session API](/login/session-api) result. There is no channel that reveals more than another, and
+no way to widen the set after approval.
+
+## Not included
+
+- **Address, company roles, income, property.** Registry enrichment (SPAR, Bolagsverket,
+  Skatteverket, Lantmäteriet) needs separate data licences and is not part of sajn Login.
+- **Email and phone.** BankID does not provide them. Collect them yourself if you need them.
+- **Anything the user typed.** Every claim originates from BankID, which is the point.

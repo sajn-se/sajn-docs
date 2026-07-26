@@ -1,0 +1,132 @@
+---
+title: "Testing"
+description: "Run the full sajn Login flow against BankID's test environment with a test BankID"
+---
+
+# Testing
+
+You can run the complete login flow — real BankID protocol, real QR codes, real app — without
+touching a real identity.
+
+## How test mode works
+
+A client runs on a **certificate**, and every certificate is either a test or a production
+certificate. A client pointed at a test certificate:
+
+- talks to BankID's test environment instead of production
+- accepts **only** test BankIDs issued from demo.bankid.com
+- can never authenticate a real person
+
+<Note>
+  The environment is a property of the certificate, not a flag you pass. There is no request that
+  can make a production client behave like a test one, or vice versa — which is exactly the
+  point.
+</Note>
+
+Ask sajn to point your client at a test certificate while you integrate. Everything else — the
+issuer, endpoints, scopes, claims, token validation — is identical to production, so nothing
+about your integration changes when you switch.
+
+## 1. Install the BankID test app
+
+The production BankID app will **not** work against the test environment. You need the separate
+test build from [BankID's developer portal](https://developers.bankid.com).
+
+<Warning>
+  On mobile, the test app usually cannot be installed alongside the production BankID app. Use a
+  spare device, or the desktop test app, if you rely on your real BankID day to day.
+</Warning>
+
+## 2. Create a test BankID
+
+Go to [demo.bankid.com](https://demo.bankid.com) and issue a test BankID for any personnummer —
+for example `199001011234`. The number does not need to belong to a real person; the test CA will
+issue for anything well-formed.
+
+<Tip>
+  Make a couple with different names. Testing "returning user gets the same `sub`" and "a
+  different person gets a different `sub`" needs two identities.
+</Tip>
+
+## 3. Run the flow
+
+Point your integration at the same issuer as always:
+
+```
+https://login.sajn.se
+```
+
+Then run your normal login. Scan the QR with the **test** app, complete it, and you should get an
+`id_token` back with your test identity's name and personnummer.
+
+## What to test
+
+<AccordionGroup>
+  <Accordion title="The happy path" icon="check">
+    Authorize → hosted page → BankID → redirect → token exchange → validated `id_token`. Confirm
+    `iss`, `aud` and the signature all check out against JWKS.
+  </Accordion>
+
+  <Accordion title="A returning user" icon="rotate">
+    Log in twice with the same test BankID. `sub` must be identical both times — that is your user
+    key, and your account lookup depends on it.
+  </Accordion>
+
+  <Accordion title="Cancellation" icon="xmark">
+    Start a login and cancel in the app. You should land back on your `redirect_uri` with an
+    `error` parameter, not hang.
+  </Accordion>
+
+  <Accordion title="The abandoned browser" icon="mobile">
+    Complete BankID, then close the browser before it redirects. Your webhook (or a poll of the
+    session) should still report success — this is the most commonly missed case on mobile.
+  </Accordion>
+
+  <Accordion title="Expiry" icon="clock">
+    Open a login URL, wait, then let it sit. After 15 minutes it should show the invalid-link
+    screen rather than starting a fresh BankID.
+  </Accordion>
+
+  <Accordion title="Replay" icon="shield">
+    Exchange the same authorization code twice. The second attempt must fail with
+    `invalid_grant`.
+  </Accordion>
+</AccordionGroup>
+
+## Timings you will notice
+
+These come from BankID and are the same in test and production:
+
+| | |
+| --- | --- |
+| QR code refresh | Every second |
+| Scan window | 2 minutes, then the page offers to extend |
+| After scanning | ~3 minutes to complete in the app |
+| Login URL lifetime | 15 minutes |
+| Authorization code lifetime | 60 seconds, single use |
+
+## Going live
+
+When you are ready, sajn switches your client to a production certificate. Nothing in your code
+changes — same issuer, same client id, same endpoints.
+
+<Warning>
+  From that moment the client authenticates **real people** and every successful login is billed.
+  Make sure your redirect URIs point at production before the switch.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The BankID app says the QR code is invalid">
+    You are almost certainly scanning with the production app against a test client. Use the test
+    app from the developer portal.
+  </Accordion>
+  <Accordion title="Your real BankID does not work">
+    Correct, and intentional. A test client only accepts test BankIDs.
+  </Accordion>
+  <Accordion title="Nothing happens after scanning">
+    Check that your `redirect_uri` is reachable from the device — `localhost` on a phone means the
+    phone, not your laptop. Use a tunnel or a deployed preview URL.
+  </Accordion>
+</AccordionGroup>

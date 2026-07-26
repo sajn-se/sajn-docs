@@ -1,0 +1,216 @@
+---
+title: "Login Quickstart"
+description: "Authenticate your first user with Swedish BankID using sajn Login"
+---
+
+# Login Quickstart
+
+Get a working BankID login in about ten minutes. This guide uses **OpenID Connect**, which is
+what most integrations should use — if you would rather make two REST calls, see the
+[Session API](/login/session-api).
+
+## Prerequisites
+
+- sajn Login enabled for your organization (our team does this — see [Overview](/login/overview#getting-access))
+- An **approved** client with its `client_id` and secret. Create one under
+  **Inställningar → Utvecklare → sajn Login**, then submit it for review.
+- A redirect URI registered on that client. Use `http://localhost:3000/callback` while
+  developing — plain `http` is accepted on localhost only.
+
+<Tip>
+  Point your client at a **test certificate** while integrating. Test clients accept only test
+  BankIDs from demo.bankid.com and can never authenticate a real person. See
+  [Testing](/login/testing).
+</Tip>
+
+## Use a library, if you can
+
+sajn Login is a standard OIDC provider. Most frameworks need only the issuer URL:
+
+```
+https://login.sajn.se
+```
+
+<CodeGroup>
+
+```ts NextAuth.js
+providers: [
+  {
+    id: "sajn",
+    name: "sajn Login",
+    type: "oidc",
+    issuer: "https://login.sajn.se",
+    clientId: process.env.SAJN_LOGIN_CLIENT_ID,
+    clientSecret: process.env.SAJN_LOGIN_CLIENT_SECRET,
+    authorization: { params: { scope: "openid profile" } },
+    // `sub` is stable per person, per organization — use it as your user key.
+    profile: (profile) => ({
+      id: profile.sub,
+      name: profile.name,
+    }),
+  },
+]
+```
+
+```python Python (Authlib)
+oauth.register(
+    name="sajn_login",
+    client_id=SAJN_LOGIN_CLIENT_ID,
+    client_secret=SAJN_LOGIN_CLIENT_SECRET,
+    server_metadata_url="https://login.sajn.se/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid profile", "code_challenge_method": "S256"},
+)
+```
+
+```csharp ASP.NET Core
+.AddOpenIdConnect("sajn", options =>
+{
+    options.Authority = "https://login.sajn.se";
+    options.ClientId = builder.Configuration["SajnLogin:ClientId"];
+    options.ClientSecret = builder.Configuration["SajnLogin:ClientSecret"];
+    options.ResponseType = "code";
+    options.UsePkce = true;
+    options.Scope.Add("profile");
+});
+```
+
+</CodeGroup>
+
+<Warning>
+  **PKCE is mandatory**, including for confidential clients. Most libraries enable it
+  automatically; if yours does not, turn it on or `/oidc/authorize` will reject the request.
+</Warning>
+
+If you are using a library, you are done — skip to [Use the result](#4-use-the-result). The
+rest of this page shows the raw flow.
+
+## 1. Send the user to authorize
+
+Generate a PKCE verifier and challenge, keep the verifier server-side, then redirect:
+
+```
+https://login.sajn.se/oidc/authorize
+  ?client_id=YOUR_CLIENT_ID
+  &redirect_uri=https://yourapp.com/callback
+  &response_type=code
+  &scope=openid%20profile
+  &state=RANDOM_STATE
+  &nonce=RANDOM_NONCE
+  &code_challenge=BASE64URL(SHA256(verifier))
+  &code_challenge_method=S256
+```
+
+```js Generating the PKCE pair
+import { randomBytes, createHash } from "node:crypto";
+
+const verifier = randomBytes(32).toString("base64url");
+const challenge = createHash("sha256").update(verifier).digest("base64url");
+// Store `verifier` and `state` in the user's session — you need both at step 3.
+```
+
+The user lands on the sajn login page, scans with BankID, and is redirected back.
+
+## 2. Receive the code
+
+```
+https://yourapp.com/callback?code=ONE_TIME_CODE&state=RANDOM_STATE
+```
+
+Check `state` matches what you stored. If the login failed, you get `?error=…` instead — see
+[Errors](/login/errors).
+
+## 3. Exchange the code, from your server
+
+```bash
+curl -X POST https://login.sajn.se/oidc/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=authorization_code" \
+  -d "code=ONE_TIME_CODE" \
+  -d "redirect_uri=https://yourapp.com/callback" \
+  -d "client_id=YOUR_CLIENT_ID" \
+  -d "client_secret=YOUR_CLIENT_SECRET" \
+  -d "code_verifier=YOUR_VERIFIER"
+```
+
+```json Response
+{
+  "access_token": "8f3c…",
+  "token_type": "Bearer",
+  "expires_in": 600,
+  "id_token": "eyJhbGciOiJFUzI1NiIs…",
+  "scope": "openid profile"
+}
+```
+
+<Warning>
+  The code is **single-use and valid for 60 seconds**. Exchanging it twice fails — that is
+  deliberate, so a stolen code cannot be replayed.
+</Warning>
+
+## 4. Use the result
+
+Validate the `id_token` against our JWKS and read the claims:
+
+```js
+import { jwtVerify, createRemoteJWKSet } from "jose";
+
+const jwks = createRemoteJWKSet(new URL("https://login.sajn.se/oidc/jwks"));
+
+const { payload } = await jwtVerify(idToken, jwks, {
+  issuer: "https://login.sajn.se",
+  audience: process.env.SAJN_LOGIN_CLIENT_ID,
+});
+
+// payload.sub   → your stable user key
+// payload.name  → "Anna Andersson"   (scope: profile)
+// payload.nin   → "198503151234"     (scope: nin)
+```
+
+Always verify the signature, `iss`, `aud`, `exp` and — if you sent one — `nonce`. Never trust an
+unverified token, and never trust the browser redirect on its own.
+
+<Tip>
+  Key your users on **`sub`**, not the personnummer. It is stable for that person across all your
+  applications, and it keeps you from storing a national ID number you may not need.
+</Tip>
+
+## Common mistakes
+
+<AccordionGroup>
+  <Accordion title="invalid_request: redirect_uri is not registered">
+    `https` redirect URIs must match **exactly** — no extra path, no trailing slash, no query
+    string. `https://app.acme.se/callback` does not match `https://app.acme.se/callback/`.
+  </Accordion>
+  <Accordion title="invalid_request: code_challenge is required">
+    PKCE is mandatory for every client. Enable it in your library.
+  </Accordion>
+  <Accordion title="unauthorized_client">
+    The client is not approved yet, or sajn Login is not enabled for the organization. Both are
+    checked before the user ever sees BankID.
+  </Accordion>
+  <Accordion title="invalid_grant on token exchange">
+    The code was already used, expired after 60 seconds, or `redirect_uri` does not match the one
+    from the authorize request. It must be byte-identical.
+  </Accordion>
+  <Accordion title="The user authenticated but nothing came back">
+    If they closed the browser after BankID, the redirect never fired. Subscribe to the
+    [`LOGIN_COMPLETED` webhook](/login/webhooks) to catch that case.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="OpenID Connect reference" icon="lock" href="/login/oidc">
+    Every endpoint and parameter in detail
+  </Card>
+  <Card title="Scopes and claims" icon="list-check" href="/login/claims">
+    What you can request, and what you get
+  </Card>
+  <Card title="Testing" icon="flask" href="/login/testing">
+    Create a test BankID and run the flow end to end
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/login/webhooks">
+    Catch logins whose redirect never arrives
+  </Card>
+</CardGroup>

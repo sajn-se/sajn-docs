@@ -1,0 +1,109 @@
+---
+title: "Errors"
+description: "OAuth error codes, BankID hint codes, and what to do about each"
+---
+
+# Errors
+
+## Where an error shows up
+
+Three different places, and knowing which one you are looking at narrows the cause immediately:
+
+| Where | Looks like | Cause |
+| --- | --- | --- |
+| A 400 page at `/oidc/authorize` | JSON `{ "error": … }` in the browser | The request could not be tied to a registered client |
+| Your `redirect_uri` | `?error=…&error_description=…` | The request was valid but rejected |
+| The token endpoint | JSON `{ "error": … }` with 400/401 | The code exchange failed |
+
+The first case never redirects — before we have verified that a `redirect_uri` belongs to the
+client, bouncing the user anywhere would make the endpoint an open redirector.
+
+## Authorization errors
+
+| `error` | What happened | Fix |
+| --- | --- | --- |
+| `unauthorized_client` | Unknown client, not approved, or sajn Login is not enabled for the organization | Check the client is **Godkänd** in the dashboard |
+| `invalid_request` | Missing/malformed parameter, unregistered `redirect_uri`, or PKCE absent | See the description; usually an exact-match redirect problem |
+| `invalid_scope` | Unknown scope, `openid` missing, or a scope the client is not approved for | Request only approved scopes |
+| `unsupported_response_type` | Not `code` | sajn Login only supports the authorization code flow |
+| `login_required` | You sent `prompt=none` | Silent authentication is impossible — every login is a fresh BankID |
+
+## Token errors
+
+| `error` | HTTP | What happened |
+| --- | --- | --- |
+| `invalid_client` | 401 | Wrong `client_id` or `client_secret` |
+| `invalid_grant` | 400 | Code unknown, expired, already used, `redirect_uri` mismatch, or PKCE verification failed |
+| `unsupported_grant_type` | 400 | Only `authorization_code` exists — there are no refresh tokens |
+| `invalid_request` | 400 | Missing `code`, `client_id` or `redirect_uri` |
+
+<Warning>
+  `invalid_grant` is the one people hit most. In order of likelihood: the code was already used;
+  more than 60 seconds passed; `redirect_uri` differs by a trailing slash from the authorize
+  request. It must be byte-identical.
+</Warning>
+
+## BankID hint codes
+
+When a login fails on the BankID side, the reason appears as a hint code — on the login page, and
+in the `reason` field of a [`LOGIN_FAILED` webhook](/login/webhooks).
+
+| Hint code | Meaning | Recoverable |
+| --- | --- | --- |
+| `userCancel` | The user cancelled in the app | Yes — they can retry |
+| `cancelled` | The login was cancelled | Yes |
+| `startFailed` | The QR code could not be read | Yes |
+| `noClient` | No BankID app responded | Yes |
+| `expiredTransaction` | The app did not respond in time | No — the session is over |
+| `certificateErr` | Their BankID is blocked or too old | No — they need a new BankID |
+
+Recoverable failures do not fire a webhook: the login page offers a retry inside the same session,
+and notifying on every mistyped cancel would flood your endpoint.
+
+## Session API errors
+
+| HTTP | Meaning |
+| --- | --- |
+| `400` | `redirectUri` is not registered on the client, or the body is malformed |
+| `401` | Missing or invalid API key |
+| `403` | The organization does not have sajn Login enabled |
+| `404` | Unknown session, expired result, **or a session belonging to another workspace** |
+| `429` | Rate limited — see [Rate limits](/api/introduction#rate-limits) |
+
+<Note>
+  A session from another workspace answers `404`, not `403`. "Exists but isn't yours" is itself
+  information, so we do not confirm it.
+</Note>
+
+## Diagnosing by symptom
+
+<AccordionGroup>
+  <Accordion title="Everything works locally, fails in production">
+    Production redirect URIs need to be registered too, and `https` matches exactly. Also check
+    your client was switched to a production certificate — a test client will not accept real
+    BankIDs.
+  </Accordion>
+
+  <Accordion title="The user says they logged in but nothing happened">
+    Classic abandoned-browser case: they completed BankID and closed the in-app browser before the
+    redirect. The authentication succeeded on our side. Subscribe to
+    [`LOGIN_COMPLETED`](/login/webhooks) to see it.
+  </Accordion>
+
+  <Accordion title="id_token signature verification fails">
+    Usually a cached JWKS after a key rotation. Use a client that refetches on an unknown `kid`
+    rather than pinning a key. Also confirm you are validating `iss` as exactly
+    `https://login.sajn.se`, with no trailing slash.
+  </Accordion>
+
+  <Accordion title="`sub` changed for a user you recognise">
+    It should not — `sub` is stable per person per organization. If it changed, you are almost
+    certainly comparing across two different organizations, or between a test and a production
+    environment, which are deliberately separate identifier spaces.
+  </Accordion>
+
+  <Accordion title="The login page says the link is no longer valid">
+    The login was already completed, or it expired (15 minutes). Start a new one — links are
+    single-use by design, so a leaked URL is worthless.
+  </Accordion>
+</AccordionGroup>
