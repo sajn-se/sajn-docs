@@ -1,0 +1,101 @@
+---
+title: "Lagring och radering av dokument"
+description: "Så länge sparas dina dokument – och så raderar du dem, tillfälligt eller permanent"
+---
+
+sajn sparar slutförda dokument tills vidare som standard – ingenting raderas automatiskt om inte arbetsytan aktiverar en lagringspolicy. Den här guiden går igenom hur lagringspolicyn fungerar, hur du undantar enskilda dokument, och vad som händer när ett dokument raderas – tillfälligt via papperskorgen eller permanent.
+
+## Så länge sparas dokument
+
+Slutförda dokument ligger kvar tills vidare. Vill arbetsytan istället rensa automatiskt aktiverar du en **lagringspolicy** som flyttar slutförda dokument till papperskorgen efter en viss tid. Policyn raderar aldrig dokument direkt – de går alltid via papperskorgen först.
+
+Databasen ligger i Stockholm och är krypterad i vila. Automatiska säkerhetskopior rullar av inom 7 dagar, så en raderad uppgift är borta ur driftsdatabasen omedelbart och ur säkerhetskopiorna inom en vecka.
+
+<Note>
+  Organisationens händelselogg sparas 730 dagar som standard.
+</Note>
+
+## Aktivera en lagringspolicy
+
+Lagringspolicyn sätts per arbetsyta.
+
+<Steps>
+  <Step title="Öppna Inställningar → Preferenser">
+    Sidan ligger under *Arbetsyteinställningar*. Policyn gäller bara den aktuella arbetsytan – andra arbetsytor har sina egna inställningar.
+  </Step>
+  <Step title="Välj lagringstid">
+    Välj hur länge slutförda dokument ska sparas innan de flyttas till papperskorgen:
+
+    - **Spara tills vidare** (standard) – ingen automatisk flytt
+    - **30, 90 eller 180 dagar**
+    - **1, 3 eller 7 år**
+
+    Tiden räknas från att dokumentet slutförts.
+  </Step>
+  <Step title="Granska hur många dokument som berörs">
+    Innan policyn sparas visas hur många befintliga slutförda dokument den berör, så att du vet vad som kommer att flyttas.
+  </Step>
+  <Step title="Spara">
+    När policyn är aktiv flyttas slutförda dokument till papperskorgen när lagringstiden löpt ut. Den som skapade dokumentet får en avisering när det flyttas, och en påminnelse 7 dagar innan dokumentet raderas permanent.
+  </Step>
+</Steps>
+
+### Papperskorgens längd
+
+Hur länge dokument ligger i papperskorgen innan de raderas permanent ställs in separat för arbetsytan – mellan **7 och 365 dagar**, med **90 dagar** som standard. Först när den tiden löpt ut raderas dokumentet permanent.
+
+### Undanta enskilda dokument – lagringsspärr
+
+Enskilda dokument kan undantas från lagringspolicyn med en **lagringsspärr**. Ett spärrat dokument påverkas inte av policyn utan sparas tills vidare.
+
+- Kräver behörighet att hantera arbetsytans inställningar.
+- Åtgärden loggas i organisationens händelselogg.
+
+<Warning>
+  Att återställa ett dokument från papperskorgen räcker inte för att undanta det – utan lagringsspärr flyttar policyn dokumentet till papperskorgen igen.
+</Warning>
+
+## Radera ett dokument
+
+Alla dokument kan raderas, oavsett status – även slutförda. Ett raderat dokument hamnar i papperskorgen och kan återställas därifrån så länge det ligger kvar. Se guiden [Flytta ett dokument till papperskorgen och återställa det](/guider/trash-document).
+
+## Radera permanent
+
+Permanent radering kräver två saker:
+
+1. Dokumentet ligger redan i papperskorgen.
+2. Du har behörigheten **Radera dokument permanent** – den ingår inte i standarduppsättningen dokumentbehörigheter utan måste tilldelas separat.
+
+Permanent radering tar bort databasraderna, uppladdade filer, den förseglade PDF:en, signeringsintyget och händelseloggen för dokumentet.
+
+<Warning>
+  Permanent radering går inte att ångra. Dokumentet och alla tillhörande filer försvinner för gott.
+</Warning>
+
+### Via API
+
+- `DELETE /api/v1/documents/{id}` flyttar dokumentet till papperskorgen, oavsett status.
+- `POST /api/v1/documents/{id}/purge` raderar det permanent. Kräver scopet `documents:delete` och att `confirmDocumentId` i request-bodyn matchar id:t i sökvägen:
+
+```json
+{
+  "confirmDocumentId": "cmfzmnez20003le0435q1ugu1"
+}
+```
+
+## Efter permanent radering
+
+Verifieringslänken i den förseglade PDF:en fortsätter att fungera även efter att dokumentet raderats permanent. Den visar att dokumentet har raderats och när, samt PDF:ens SHA-256-kontrollsumma. En motpart som har kvar sin kopia kan ladda upp den och få den kontrollerad mot kontrollsumman. Inga personuppgifter sparas i den posten.
+
+Den förseglade PDF:en är dessutom signerad enligt PAdES och validerar fristående – till exempel i Adobe Reader – oberoende av sajn.
+
+## Läs mer
+
+<CardGroup cols={2}>
+  <Card title="Papperskorgen" icon="trash" href="/guider/trash-document">
+    Flytta dokument till papperskorgen och återställ dem.
+  </Card>
+  <Card title="Verifiera ett dokument" icon="shield-check" href="/guider/verifiera-dokument">
+    Kontrollera äktheten hos ett signerat dokument.
+  </Card>
+</CardGroup>

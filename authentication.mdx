@@ -5,7 +5,19 @@ description: 'Learn how to authenticate with the sajn API'
 
 # Authentication
 
-The sajn API uses API keys to authenticate requests. All API requests must include your API key in the `Authorization` header.
+This page covers **API keys** — the right credential for a server integration against your
+own sajn account. Every request carries the key in the `Authorization` header.
+
+The API also accepts OAuth 2.0 bearer tokens, which is how integrations that connect to
+*many* sajn customers' accounts authenticate. If you are not sure which applies to you, read
+[Choosing an authentication method](/choosing-authentication) first — it takes a minute and
+saves rebuilding later.
+
+<Note>
+  An API key is bound to a **single workspace**, chosen when you create it. You never send a
+  workspace id with your requests. Call [`GET /api/v1/me`](/api-reference/endpoint/get-api-v1-me)
+  to confirm which workspace and organization a key points at.
+</Note>
 
 ## Getting Your API Key
 

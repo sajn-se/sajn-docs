@@ -133,6 +133,10 @@ Set an expiration date to automatically expire documents that aren't completed i
 
 When a document expires, its status changes to `EXPIRED` and signers can no longer access it.
 
+## Retention and Deletion
+
+Completed documents are stored indefinitely by default. Each workspace can enable a retention policy that moves completed documents to the trash after a set period, with per-document exemptions available. Any document can be deleted regardless of status via [`DELETE /api/v1/documents/{id}`](/api/DELETE%20/api/v1/documents/{id}), which moves it to the trash; permanent deletion is a separate, irreversible operation via `POST /api/v1/documents/{id}/purge`. See the guide on [storage and deletion](/guider/lagring-och-radering) for details.
+
 ## Best Practices
 
 <CardGroup cols={2}>

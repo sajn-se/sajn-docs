@@ -919,7 +919,7 @@
                                 "nullable": true
                               },
                               "redirectUrl": {
-                                "description": "URL to redirect signers to after signing is complete",
+                                "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                                 "type": "string",
                                 "nullable": true
                               },
@@ -1142,9 +1142,8 @@
                         "type": "string"
                       },
                       "redirectUrl": {
-                        "description": "URL to redirect signers to after signing is complete",
-                        "type": "string",
-                        "format": "uri"
+                        "description": "URL to redirect signers to after signing is complete. Must be http(s).",
+                        "type": "string"
                       },
                       "redirectEnabled": {
                         "description": "Whether redirect after signing is enabled",
@@ -1970,7 +1969,7 @@
                           "nullable": true
                         },
                         "redirectUrl": {
-                          "description": "URL to redirect signers to after signing is complete",
+                          "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                           "type": "string",
                           "nullable": true
                         },
@@ -2055,7 +2054,7 @@
                             "nullable": true
                           },
                           "ssn": {
-                            "description": "Swedish personal number (personnummer) - required for BankID signing",
+                            "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                             "type": "string",
                             "nullable": true
                           },
@@ -2161,6 +2160,14 @@
                               "FAILED"
                             ],
                             "nullable": true
+                          },
+                          "identityVerified": {
+                            "type": "boolean",
+                            "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                          },
+                          "identityMismatch": {
+                            "type": "boolean",
+                            "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                           }
                         },
                         "required": [
@@ -2174,7 +2181,9 @@
                           "deliveryMethod",
                           "requiredSignature",
                           "twoStepVerification",
-                          "sendStatus"
+                          "sendStatus",
+                          "identityVerified",
+                          "identityMismatch"
                         ],
                         "additionalProperties": false
                       }
@@ -2235,7 +2244,7 @@
                             "nullable": true
                           },
                           "ssn": {
-                            "description": "Swedish personal number (personnummer) - required for BankID signing",
+                            "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                             "type": "string",
                             "nullable": true
                           },
@@ -2341,6 +2350,14 @@
                               "FAILED"
                             ],
                             "nullable": true
+                          },
+                          "identityVerified": {
+                            "type": "boolean",
+                            "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                          },
+                          "identityMismatch": {
+                            "type": "boolean",
+                            "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                           }
                         },
                         "required": [
@@ -2354,7 +2371,9 @@
                           "deliveryMethod",
                           "requiredSignature",
                           "twoStepVerification",
-                          "sendStatus"
+                          "sendStatus",
+                          "identityVerified",
+                          "identityMismatch"
                         ],
                         "additionalProperties": false
                       }
@@ -2587,9 +2606,8 @@
                         "type": "string"
                       },
                       "redirectUrl": {
-                        "description": "URL to redirect signers to after signing is complete",
-                        "type": "string",
-                        "format": "uri"
+                        "description": "URL to redirect signers to after signing is complete. Must be http(s).",
+                        "type": "string"
                       },
                       "redirectEnabled": {
                         "description": "Whether redirect after signing is enabled",
@@ -2794,7 +2812,7 @@
                           "nullable": true
                         },
                         "redirectUrl": {
-                          "description": "URL to redirect signers to after signing is complete",
+                          "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                           "type": "string",
                           "nullable": true
                         },
@@ -2899,7 +2917,7 @@
         ]
       },
       "delete": {
-        "description": "Soft delete a document. The document is marked as deleted but not permanently removed from the database.\n\n**Note:** Deleted documents are not included in list responses but can be retrieved by ID if you have the document ID.",
+        "description": "Move a document to the trash. It is marked as deleted but not yet removed — restore it, or let the workspace's trash window purge it.\n\nWorks for every status, including `COMPLETED`. You are the controller of your data; deciding when a signed agreement goes is your call.\n\n**Note:** Deleted documents are not included in list responses but can still be retrieved by ID.\n\n**To remove a document immediately and irreversibly**, use `POST /api/v1/documents/{id}/purge`.",
         "summary": "Delete a document",
         "parameters": [
           {
@@ -3008,7 +3026,7 @@
                           "nullable": true
                         },
                         "redirectUrl": {
-                          "description": "URL to redirect signers to after signing is complete",
+                          "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                           "type": "string",
                           "nullable": true
                         },
@@ -3252,6 +3270,256 @@
           {
             "oauth2": [
               "audit:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/documents/{id}/signatures": {
+      "get": {
+        "description": "The identity each eID actually verified, per signature — as opposed to the signer details the sender entered when creating the document.\n\n**Why this is a separate endpoint:** `signer.ssn` is what the sender supplied. It is never overwritten with what the eID returned, so the two can differ, and this is where you read the verified one.\n\n**One shape for every eID.** Keys are always present and null when a scheme issues nothing, so you never branch on provider to find where the identity lives:\n- `identity.nationalId` — the national identity number, masked per the workspace's SSN display setting. **Null for schemes that issue none:** MitID without CPR scope, MitID Erhverv, and iDIN, which may never expose a BSN.\n- `identity.serialNumber` — always present. A stable, non-sensitive reference for this person at your organization. Use it to recognise a returning signer without ever handling a national id. Scoped per organization, so the same person yields a different value for a different customer.\n- `identity.match` — whether the verified identity matched the intended signer. Computed before masking, so it stays meaningful even when `nationalId` is hidden by policy.\n\n`identity` is null for drawn and click-to-sign signatures: nothing verified an identity.\n\n**Permissions:** requires the `READ_DOCUMENT` workspace permission and the `signatures:read` scope. `documents:read` alone never returns a national identity number.\n\n**Auditing:** every call is recorded on the organization audit log — who read a verified identity and when. The identity values themselves are never logged.",
+        "summary": "Get verified signer identities",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getDocumentSignatures",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "signatures": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "signerId": {
+                            "type": "string"
+                          },
+                          "signerName": {
+                            "type": "string",
+                            "description": "The name on the signer record, as entered by the sender."
+                          },
+                          "signedAt": {
+                            "nullable": true
+                          },
+                          "identity": {
+                            "description": "Null when no eID verified this signature — a drawn or click-to-sign signature.",
+                            "type": "object",
+                            "properties": {
+                              "provider": {
+                                "type": "string",
+                                "description": "The eID that verified this identity, e.g. SE_BANKID, DK_MITID. Also tells you the format of nationalId."
+                              },
+                              "name": {
+                                "description": "Legal name as reported by the eID — not the name the sender typed.",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "nationalId": {
+                                "description": "National identity number the eID returned, masked per the workspace SSN display setting. Null when the scheme issues none: MitID without CPR scope, and iDIN, which may never expose a BSN.",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "nationalIdSuppressed": {
+                                "description": "Set when a national id exists but the workspace policy hides it. Distinguishes \"hidden from you\" from \"the eID never issued one\".",
+                                "type": "string",
+                                "enum": [
+                                  "WORKSPACE_POLICY"
+                                ],
+                                "nullable": true
+                              },
+                              "serialNumber": {
+                                "description": "Stable, non-sensitive reference for this person at this organization. Present for every eID. Use it to recognise a returning signer without handling a national id. Scoped per organization, so it cannot be correlated across customers.",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "dateOfBirth": {
+                                "description": "ISO date, when the scheme reports it.",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "company": {
+                                "description": "Registry-verified organizational identity — MitID Erhverv only.",
+                                "type": "object",
+                                "properties": {
+                                  "orgNumber": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "orgNumber",
+                                  "name"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true
+                              },
+                              "match": {
+                                "type": "object",
+                                "properties": {
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "MATCH",
+                                      "MISMATCH",
+                                      "NOT_CHECKED"
+                                    ]
+                                  },
+                                  "method": {
+                                    "type": "string",
+                                    "enum": [
+                                      "SSN",
+                                      "NAME"
+                                    ],
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "status",
+                                  "method"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Whether the verified identity matched the signer the sender intended. Computed before masking, so it stays meaningful even when nationalId is hidden."
+                              }
+                            },
+                            "required": [
+                              "provider",
+                              "name",
+                              "nationalId",
+                              "nationalIdSuppressed",
+                              "serialNumber",
+                              "dateOfBirth",
+                              "company",
+                              "match"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "signerId",
+                          "signerName",
+                          "signedAt",
+                          "identity"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "signatures"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "signatures:read"
             ]
           },
           {
@@ -3645,7 +3913,7 @@
                           "nullable": true
                         },
                         "redirectUrl": {
-                          "description": "URL to redirect signers to after signing is complete",
+                          "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                           "type": "string",
                           "nullable": true
                         },
@@ -3773,7 +4041,7 @@
                           "nullable": true
                         },
                         "redirectUrl": {
-                          "description": "URL to redirect signers to after signing is complete",
+                          "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                           "type": "string",
                           "nullable": true
                         },
@@ -4032,7 +4300,7 @@
                           "nullable": true
                         },
                         "redirectUrl": {
-                          "description": "URL to redirect signers to after signing is complete",
+                          "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                           "type": "string",
                           "nullable": true
                         },
@@ -4320,7 +4588,7 @@
                           "nullable": true
                         },
                         "redirectUrl": {
-                          "description": "URL to redirect signers to after signing is complete",
+                          "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                           "type": "string",
                           "nullable": true
                         },
@@ -4467,6 +4735,201 @@
           {
             "oauth2": [
               "documents:write"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/documents/{id}/purge": {
+      "post": {
+        "description": "Irreversibly delete a document: database rows, uploaded files, the sealed PDF, the signing certificate and the audit trail. There is no undo and no support path to recover it.\n\n**Requirements:**\n- The document must already be in the trash. Call `DELETE /api/v1/documents/{id}` first.\n- Requires the `PERMANENTLY_DELETE_DOCUMENT` workspace permission, which is not part of the default document-permission set.\n- Requires the `documents:delete` scope.\n\n**Completed documents:** allowed, and the verify link printed into the sealed PDF keeps working. It resolves to a record holding the document ID, the sealed PDF's SHA-256 and the deletion date — and no personal data. A counterparty holding the PDF can still check their copy against that hash; the PAdES signature in their file also validates on its own, without sajn.\n\n**Backups:** the document is gone from the live database immediately. Encrypted database backups roll off within 7 days.",
+        "summary": "Permanently delete a document",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "purgeDocument",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "confirmDocumentId": {
+                    "type": "string",
+                    "description": "Must equal the document id in the path. Guards against an accidental purge of the wrong document."
+                  }
+                },
+                "required": [
+                  "confirmDocumentId"
+                ],
+                "additionalProperties": false,
+                "description": "Permanently delete a document that is already in the trash. Irreversible."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Confirmation that a document was permanently deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "purged": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "verificationRetained": {
+                      "type": "boolean",
+                      "description": "True when a tombstone was kept so the sealed PDF's verify link still resolves."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "purged",
+                    "verificationRetained"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Confirmation that a document was permanently deleted."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents:delete"
             ]
           },
           {
@@ -4634,7 +5097,7 @@
                       "nullable": true
                     },
                     "ssn": {
-                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                       "type": "string",
                       "nullable": true
                     },
@@ -4740,6 +5203,14 @@
                         "FAILED"
                       ],
                       "nullable": true
+                    },
+                    "identityVerified": {
+                      "type": "boolean",
+                      "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                    },
+                    "identityMismatch": {
+                      "type": "boolean",
+                      "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                     }
                   },
                   "required": [
@@ -4753,7 +5224,9 @@
                     "deliveryMethod",
                     "requiredSignature",
                     "twoStepVerification",
-                    "sendStatus"
+                    "sendStatus",
+                    "identityVerified",
+                    "identityMismatch"
                   ],
                   "additionalProperties": false
                 }
@@ -4958,7 +5431,7 @@
                             "nullable": true
                           },
                           "ssn": {
-                            "description": "Swedish personal number (personnummer) - required for BankID signing",
+                            "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                             "type": "string",
                             "nullable": true
                           },
@@ -5064,6 +5537,14 @@
                               "FAILED"
                             ],
                             "nullable": true
+                          },
+                          "identityVerified": {
+                            "type": "boolean",
+                            "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                          },
+                          "identityMismatch": {
+                            "type": "boolean",
+                            "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                           }
                         },
                         "required": [
@@ -5077,7 +5558,9 @@
                           "deliveryMethod",
                           "requiredSignature",
                           "twoStepVerification",
-                          "sendStatus"
+                          "sendStatus",
+                          "identityVerified",
+                          "identityMismatch"
                         ],
                         "additionalProperties": false
                       }
@@ -5346,7 +5829,7 @@
                       "nullable": true
                     },
                     "ssn": {
-                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                       "type": "string",
                       "nullable": true
                     },
@@ -5452,6 +5935,14 @@
                         "FAILED"
                       ],
                       "nullable": true
+                    },
+                    "identityVerified": {
+                      "type": "boolean",
+                      "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                    },
+                    "identityMismatch": {
+                      "type": "boolean",
+                      "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                     }
                   },
                   "required": [
@@ -5465,7 +5956,9 @@
                     "deliveryMethod",
                     "requiredSignature",
                     "twoStepVerification",
-                    "sendStatus"
+                    "sendStatus",
+                    "identityVerified",
+                    "identityMismatch"
                   ],
                   "additionalProperties": false
                 }
@@ -5673,7 +6166,7 @@
                       "nullable": true
                     },
                     "ssn": {
-                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                       "type": "string",
                       "nullable": true
                     },
@@ -5779,6 +6272,14 @@
                         "FAILED"
                       ],
                       "nullable": true
+                    },
+                    "identityVerified": {
+                      "type": "boolean",
+                      "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                    },
+                    "identityMismatch": {
+                      "type": "boolean",
+                      "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                     }
                   },
                   "required": [
@@ -5792,7 +6293,9 @@
                     "deliveryMethod",
                     "requiredSignature",
                     "twoStepVerification",
-                    "sendStatus"
+                    "sendStatus",
+                    "identityVerified",
+                    "identityMismatch"
                   ],
                   "additionalProperties": false
                 }
@@ -6000,7 +6503,7 @@
                       "nullable": true
                     },
                     "ssn": {
-                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                       "type": "string",
                       "nullable": true
                     },
@@ -6114,6 +6617,14 @@
                     "signingUrl": {
                       "type": "string",
                       "description": "Complete signing URL for this signer"
+                    },
+                    "identityVerified": {
+                      "type": "boolean",
+                      "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                    },
+                    "identityMismatch": {
+                      "type": "boolean",
+                      "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                     }
                   },
                   "required": [
@@ -6129,7 +6640,9 @@
                     "requiredSignature",
                     "twoStepVerification",
                     "sendStatus",
-                    "signingUrl"
+                    "signingUrl",
+                    "identityVerified",
+                    "identityMismatch"
                   ],
                   "additionalProperties": false
                 }
@@ -6530,7 +7043,7 @@
                       "nullable": true
                     },
                     "ssn": {
-                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                       "type": "string",
                       "nullable": true
                     },
@@ -6636,6 +7149,14 @@
                         "FAILED"
                       ],
                       "nullable": true
+                    },
+                    "identityVerified": {
+                      "type": "boolean",
+                      "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                    },
+                    "identityMismatch": {
+                      "type": "boolean",
+                      "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                     }
                   },
                   "required": [
@@ -6649,7 +7170,9 @@
                     "deliveryMethod",
                     "requiredSignature",
                     "twoStepVerification",
-                    "sendStatus"
+                    "sendStatus",
+                    "identityVerified",
+                    "identityMismatch"
                   ],
                   "additionalProperties": false
                 }
@@ -6854,7 +7377,7 @@
                             "nullable": true
                           },
                           "ssn": {
-                            "description": "Swedish personal number (personnummer) - required for BankID signing",
+                            "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                             "type": "string",
                             "nullable": true
                           },
@@ -6960,6 +7483,14 @@
                               "FAILED"
                             ],
                             "nullable": true
+                          },
+                          "identityVerified": {
+                            "type": "boolean",
+                            "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                          },
+                          "identityMismatch": {
+                            "type": "boolean",
+                            "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                           }
                         },
                         "required": [
@@ -6973,7 +7504,9 @@
                           "deliveryMethod",
                           "requiredSignature",
                           "twoStepVerification",
-                          "sendStatus"
+                          "sendStatus",
+                          "identityVerified",
+                          "identityMismatch"
                         ],
                         "additionalProperties": false
                       }
@@ -7242,7 +7775,7 @@
                       "nullable": true
                     },
                     "ssn": {
-                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                       "type": "string",
                       "nullable": true
                     },
@@ -7348,6 +7881,14 @@
                         "FAILED"
                       ],
                       "nullable": true
+                    },
+                    "identityVerified": {
+                      "type": "boolean",
+                      "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                    },
+                    "identityMismatch": {
+                      "type": "boolean",
+                      "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                     }
                   },
                   "required": [
@@ -7361,7 +7902,9 @@
                     "deliveryMethod",
                     "requiredSignature",
                     "twoStepVerification",
-                    "sendStatus"
+                    "sendStatus",
+                    "identityVerified",
+                    "identityMismatch"
                   ],
                   "additionalProperties": false
                 }
@@ -7569,7 +8112,7 @@
                       "nullable": true
                     },
                     "ssn": {
-                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                       "type": "string",
                       "nullable": true
                     },
@@ -7675,6 +8218,14 @@
                         "FAILED"
                       ],
                       "nullable": true
+                    },
+                    "identityVerified": {
+                      "type": "boolean",
+                      "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                    },
+                    "identityMismatch": {
+                      "type": "boolean",
+                      "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                     }
                   },
                   "required": [
@@ -7688,7 +8239,9 @@
                     "deliveryMethod",
                     "requiredSignature",
                     "twoStepVerification",
-                    "sendStatus"
+                    "sendStatus",
+                    "identityVerified",
+                    "identityMismatch"
                   ],
                   "additionalProperties": false
                 }
@@ -7896,7 +8449,7 @@
                       "nullable": true
                     },
                     "ssn": {
-                      "description": "Swedish personal number (personnummer) - required for BankID signing",
+                      "description": "National identity number supplied by the sender when creating the document. Optional — BankID works without it, falling back to a name check. This is input and is never overwritten with what the eID verified: read the verified identity from GET /api/v1/documents/{id}/signatures.",
                       "type": "string",
                       "nullable": true
                     },
@@ -8010,6 +8563,14 @@
                     "signingUrl": {
                       "type": "string",
                       "description": "Complete signing URL for this signer"
+                    },
+                    "identityVerified": {
+                      "type": "boolean",
+                      "description": "True when an eID verified this signer — either by signing with one or by passing an eID verification gate."
+                    },
+                    "identityMismatch": {
+                      "type": "boolean",
+                      "description": "True when an eID completed but the identity did not match the intended signer. The signature is still recorded; read GET /api/v1/documents/{id}/signatures to see what differed."
                     }
                   },
                   "required": [
@@ -8025,7 +8586,9 @@
                     "requiredSignature",
                     "twoStepVerification",
                     "sendStatus",
-                    "signingUrl"
+                    "signingUrl",
+                    "identityVerified",
+                    "identityMismatch"
                   ],
                   "additionalProperties": false
                 }
@@ -9371,7 +9934,7 @@
         ]
       },
       "delete": {
-        "description": "Soft delete a contact. The contact is marked as deleted but existing document signers remain unaffected.",
+        "description": "Permanently delete a contact. Existing document signers are unaffected — they keep their own name/email snapshot and are unlinked from the contact rather than removed, so past and in-flight documents stay intact.",
         "summary": "Delete a contact",
         "parameters": [
           {
@@ -11859,9 +12422,6 @@
                                     "unit": {
                                       "type": "string"
                                     },
-                                    "discount": {
-                                      "type": "number"
-                                    },
                                     "quantity": {
                                       "type": "number"
                                     },
@@ -13262,9 +13822,6 @@
                                       },
                                       "unit": {
                                         "type": "string"
-                                      },
-                                      "discount": {
-                                        "type": "number"
                                       },
                                       "quantity": {
                                         "type": "number"
@@ -19770,7 +20327,7 @@
                           "nullable": true
                         },
                         "redirectUrl": {
-                          "description": "URL to redirect signers to after signing is complete",
+                          "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                           "type": "string",
                           "nullable": true
                         },
@@ -21680,9 +22237,6 @@
                                       },
                                       "unit": {
                                         "type": "string"
-                                      },
-                                      "discount": {
-                                        "type": "number"
                                       },
                                       "quantity": {
                                         "type": "number"
@@ -24457,9 +25011,6 @@
                                     "unit": {
                                       "type": "string"
                                     },
-                                    "discount": {
-                                      "type": "number"
-                                    },
                                     "quantity": {
                                       "type": "number"
                                     },
@@ -25860,9 +26411,6 @@
                                       },
                                       "unit": {
                                         "type": "string"
-                                      },
-                                      "discount": {
-                                        "type": "number"
                                       },
                                       "quantity": {
                                         "type": "number"
@@ -31779,7 +32327,7 @@
                                 "nullable": true
                               },
                               "redirectUrl": {
-                                "description": "URL to redirect signers to after signing is complete",
+                                "description": "URL to redirect signers to after signing is complete. New values must be http(s); legacy values are returned as stored.",
                                 "type": "string",
                                 "nullable": true
                               },
@@ -37035,6 +37583,7 @@
               "contacts:delete": "Tillgång till att ta bort dina kontakter",
               "organization:read": "Tillgång till att läsa information om din organisation",
               "audit:read": "Tillgång till att läsa dokumentaktivitet och händelseloggar",
+              "signatures:read": "Tillgång till att läsa vilken identitet e-legitimationen verifierade vid signering, inklusive personnummer",
               "sajnid:read": "Tillgång till att läsa sajn-id-verifieringar",
               "sajnid:write": "Tillgång till att skapa sajn-id-verifieringar",
               "login:read": "Tillgång till att läsa resultatet av inloggningar via sajn Login",
