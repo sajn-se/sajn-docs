@@ -1,6 +1,6 @@
 ---
 title: "AI i sajn"
-description: "En överblick av sajns AI-assistent Bob – vad den kan göra och hur era data hanteras (Zero Data Retention, ingen modellträning)"
+description: "En överblick av sajns AI-assistent Bob – vad den kan göra och hur era data hanteras (ingen modellträning, chattar kan raderas permanent)"
 ---
 
 sajns AI-assistent **Bob** hjälper er genom hela dokumentflödet – från att tolka uppladdade PDF:er till att svara på frågor under signeringen. Den här sidan ger en överblick av vad AI:n kan göra och, lika viktigt, hur era data hanteras när den körs. Vill du justera inställningarna hittar du dem under [AI-inställningar](/guider/settings-ai) i arbetsytan.
@@ -22,9 +22,11 @@ AI är en huvudströmbrytare per arbetsyta. Vill ni av integritets- eller policy
 
 AI-funktionerna är byggda för att kunna användas utan att tumma på sekretessen. Så här hanteras era data när AI:n körs:
 
-### Zero Data Retention (ZDR)
+### Datalagring hos leverantören
 
-sajn kör med **Zero Data Retention** mot vår AI-leverantör. Det innebär att det innehåll som skickas till språkmodellen – dokumenttext, dina chattmeddelanden och liknande – **inte sparas hos leverantören** efter att svaret har genererats. Innehållet används enbart för att producera just det svar du efterfrågar, och raderas därefter på leverantörens sida.
+Det innehåll som skickas till språkmodellen – dokumenttext, dina chattmeddelanden och liknande – används **enbart för att producera just det svar du efterfrågar**. Leverantören sparar ingenting för sin egen räkning och använder aldrig innehållet för att träna modeller.
+
+Leverantören kan däremot spara loggar för **missbruksövervakning i upp till 30 dagar**, varefter de raderas. Det är en säkerhetsmekanism hos leverantören som vi inte kan stänga av, och innehållet är inte tillgängligt för oss.
 
 ### När AI är avstängt skickas ingenting
 
@@ -36,7 +38,9 @@ Varken sajn eller vår AI-leverantör använder ert innehåll för att träna el
 
 ### Chattar och feedback
 
-De chattar du har med Bob och den feedback du aktivt skickar in (till exempel tummen upp/ner på ett svar) sparas hos sajn. Syftet är begränsat: vi använder det för att kunna hjälpa er i supportärenden och förbättra kvaliteten på AI-svaren. Det säljs aldrig vidare och används aldrig för modellträning.
+De chattar du har med Bob och den feedback du aktivt skickar in (till exempel tummen upp/ner på ett svar) sparas hos sajn, så att du hittar tillbaka till dem. Syftet är begränsat: vi använder det för att kunna hjälpa er i supportärenden och förbättra kvaliteten på AI-svaren. Det säljs aldrig vidare och används aldrig för modellträning.
+
+**Du kan radera en chatt permanent när som helst.** Radera den i Bobs sidopanel så tas konversationen bort tillsammans med alla meddelanden och all feedback i den. Det är en riktig radering ur databasen – ingen dold arkivering och ingen papperskorg.
 
 ### Anonymiserad användningsstatistik
 
@@ -44,9 +48,9 @@ För att förstå hur AI-funktionerna används samlar vi **anonymiserad** använ
 
 | | Skickas till AI-leverantör | Sparas hos sajn | Används för träning |
 |---|---|---|---|
-| Dokument & innehåll (AI på) | Ja, med ZDR – sparas inte hos leverantören | Nej | Nej |
+| Dokument & innehåll (AI på) | Ja – loggas max 30 dagar hos leverantören | Nej | Nej |
 | Allt (AI av) | Nej | Nej | Nej |
-| Chattar & inskickad feedback | Ja, med ZDR | Ja, för support och kvalitet | Nej |
+| Chattar & inskickad feedback | Ja – loggas max 30 dagar hos leverantören | Ja, för support och kvalitet – kan raderas permanent | Nej |
 | Användningsstatistik | – | Ja, anonymiserad och maskerad | Nej |
 
 <Note>
