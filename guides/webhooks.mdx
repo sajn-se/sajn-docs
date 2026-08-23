@@ -42,10 +42,17 @@ All webhooks are sent as `POST` requests with a JSON body:
 |--------|-------------|
 | `Content-Type` | `application/json` |
 | `X-Sajn-Secret` | The secret you configured (empty string if not set). Use this to verify that the request came from sajn. |
+| `X-Sajn-Environment` | `sandbox` for deliveries from a sandbox organization, `production` for everything else. Useful when both environments post to the same endpoint. |
 
 ### Verifying Requests
 
 Compare the `X-Sajn-Secret` header value against the secret you configured when creating the webhook. Reject requests that don't match.
+
+### Handling New Fields
+
+Payloads gain fields over time as sajn adds features. Adding a field is not treated as a breaking change, so your endpoint must ignore keys it does not recognise. Most JSON parsers do this by default; strict deserialisers do not, so check the ones that reject unknown properties -- `zod` schemas using `.strict()`, Pydantic models with `extra="forbid"`, JSON Schema validation with `additionalProperties: false`, Go's `DisallowUnknownFields()`, and Jackson, where `FAIL_ON_UNKNOWN_PROPERTIES` is enabled unless you turn it off.
+
+Existing fields are never removed or retyped without a new API version.
 
 ---
 
@@ -83,7 +90,7 @@ These events fire on document-level state changes. The payload is a [Document ob
 
 ### Party Events (per signer)
 
-These events fire when a specific signer takes action. The payload is a [Document + Party object](#document--party-payload).
+These events fire when a specific party takes action. The payload is a [Document + Party object](#document--party-payload).
 
 | Event | Description |
 |-------|-------------|
@@ -166,18 +173,21 @@ Used by document-level events (`DOCUMENT_CREATED`, `DOCUMENT_SENT`, `DOCUMENT_SI
 {
   "id": "clx1abc...",
   "title": "Employment Agreement",
+  "externalId": "booking-4711",
   "createdAt": "2026-04-16T10:00:00.000Z",
   "updatedAt": "2026-04-16T12:00:00.000Z",
   "organizationId": "clx2def...",
   "status": "COMPLETED",
-  "signers": [
+  "parties": [
     {
       "id": "clx3ghi...",
       "name": "Anna Svensson",
       "email": "anna@example.com",
+      "externalId": "customer-88",
       "signingStatus": "SIGNED"
     }
-  ]
+  ],
+  "signers": [...]
 }
 ```
 
@@ -185,40 +195,46 @@ Used by document-level events (`DOCUMENT_CREATED`, `DOCUMENT_SENT`, `DOCUMENT_SI
 |-------|------|-------------|
 | `id` | string | Document ID. |
 | `title` | string | Document title. |
+| `externalId` | string or null | Your own reference ID for the document, as set when it was created or updated. |
 | `createdAt` | string (ISO 8601) | When the document was created. |
 | `updatedAt` | string (ISO 8601) | When the document was last updated. |
 | `organizationId` | string | The organization that owns the document. |
 | `status` | string | One of: `DRAFT`, `SENDING`, `PENDING_APPROVAL`, `PENDING`, `COMPLETED`, `EXPIRED`, `CANCELLED`, `REJECTED`, `IMPORTED`. |
-| `signers` | array | List of signers (see below). |
+| `parties` | array | The document's participants (see below). |
+| `signers` | array | **Deprecated.** Identical content to `parties`, kept for older integrations. Removed in API v2 — see [Migrating from Signers to Parties](/guides/migrate-signers-to-parties). |
 
-**Signer object:**
+**Party object:**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `id` | string | Signer ID. |
-| `name` | string | Signer's name. |
-| `email` | string | Signer's email address. |
+| `id` | string | Party ID. |
+| `name` | string | The party's name. |
+| `email` | string | The party's email address. |
+| `externalId` | string or null | Your own reference ID for the party, as set when it was added to the document. |
 | `signingStatus` | string | One of: `NOT_SIGNED`, `SIGNED`, `REJECTED`. |
 
 ### Document + Party Payload
 
-Used by party-level and reminder events. Wraps the document payload with the specific signer that triggered the event.
+Used by party-level and reminder events. Wraps the document payload with the specific party that triggered the event.
 
 ```json
 {
   "document": {
     "id": "clx1abc...",
     "title": "Employment Agreement",
+    "externalId": "booking-4711",
     "createdAt": "2026-04-16T10:00:00.000Z",
     "updatedAt": "2026-04-16T12:00:00.000Z",
     "organizationId": "clx2def...",
     "status": "PENDING",
+    "parties": [...],
     "signers": [...]
   },
   "party": {
     "id": "clx3ghi...",
     "name": "Anna Svensson",
     "email": "anna@example.com",
+    "externalId": "customer-88",
     "signingStatus": "SIGNED"
   }
 }
@@ -227,7 +243,7 @@ Used by party-level and reminder events. Wraps the document payload with the spe
 | Field | Type | Description |
 |-------|------|-------------|
 | `document` | object | The full [Document payload](#document-payload). |
-| `party` | object | The signer that triggered this event (same shape as a signer object). |
+| `party` | object | The party that triggered this event (same shape as a party object). |
 
 ### Identity Check Payload
 

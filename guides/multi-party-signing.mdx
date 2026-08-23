@@ -250,20 +250,33 @@ Response shows signing status:
 
 ### Webhook Notifications
 
-Receive real-time updates for each signing event:
+Each individual signature fires `DOCUMENT_PARTY_SIGNED`, carrying the [Document + Party payload](/guides/webhooks#document--party-payload) — the whole document plus the party that just signed:
 
 ```json
 {
-  "event": "DOCUMENT_SIGNED",
-  "data": {
-    "documentId": "doc_123",
-    "signerId": "signer_1",
-    "signerName": "Anna Andersson",
-    "signedAt": "2024-01-15T10:30:00Z",
-    "remainingSigners": 2
-  }
+  "event": "DOCUMENT_PARTY_SIGNED",
+  "payload": {
+    "document": {
+      "id": "clx1abc...",
+      "title": "Partnership Agreement",
+      "status": "PENDING",
+      "parties": [...],
+      "signers": [...]
+    },
+    "party": {
+      "id": "clx3ghi...",
+      "name": "Anna Andersson",
+      "email": "anna@client.se",
+      "externalId": null,
+      "signingStatus": "SIGNED"
+    }
+  },
+  "createdAt": "2026-01-15T10:30:00.000Z",
+  "webhookEndpoint": "https://your-server.com/webhook"
 }
 ```
+
+There is no `remainingSigners` count — derive it from `payload.document.parties` by counting the ones still `NOT_SIGNED`. Once every signing party is done, a separate `DOCUMENT_SIGNED` event fires with the plain [Document payload](/guides/webhooks#document-payload).
 
 ## Common Patterns
 

@@ -1,11 +1,11 @@
 ---
 title: Reminders & Expiration
-description: 'Manage unsigned documents with reminders, expiration dates, and cancellation'
+description: 'Manage unsigned documents with reminders, expiration dates, and withdrawal'
 ---
 
 # Reminders & Expiration
 
-Not all documents get signed immediately. sajn provides tools to manage unsigned documents through reminders, expiration dates, and cancellation options.
+Not all documents get signed immediately. sajn provides tools to manage unsigned documents through reminders, expiration dates, and withdrawal.
 
 ## Setting Expiration Dates
 
@@ -180,92 +180,117 @@ Reminders include:
 - Direct link to sign
 - Expiration date (if set)
 
-## Cancelling Documents
+## Withdrawing Documents
 
-Sometimes you need to cancel a document that's out for signing—perhaps the terms have changed or the deal fell through.
+Sometimes you need to pull back a document that's out for signing—perhaps the terms have changed or the deal fell through. Withdrawing recalls it from every signer and returns it to `DRAFT`.
 
-### Cancel a Document
+### Withdraw a Document
 
 ```bash
-curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123 \
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/withdraw \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "status": "CANCELLED"
+    "reason": "Terms renegotiated"
   }'
 ```
 
-### What Happens When Cancelled
+`reason` is optional. When set, it appears in the withdrawal email to signers and is stored on the audit log.
 
-1. **Signing is disabled** - All signing links become invalid
-2. **Status updates** - Document status becomes `CANCELLED`
-3. **Webhook fires** - A `DOCUMENT_CANCELLED` event is sent
-4. **Signers notified** - Signers receive a cancellation notice
+The document must be in `PENDING` or `SENDING` status. Use `DELETE /api/v1/documents/{id}` for a `DRAFT`, and the approval cancel endpoint for `PENDING_APPROVAL`.
+
+### What Happens When Withdrawn
+
+1. **Status resets** - Document status is set back to `DRAFT`
+2. **Signatures removed** - Existing signatures and signer verifications are deleted, and each signer's signing, sending and read status is reset
+3. **Reminders cancelled** - Pending signing reminders are dropped
+4. **Signers notified** - Every signer that had been notified receives a withdrawal email
+5. **Webhook fires** - A `DOCUMENT_WITHDRAWN` event is sent
 
 <Warning>
-  Cancellation is permanent. Cancelled documents cannot be reopened. Create a new document if needed.
+  Withdrawing destroys the signatures already collected — they cannot be restored. The document itself returns to `DRAFT`, so you can edit and send it again as a fresh signing round.
 </Warning>
 
 ## Webhook Events
+
+Both events below deliver the standard [Document payload](/guides/webhooks#document-payload) in `payload`. There is no separate list of "pending signers" — read `payload.parties` and keep the ones whose `signingStatus` is still `NOT_SIGNED`.
 
 ### Document Expired
 
 ```json
 {
   "event": "DOCUMENT_EXPIRED",
-  "timestamp": "2024-02-15T23:59:59Z",
-  "data": {
-    "documentId": "doc_123",
-    "documentName": "Quote - Website Project",
+  "payload": {
+    "id": "clx1abc...",
+    "title": "Quote - Website Project",
     "externalId": "quote_456",
-    "expiredAt": "2024-02-15T23:59:59Z",
-    "pendingSigners": [
+    "createdAt": "2026-02-01T09:00:00.000Z",
+    "updatedAt": "2026-02-15T23:59:59.000Z",
+    "organizationId": "clx2def...",
+    "status": "EXPIRED",
+    "parties": [
       {
-        "signerId": "signer_789",
+        "id": "clx3ghi...",
         "name": "Anna Andersson",
-        "email": "anna@client.se"
+        "email": "anna@client.se",
+        "externalId": null,
+        "signingStatus": "NOT_SIGNED"
       }
-    ]
-  }
+    ],
+    "signers": [...]
+  },
+  "createdAt": "2026-02-15T23:59:59.000Z",
+  "webhookEndpoint": "https://your-server.com/webhook"
 }
 ```
 
-### Handling Expired Webhook
+### Handling the Expired Webhook
 
 ```javascript
 app.post('/webhooks/sajn', (req, res) => {
-  const { event, data } = req.body;
+  const { event, payload } = req.body;
 
   if (event === 'DOCUMENT_EXPIRED') {
-    // Log the expiration
-    console.log(`Document ${data.documentId} expired`);
+    console.log(`Document ${payload.id} expired`);
 
-    // Notify your team
+    // Anyone still NOT_SIGNED when it expired
+    const pending = payload.parties.filter((p) => p.signingStatus === 'NOT_SIGNED');
+
     notifyTeam({
-      message: `Document "${data.documentName}" expired without all signatures`,
-      pendingSigners: data.pendingSigners
+      message: `Document "${payload.title}" expired without all signatures`,
+      pendingParties: pending
     });
 
-    // Update your CRM/database
-    updateDocumentStatus(data.externalId, 'expired');
+    // Update your CRM/database — externalId is null unless you set one
+    if (payload.externalId) {
+      updateDocumentStatus(payload.externalId, 'expired');
+    }
   }
 
   res.status(200).send('OK');
 });
 ```
 
-### Document Cancelled
+### Document Withdrawn
+
+Fired when a sent document is recalled. Note that `status` is `DRAFT` — withdrawing returns the document to draft rather than terminating it.
 
 ```json
 {
-  "event": "DOCUMENT_CANCELLED",
-  "timestamp": "2024-02-10T14:30:00Z",
-  "data": {
-    "documentId": "doc_123",
-    "documentName": "Quote - Website Project",
-    "cancelledAt": "2024-02-10T14:30:00Z",
-    "cancelledBy": "user_abc"
-  }
+  "event": "DOCUMENT_WITHDRAWN",
+  "payload": {
+    "id": "clx1abc...",
+    "title": "Quote - Website Project",
+    "externalId": "quote_456",
+    "createdAt": "2026-02-01T09:00:00.000Z",
+    "updatedAt": "2026-02-10T14:30:00.000Z",
+    "organizationId": "clx2def...",
+    "status": "DRAFT",
+    "parties": [...],
+    "signers": [...]
+  },
+  "createdAt": "2026-02-10T14:30:00.000Z",
+  "webhookEndpoint": "https://your-server.com/webhook"
 }
 ```
 
@@ -312,12 +337,14 @@ app.post('/webhooks/sajn', (req, res) => {
 
 | Status | Description | Can Sign? | Can Remind? |
 |--------|-------------|-----------|-------------|
-| `DRAFT` | Not yet sent | No | No |
-| `SENT` | Out for signing | Yes | Yes |
+| `DRAFT` | Not yet sent, or withdrawn back to draft | No | No |
+| `PENDING_APPROVAL` | Waiting for internal approval before it goes out | No | No |
+| `SENDING` | Being dispatched to signers | No | No |
+| `PENDING` | Out for signing | Yes | Yes |
 | `COMPLETED` | All signers done | No | No |
 | `EXPIRED` | Past expiration date | No | No |
-| `CANCELLED` | Manually cancelled | No | No |
 | `REJECTED` | Signer rejected | No | No |
+| `CANCELLED` | Legacy status found on older documents; nothing sets it today | No | No |
 
 ## Next Steps
 

@@ -7,7 +7,7 @@ description: 'Connect an AI assistant to your sajn workspace over the Model Cont
 
 The **sajn MCP Server** lets an AI assistant work in your live sajn **workspace** — not just look at it. Find and read documents, draft them, fill them in, manage parties, send for signing, chase signatures, and follow status. It also carries the developer tools for debugging an integration: API request logs and outbound webhook deliveries.
 
-Connect it to Claude Desktop, Claude Code, Cursor or any other MCP client and you can run the everyday signing workflow from wherever you already work. It speaks the same authentication and permission model as the [REST API](/api/introduction), so an assistant can never do more than you can.
+Connect it to Claude Desktop, Claude Code, Cursor or any other MCP client and you can run the everyday signing workflow from wherever you already work. It uses the same permission model as the [REST API](/api/introduction), so an assistant can never do more than you can.
 
 <Note>
 This is **not** the same as the [documentation MCP server](/docs-mcp) at `https://docs.sajn.se/mcp`. That one only searches these docs and needs no login. The sajn MCP server connects to your **real account data** and requires authentication.
@@ -16,7 +16,7 @@ This is **not** the same as the [documentation MCP server](/docs-mcp) at `https:
 | | Documentation MCP | sajn MCP |
 |---|---|---|
 | **URL** | `https://docs.sajn.se/mcp` | `https://app.sajn.se/api/mcp` |
-| **Auth** | None (public) | OAuth 2.0 / API key |
+| **Auth** | None (public) | OAuth 2.0 |
 | **Data** | Documentation only | Your live workspace |
 | **Use for** | "How do I…" questions | Working on real documents, debugging logs & webhooks |
 
@@ -30,20 +30,9 @@ The server is a stateless [Streamable HTTP](https://modelcontextprotocol.io/spec
 
 ## Authentication
 
-The sajn MCP server is bound to a single **workspace** and enforces the same `role ∩ scope` rule as the REST API. There are two ways to authenticate:
+The sajn MCP server uses **OAuth 2.0** and is bound to a single **workspace**. Most MCP clients (Claude, Cursor, …) discover and complete OAuth automatically. When you add the server, the client opens a sajn consent screen where you pick the workspace and approve the scopes the assistant may use.
 
-<Tabs>
-  <Tab title="OAuth (recommended)">
-    Most MCP clients (Claude, Cursor, …) discover and complete OAuth automatically. When you add the server, the client opens a sajn consent screen where you pick the **workspace** and approve the **scopes** the assistant may use. Read-only access is the default — write and destructive tools only appear after you grant the matching scope.
-
-    No tokens to copy or rotate; the client refreshes them for you.
-  </Tab>
-  <Tab title="API key">
-    For clients that send a static `Authorization: Bearer <token>` header, you can use a workspace [API key](/authentication). The connection then has exactly the role and scopes of that key.
-
-    To use the debugging tools, the key must carry the `audit:read` scope and belong to a member with the **Manage developer** workspace permission (see below).
-  </Tab>
-</Tabs>
+Read-only access is the default — write and destructive tools only appear after you grant the matching scope. There are no tokens to copy or rotate; the client refreshes them for you. Every request enforces the same `role ∩ scope` rule as the REST API.
 
 <Warning>
 The sajn MCP server requires a **paid plan**. Connections on the free plan are rejected.
@@ -297,12 +286,12 @@ Some things are deliberately kept in the sajn app rather than exposed to a conne
     The developer tools (`whoami`, `list_api_logs`, `get_api_log`, webhook and sajn ID tools) kept their names.
   </Accordion>
   <Accordion title="The debugging tools don't show up">
-    The connection must have the `audit:read` scope **and** the member must hold the matching workspace permission — **Manage developer** for API logs, **Manage webhooks** for deliveries. Re-run the OAuth consent and make sure `audit:read` is granted, or use an API key that has it.
+    The connection must have the `audit:read` scope **and** the member must hold the matching workspace permission — **Manage developer** for API logs, **Manage webhooks** for deliveries. Re-run the OAuth consent and make sure `audit:read` is granted.
   </Accordion>
   <Accordion title="Connection rejected / 401">
     - Confirm the URL is `https://app.sajn.se/api/mcp` (note `/api/mcp`, not `/mcp`).
     - The account must be on a **paid plan**.
-    - For API-key auth, send the key as `Authorization: Bearer <key>`.
+    - Reconnect the server and complete the OAuth consent flow again.
   </Accordion>
   <Accordion title="Write or delete tools are missing">
     They are hidden until you grant the matching scope (`documents:write`, `documents:delete`, `contacts:write`) at consent. Reconnect and approve the additional scopes.
@@ -315,9 +304,6 @@ Some things are deliberately kept in the sajn app rather than exposed to a conne
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Authentication" icon="key" href="/authentication">
-    Create an API key and make your first authenticated request
-  </Card>
   <Card title="Choosing an authentication method" icon="signs-post" href="/choosing-authentication">
     The OAuth flow above is for assistant clients — see which credential your own integration needs
   </Card>

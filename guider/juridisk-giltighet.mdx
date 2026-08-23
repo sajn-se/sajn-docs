@@ -1,0 +1,85 @@
+---
+title: "Juridisk giltighet och bevisvärde"
+description: "Så förhåller sig sajn-signerade dokument till eIDAS och svensk rätt, vad domstolar och motparter ser i Adobe Acrobat och hur de verifierar att handlingen är äkta"
+---
+
+Dokument som signeras via sajn är juridiskt bindande och kan användas som bevis – i affärsrelationer, hos myndigheter och i domstol. Den här sidan förklarar den rättsliga grunden, vad som faktiskt visas när någon öppnar ett förseglat dokument i en PDF-läsare, och hur en domstol eller motpart verifierar handlingen. Hur verifieringssidan och förseglingen fungerar tekniskt beskrivs i [Verifieringssida och dokumentförsegling](/guider/verifiera-dokument).
+
+## Rättslig grund
+
+**eIDAS-förordningen** (EU) nr 910/2014 gäller som lag i hela EU. Enligt artikel 25.1 får en elektronisk underskrift inte förvägras rättslig verkan eller giltighet som bevis enbart av det skälet att den är i elektronisk form. Sverige har dessutom **fri bevisprövning** – en domstol ska värdera all bevisning som läggs fram, oavsett form.
+
+Signering med **Svenskt BankID** via sajn uppfyller kraven på en **avancerad elektronisk underskrift** (AdES) enligt artikel 26 i eIDAS: underskriften är unikt knuten till undertecknaren, identifierar undertecknaren, skapas med medel som undertecknaren ensam kontrollerar, och är knuten till dokumentet så att varje efterföljande ändring kan upptäckas.
+
+De flesta avtal i svensk rätt är dessutom **formfria** – de kräver ingen särskild signeringsform alls för att vara bindande. E-signaturens roll är då bevisvärdet: att i efterhand kunna styrka vem som signerade vad, och när.
+
+## Rättegångsfullmakter
+
+Sedan den 1 januari 2021 får en **rättegångsfullmakt** undertecknas digitalt. Enligt 12 kap. 8 § rättegångsbalken ska en skriftlig fullmakt vara egenhändigt undertecknad av parten *eller* undertecknad med en avancerad elektronisk underskrift enligt artikel 3 i eIDAS-förordningen. Ändringen infördes genom prop. 2019/20:189, *Digital kommunikation i domstolsprocesser*.
+
+En fullmakt som signerats med **Svenskt BankID** via sajn uppfyller det kravet.
+
+<Warning>
+  Kravet i rättegångsbalken gäller specifikt **avancerad** elektronisk underskrift. Använd därför alltid signaturtypen **Svenskt BankID** för rättegångsfullmakter – klicksignering och ritad signatur är enkla elektroniska underskrifter (SES) och räcker inte för just detta ändamål. Se [Signaturtyper i sajn](/guider/signing-methods).
+</Warning>
+
+## Vad som visas i Adobe Acrobat
+
+Öppnas ett förseglat sajn-dokument i Adobe Acrobat visar signaturpanelen (*Underskrifter*) en signatur: **"Signerat av RIBBAN AB - sajn"**, med en grön bock.
+
+<Note>
+  **RIBBAN AB är sajns juridiska person.** Signaturen i panelen är inte partens underskrift – det är sajns **elektroniska stämpel**, som läggs på dokumentet när alla parter har signerat. Parternas egna underskrifter redovisas på dokumentets sista sida (verifieringssidan **Parter**), med namn, personnummer, signeringsmetod, tidpunkt och referensnummer.
+</Note>
+
+Det är viktigt att hålla isär vad de två bevisen gör:
+
+| Bevis | Vad det styrker |
+|-------|-----------------|
+| **Elektronisk stämpel** (det Adobe visar) | Dokumentets **integritet och ursprung** – att filen kommer från sajn och inte har ändrats med en enda byte sedan den förseglades. Stämpeln utfärdas med ett kvalificerat certifikat från en tillhandahållare på EU:s förteckning över betrodda tjänster, och kompletteras med en kvalificerad tidsstämpel. Det är därför Adobe visar en grön bock. |
+| **Verifieringssidan Parter** (sista sidan i PDF:en) | Parternas **identitet och underskrifter** – vem som signerade, med vilken metod (t.ex. Svenskt BankID med personnummer), exakt när, och med vilket referensnummer. |
+
+Den här modellen – parterna signerar i tjänsten, och tjänsten förseglar den färdiga handlingen med sin stämpel – är standard för e-signering och används av samtliga etablerade leverantörer. Att signaturpanelen visar tjänstens namn i stället för parternas är alltså förväntat, inte ett fel.
+
+## Så verifierar en domstol eller motpart dokumentet
+
+De här stegen kan du skicka vidare till den som ska kontrollera handlingen – inget sajn-konto behövs:
+
+<Steps>
+  <Step title="Öppna PDF:en i Adobe Acrobat">
+    Den gröna bocken i signaturpanelen bekräftar att dokumentet är oförändrat sedan förseglingen och att certifikatet är giltigt och spårbart till EU:s förteckning över betrodda tjänster.
+  </Step>
+  <Step title="Läs verifieringssidan Parter">
+    Sista sidan i dokumentet visar vem som undertecknat handlingen: fullständigt namn, personnummer (vid BankID), signeringsmetod, tidpunkt och signaturens referensnummer.
+  </Step>
+  <Step title="Kontrollera mot sajns register">
+    Skanna QR-koden eller öppna verifieringslänken (`https://app.sajn.se/verify/…`) på verifieringssidan. Där visas originalhandlingen direkt från sajns register, och den egna kopian kan laddas upp för att bekräfta att den är identisk med originalet.
+  </Step>
+</Steps>
+
+## Vanliga frågor
+
+<AccordionGroup>
+  <Accordion title="Varför står det RIBBAN AB i signaturpanelen?">
+    RIBBAN AB är det juridiska bolagsnamnet bakom sajn. Signaturen i panelen är sajns elektroniska stämpel som garanterar att dokumentet är oförändrat – parternas egna underskrifter redovisas på verifieringssidan sist i dokumentet.
+  </Accordion>
+  <Accordion title="Är ett sajn-signerat dokument giltigt som bevis i domstol?">
+    Ja. Sverige har fri bevisprövning, och enligt artikel 25.1 i eIDAS får en elektronisk underskrift inte förvägras rättslig verkan enbart för att den är elektronisk. Den förseglade PDF:en med verifieringssidan utgör ett sammanhållet bevispaket: vem som signerade, hur, när, och att ingenting ändrats sedan dess.
+  </Accordion>
+  <Accordion title="Kan en rättegångsfullmakt signeras via sajn?">
+    Ja, sedan den 1 januari 2021 tillåter 12 kap. 8 § rättegångsbalken fullmakter undertecknade med avancerad elektronisk underskrift. Använd signaturtypen Svenskt BankID – klicksignering och ritad signatur räcker inte för just rättegångsfullmakter.
+  </Accordion>
+  <Accordion title="Vad händer om någon ändrar i dokumentet efter signeringen?">
+    Förseglingen bryts och PDF-läsaren visar en varning i stället för den gröna bocken. Ändringar går alltså alltid att upptäcka. Originalet finns dessutom alltid kvar hos sajn och kan kontrolleras via verifieringslänken.
+  </Accordion>
+</AccordionGroup>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Verifieringssida och försegling" icon="shield-check" href="/guider/verifiera-dokument">
+    Så fungerar certifikatssidan och förseglingen tekniskt.
+  </Card>
+  <Card title="Signaturtyper" icon="signature" href="/guider/signing-methods">
+    BankID, klicksignering eller ritad signatur – och när de räcker.
+  </Card>
+</CardGroup>

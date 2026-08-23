@@ -34,7 +34,7 @@ integration touches.**
   <Card title="Connecting an AI assistant" icon="robot">
     Claude, Cursor or VS Code working against a workspace.
 
-    **Use the sajn MCP server**, which accepts either an API key or its own OAuth flow.
+    **Use the sajn MCP server with OAuth 2.0.** Your client handles consent and token refresh.
   </Card>
 </CardGroup>
 
@@ -133,7 +133,7 @@ tokens for you — not for a headless backend service. See [Workspace MCP](/work
 | A backend for your own sajn account | API key | Never |
 | Software many sajn customers install | OAuth 2.0 (`authorization_code`) | Once per customer |
 | BankID login for your own users | sajn Login (OIDC) | Per login |
-| An AI assistant connection | MCP (API key or OAuth) | Depends on client |
+| An AI assistant connection | MCP with OAuth 2.0 | Once per connection |
 
 <CardGroup cols={2}>
   <Card title="Authentication" icon="key" href="/authentication">

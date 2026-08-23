@@ -210,25 +210,26 @@ const crypto = require('crypto');
 const app = express();
 app.use(express.json());
 
-app.post('/webhooks/sajn', async (req, res) => {
-  // Verify webhook signature
-  const signature = req.headers['x-sajn-signature'];
-  const expectedSignature = crypto
-    .createHmac('sha256', process.env.WEBHOOK_SECRET)
-    .update(JSON.stringify(req.body))
-    .digest('hex');
+// sajn sends the secret you configured as a plain header — compare it, don't hash it
+const secretMatches = (received) => {
+  const expected = process.env.WEBHOOK_SECRET;
+  const a = Buffer.from(received ?? '');
+  const b = Buffer.from(expected);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+};
 
-  if (signature !== expectedSignature) {
-    return res.status(401).send('Invalid signature');
+app.post('/webhooks/sajn', async (req, res) => {
+  if (!secretMatches(req.headers['x-sajn-secret'])) {
+    return res.status(401).send('Invalid secret');
   }
 
-  const { event, data } = req.body;
+  const { event, payload } = req.body;
 
-  // Handle document completion
+  // Handle document completion — payload is the document object
   if (event === 'DOCUMENT_COMPLETED') {
     try {
-      await downloadAndArchive(data.documentId, data.externalId);
-      console.log(`Archived document ${data.documentId}`);
+      await downloadAndArchive(payload.id, payload.externalId);
+      console.log(`Archived document ${payload.id}`);
     } catch (error) {
       console.error(`Failed to archive document: ${error.message}`);
     }
@@ -275,7 +276,6 @@ app.listen(3000);
 ```python
 from flask import Flask, request, abort
 import hmac
-import hashlib
 import requests
 import os
 
@@ -283,24 +283,17 @@ app = Flask(__name__)
 
 @app.route('/webhooks/sajn', methods=['POST'])
 def webhook():
-    # Verify signature
-    signature = request.headers.get('X-Sajn-Signature')
-    body = request.get_data()
-    expected = hmac.new(
-        bytes(os.environ['WEBHOOK_SECRET'], 'utf-8'),
-        body,
-        hashlib.sha256
-    ).hexdigest()
-
-    if signature != expected:
+    # sajn sends the secret you configured as a plain header — compare it, don't hash it
+    secret = request.headers.get('X-Sajn-Secret', '')
+    if not hmac.compare_digest(secret, os.environ['WEBHOOK_SECRET']):
         abort(401)
 
-    payload = request.json
-    event = payload['event']
-    data = payload['data']
+    body = request.json
+    event = body['event']
+    payload = body['payload']
 
     if event == 'DOCUMENT_COMPLETED':
-        download_and_archive(data['documentId'], data.get('externalId'))
+        download_and_archive(payload['id'], payload.get('externalId'))
 
     return 'OK', 200
 
