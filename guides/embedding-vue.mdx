@@ -37,6 +37,7 @@ import { EmbedSignDocument } from '@sajn/embed-vue';
 | `css-vars` | `CssVars` | No | - | Theme customization |
 | `allow-document-rejection` | `boolean` | No | `false` | Enable rejection |
 | `show-scroll-indicator` | `boolean` | No | `true` | Show scroll indicator |
+| `signature-input-modes` | `string[]` | No | all | Which of `draw`, `type`, `upload` the signature pad offers |
 | `additional-props` | `object` | No | - | Additional options |
 
 ### Events
@@ -160,6 +161,8 @@ The package exports all types:
 import type {
   SignerCompletedData,
   SignerRejectedData,
+  SignatureInputMode,
+  Language,
   CssVars,
 } from '@sajn/embed-vue';
 ```

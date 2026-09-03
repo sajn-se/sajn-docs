@@ -45,6 +45,7 @@ type EmbedSignDocumentProps = {
   language?: 'sv' | 'en' | 'no' | 'da' | 'fi' | 'de' | 'is' | 'es' | 'fr' | 'it';
   allowDocumentRejection?: boolean;
   showScrollIndicator?: boolean;  // Default: true
+  signatureInputModes?: ('draw' | 'type' | 'upload')[];  // Default: all
   additionalProps?: Record<string, string | number | boolean>;
 
   // Callbacks
@@ -138,6 +139,8 @@ import type {
   EmbedViewDocumentProps,
   SignerCompletedData,
   SignerRejectedData,
+  SignatureInputMode,
+  Language,
   CssVars,
 } from '@sajn/embed-react';
 ```

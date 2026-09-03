@@ -3,14 +3,14 @@ title: Vanilla JS Embedding
 description: 'Embed signing documents using the Vanilla JS package'
 ---
 
-The `@sajn/embed` package provides two ways to embed the signing experience: a function API and a Web Component.
+The `@sajn/embed-js` package provides two ways to embed the signing experience: a function API and a Web Component.
 
 ## Installation
 
 ### npm
 
 ```bash
-npm install @sajn/embed
+npm install @sajn/embed-js
 ```
 
 ### CDN
@@ -18,7 +18,7 @@ npm install @sajn/embed
 For projects without a build step, use the UMD bundle:
 
 ```html
-<script src="https://unpkg.com/@sajn/embed/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@sajn/embed-js"></script>
 ```
 
 This exposes the `sajn` global object with all exports.
@@ -30,7 +30,7 @@ The `embedSignDocument` function creates an iframe and handles all communication
 ### Import
 
 ```javascript
-import { embedSignDocument } from '@sajn/embed';
+import { embedSignDocument } from '@sajn/embed-js';
 ```
 
 Or with CDN:
@@ -55,6 +55,7 @@ interface EmbedSignDocumentOptions {
   cssVars?: CssVars & Record<string, string>;
   allowDocumentRejection?: boolean;
   showScrollIndicator?: boolean;  // Default: true
+  signatureInputModes?: ('draw' | 'type' | 'upload')[];  // Default: all
   additionalProps?: Record<string, string | number | boolean>;
 
   // Callbacks
@@ -77,7 +78,7 @@ interface EmbedSignDocumentInstance {
 ### Example
 
 ```javascript
-import { embedSignDocument } from '@sajn/embed';
+import { embedSignDocument } from '@sajn/embed-js';
 
 const instance = embedSignDocument({
   element: '#signing-container',
@@ -114,7 +115,7 @@ The package also exports a custom element `<sajn-sign-document>` that auto-regis
 ### Import
 
 ```javascript
-import '@sajn/embed';
+import '@sajn/embed-js';
 ```
 
 Or with CDN, the component is automatically registered.
@@ -130,6 +131,7 @@ Or with CDN, the component is automatically registered.
 | `class-name` | `string` | No | CSS class for iframe |
 | `allow-document-rejection` | `boolean` | No | Enable rejection |
 | `show-scroll-indicator` | `boolean` | No | Show scroll indicator (default: true) |
+| `signature-input-modes` | `string` | No | Comma-separated list of `draw`, `type`, `upload` (default: all) |
 
 ### Events
 
@@ -154,7 +156,7 @@ The Web Component dispatches standard `CustomEvent`s that you can listen to:
 </div>
 
 <script type="module">
-  import '@sajn/embed';
+  import '@sajn/embed-js';
 
   const signDocument = document.querySelector('sajn-sign-document');
 
@@ -197,7 +199,7 @@ Complete HTML page using the UMD bundle:
 <body>
   <div id="signing-container"></div>
 
-  <script src="https://unpkg.com/@sajn/embed/dist/index.umd.js"></script>
+  <script src="https://unpkg.com/@sajn/embed-js"></script>
   <script>
     const { embedSignDocument } = sajn;
 
@@ -230,8 +232,10 @@ import type {
   EmbedViewDocumentInstance,
   SignerCompletedData,
   SignerRejectedData,
+  SignatureInputMode,
+  Language,
   CssVars,
-} from '@sajn/embed';
+} from '@sajn/embed-js';
 ```
 
 ## View Component
@@ -241,7 +245,7 @@ The package also includes `embedViewDocument` for displaying signed documents in
 ### Function API
 
 ```javascript
-import { embedViewDocument } from '@sajn/embed';
+import { embedViewDocument } from '@sajn/embed-js';
 ```
 
 Or with CDN:
@@ -276,7 +280,7 @@ interface EmbedViewDocumentOptions {
 ### Example
 
 ```javascript
-import { embedViewDocument } from '@sajn/embed';
+import { embedViewDocument } from '@sajn/embed-js';
 
 const instance = embedViewDocument({
   element: '#viewer-container',
@@ -303,7 +307,7 @@ instance.destroy();
 The package also exports a custom element `<sajn-view-document>`:
 
 ```javascript
-import '@sajn/embed';
+import '@sajn/embed-js';
 ```
 
 ```html
@@ -315,7 +319,7 @@ import '@sajn/embed';
 </div>
 
 <script type="module">
-  import '@sajn/embed';
+  import '@sajn/embed-js';
 
   const viewDocument = document.querySelector('sajn-view-document');
 
