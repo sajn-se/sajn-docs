@@ -1,0 +1,86 @@
+---
+title: Syncing Documents at Scale
+description: 'Mirror thousands of documents into your own system with incremental filters, cursor pagination and idempotent writes'
+---
+
+# Syncing Documents at Scale
+
+When you keep a copy of sajn documents in your own database, three things matter: fetching only what changed, walking a list that keeps changing underneath you, and retrying writes without creating duplicates. The API has one tool for each.
+
+## Fetch Only What Changed
+
+`GET /api/v1/documents` accepts `updatedAfter` and `updatedBefore`. Store the newest `updatedAt` you have seen, and on the next run ask for everything at or after it:
+
+```bash
+curl "https://app.sajn.se/api/v1/documents?updatedAfter=2026-09-08T10:00:00Z&orderBy=updatedAt&orderDirection=asc&perPage=100" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+`completedAfter` and `completedBefore` work the same way on the completion time, which is the right filter when you only care about signed documents.
+
+Use `updatedAfter` with the exact timestamp you stored. It is inclusive, so the last document of the previous run appears again; treat writes as upserts and the overlap is harmless.
+
+## Walk the List with a Cursor
+
+Page numbers drift: when a document is updated between two requests it moves in the list, and page 3 no longer starts where page 2 ended. Cursor pagination doesn't have that problem. Every list response carries `nextCursor`; pass it back as `cursor` until `hasNextPage` is `false`:
+
+```bash
+curl "https://app.sajn.se/api/v1/documents?orderBy=updatedAt&orderDirection=asc&perPage=100&cursor=eyJjIjoidXBkYXRlZEF0IiwidiI6IjIwMjYtMDktMDhUMTA6MDA6MDAuMDAwWiIsImlkIjoiZG9jXzEyMyJ9" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json
+{
+  "documents": [ ... ],
+  "total": 4812,
+  "totalPages": 49,
+  "hasNextPage": true,
+  "nextCursor": "eyJjIjoidXBkYXRlZEF0IiwidiI6IjIwMjYtMDktMDhUMTE6MzA6MDAuMDAwWiIsImlkIjoiZG9jXzk4NyJ9"
+}
+```
+
+Rules:
+
+- A cursor works with `orderBy=createdAt` or `orderBy=updatedAt` (the default). Other sort columns use page numbers.
+- Keep the same `orderBy`, `orderDirection` and filters for every request in one walk. A cursor issued for another `orderBy` is rejected with `400`.
+- `page` is ignored when `cursor` is set.
+- Cursors are opaque. Don't build or edit them.
+
+A full sync loop looks like this:
+
+```
+since = last stored updatedAt (or nothing on the first run)
+cursor = nothing
+loop:
+  GET /documents?updatedAfter=since&orderBy=updatedAt&orderDirection=asc&perPage=100&cursor=cursor
+  upsert every document in the response
+  if hasNextPage is false: stop
+  cursor = nextCursor
+store the newest updatedAt you saw as since
+```
+
+`GET /api/v1/documents/{id}` still gives you parties, fields and custom field values for one document. For change notifications between runs, subscribe to [webhooks](/guides/webhooks) and use the sync loop as the fallback that catches anything a delivery missed.
+
+## Retry Writes Safely
+
+A timed-out `POST /api/v1/documents` may or may not have created the document. Send an `Idempotency-Key` header on every write, and retries become safe:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Idempotency-Key: 8f6a1c1e-4c1b-4c2a-9a3f-2b7d9e5f1a10" \
+  -H "Content-Type: application/json" \
+  -d '{ "name": "Hyresavtal", "type": "SIGNABLE" }'
+```
+
+How it behaves:
+
+- The key is any unique string up to 255 characters. A UUID per logical operation is the usual choice.
+- The first request runs normally. Its response, including `4xx` responses, is stored for 24 hours.
+- A retry with the same key and the same method, path and body returns the stored response with the header `Idempotent-Replayed: true`. Nothing runs twice.
+- The same key with a different method, path or body returns `400`.
+- A retry while the first request is still running returns `409`. Wait and retry.
+- A `5xx` response is not stored, so the retry runs the request again.
+- Keys are scoped to your workspace. `GET` requests ignore the header.
+
+The header works on every `POST`, `PATCH` and `DELETE` endpoint. Use it at least on document creation, sending, party creation and file creation, where a duplicate is expensive.

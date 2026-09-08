@@ -198,6 +198,7 @@
               "guides/templates-and-forms",
               "guides/managing-templates",
               "guides/signer-fields",
+              "guides/pdf-field-placement",
               "guides/html-fields",
               "guides/formatting-html-content",
               "guides/file-uploads",
@@ -223,6 +224,7 @@
               "guides/identity-verification",
               "guides/reminders-expiration",
               "guides/downloading-documents",
+              "guides/syncing-documents",
               "guides/redirect-url"
             ]
           },
@@ -398,6 +400,8 @@
           {
             "group": "Document Fields",
             "pages": [
+              "GET /api/v1/documents/{id}/fields",
+              "GET /api/v1/documents/{id}/fields/{fieldId}",
               "POST /api/v1/documents/{id}/fields",
               "PATCH /api/v1/documents/{id}/fields",
               "PATCH /api/v1/documents/{id}/fields/{fieldId}",
@@ -420,6 +424,8 @@
               "PATCH /api/v1/templates/{id}",
               "DELETE /api/v1/templates/{id}",
               "POST /api/v1/templates/{id}/duplicate",
+              "GET /api/v1/templates/{id}/fields",
+              "GET /api/v1/templates/{id}/fields/{fieldId}",
               "POST /api/v1/templates/{id}/fields",
               "PATCH /api/v1/templates/{id}/fields/{fieldId}",
               "DELETE /api/v1/templates/{id}/fields/{fieldId}",

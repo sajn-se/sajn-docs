@@ -1,0 +1,171 @@
+---
+title: Placing Fields on a PDF
+description: 'Put signature boxes, signer inputs and fixed text at exact positions on an uploaded PDF, and read the placement back'
+---
+
+# Placing Fields on a PDF
+
+When a document contains an uploaded PDF, you can place boxes on its pages: a signature or initials mark that a party draws when signing, an input the party fills in before signing, or fixed text stamped by you. Every box has a page and a rectangle in PDF coordinates, and you can read the whole layout back with the field endpoints.
+
+## How It Works
+
+A sajn document is a list of content blocks called fields. A `PDF` field holds one uploaded PDF, referenced by the storage `key` from the [file upload flow](/guides/file-uploads). The boxes on its pages live in `fieldMeta.placedFields`, an array where each entry is one box. Array order is the drawing order.
+
+The coordinate model is the PDF's own:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `page` | integer | 0-based page index within the PDF. |
+| `rect` | object | `x`, `y`, `width`, `height` in PDF points (1/72 inch). The origin is the bottom-left corner of the page, and `y` grows upward. |
+| `pageWidth`, `pageHeight` | number | The page size in points. A4 portrait is `595.28` × `841.89`. |
+| `pageRotation` | `0`, `90`, `180`, `270` | Optional. The page's `/Rotate` value, when the PDF has one. |
+
+If your own model uses percentages from the top-left corner, convert with `x = xPercent * pageWidth` and `y = pageHeight - (yPercent + heightPercent) * pageHeight`.
+
+## Box Kinds
+
+Each entry has a `kind` and an `id` that is unique within the field.
+
+### Signature and initials marks
+
+```json
+{
+  "id": "sig-1",
+  "kind": "input",
+  "inputType": "signature",
+  "page": 2,
+  "rect": { "x": 72, "y": 96, "width": 200, "height": 48 },
+  "pageWidth": 595.28,
+  "pageHeight": 841.89,
+  "signerId": "party_abc123",
+  "required": true
+}
+```
+
+`inputType` is `signature` or `initials`. The party in `signerId` draws the mark when they sign, and sajn seals it into the PDF at this position. The mark is hashed into the signature evidence, so the box position is part of what the signed document proves.
+
+### Signer inputs
+
+```json
+{
+  "id": "start-date",
+  "kind": "input",
+  "inputType": "date",
+  "label": "Start date",
+  "page": 0,
+  "rect": { "x": 320, "y": 640, "width": 140, "height": 22 },
+  "pageWidth": 595.28,
+  "pageHeight": 841.89,
+  "signerId": "party_abc123",
+  "required": true
+}
+```
+
+`inputType` is `text`, `date`, `checkbox` or `select` (add `options` for `select`, `multiline` for long text). The party fills the value in before signing. When `required` is true, the party can't sign until the value is set. Omit `signerId` to leave the box for you to fill through the API.
+
+### Fixed text
+
+```json
+{
+  "id": "ref",
+  "kind": "static",
+  "content": "<p>Ref: 2026-0042</p>",
+  "page": 0,
+  "rect": { "x": 400, "y": 780, "width": 150, "height": 18 },
+  "pageWidth": 595.28,
+  "pageHeight": 841.89,
+  "style": { "fontSize": 9, "align": "right" }
+}
+```
+
+`content` is HTML. `style` accepts `fontSize`, `color` (hex), `bold`, `italic` and `align`.
+
+## Step 1: Upload the PDF
+
+Follow the [file upload guide](/guides/file-uploads). Keep the `key` from the response.
+
+## Step 2: Create the PDF Field with Placements
+
+Create the document with its parties first, so you have party IDs for `signerId`. Then add the field:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "PDF",
+    "position": 0,
+    "fieldMeta": {
+      "type": "PDF",
+      "value": "f/org_123/abc123def/contract.pdf",
+      "placedFields": [
+        {
+          "id": "sig-1",
+          "kind": "input",
+          "inputType": "signature",
+          "page": 2,
+          "rect": { "x": 72, "y": 96, "width": 200, "height": 48 },
+          "pageWidth": 595.28,
+          "pageHeight": 841.89,
+          "signerId": "party_abc123",
+          "required": true
+        }
+      ]
+    }
+  }'
+```
+
+To change the layout later, send the full `fieldMeta` again with `PATCH /api/v1/documents/{id}/fields/{fieldId}`. Fields can only be changed while the document is a `DRAFT`.
+
+## Step 3: Read the Layout Back
+
+```bash
+curl https://app.sajn.se/api/v1/documents/doc_123/fields \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The response lists every field in position order with its full `fieldMeta`, so a `PDF` field comes back with the same `placedFields` you sent:
+
+```json
+{
+  "fields": [
+    {
+      "id": "field_456",
+      "documentId": "doc_123",
+      "templateId": null,
+      "type": "PDF",
+      "position": 0,
+      "fieldMeta": {
+        "type": "PDF",
+        "value": "f/org_123/abc123def/contract.pdf",
+        "numPages": 4,
+        "placedFields": [
+          {
+            "id": "sig-1",
+            "kind": "input",
+            "inputType": "signature",
+            "page": 2,
+            "rect": { "x": 72, "y": 96, "width": 200, "height": 48 },
+            "pageWidth": 595.28,
+            "pageHeight": 841.89,
+            "signerId": "party_abc123",
+            "required": true
+          }
+        ]
+      },
+      "createdAt": "2026-09-08T10:00:00.000Z",
+      "updatedAt": "2026-09-08T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+`GET /api/v1/documents/{id}/fields/{fieldId}` returns one field. `GET /api/v1/documents/{id}` includes the same `fields` array.
+
+## Form Fields Inside the PDF
+
+When the uploaded PDF contains its own form fields (AcroForm), sajn extracts them into `fieldMeta.formFields` with their name, type, page and rectangle in the same coordinate model. They are read-only in the API today: use them to find where a field sits, then place your own box at that rectangle.
+
+## Templates
+
+Everything on this page works the same on templates through `/api/v1/templates/{id}/fields`. A `signerId` on a template refers to a template party, and documents created from the template carry the boxes over to the matching document party.
