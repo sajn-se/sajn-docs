@@ -70,6 +70,7 @@ You receive both values when you create a document and add signers via the API.
 | `allowDocumentRejection` | `boolean` | `false` | Allow signers to reject the document |
 | `showScrollIndicator` | `boolean` | `true` | Show scroll indicator in the iframe |
 | `signatureInputModes` | `('draw' \| 'type' \| 'upload')[]` | all | How the signer may create a drawn signature. Pass `['draw']` for hand-drawn only. The workspace allowlist takes precedence: this prop can only remove modes the workspace allows, never add one it has turned off. |
+| `showDocumentId` | `boolean` | `true` | Show the document ID under the sign button |
 | `additionalProps` | `Record<string, string \| number \| boolean>` | - | Additional options passed to the embed |
 
 ### Theming with CSS Variables
@@ -118,6 +119,20 @@ interface SignerCompletedData {
   documentId: string;
   signerId: string;
   failed?: string; // Optional failure reason
+}
+```
+
+### variables-submitted
+
+Fired when the signer submits the form fields assigned to them. The document is not signed yet: the signing step opens once every signer with form fields has submitted.
+
+**Payload:**
+
+```typescript
+interface VariablesSubmittedData {
+  token: string;
+  documentId: string;
+  signerId: string;
 }
 ```
 

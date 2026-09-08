@@ -38,6 +38,7 @@ import { EmbedSignDocument } from '@sajn/embed-vue';
 | `allow-document-rejection` | `boolean` | No | `false` | Enable rejection |
 | `show-scroll-indicator` | `boolean` | No | `true` | Show scroll indicator |
 | `signature-input-modes` | `string[]` | No | all | Which of `draw`, `type`, `upload` the signature pad offers |
+| `show-document-id` | `boolean` | No | `true` | Show the document ID under the sign button |
 | `additional-props` | `object` | No | - | Additional options |
 
 ### Events
@@ -46,6 +47,7 @@ import { EmbedSignDocument } from '@sajn/embed-vue';
 |-------|---------|-------------|
 | `document-ready` | - | Iframe loaded and ready |
 | `signer-completed` | `SignerCompletedData` | Signing completed |
+| `variables-submitted` | `VariablesSubmittedData` | Form fields submitted; signing opens once every filler is done |
 | `signer-rejected` | `SignerRejectedData` | Document rejected |
 | `document-error` | `DocumentErrorData` | Error occurred |
 

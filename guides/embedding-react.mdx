@@ -46,11 +46,13 @@ type EmbedSignDocumentProps = {
   allowDocumentRejection?: boolean;
   showScrollIndicator?: boolean;  // Default: true
   signatureInputModes?: ('draw' | 'type' | 'upload')[];  // Default: all
+  showDocumentId?: boolean;  // Default: true
   additionalProps?: Record<string, string | number | boolean>;
 
   // Callbacks
   onDocumentReady?: () => void;
   onSignerCompleted?: (data: SignerCompletedData) => void;
+  onVariablesSubmitted?: (data: VariablesSubmittedData) => void;
   onSignerRejected?: (data: SignerRejectedData) => void;
   onDocumentError?: (data: { code: string; message: string }) => void;
 }

@@ -26,7 +26,7 @@ Confirming is optional. If you skip step 3, the file is confirmed lazily the fir
 
 ### Benefits
 
-- **No size limit at the API**: bytes go directly to cloud storage (up to 100 MB per file).
+- **No byte-through step**: bytes go directly to cloud storage (up to 25 MB per file).
 - **Integrity-checked**: storage enforces the SHA-256 checksum you provide and rejects mismatched bytes.
 - **Secure**: files are scoped to your organization, private by default.
 
@@ -55,7 +55,7 @@ curl -X POST https://app.sajn.se/api/v1/files \
 |-------|----------|-------------|
 | `fileName` | Yes | Original filename including its extension (1–255 chars). |
 | `mimeType` | Yes | MIME type of the file (see [Supported formats](#supported-formats)). |
-| `size` | Yes | File size in bytes (max `104857600` = 100 MB). |
+| `size` | Yes | File size in bytes (max `26214400` = 25 MB). |
 | `checksum` | Yes | Base64-encoded SHA-256 checksum of the file. Storage enforces it on upload. |
 | `visibility` | No | `PRIVATE` (default) or `PUBLIC`. |
 
@@ -309,7 +309,7 @@ const addFileToDocument = async (documentId, storageKey, apiKey) => {
 
 ### Limits
 
-- **Maximum size**: 100 MB per file (`104857600` bytes).
+- **Maximum size**: 25 MB per file (`26214400` bytes).
 - **Checksum**: a valid base64-encoded SHA-256 of the exact bytes you upload is required.
 
 ## Error Handling
@@ -322,7 +322,7 @@ const addFileToDocument = async (documentId, storageKey, apiKey) => {
   "message": "File size exceeds limit"
 }
 ```
-**Solution**: Ensure the file is under the 100 MB limit and that `size` matches the actual byte count.
+**Solution**: Ensure the file is under the 25 MB limit and that `size` matches the actual byte count.
 
 #### Checksum Mismatch
 When the bytes you `PUT` don't match the `checksum` you declared in Step 1, storage rejects the upload.

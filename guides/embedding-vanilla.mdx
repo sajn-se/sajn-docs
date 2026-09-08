@@ -56,11 +56,13 @@ interface EmbedSignDocumentOptions {
   allowDocumentRejection?: boolean;
   showScrollIndicator?: boolean;  // Default: true
   signatureInputModes?: ('draw' | 'type' | 'upload')[];  // Default: all
+  showDocumentId?: boolean;  // Default: true
   additionalProps?: Record<string, string | number | boolean>;
 
   // Callbacks
   onDocumentReady?: () => void;
   onSignerCompleted?: (data: SignerCompletedData) => void;
+  onVariablesSubmitted?: (data: VariablesSubmittedData) => void;
   onSignerRejected?: (data: SignerRejectedData) => void;
   onDocumentError?: (data: { code: string; message: string }) => void;
 }
@@ -132,6 +134,7 @@ Or with CDN, the component is automatically registered.
 | `allow-document-rejection` | `boolean` | No | Enable rejection |
 | `show-scroll-indicator` | `boolean` | No | Show scroll indicator (default: true) |
 | `signature-input-modes` | `string` | No | Comma-separated list of `draw`, `type`, `upload` (default: all) |
+| `show-document-id` | `boolean` | No | Show the document ID under the sign button (default: true) |
 
 ### Events
 
@@ -141,6 +144,7 @@ The Web Component dispatches standard `CustomEvent`s that you can listen to:
 |-------|--------|
 | `document-ready` | `undefined` |
 | `signer-completed` | `SignerCompletedData` |
+| `variables-submitted` | `VariablesSubmittedData` |
 | `signer-rejected` | `SignerRejectedData` |
 | `document-error` | `DocumentErrorData` |
 

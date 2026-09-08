@@ -21,10 +21,6 @@
       "value": "https://app.sajn.se"
     },
     {
-      "key": "uploadBaseUrl",
-      "value": "https://upload.sajn.se"
-    },
-    {
       "key": "apiKey",
       "value": ""
     },
@@ -1039,7 +1035,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/files",
-            "description": "Create a file record and get a presigned URL to upload the bytes **directly to storage**.\n\nThis is the recommended upload method. It replaces the legacy byte-through endpoint `PUT /api/v1/putFile` (hosted at `upload.sajn.se`), which is **deprecated**.\n\n**Flow:**\n1. Compute the file's SHA-256 hash and base64-encode it.\n2. Call this endpoint with the filename, MIME type, size, and checksum. You receive a `fileId` and a presigned `uploadUrl`.\n3. `PUT` the raw bytes to `uploadUrl` with headers `Content-Type: <mimeType>` and `x-amz-checksum-sha256: <checksum>`. S3 verifies the checksum on write.\n4. (Recommended) Call `POST /api/v1/files/:id/confirm` to verify the upload and flip the record to `CONFIRMED` immediately. Otherwise it is confirmed automatically the first time it is fetched via `GET /api/v1/files/:id`.\n\n**Why:** the bytes go straight to storage, so there is no API-server size limit.",
+            "description": "Create a file record and get a presigned URL to upload the bytes **directly to storage**.\n\n**Flow:**\n1. Compute the file's SHA-256 hash and base64-encode it.\n2. Call this endpoint with the filename, MIME type, size, and checksum. You receive a `fileId` and a presigned `uploadUrl`.\n3. `PUT` the raw bytes to `uploadUrl` with headers `Content-Type: <mimeType>` and `x-amz-checksum-sha256: <checksum>`. S3 verifies the checksum on write.\n4. (Recommended) Call `POST /api/v1/files/:id/confirm` to verify the upload and flip the record to `CONFIRMED` immediately. Otherwise it is confirmed automatically the first time it is fetched via `GET /api/v1/files/:id`.\n\n**Why:** the bytes go straight to storage, so there is no API-server size limit.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"fileName\": \"string\",\n  \"mimeType\": \"application/pdf\",\n  \"size\": 0,\n  \"checksum\": \"string\",\n  \"visibility\": \"PRIVATE\"\n}",
@@ -1106,31 +1102,6 @@
                   "language": "json"
                 }
               }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Upload file",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "url": "{{uploadBaseUrl}}/api/v1/putFile",
-            "description": "Upload a file directly to sajn storage.\n\n**Important:** This endpoint uses `https://upload.sajn.se` as the base URL, not `https://app.sajn.se`.\n\n**File Requirements:**\n- Maximum size: 100 MB\n- Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, MP4, MOV, AVI, WEBM, JPG, PNG, GIF, WEBP, SVG\n\n**Visibility:**\n- `PRIVATE` (default): Files require signed URLs for access (60 min expiry)\n- `PUBLIC`: Files are accessible via direct CloudFront URL\n\n**Example Upload:**\n```bash\n# Private file (default)\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/document.pdf\"\n\n# Public file\ncurl -X PUT https://upload.sajn.se/api/v1/putFile \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -F \"file=@/path/to/image.png\" \\\n  -F \"visibility=PUBLIC\"\n```",
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": "/absolute/path/to/document.pdf"
-                },
-                {
-                  "key": "visibility",
-                  "type": "text",
-                  "value": "PRIVATE"
-                }
-              ]
             }
           },
           "response": []
