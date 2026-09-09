@@ -1,0 +1,100 @@
+---
+title: Signing Certificate
+description: 'What the certificate page appended to every completed document records'
+---
+
+# Signing Certificate
+
+When every party has signed, sajn seals the document and appends a **signing certificate**
+(*Signeringscertifikat*) to the end of the PDF. The certificate is part of the signed file, not
+a separate download — it travels with the document and is covered by the same PAdES seal.
+
+The certificate is written in the document's language and every timestamp is Swedish time
+(`Europe/Stockholm`).
+
+## Document Facts
+
+The first section identifies the document itself:
+
+| Field | Description |
+|-------|-------------|
+| Document name and ID | The name shown to signers, plus the sajn document ID |
+| Organization | The organization that owns the document |
+| Sent by | The responsible person: the workspace member assigned as **Ansvarig**, falling back to the document's creator when no responsible person is set. Their name and email are both printed. |
+| Number of parties | How many parties signed |
+| Completed | When the last party signed |
+| Access control | The identity check placed in front of the document, when one is configured |
+
+Set the responsible person with `responsibleUserId` when you create or update the document, or
+with **Ansvarig** in the document settings. It defaults to the creating user, so the row names
+the creator unless you set it to someone else.
+
+## Parties
+
+Each party that signed gets its own block. Which rows appear depends on the signing method:
+
+| Field | Shown for |
+|-------|-----------|
+| Name | Every party. For BankID and other eID methods this is the verified legal name, not the name you supplied. |
+| Email | Every party |
+| Signing method | Every party — for example Svenskt BankID, MitID, click-to-sign, or a drawn signature |
+| Personal number | BankID, masked according to the workspace's personal-number display setting |
+| eID identifier | eID methods — the scheme's subject identifier, such as a BankID or MitID ID |
+| National ID | Norwegian, Danish, and Finnish eID — fødselsnummer, CPR number, or HETU, masked the same way |
+| Date of birth | eID methods that return one |
+| Verified company | Danish MitID Erhverv and other company eID, with the registration number |
+| Identity check | The extra verification the party passed before signing, when one was required |
+| Sent, Opened, Signed | Timestamps taken from the audit trail |
+| BankID reference | BankID — the `orderRef` of the signing order |
+| On behalf of | Delegated signing — the party who delegated |
+| Company | The company name and organization number recorded for the party |
+| IP address and location | Every party, with the city and country resolved from the IP |
+
+A green badge next to the name means an eID vouched for that identity, either as the signature
+itself or as a verified gate in front of it.
+
+The visual signature appears beside each party: the drawn or typed signature mark for
+click-to-sign and drawn signatures, or the scheme's logo for BankID and other eID methods.
+
+## Verification Block
+
+The certificate ends with a QR code and a verification link of the form
+`https://app.sajn.se/verify/VERIFY_TOKEN`. Anyone holding the document can scan or open it to
+confirm the file is the one sajn sealed. The closing paragraphs state the eIDAS basis for the
+signatures, that the file carries a PAdES seal and timestamp that Adobe Acrobat Reader can
+check, and that all times are Swedish time.
+
+## What the Signing Certificate Is Not
+
+The signing certificate is a summary, not the full record. Two other artifacts carry the detail:
+
+- **The signing journal.** A separate PDF with the complete event log. Download it with
+  `fileType=JOURNAL`. See [Downloading signed documents](/guides/downloading-documents).
+- **Embedded evidence files.** The sealed PDF carries two attachments inside the PAdES
+  ByteRange: `audit-trail.html`, the event log up to sealing, and `evidence.json`,
+  machine-readable evidence data for independent verification. The eID artifacts themselves —
+  the BankID XMLDSig, the OCSP response, the OIDC ID token — are committed to by SHA-256 rather
+  than embedded, so the JSON file discloses nothing the certificate doesn't already print.
+
+<Warning>
+  In a [sandbox](/sandbox), the certificate is generated as usual but watermarked `SANDBOX`, and
+  the document is left uncertified. The BankID identity on it is the fixed test identity, not a
+  real person.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Downloading Signed Documents" icon="download" href="/guides/downloading-documents">
+    Fetch the signed PDF and the signing journal
+  </Card>
+  <Card title="Signing Methods" icon="pen-nib" href="/concepts/signing-methods">
+    How each method verifies identity
+  </Card>
+  <Card title="Identity Verification" icon="id-card" href="/guides/identity-verification">
+    Add a check in front of signing
+  </Card>
+  <Card title="Activity Events" icon="list" href="/concepts/activity-events">
+    The event log behind the timestamps
+  </Card>
+</CardGroup>

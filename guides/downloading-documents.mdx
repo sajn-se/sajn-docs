@@ -79,21 +79,13 @@ When you fetch the `downloadUrl`, the file is served with:
 
 ## Audit Trail / Signing Journal
 
-<Frame>
-  <img src="/images/guides/audit-certificate.png" alt="Audit certificate showing signature events and verification details" />
-</Frame>
+The signing journal is a separate PDF holding the full event log for the document: every party
+with their identity and signing method, and every recorded event — sent, opened, signed,
+reminded, sealed — with its timestamp and IP address.
 
-The signing journal provides a detailed record of all signing events:
-
-### Journal Contents
-
-| Information | Description |
-|-------------|-------------|
-| Document ID | Unique identifier for the document |
-| Document Hash | SHA-256 hash of the original document |
-| Signers | List of all signers with their roles |
-| Signature Events | Timestamp, IP address, signature method for each signature |
-| Verification | Cryptographic proof of document integrity |
+The signed PDF itself already ends with a [signing certificate](/concepts/signing-certificate),
+a summary of the same evidence sealed into the document. Download the journal when you need the
+complete trail rather than the summary.
 
 ### Downloading the Journal
 
