@@ -3,49 +3,69 @@ title: "Sök i innehåll av dokument"
 description: "Aktivera innehållssök i sajn för att hitta avtal baserat på vad som faktiskt står i texten"
 ---
 
-Det globala sökfältet ovanför dokumentlistan letar normalt bara i namn, motpart och metadata. Aktiverar du **Sök i innehåll** börjar sajn dessutom söka *inuti* själva avtalstexten — perfekt när du minns en formulering men inte vad dokumentet hette. Den här guiden visar var inställningen finns, hur du slår på den och vad du faktiskt ser när en sökterm träffar mitt i en avtalstext.
+Sökfältet ovanför dokumentlistan letar i namn, parter och annan metadata. Vill du hitta ett avtal på en formulering du minns — men inte vet vad dokumentet hette — behöver du **innehållssökning**: sajn indexerar texten i era färdigsignerade dokument, och du frågar **Bob** vad som står i dem.
+
+Det är två saker: en inställning du slår på en gång per arbetsyta, och en fråga du ställer till Bob.
 
 ## Innan du börjar
 
-- Du är inloggad i en arbetsyta med Enterprise-plan.
-- Innehållsindexering är aktiverad för arbetsytan under *Inställningar → Sökinställningar* (annars indexeras inga dokument och inga träffar visas).
-- Det finns minst ett färdigsignerat dokument med ett textlager — utkast och inskannade PDF:er utan OCR indexeras inte.
+- Du är inloggad och har behörighet att hantera arbetsytans inställningar.
+- Innehållsindexering kräver Solo eller högre.
+- Det finns minst ett färdigsignerat dokument med ett textlager. Utkast, pågående dokument och inskannade PDF:er utan OCR indexeras aldrig.
 
 ## Steg
 
 <Steps>
-  <Step title="Börja på dokumentlistan via Dokument i sidomenyn">
-    Sökfältet ligger högst upp i listan, strax under rubriken. Som standard söker det bara på dokumentets namn, parter och andra metadata — platshållaren visar *Sök dokument…*. För att också söka *inuti* dokumenttexten behöver du slå på **Sök i innehåll** — vi gör det i nästa steg.
+  <Step title="Slå på indexering under AI & Sökning">
+    Gå till [Inställningar → AI & Sökning → Sökning & indexering](https://app.sajn.se/~/settings/workspace/ai/search). Där finns två strömbrytare:
+
+    - **Indexera dokumentinnehåll** – gör det möjligt att söka inuti signerade dokument. Bara färdiga dokument indexeras.
+    - **Tillåt AI-tolkning av sökfrågor** – låter en sökning som *"alla avtal som löper ut i mars"* tolkas om till strukturerade filter. Bara sökfrågan skickas iväg, aldrig något dokumentinnehåll. Den här kräver att AI är påslaget för arbetsytan.
 
     <Frame>
-      <img src="/images/guider/document-content-search/02-open-documents.png" alt="Dokumentlistan med sökfältet högst upp" />
+      <img src="/images/guider/document-content-search/02-open-search-settings.png" alt="Fliken Sökning och indexering med strömbrytare, indexeringsstatus och listan över dokument i indexet" />
     </Frame>
   </Step>
-  <Step title="Klicka på filterikonen i sökfältet">
-    Filterikonen öppnar **Sökinställningar**.
+  <Step title="Håll koll på indexeringsstatusen">
+    Rutan **Indexeringsstatus** visar hur många av de indexerbara dokumenten som är klara, hur många som misslyckades och hur många som saknar textlager. Två knappar finns:
 
-    I rutan hittar du strömbrytaren **Sök i innehåll** med beskrivningen *"Hitta avtal genom att söka inuti signerade dokument. Endast färdiga dokument indexeras."* Längst ner i rutan står två tips: tryck **Enter** för att låta AI:n tolka frågan (t.ex. *"avtal som löper ut i mars"*), och omge en fras med citattecken — `"90 dagar"` — för exakt matchning.
+    - **Återindexera** – köar om alla dokument, t.ex. efter att du slagit på indexeringen.
+    - **Radera sökindex** – tar bort all extraherad text och alla embeddings för arbetsytan. Går inte att ångra, men du kan återindexera efteråt.
 
-    <Frame>
-      <img src="/images/guider/document-content-search/06-search-popover.png" alt="Ruta för Sökinställningar med strömbrytaren Sök i innehåll" />
-    </Frame>
+    Stänger du av indexeringen raderas inte sparad data automatiskt. Vill du bli av med den måste du radera sökindexet.
   </Step>
-  <Step title="Slå på Sök i innehåll">
-    Sökfältets platshållare byter till *Sök i dokumentinnehåll…*
-
-    När innehållssök är aktivt visas en liten prick på filterikonen och platshållaren i sökfältet ändras från *Sök dokument…* till *Sök i dokumentinnehåll…* — ett snabbt sätt att se vilket läge du är i. Inställningen ligger kvar via URL-parametern `searchContent=1`, så du kan dela en länk där läget redan är förvalt.
-
-    <Frame>
-      <img src="/images/guider/document-content-search/09-content-search-on.png" alt="Sökfältet med innehållssök aktiverat och ny platshållare" />
-    </Frame>
+  <Step title="Undanta enskilda dokument">
+    Listan **Dokument i indexet** längst ned visar vad som är sökbart, uppdelat på **Indexerade**, **Misslyckade**, **Utan textlager** och **Undantagna**. Ikonen längst till höger på en rad undantar dokumentet. Undantagna dokument indexeras inte om vid återindexering.
   </Step>
-  <Step title="Skriv ett ord eller en fras">
-    Träffar inuti dokumenten dyker upp som textutdrag under dokumentnamnet.
+  <Step title="Fråga Bob vad som står i avtalen">
+    Öppna Bob med ikonen uppe till höger och beskriv **innehållet**, inte titeln: *"Vilka avtal nämner uppsägningstid?"*, *"Hitta dokument om GDPR"*, *"Var står det om betalningsvillkor?"*.
 
-    För varje dokument där sökordet hittas i innehållet visas ett kort textutdrag under dokumentets namn, med själva träffen markerad. Det är samma resultatlista som vanligt — status, parter, taggar och datum syns precis som annars — men nu får du dessutom kontext om *var* i texten din sökterm finns. För du muspekaren över textutdraget visas ett kort med rubriken **Träffar i innehåll** som listar varje enskild träff i dokumentet med sidintervall (t.ex. *sid 3* eller *sid 5–6*). Visas inga textutdrag även när du sökt på ett ord du vet finns i texten — kontrollera under *Inställningar → Sökinställningar* att indexeringen är aktiverad och att dokumenten är färdigsignerade med ett textlager.
+    Bob väljer själv att söka i dokumenttexten och skriver ut vad den gjorde — *Sökte i dokumentinnehåll* — följt av de dokument som matchar, med länk och status.
 
     <Frame>
-      <img src="/images/guider/document-content-search/13-content-results.png" alt="Sökresultat med textutdrag under dokumentnamnen och träffen markerad i gult" />
+      <img src="/images/guider/document-content-search/09-answer.png" alt="Bob svarar med de tre dokument som nämner uppsägningstid" />
     </Frame>
   </Step>
 </Steps>
+
+<Note>
+  Sökningen är en blandning av nyckelord och betydelse, så en fråga om *uppsägning* hittar även dokument som skriver *att säga upp avtalet*. Du får bara träffar i dokument du själv får öppna – privata dokument du inte har tillgång till syns aldrig i svaret.
+</Note>
+
+## Om Bob inte hittar något
+
+- **Är indexeringen på?** Är strömbrytaren av svarar Bob att innehållssökning är avstängd för arbetsytan.
+- **Är dokumentet färdigsignerat?** Utkast och pågående dokument ligger aldrig i indexet.
+- **Har PDF:en ett textlager?** En inskannad bild utan OCR hamnar under *Utan textlager* och går inte att söka i.
+- **Är dokumentet undantaget?** Kolla fliken *Undantagna*.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="AI-inställningar" icon="sparkles" href="/guider/settings-ai">
+    Vad AI får göra i arbetsytan, och hur du styr det.
+  </Card>
+  <Card title="Sök och filtrera dokument" icon="magnifying-glass" href="/guider/settings-search">
+    Den vanliga sökningen på namn, parter och metadata.
+  </Card>
+</CardGroup>

@@ -1,50 +1,105 @@
 ---
-title: "Signaturtyper i sajn (BankID, Klicksignering, Ritad signatur)"
-description: "Förstå skillnaden mellan sajns tre signaturtyper och var du väljer standard för arbetsytan eller per mottagare"
+title: "Signaturtyp, leverans och verifiering"
+description: "Tre oberoende inställningar styr hur en part signerar, hur dokumentet når fram och vilken extra kontroll du kräver"
 ---
 
-sajn stödjer tre signaturtyper: **Svenskt BankID**, **Klicksignering** och **Ritad signatur**. Du kan välja en **standardsignaturtyp** för hela arbetsytan – och samtidigt **överstyra** valet per mottagare när du förbereder ett enskilt dokument. Den här guiden visar var båda inställningarna finns och vilka alternativ som erbjuds.
+Tre olika inställningar styr hur en part tar sig genom en signering. De blandas ofta ihop, men de gör helt olika saker:
+
+- **Signaturtyp** – hur parten skriver under. E-legitimation som BankID eller MitID, eller en enkel signatur som klicksignering eller ritad namnteckning.
+- **Leveransmetod** – hur dokumentet når fram. E-post, SMS eller ingen automatisk leverans alls.
+- **Verifiering vid signering** – en extra identitetskontroll i själva signeringsögonblicket, ovanpå signaturtypen.
+
+De är oberoende av varandra och går att kombinera fritt. Ett dokument kan levereras via SMS men signeras med BankID, eller levereras via e-post och klicksigneras med en SMS-kod som extra kontroll.
 
 ## Innan du börjar
 
-- Du är inloggad och har en aktiv arbetsyta.
-- Standardsignaturtypen är **arbetsytespecifik** – varje arbetsyta har sitt eget val.
-- **Svenskt BankID** kräver betalplan; **Klicksignering** och **Ritad signatur** ingår i alla planer.
+- Du är inloggad och har valt en arbetsyta.
+- För att ändra arbetsytans standardvärden behöver du komma åt arbetsytans inställningar.
+- Svenskt BankID ingår i alla planer med ett begränsat antal signaturer per månad. Övriga e-legitimationer och SMS-leverans kräver betalplan.
 
-## Steg
+## Steg för steg
 
 <Steps>
-  <Step title="Hitta arbetsytans standardsignaturtyp">
-    Öppna **Inställningar → Preferenser** för att hitta arbetsytans standardsignaturtyp. Standardsignaturtypen är arbetsytespecifik – varje arbetsyta har sitt eget val. Den används som utgångspunkt för nya mottagare på alla dokument i arbetsytan, men kan alltid överstyras per mottagare när du förbereder ett enskilt dokument.
+  <Step title="Arbetsytans standardvärden ligger under Preferenser → Signering">
+    Under [Preferenser → Signering](https://app.sajn.se/~/settings/workspace/preferences/signing) sätter du utgångsläget för hela arbetsytan:
+
+    - **Tillåtna signaturtyper** – vilka som över huvud taget går att välja på dokument i arbetsytan.
+    - **Standard signaturtyp** – den nya parter får från början.
+    - **Tillåtna verifieringsmetoder**, **Standard verifiering för nya parter** och **Standard åtkomstverifiering** – motsvarande för verifieringen.
+    - **Tillåtna sätt att signera** – gäller bara hur en *ritad* signatur får skapas: rita för hand, skriva namnet eller ladda upp en bild.
+    - **Kräv att personnumret matchar vid signering** – blockerar en e-legitimationssignatur där det legitimerade personnumret inte stämmer med det du angett på parten.
 
     <Frame>
-      <img src="/images/guider/signing-methods/04-workspace-defaults-page.png" alt="Sidan Preferenser med arbetsytans standardsignaturtyp" />
+      <img src="/images/guider/signing-methods/02-signering.png" alt="Fliken Signering under Preferenser med arbetsytans standardvärden" />
     </Frame>
   </Step>
-  <Step title="De tre signaturtyperna i sajn">
-    Tre alternativ erbjuds:
+  <Step title="Sju signaturtyper går att tillåta">
+    Fem är e-legitimationer: **BankID**, **MitID**, **MitID Erhverv**, **FTN** och **iDIN**. Två är enkla signaturer: **Klicksignering**, där parten bekräftar med ett klick, och **Ritad signatur**, där parten ritar sin namnteckning.
 
-    - **Svenskt BankID** – stark identifiering med högst bevisvärde (AES, Avancerad Elektronisk Signatur). Mottagaren signerar med sitt svenska BankID. Kräver betalplan.
-    - **Klicksignering** – snabbast och enklast (SES, Enkel Elektronisk Signatur). Mottagaren bekräftar med ett klick och en kryssruta. Bra för enkla avtal och interna dokument.
-    - **Ritad signatur** – mottagaren ritar sin namnteckning med musen eller på en touchskärm (SES). Fungerar för de flesta vardagliga dokument.
-
-    Det finns ingen eIDAS-AdES-signering exponerad i det här valet.
+    Avmarkerar du en typ går den inte att välja på dokument i arbetsytan.
 
     <Frame>
-      <img src="/images/guider/signing-methods/08-workspace-default-options.png" alt="Väljaren med de tre signaturtyperna BankID, Klicksignering och Ritad signatur" />
+      <img src="/images/guider/signing-methods/03-tillatna-signaturtyper.png" alt="Rutan Tillåtna signaturtyper med sju kryssrutor" />
+    </Frame>
+
+    <Note>
+      Väljaren **Standard signaturtyp** erbjuder bara *Svenskt BankID*, *Klicksignering* och *Ritad signatur*. Vill du att nya parter ska få MitID, FTN eller iDIN som utgångsläge går det alltså inte att sätta som standard – du väljer det per part på dokumentet.
+    </Note>
+  </Step>
+  <Step title="De tre valen sitter tillsammans på parten">
+    Öppna ett dokument, gå till panelen **Parter** och klicka på **Sök eller lägg till parter…**. I dialogen **Lägg till part** ligger de tre under rubriken **Signering och leverans**, tillsammans med **Roll** som avgör om parten ska signera, godkänna eller bara få en kopia.
+
+    Värdena kommer från arbetsytans standard, och det du ändrar här gäller bara den parten på det dokumentet.
+
+    <Frame>
+      <img src="/images/guider/signing-methods/10-partsdialogen.png" alt="Dialogen Lägg till part med Roll, Signaturtyp, Leveransmetod och Verifiering vid signering" />
     </Frame>
   </Step>
-  <Step title="Överstyra signaturtypen per mottagare">
-    I dialogen **Lägg till part** kan du välja en annan **Signaturtyp** för just den parten. Per-mottagar-väljaren visar exakt samma tre alternativ som arbetsytans standardväljare: **Svenskt BankID**, **Klicksignering** och **Ritad signatur**. Skillnaden är att valet här bara påverkar **den här mottagaren på det här dokumentet** – andra mottagare och andra dokument behåller arbetsytans standardval.
+  <Step title="Signaturtyp: hur parten skriver under">
+    Listan är grupperad i **E-legitimation** och **Enkel signatur**.
 
-    Tumregel för vilken metod du ska välja:
+    E-legitimation betyder att parten legitimerar sig med BankID, MitID, FTN eller iDIN. Det ger högst bevisvärde och är märkt AES i listan. Är en e-legitimation inte tillgänglig på din plan står *(Uppgradera)* efter namnet.
 
-    - Behöver du **juridiskt högt bevisvärde** (anställningsavtal, fullmakter, viktiga affärsavtal) – välj **Svenskt BankID**.
-    - Behöver du **snabbhet och låg friktion** (NDA:er, enkla bekräftelser) – välj **Klicksignering**.
-    - Behöver du en **synlig namnteckning** men inte BankID – välj **Ritad signatur**.
+    Enkel signatur är *Klicksignering* eller *Ritad signatur*, märkta SES. Snabbare och helt friktionsfritt för mottagaren, men bygger på en svagare identifiering.
 
     <Frame>
-      <img src="/images/guider/signing-methods/16-per-signer-signature-options.png" alt="Dialogen Lägg till part med signaturtypsväljaren per mottagare" />
+      <img src="/images/guider/signing-methods/11-signaturtyp.png" alt="Väljaren Signaturtyp grupperad i E-legitimation och Enkel signatur" />
+    </Frame>
+  </Step>
+  <Step title="Leveransmetod: hur dokumentet når fram">
+    - **E-post** – länken skickas till mottagarens e-postadress.
+    - **SMS** – länken skickas till mottagarens mobilnummer. Kräver betalplan.
+    - **Ingen** – sajn skickar ingenting; du delar länken själv.
+
+    Valet säger ingenting om hur parten signerar. En part som får länken via SMS kan mycket väl signera med BankID.
+
+    <Frame>
+      <img src="/images/guider/signing-methods/13-leveransmetod.png" alt="Väljaren Leveransmetod med E-post, SMS och Ingen" />
+    </Frame>
+  </Step>
+  <Step title="Verifiering vid signering: extra kontroll i signeringsögonblicket">
+    Utöver **Ingen** kan du kräva att mottagaren först bekräftar sig med en kod:
+
+    - **SMS före signering** – engångskod till mobilnumret.
+    - **E-post före signering** – engångskod till e-postadressen.
+    - **PIN-kod före signering** – du sätter koden och delar den med mottagaren på annat sätt, till exempel i telefon.
+
+    Längre ner i listan går det också att kräva en e-legitimation. Verifieringen är ett lager **ovanpå** signaturtypen, inte ett alternativ till den.
+
+    <Frame>
+      <img src="/images/guider/signing-methods/15-verifiering.png" alt="Väljaren Verifiering vid signering med Ingen, SMS, E-post och PIN-kod" />
     </Frame>
   </Step>
 </Steps>
+
+## Verifiering för att öppna är något annat
+
+**Verifiering vid signering** sitter på parten och gäller själva underskriften. Vill du i stället kräva att alla parter legitimerar sig redan för att få *öppna* dokumentet sätter du **Verifiering för att öppna** på dokumentet, i dokumentets inställningar. Den gäller hela dokumentet och handlar om sekretess, inte om underskriften.
+
+## Vilken signaturtyp ska jag välja?
+
+- Behöver du **högt bevisvärde** – anställningsavtal, fullmakter, viktiga affärsavtal – välj en **e-legitimation**.
+- Behöver du **låg friktion** – sekretessavtal, enkla bekräftelser, interna dokument – välj **Klicksignering**.
+- Vill du ha en **synlig namnteckning** utan e-legitimation – välj **Ritad signatur**.
+
+Läs mer om skillnaden mellan SES, AES och QES på [sajn.se](https://www.sajn.se/vad-aer-ses-aes-qes).

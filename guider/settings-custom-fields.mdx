@@ -1,46 +1,83 @@
 ---
-title: "Skapa egna fält för dokument och kontakter"
-description: "Definiera anpassade fält som berikar dokument och kontakter med extra data — t.ex. fakturanummer eller projektkod"
+title: "Skapa egna datafält för dokument och kontakter"
+description: "Definiera datafält som berikar dokument och kontakter med extra data — t.ex. fakturanummer eller projektkod"
 ---
 
-Med **anpassade fält** kan du berika dokument och kontakter i din arbetsyta med extra data – t.ex. *Fakturanummer*, *Avtalsdatum*, *Projektkod* eller *Kundnummer*. Den här guiden ger en rundtur av inställningssidan: var du hittar den, hur listan är uppbyggd, vilka fälttyper som finns och vad **säkrade fält** innebär. Vi går inte igenom att skapa ett fält – bara hur sidan fungerar.
+Med **datafält** lagrar du extra uppgifter på dokument och kontakter – t.ex. *Fakturanummer*, *Avtalsdatum*, *Projektkod* eller *Kundnummer*. Fälten går att filtrera och rapportera på, och kan användas som variabler i utskick.
+
+Fälten definieras på **organisationsnivå** och syns i alla arbetsytor.
 
 ## Innan du börjar
 
-- Du är inloggad med en arbetsyta där du är admin.
-- Anpassade fält definieras på organisationsnivå och syns för alla användare i organisationen.
+- Du är inloggad och har behörighet att hantera arbetsytans inställningar.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Anpassade fält i sidomenyn">
-    Sidan listar alla anpassade fält som har skapats i organisationen. Knappen **Lägg till fält** uppe till höger öppnar en panel där du kan skapa ett nytt fält – men du behöver inte klicka på den för att utforska sidan.
+  <Step title="Öppna Inställningar och sedan Datafält & taggar">
+    Sidan [Datafält & taggar](https://app.sajn.se/~/settings/workspace/data-fields) har två flikar: **Datafält** och **Taggar**. Fliken *Datafält* innehåller i sin tur två avsnitt – **Datafält** och **Dokumenttyper**.
+
+    Tabellen listar alla fält som har skapats, med kolumnerna:
+
+    - **Fältnamn** – namnet du gav fältet. Är fältet säkrat visas ett lås med etiketten **Säkrad** bredvid namnet.
+    - **Typ** – om fältet gäller **Dokument** eller **Kontakt**. Dokumentfält dyker upp när du redigerar ett dokument, kontaktfält på kontaktkortet.
+    - **Fälttyp** – datatypen: *Text*, *Flerradigt text*, *Nummer*, *Datum*, *E-post*, *Telefon*, *URL*, *Ja/Nej*, *Val från lista* eller *JSON*.
+    - **Standardvärde** och **Förhandsvisning** – valfri förifyllning och platshållartext.
+    - **Skapad av** och **Skapad** – vem som lade till fältet och när. Fält som följde med från början står som skapade av *System*.
+
+    Menyn längst till höger på varje rad har **Redigera** och **Ta bort**.
 
     <Frame>
-      <img src="/images/guider/settings-custom-fields/02-open-custom-fields.png" alt="Sidan Anpassade fält öppen från sidomenyn" />
+      <img src="/images/guider/settings-custom-fields/02-open-data-fields.png" alt="Sidan Datafält och taggar med fältlistan och avsnittet Dokumenttyper" />
     </Frame>
   </Step>
-  <Step title="Listan visar alla befintliga anpassade fält med fältnamn, omfång, fälttyp och vem som skapade dem">
-    Kolumnerna i tabellen är:
+  <Step title="Lägg till fält öppnar panelen Skapa fält">
+    Panelen har tre fält högst upp:
 
-    - **Fältnamn** – namnet du gav fältet, t.ex. *Fakturanummer*. Är fältet markerat som *säkrat* visas en lås-ikon med etiketten **Säkrad** bredvid namnet.
-    - **Typ** – om fältet gäller **Dokument** eller **Kontakt**. Fält av typen *Dokument* dyker upp när du redigerar ett dokument; *Kontakt*-fält dyker upp på kontaktkortet.
-    - **Fälttyp** – datatypen: *Text*, *Flerradigt text*, *Nummer*, *Datum*, *E-post*, *Telefon*, *URL*, *Ja/Nej*, *Val från lista* eller *JSON* (endast för dokument).
-    - **Standardvärde** och **Förhandsvisning** – valfri förifyllning och placeholder-text.
-    - **Skapad av** och **Skapad** – vem som lade till fältet och när.
-    - Trepunktsmenyn längst till höger låter dig **Redigera** eller **Ta bort** ett fält. Att ändra omfång (Dokument/Kontakt) är låst efter att fältet skapats.
+    - **Fältnamn** – det du och dina kollegor ser.
+    - **Tillämpa på** – **Dokument** eller **Kontakter**. Valet är låst efter att fältet har skapats.
+    - **Fälttyp** – vad som får skrivas in.
+
+    Under dem dyker inställningar upp som hör till den valda fälttypen, till exempel *Platshållare* och *Standardvärde*.
 
     <Frame>
-      <img src="/images/guider/settings-custom-fields/04-fields-list.png" alt="Lista över anpassade fält med kolumner för fältnamn, typ, fälttyp och skapad" />
+      <img src="/images/guider/settings-custom-fields/05-fill-name.png" alt="Panelen Skapa fält med Fältnamn, Tillämpa på och Fälttyp" />
     </Frame>
   </Step>
-  <Step title="Klicka på Lägg till fält uppe till höger för att skapa ett nytt anpassat fält">
-    Knappen öppnar en sidopanel där du anger fältnamn, väljer om fältet ska gälla **Dokument** eller **Kontakter** och vilken **fälttyp** det ska ha. För text- och flerradiga textfält kan du även aktivera **Säkrad** – då krypteras värdet och visas dolt tills användaren aktivt klickar för att visa det. Säkrade fält är användbara för känsliga uppgifter som personnummer eller interna referenser.
-
-    Fält definieras på organisationsnivå – när du skapar ett nytt fält blir det tillgängligt för alla användare i alla arbetsytor i organisationen.
+  <Step title="Välj fälttyp">
+    Tio typer finns att välja mellan. **JSON** visas bara för dokumentfält – väljer du *Kontakter* försvinner den.
 
     <Frame>
-      <img src="/images/guider/settings-custom-fields/06-add-button-visible.png" alt="Knappen Lägg till fält uppe till höger på sidan Anpassade fält" />
+      <img src="/images/guider/settings-custom-fields/06-open-field-type.png" alt="Menyn Fälttyp med tio alternativ" />
+    </Frame>
+  </Step>
+  <Step title="Säkrat fält krypterar värdet">
+    Väljer du **Flerradigt text** kan du slå på **Säkrat fält (krypterat)**. Rutan som dyker upp räknar upp vad det innebär:
+
+    - värdet krypteras i databasen
+    - det visas dolt och måste avslöjas manuellt
+    - varje visning loggas med användar-ID, IP-adress och tidsstämpel
+    - fältet går inte att söka eller filtrera på
+
+    Använd det för känsliga uppgifter som personnummer eller interna referenser. Valet går bara att göra när fältet skapas.
+
+    <Frame>
+      <img src="/images/guider/settings-custom-fields/09-enable-secured.png" alt="Panelen med Säkrat fält påslaget och varningsrutan om vad det innebär" />
     </Frame>
   </Step>
 </Steps>
+
+<Note>
+  **Dokumenttyper** i avsnittet under fältlistan är kategorier du sätter på ett dokument. Kopplar du datafält till en typ visas bara de fälten på dokument av den typen. Mallar och dokument utan typ visar alla fält.
+</Note>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Använd fälten på ett dokument" icon="input-text" href="/guider/anpassade-falt-i-dokument">
+    Så fyller du i datafälten när du arbetar med ett dokument.
+  </Card>
+  <Card title="Taggar" icon="tag" href="/guider/settings-tags">
+    Den andra fliken på samma sida, för fri märkning av dokument och kontakter.
+  </Card>
+</CardGroup>

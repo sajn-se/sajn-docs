@@ -1,0 +1,104 @@
+{
+  "ranAt": "2026-09-13T11:04:32.939Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "open-data-fields",
+      "action": "goto",
+      "screenshotFile": "02-open-data-fields.png",
+      "caption": "Öppna Inställningar och sedan Datafält & taggar",
+      "notes": "Sidan har två flikar: Datafält och Taggar. Fliken Datafält innehåller i sin tur två avsnitt — Datafält och Dokumenttyper.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 3,
+      "name": "open-create",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 4,
+      "name": "wait-drawer",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 5,
+      "name": "fill-name",
+      "action": "fill",
+      "screenshotFile": "05-fill-name.png",
+      "caption": "Panelen Skapa fält",
+      "notes": "Fältnamn är det du och dina kollegor ser. Tillämpa på avgör om fältet hör till dokument eller kontakter, och Fälttyp avgör vad som får skrivas in.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 6,
+      "name": "open-field-type",
+      "action": "click",
+      "screenshotFile": "06-open-field-type.png",
+      "caption": "Fälttyperna du kan välja mellan",
+      "notes": "JSON finns bara för dokumentfält. De andra tio gäller både dokument och kontakter.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 7,
+      "name": "pick-textarea",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 8,
+      "name": "scroll-secured",
+      "action": "scrollIntoView",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 9,
+      "name": "enable-secured",
+      "action": "click",
+      "screenshotFile": "09-enable-secured.png",
+      "caption": "Säkrat fält krypterar värdet",
+      "notes": "Säkrat fält går bara att slå på för Text och Flerradigt text, och bara när fältet skapas. Rutan som dyker upp räknar upp följderna: värdet krypteras, visas dolt, varje visning loggas och fältet går inte att söka på.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 10,
+      "name": "cancel",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    },
+    {
+      "index": 11,
+      "name": "wait-closed",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields"
+    }
+  ]
+}

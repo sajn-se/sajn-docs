@@ -1,0 +1,68 @@
+{
+  "ranAt": "2026-09-13T11:32:24.700Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "sakerhet",
+      "action": "goto",
+      "screenshotFile": "02-sakerhet.png",
+      "caption": "Öppna Inställningar, Personuppgifter och fliken Säkerhet",
+      "notes": "Sidan Personuppgifter har tre flikar: Profil, Säkerhet och Appar. Under Säkerhet ligger Inloggningsnycklar, Tvåstegsautentisering, Aktiva sessioner och betrodda enheter. Allt här gäller ditt personliga konto, inte arbetsytan.",
+      "url": "https://app.sajn.se/arlbn/settings/account/security"
+    },
+    {
+      "index": 3,
+      "name": "inloggningsnyckel",
+      "action": "clickText",
+      "screenshotFile": "03-inloggningsnyckel.png",
+      "caption": "Lägg till inloggningsnyckel förklarar vad som händer",
+      "notes": "Trycker du Fortsätt tar webbläsaren över och frågar var nyckeln ska sparas, till exempel i lösenordshanteraren eller på en säkerhetsnyckel. Du bekräftar med biometri eller PIN och får sedan namnge nyckeln. Här stannar vi vid informationen, så inget registreras.",
+      "url": "https://app.sajn.se/arlbn/settings/account/security"
+    },
+    {
+      "index": 4,
+      "name": "stang-dialogen",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/account/security"
+    },
+    {
+      "index": 5,
+      "name": "vanta-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/account/security"
+    },
+    {
+      "index": 6,
+      "name": "autentiseringsmetod",
+      "action": "clickText",
+      "screenshotFile": "06-autentiseringsmetod.png",
+      "caption": "Tvåstegsautentisering erbjuder tre metoder",
+      "notes": "Autentiseringsapp (TOTP) ger en sexsiffrig kod i en app som Google Authenticator eller Apple Lösenord. sajn-appen låter dig godkänna inloggningen i mobilen i stället för att skriva en kod. E-postkod är gråmarkerad här eftersom den redan är på.",
+      "url": "https://app.sajn.se/arlbn/settings/account/security"
+    },
+    {
+      "index": 7,
+      "name": "stang-menyn",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/account/security"
+    }
+  ]
+}

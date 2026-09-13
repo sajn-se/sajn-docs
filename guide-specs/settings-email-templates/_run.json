@@ -1,0 +1,140 @@
+{
+  "ranAt": "2026-09-13T10:56:02.129Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "open-branding",
+      "action": "goto",
+      "screenshotFile": "02-open-branding.png",
+      "caption": "Öppna Inställningar och sedan Profilering",
+      "notes": "Profilering ligger under arbetsytans inställningar och har tre flikar: Allmänt, E-post & SMS och Dokument.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding"
+    },
+    {
+      "index": 3,
+      "name": "open-email-templates",
+      "action": "click",
+      "screenshotFile": "03-open-email-templates.png",
+      "caption": "Gå till fliken E-post & SMS",
+      "notes": "Sidan listar alla utskick sajn gör i ert namn. Texten överst förklarar att varje ändring AI-granskas innan den sparas, och att SMS går att förhandsgranska men inte anpassa.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 4,
+      "name": "open-system-template",
+      "action": "click",
+      "screenshotFile": "04-open-system-template.png",
+      "caption": "System: utskick som inte hör till ett dokument",
+      "notes": "Under System ligger Organisationsinbjudan och ID-verifiering. De anpassas på samma sätt som dokumentmallarna.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 5,
+      "name": "open-sms-template",
+      "action": "click",
+      "screenshotFile": "05-open-sms-template.png",
+      "caption": "SMS kan förhandsgranskas men inte ändras",
+      "notes": "Den tredje gruppen är SMS. Här ser du exakt vad mottagaren får i telefonen, men texterna är låsta.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 6,
+      "name": "back-to-email",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 7,
+      "name": "language-selector",
+      "action": "click",
+      "screenshotFile": "07-language-selector.png",
+      "caption": "Byt språk för att se översättningen",
+      "notes": "Varje språk har sin egen version av mallen. Anpassar du den svenska texten ändras inte den engelska.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 8,
+      "name": "close-language",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 9,
+      "name": "open-editor",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 10,
+      "name": "wait-editor",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 11,
+      "name": "editor",
+      "action": "screenshot",
+      "screenshotFile": "11-editor.png",
+      "caption": "Redigeraren visar förhandsvisning till vänster och textfälten till höger",
+      "notes": "Varje textstycke i mejlet är ett eget fält. Förhandsvisningen uppdateras medan du skriver och kan växlas mellan dator och mobil. Återställ allt tar tillbaka standardtexten, och Granska & spara skickar ändringen till AI-granskning.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 12,
+      "name": "close-editor",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 13,
+      "name": "wait-closed",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 14,
+      "name": "scroll-variables",
+      "action": "scrollIntoView",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    },
+    {
+      "index": 15,
+      "name": "variables-note",
+      "action": "screenshot",
+      "screenshotFile": "15-variables-note.png",
+      "caption": "Variabler fylls i automatiskt vid utskick",
+      "notes": "Raden under rutan påminner om att variabler skrivs som {namn} och fylls i vid utskick. Organisationsnamnet går inte att byta ut.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/email-templates"
+    }
+  ]
+}

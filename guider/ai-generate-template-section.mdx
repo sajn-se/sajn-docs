@@ -1,44 +1,55 @@
 ---
 title: "Skapa en sektion med AI i en mall"
-description: "Be AI:n skriva en ny sektion i en mall – beskriv vad den ska handla om och få ett färdigt textförslag direkt i editorn"
+description: "Be AI:n skriva en ny sektion i en mall – beskriv vad den ska handla om och få ett färdigt förslag direkt i redigeraren"
 ---
 
-När du redigerar en mall kan du be AI:n skriva en ny sektion åt dig – beskriv vad sektionen ska handla om och få ett färdigt textförslag som infogas direkt i mallen. Den här guiden visar hela flödet från mallen till den genererade sektionen.
+När du redigerar en mall kan du be AI:n skriva en ny sektion åt dig – beskriv vad sektionen ska handla om och få ett färdigt förslag insatt direkt i mallen. Samma funktion finns i vanliga dokument.
 
 ## Innan du börjar
 
 - Du är inloggad i en arbetsyta där du har behörighet att redigera mallar.
-- Det finns minst en mall i arbetsytan – guiden öppnar den första i listan.
+- Organisationen har AI-kvot kvar för månaden.
 
 ## Steg
 
 <Steps>
-  <Step title="Öppna Mallar och välj en mall">
-    Öppna **Mallar** och välj den mall du vill arbeta i. Listan visar alla mallar i arbetsytan. Klicka på raden för den mall där du vill lägga till en AI-genererad sektion.
+  <Step title="Öppna mallen du vill lägga till sektionen i">
+    Gå till [Mallar](https://app.sajn.se/~/templates) och klicka på mallens namn. Guiden utgår från en tom mall, men sektionen kan lika gärna läggas till i en mall som redan har innehåll.
 
     <Frame>
-      <img src="/images/guider/ai-generate-template-section/04-templates-list.png" alt="Listan över mallar i arbetsytan" />
+      <img src="/images/guider/ai-generate-template-section/11-mallen.png" alt="En tom mall öppen i redigeraren" />
     </Frame>
   </Step>
-  <Step title="Öppna sektionsmenyn och välj Skapa med AI">
-    Klicka på **+**-knappen mellan sektionerna och välj **Skapa med AI**. Knappen öppnar en meny med olika sätt att lägga till en ny sektion – tomt avsnitt, bibliotek eller AI. Välj **Skapa med AI** för att låta modellen skriva utkastet åt dig.
+
+  <Step title="Skapa med AI ligger under Verktyg">
+    Den streckade linjen **Lägg till sektion** öppnar sektionsmenyn. Under **Fält** ligger de åtta sektionstyperna du kan lägga in själv; under **Verktyg** ligger **Skapa med AI** och **Sektionsbibliotek**.
 
     <Frame>
-      <img src="/images/guider/ai-generate-template-section/10-section-menu.png" alt="Sektionsmenyn öppen med valet Skapa med AI" />
+      <img src="/images/guider/ai-generate-template-section/12-sektionsmenyn.png" alt="Sektionsmenyn öppen med Skapa med AI under rubriken Verktyg" />
     </Frame>
   </Step>
+
   <Step title="Beskriv vad sektionen ska innehålla">
-    Skriv en kort instruktion till AI:n – det räcker ofta med en mening om vad klausulen ska handla om. Tryck **Cmd+Enter** eller klicka på **Generera** för att starta.
+    Skriv en kort instruktion – en mening om vad klausulen ska handla om räcker oftast. Beskrivningen måste vara minst tio tecken och rymmer högst tusen; en räknare dyker upp när du passerat femhundra.
+
+    Klicka på pappersflygplanet nere till höger i rutan, eller tryck **Cmd+Enter**, för att starta.
 
     <Frame>
-      <img src="/images/guider/ai-generate-template-section/13-fill-prompt.png" alt="Promptrutan där du beskriver vad sektionen ska innehålla" />
+      <img src="/images/guider/ai-generate-template-section/16-promptrutan.png" alt="Rutan Skapa med AI med en beskrivning ifylld" />
     </Frame>
   </Step>
-  <Step title="Den nya sektionen läggs till i mallen">
-    AI:n skapar en ny sektion med rubrik och brödtext baserat på din beskrivning. Du kan redigera texten direkt, byta rubrik eller komplettera med fler stycken precis som vanligt. Är du inte nöjd – ångra och be om en ny variant med en mer specifik instruktion.
+
+  <Step title="Sektionen läggs in i mallen">
+    AI:n väljer själv vilken sorts sektion beskrivningen kräver – oftast Text & bild med rubrik och brödtext, men den kan också skapa till exempel en formulärsektion med fält. Sektionen läggs sist i mallen och du redigerar den precis som vilken annan sektion som helst.
+
+    Är du inte nöjd, klicka ångra-pilen i verktygsraden och be om en ny variant med en mer specifik instruktion.
 
     <Frame>
-      <img src="/images/guider/ai-generate-template-section/18-ai-result.png" alt="Den AI-genererade sektionen införd i mallen" />
+      <img src="/images/guider/ai-generate-template-section/20-resultatet.png" alt="Den AI-skapade sektionen Sekretess införd i mallen" />
     </Frame>
   </Step>
 </Steps>
+
+<Note>
+  Är månadens AI-kvot slut står *AI-användningen är slut för månaden* under rutan och knappen är släckt. **Skapa med AI** saknas också helt i dokument som skapats genom att en PDF importerats – där går det bara att lägga till PDF-sektioner.
+</Note>

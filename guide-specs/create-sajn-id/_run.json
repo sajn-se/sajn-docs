@@ -1,0 +1,149 @@
+{
+  "ranAt": "2026-09-13T11:34:15.499Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "listan",
+      "action": "goto",
+      "screenshotFile": "02-listan.png",
+      "caption": "Öppna sajn ID i sidomenyn",
+      "notes": "Listan visar arbetsytans identitetskontroller med namn, verifieringsmetod, kanal, status, vem som skapade den och när. Sök på namn, e-post, telefon eller referens, och filtrera på status eller datum. Datumfiltret står på Senaste 7 dagarna från början, så äldre kontroller syns först när du vidgar det. Knappen Ny identitetskontroll ligger till höger i filterraden.",
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 3,
+      "name": "oppna-dialog",
+      "action": "clickText",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 4,
+      "name": "vanta-dialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 5,
+      "name": "tom-dialog",
+      "action": "screenshot",
+      "screenshotFile": "05-tom-dialog.png",
+      "caption": "Formuläret har tre obligatoriska fält",
+      "notes": "Namn, Utgångsdatum och Kanal måste fyllas i, plus e-postadress eller telefonnummer beroende på kanal. Utgångsdatum är förifyllt sju dagar fram men går att ändra fritt. Sök kontakt högst upp fyller i uppgifterna från en befintlig kontakt. Längst ner till vänster står hur många kontroller du har kvar den här månaden.",
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 6,
+      "name": "namn",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 7,
+      "name": "referens",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 8,
+      "name": "epost",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 9,
+      "name": "ifylld-dialog",
+      "action": "screenshot",
+      "screenshotFile": "09-ifylld-dialog.png",
+      "caption": "Fyll i namn, kanal och kontaktuppgift",
+      "notes": "Namn är det namn BankID-verifieringen matchas mot. Lämnar du personnummer tomt görs en indirekt matchning på namnet; fyller du i det blir matchningen direkt mot personnumret. Kanal styr om länken skickas med e-post eller SMS, och fältet under byter till telefonnummer om du väljer SMS. Referens är frivillig och syns i listan, praktiskt för att koppla kontrollen till ett ärende.",
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 10,
+      "name": "stang-dialog",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 11,
+      "name": "vanta-skickad",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 12,
+      "name": "vanta-rad",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 13,
+      "name": "ny-rad",
+      "action": "screenshot",
+      "screenshotFile": "13-ny-rad.png",
+      "caption": "Kontrollen skickas direkt och hamnar överst i listan",
+      "notes": "Statusen är Skickat tills mottagaren öppnar länken. Klicka på raden för att öppna kontrollen.",
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 14,
+      "name": "oppna-rad",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 15,
+      "name": "vanta-detalj",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 16,
+      "name": "detaljsidan",
+      "action": "screenshot",
+      "screenshotFile": "16-detaljsidan.png",
+      "caption": "Detaljsidan visar allt om kontrollen",
+      "notes": "Under Detaljer står namn, matchningstyp, kanal, referens, vem som skapade kontrollen och när länken slutar gälla. När verifieringen är klar visas resultatet från BankID här. Menyn Åtgärder uppe till höger har Skicka igen och Avbryt. Sidan uppdaterar sig själv, så du ser statusen ändras medan motparten legitimerar sig.",
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    }
+  ]
+}

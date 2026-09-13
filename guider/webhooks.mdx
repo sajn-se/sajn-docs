@@ -3,82 +3,91 @@ title: "Konfigurera webhooks för dokumenthändelser"
 description: "Ta emot HTTP-callbacks i realtid när dokument signeras, avböjs eller slutförs i sajn"
 ---
 
-Med **webhooks** kan din integration ta emot HTTP-callbacks i realtid när dokument händer i sajn – när någon signerar, avböjer, eller när hela dokumentet är klart. Den här guiden visar var webhooks ligger i utvecklarinställningarna, hur du öppnar dialogen för att lägga till en ny endpoint, vilka händelser du kan prenumerera på och hur du genererar en hemlighet för att verifiera anrop. Guiden **skapar inte** någon webhook – den stänger dialogen via *Avbryt*.
+Med **webhooks** får din integration ett HTTP-anrop i realtid när något händer i sajn – när någon signerar, avböjer eller när hela dokumentet är klart. Den här guiden visar var webhooks ligger, vad dialogen innehåller och vilka händelser du kan prenumerera på. Guiden **skapar ingen** webhook – den stänger dialogen via *Avbryt*.
+
+Webhooks hör till **arbetsytan** du står i. Vill du ha samma händelser från flera arbetsytor behöver du en webhook per arbetsyta.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera utvecklarinställningar på organisationsnivå.
-- Webhooks är **organisationsövergripande** men kan begränsas till en specifik arbetsyta vid skapandet.
-- Din mottagande endpoint måste vara nåbar över HTTPS från publika internet.
+- Du är inloggad och har behörighet att hantera webhooks i arbetsytan.
+- API-åtkomst ingår i Team och Enterprise.
+- Din mottagande endpoint går att nå över HTTPS från publika internet. Adresser som pekar inåt i ett privat nät avvisas.
 
 ## Steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Utvecklare i sidomenyn">
-    Sidan **Utvecklare** ligger under *Organisationsinställningar* och samlar API-nycklar, webhooks och anropsloggar. Webhooks-sektionen ligger en bit ned på sidan, direkt under API-nycklarna.
+  <Step title="Öppna Inställningar, Utvecklare och fliken Webhooks">
+    Öppna [Inställningar → Utvecklare → Webhooks](https://app.sajn.se/~/settings/workspace/developer/webhooks). Tabellen visar **URL** (din mottagande endpoint), **Event** (vilka händelser som utlöser anropet) och **Skapad**. Sökfältet uppe till vänster filtrerar listan, och menyn längst till höger på varje rad har **Redigera** och **Ta bort**.
+
+    Texten överst påminner om var leveranserna hamnar: under fliken **Loggar**.
 
     <Frame>
-      <img src="/images/guider/webhooks/02-open-developer-settings.png" alt="Inställningar för Utvecklare öppnade i sidomenyn" />
-    </Frame>
-  </Step>
-  <Step title="Webhooks-sektionen listar alla endpoints">
-    Tabellen visar **URL** (din mottagande endpoint), **Arbetsyta** (om webhooken är begränsad till en specifik arbetsyta eller gäller hela organisationen), **Event** (vilka händelser som triggar utskick) och **Skapad**-datum.
-
-    Använd sökfältet uppe till vänster för att filtrera på URL, arbetsyta eller händelsenamn. Trepunktsmenyn (⋯) längst till höger på varje rad innehåller **Redigera** och **Ta bort**.
-
-    <Frame>
-      <img src="/images/guider/webhooks/04-webhooks-section.png" alt="Webhooks-sektionen med tabell över befintliga endpoints" />
+      <img src="/images/guider/webhooks/02-open-webhooks.png" alt="Fliken Webhooks med tom tabell och knappen Skapa webhook" />
     </Frame>
   </Step>
   <Step title="Dialogen Skapa webhook">
-    Fyll i URL, välj arbetsyta och händelser.
+    Klicka **Skapa webhook**. Fälten är:
 
-    Fälten i dialogen:
-
-    - **Arbetsyta** – välj vilken arbetsyta webhooken ska få åtkomst till. Webhooken levereras bara för händelser i den valda arbetsytan.
-    - **Webhook URL** – den HTTPS-endpoint som sajn ska POSTa JSON-payloads till (t.ex. `https://dittforetag.se/api/webhook`). URL:en valideras innan webhooken sparas.
-    - **Aktiv** – sätt **Nej** för att skapa webhooken pausad utan att börja ta emot anrop direkt.
-    - **Händelser** – ett eller flera event som ska utlösa anrop. Se nästa steg.
-    - **E-post vid fel (valfritt)** – får ett mejl om sajn inte lyckas leverera anropet efter samtliga försök.
-    - **Hemlighet** – en delad nyckel som signerar varje payload så att du kan verifiera att anropet kommer från sajn.
+    - **Webhook URL** – den HTTPS-endpoint sajn ska skicka JSON till, t.ex. `https://dittforetag.se/api/webhook`. URL:en valideras innan webhooken sparas.
+    - **Aktiv** – sätt **Nej** för att skapa webhooken pausad.
+    - **Händelser** – en eller flera händelser som ska utlösa anropet. Se nästa steg.
+    - **E-post vid fel (valfritt)** – får ett mejl om sajn inte lyckas leverera anropet.
+    - **Hemlighet** – nyckeln som signerar varje anrop. Uppdateringsikonen i fältet fyller i ett nytt slumpat värde. Lämnar du fältet tomt skapar sajn en hemlighet åt dig.
 
     <Frame>
-      <img src="/images/guider/webhooks/07-create-webhook-dialog.png" alt="Dialogen Skapa webhook med fält för URL, arbetsyta och händelser" />
+      <img src="/images/guider/webhooks/05-fill-url.png" alt="Dialogen Skapa webhook med URL, händelser, felmejl och hemlighet. Hemligheten är maskad" />
     </Frame>
   </Step>
   <Step title="Välj bland tillgängliga händelser">
-    Händelsenamnen följer mönstret `<resurs>.<verb>` och grupperas i tre kategorier:
+    Händelsenamnen följer mönstret `<resurs>.<verb>`. Skriv i fältet för att filtrera listan.
 
-    **Dokumentnivå** – `document.created`, `document.sent`, `document.signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.modified`, `document.deleted`, `document.archived`, `document.unarchived`.
+    **Dokument** – `document.created`, `document.sent`, `document.signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.modified`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration.extended`, `document.archive.uploaded`.
 
-    **Mottagarnivå (per signerare)** – `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`, `document.party.added`, `document.party.removed`.
+    **Per part** – `document.party.sent`, `document.party.delivery.failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth.failed`, `document.party.added`, `document.party.removed`.
 
     **Påminnelser** – `document.reminder.automatic`, `document.reminder.manual`.
+
+    **ID-kontroll** – `id.created`, `id.sent`, `id.opened`, `id.verified`, `id.failed`, `id.canceled`.
+
+    **Kontakter och mallar** – `contact.created`, `contact.updated`, `contact.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`.
+
+    **Organisation** – `workspace.created`, `member.added`, `login.completed`, `login.failed`.
+
+    **Säkerhet** – `security.document.downloaded`, `security.documents.exported`, `security.signature.identity.accessed`, `security.workspace.member.removed`, `security.workspace.member.role.changed`, `security.workspace.role.updated`, `security.workspace.retention.updated`. De är tänkta att matas in i ett SIEM.
 
     Välj så få som möjligt – en endpoint som prenumererar på allt får snabbt hög trafik. För de flesta integrationer räcker `document.signed` och `document.completed`.
 
     <Frame>
-      <img src="/images/guider/webhooks/09-events-list.png" alt="Lista med tillgängliga händelser grupperade i dokument-, mottagar- och påminnelsenivå" />
-    </Frame>
-  </Step>
-  <Step title="Generera och rotera Hemligheten">
-    Klicka på uppdaterings-ikonen för att generera en ny hemlighet.
-
-    Fältet **Hemlighet** är en delad nyckel som skickas med varje webhook-anrop, så att din server kan **verifiera** att payloaden faktiskt kommer från sajn (HMAC-signaturen följer med i en `X-sajn-Signature`-header).
-
-    Klicka på uppdaterings-ikonen (↻) längst till höger i fältet för att **generera en ny UUID-hemlighet**. För att **rotera** hemligheten på en befintlig webhook: öppna webhooken via trepunktsmenyn → **Redigera**, klicka uppdaterings-ikonen för att generera ett nytt värde och spara. Den nya hemligheten används direkt för alla efterföljande anrop – uppdatera din verifieringskod innan du sparar så att inga inkommande anrop misslyckas valideringen.
-
-    <Frame>
-      <img src="/images/guider/webhooks/11-scroll-secret-field.png" alt="Hemlighet-fältet med uppdaterings-ikonen för att generera ny UUID" />
-    </Frame>
-  </Step>
-  <Step title="Stäng dialogen med Avbryt">
-    Eftersom guiden inte skapade någon webhook ser sektionen ut precis som innan. När du är redo att lägga upp en riktig endpoint: klicka **Skapa webhook** igen, fyll i fälten och tryck **Skapa webhook** i dialogens nedre högra hörn.
-
-    När webhooken är aktiv hittar du varje utskick under **Webhook-loggar** längst ned på samma sida, med svarstid, statuskod och möjlighet att spela upp anropet på nytt om din endpoint var nere.
-
-    <Frame>
-      <img src="/images/guider/webhooks/14-back-to-section.png" alt="Webhooks-sektionen efter att dialogen stängts via Avbryt" />
+      <img src="/images/guider/webhooks/06-open-events.png" alt="Listan över tillgängliga händelser i dialogen" />
     </Frame>
   </Step>
 </Steps>
+
+## Verifiera att anropet kommer från sajn
+
+Varje leverans skickas med tre headers:
+
+- `X-Sajn-Signature` – `t=<unix-sekunder>,v1=<hex>`, där `v1` är en HMAC-SHA256 över strängen `<t>.<rå body>` med din hemlighet som nyckel. Tidsstämpeln ingår i det signerade, så en tidigare leverans kan inte spelas upp igen. Avvisa anrop som är äldre än din tolerans.
+- `X-Sajn-Delivery` – ett id som är detsamma i alla omförsök av samma händelse. Använd det för att inte göra samma arbete två gånger.
+- `X-Sajn-Secret` – hemligheten i klartext. Den finns kvar för äldre integrationer och ska inte användas i nya. Jämför signaturen i stället.
+
+## Rotera hemligheten
+
+Öppna webhooken via menyn på raden och välj **Redigera**, klicka på uppdateringsikonen i fältet **Hemlighet** och spara. Den nya hemligheten används direkt för alla efterföljande anrop – uppdatera din verifieringskod innan du sparar, annars faller inkommande anrop på valideringen.
+
+## När något inte kommer fram
+
+Under fliken [Loggar](https://app.sajn.se/~/settings/workspace/developer/logs) finns **Webhook-loggar** med varje utskick: händelse, URL, status och svarskod. Loggarna sparas i 72 timmar. Fliken [Övervakning](https://app.sajn.se/~/settings/workspace/developer/monitoring) sammanfattar samma period som antal leveranser, felandel och leveranstid.
+
+Misslyckas en leverans gör sajn flera omförsök. Har du fyllt i **E-post vid fel** får du ett mejl när alla försök är slut.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Utvecklarinställningar" icon="key" href="/guider/settings-developer-api">
+    API-nycklar, övervakning och loggar på samma sida.
+  </Card>
+  <Card title="Aktivitetslogg" icon="scroll" href="/guider/settings-audit-log">
+    Samma slags händelser, men för människor i stället för system.
+  </Card>
+</CardGroup>

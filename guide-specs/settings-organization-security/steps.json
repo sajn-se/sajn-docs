@@ -1,0 +1,53 @@
+{
+    "slug": "settings-organization-security",
+    "title": "Säkerhetsinställningar för organisationen",
+    "intro": "Under Team & säkerhet › Säkerhet kan du kräva tvåstegsautentisering för alla medlemmar och begränsa vilka länder som får logga in.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera organisationens inställningar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [],
+    "imageDir": "../../images/guider/settings-organization-security",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-sakerhet",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/security",
+            "caption": "Öppna Team & säkerhet och välj fliken Säkerhet",
+            "notes": "Sidan har två sektioner: Tvåstegsautentisering och Geografiska regler. Knappen Spara ändringar längst ned är grå tills du har ändrat något."
+        },
+        {
+            "name": "oppna-2fa",
+            "action": "click",
+            "selector": "#requireTwoFactor",
+            "caption": "Tvåstegsautentisering: välj Ja för att tvinga hela teamet",
+            "notes": "Med Ja måste alla teammedlemmar utan tvåstegsverifiering aktivera det nästa gång de loggar in. Med Nej är det frivilligt per användare."
+        },
+        {
+            "name": "stang-2fa",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "valj-tillatelselista",
+            "action": "click",
+            "selector": "button:has-text('Tillåtelselista')",
+            "caption": "Geografiska regler: välj läge och länder",
+            "notes": "Av betyder inga begränsningar. Tillåtelselista släpper bara in de länder du väljer. Blockeringslista släpper in alla utom de du väljer. När ett annat läge än Av är aktivt får rubriken en grön etikett Aktiv."
+        },
+        {
+            "name": "aterstall-av",
+            "action": "click",
+            "selector": "button:has-text('Av')",
+            "screenshot": false
+        }
+    ]
+}

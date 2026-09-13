@@ -1,0 +1,167 @@
+{
+    "slug": "delete-template",
+    "title": "Ta bort en mall",
+    "intro": "Att ta bort en mall flyttar den till mallarnas papperskorg. Den försvinner ur listan direkt, men går att återställa i 90 dagar.",
+    "audience": "Alla som hanterar mallar",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får hantera mallar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/delete-template",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "till-mallistan",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-mall",
+            "action": "click",
+            "selector": "button:has-text('Skapa ny mall')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-redigera-meny",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namndialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input#name",
+            "value": "Batch D: mall att ta bort",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn-sparat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')",
+            "state": "hidden"
+        },
+        {
+            "name": "tillbaka-till-listan",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "caption": "Hitta mallen du vill ta bort i listan"
+        },
+        {
+            "name": "markera-raden",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: mall att ta bort') button[role='checkbox']",
+            "caption": "Bocka för mallen så dyker Åtgärder upp"
+        },
+        {
+            "name": "oppna-atgarder",
+            "action": "click",
+            "selector": "button:has-text('Åtgärder')",
+            "caption": "Ta bort ligger längst ner i Åtgärder"
+        },
+        {
+            "name": "valj-ta-bort",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ta bort')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ta bort mallar')"
+        },
+        {
+            "name": "bekraftelsen",
+            "action": "screenshot",
+            "caption": "Dialogen säger vart mallen tar vägen"
+        },
+        {
+            "name": "bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Ta bort')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagen",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: mall att ta bort')",
+            "state": "hidden"
+        },
+        {
+            "name": "listan-utan-mallen",
+            "action": "screenshot",
+            "caption": "Raden försvinner ur listan"
+        },
+        {
+            "name": "papperskorgen",
+            "action": "goto",
+            "url": "/{workspace}/templates/trash",
+            "caption": "Mallen ligger kvar i Papperskorg"
+        },
+        {
+            "name": "oppna-radmenyn",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: mall att ta bort') button[aria-label='Åtgärder']",
+            "caption": "Radmenyn har Återställ och Radera permanent"
+        },
+        {
+            "name": "stadning-radera",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Radera permanent')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-raderadialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Radera permanent')"
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Radera permanent')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-efter-stadning",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: mall att ta bort')",
+            "state": "hidden"
+        }
+    ]
+}

@@ -1,0 +1,131 @@
+{
+  "ranAt": "2026-09-13T11:38:29.551Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "kontakter",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts"
+    },
+    {
+      "index": 3,
+      "name": "sok",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts"
+    },
+    {
+      "index": 4,
+      "name": "vanta-traff",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts"
+    },
+    {
+      "index": 5,
+      "name": "hitta",
+      "action": "screenshot",
+      "screenshotFile": "05-hitta.png",
+      "caption": "Sök fram kontakten och klicka på raden",
+      "notes": "Sökfältet matchar namn, e-post, telefon och företag. Klicka var som helst på raden för att öppna kontaktens panel till höger.",
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E"
+    },
+    {
+      "index": 6,
+      "name": "oppna",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 7,
+      "name": "vanta-panel",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 8,
+      "name": "panelen",
+      "action": "screenshot",
+      "screenshotFile": "08-panelen.png",
+      "caption": "Panelen öppnas med fliken Översikt",
+      "notes": "Översikt visar de redigerbara fälten: Telefon, E-post, Företag, Roll, Signaturmetod och Taggar. Längst ner står påminnelsen Klicka på värden för att redigera dem. Ändringar sparas automatiskt.",
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 9,
+      "name": "oppna-telefon",
+      "action": "click",
+      "screenshotFile": "09-oppna-telefon.png",
+      "caption": "Klicka på värdet bredvid Telefon",
+      "notes": "En liten ruta med ett textfält läggs över värdet. Skriv det nya numret. Enter eller ett klick utanför sparar, Esc avbryter och behåller det gamla värdet.",
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 10,
+      "name": "skriv",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 11,
+      "name": "skrivet",
+      "action": "screenshot",
+      "screenshotFile": "11-skrivet.png",
+      "caption": "Skriv in det nya värdet",
+      "notes": "Värdet uppdateras i rutan medan du skriver. Inget sparas förrän du stänger den.",
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 12,
+      "name": "spara",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 13,
+      "name": "vanta-sparat",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 14,
+      "name": "sparat",
+      "action": "screenshot",
+      "screenshotFile": "14-sparat.png",
+      "caption": "Det nya numret syns direkt i panelen",
+      "notes": "Samma mönster gäller E-post, Företag, Roll och arbetsytans datafält. Vill du tömma ett fält klickar du på det igen och rensar innehållet innan du stänger rutan. Företag öppnar i stället en väljare där du kopplar kontakten till ett företag, och Signaturmetod är en lista.",
+      "url": "https://app.sajn.se/arlbn/contacts?query=Batch+E&id=cmtzqpwzy000q02jsr61g5x59"
+    }
+  ]
+}

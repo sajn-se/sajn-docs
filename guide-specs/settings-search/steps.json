@@ -1,0 +1,48 @@
+{
+    "slug": "settings-search",
+    "title": "Sökning och indexering",
+    "intro": "Sökning & indexering styr om innehållet i era dokument görs sökbart, om AI får tolka sökfrågor, och vilka dokument som ingår i indexet. Sidan ligger som en flik under AI & Sökning. Guiden är en rundtur — den ändrar ingenting och raderar ingenting.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera arbetsytans inställningar.",
+        "Sökning i dokumentinnehåll kräver Solo eller högre. På Basic slås både indexering och AI-tolkning av.",
+        "Inställningarna är arbetsytespecifika — varje arbetsyta har sitt eget sökindex."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/settings-search",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/ai/search",
+            "caption": "Öppna AI & Sökning och välj fliken Sökning & indexering",
+            "notes": "Indexera dokumentinnehåll gör det möjligt att söka inuti signerade dokument. Endast färdiga dokument indexeras — utkast och pågående dokument lämnas alltid utanför. Stänger du av indexeringen raderas inte sparad data automatiskt.\n\nTillåt AI-tolkning av sökfrågor gör att en fråga i vanligt språk, som \"alla avtal som löper ut i mars\", tolkas om till strukturerade filter. Endast själva sökfrågan skickas till AI-modellen — inget dokumentinnehåll. Brytaren går inte att slå på om AI är avstängt i arbetsytan eller om innehållsindexering är av."
+        },
+        {
+            "name": "status",
+            "action": "scrollIntoView",
+            "selector": "text=Indexeringsstatus",
+            "caption": "Indexeringsstatus — hur långt indexeringen kommit",
+            "notes": "Raden visar hur många av arbetsytans indexerbara dokument som är klara, plus misslyckanden och dokument som saknar textlager, till exempel inskannade PDF:er utan OCR.\n\nÅterindexera köar om alla indexerbara dokument i bakgrunden och är användbart om du nyss slagit på indexeringen eller om något saknas i sökningen. Radera sökindex tar bort all extraherad text för arbetsytan och öppnar en bekräftelseruta först; åtgärden går inte att ångra, men du kan alltid indexera om efteråt så länge indexering fortfarande är på.",
+            "screenshot": true
+        },
+        {
+            "name": "dokument-i-indexet",
+            "action": "scrollIntoView",
+            "selector": "text=Dokument i indexet",
+            "caption": "Dokument i indexet — se och undanta enskilda dokument",
+            "notes": "Flikarna delar upp dokumenten i Indexerade, Misslyckade, Utan textlager och Undantagna, och sökrutan hittar ett enskilt dokument. Ikonen med det överkryssade ögat längst till höger på en rad undantar dokumentet: det plockas ur indexet och tas inte med igen vid en återindexering. Använd den för dokument som inte ska gå att hitta via fritextsök.",
+            "screenshot": true
+        }
+    ]
+}

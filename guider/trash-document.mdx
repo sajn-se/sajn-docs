@@ -3,84 +3,103 @@ title: "Flytta ett dokument till papperskorgen och återställa det"
 description: "Flytta ett dokument till papperskorgen och hämta tillbaka det innan det raderas permanent"
 ---
 
-Råkade du skapa fel dokument eller vill rensa bort ett gammalt utkast? Den här guiden visar hur du flyttar ett dokument till papperskorgen från **Dokument**-listan, hittar det igen i **Papperskorg** och återställer det tillbaka till listan. Inget raderas permanent direkt – papperskorgen är en mellanstation där dokument ligger kvar innan de rensas automatiskt. Hur länge bestämmer arbetsytan själv, som standard 90 dagar. Se [Lagring och radering](/guider/lagring-och-radering).
+Råkade du skapa fel dokument eller vill rensa bort ett gammalt utkast? Papperskorgen är en mellanstation: dokumentet försvinner ur listan **Dokument** men finns kvar och går att återställa tills lagringstiden löper ut. Standardtiden är 90 dagar. Har arbetsytan satt en annan lagringstid är det den som styr den faktiska raderingen – se [Lagring och radering](/guider/lagring-och-radering).
 
 ## Innan du börjar
 
-- Du är inloggad i en arbetsyta där du har behörigheten **Ta bort dokument** (DELETE_DOCUMENT) – ingår normalt i de flesta roller.
-- Du har minst ett utkast att flytta till papperskorgen, eller skapar ett nytt i guiden.
+- Du är inloggad i en arbetsyta där du har behörigheten **Ta bort dokument** – den ingår i de flesta roller.
+- Du har minst ett dokument att flytta bort.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Dokument i sidomenyn för att hitta dokumentet du vill ta bort">
-    Listan visar alla dokument i den aktuella arbetsytan – utkast, väntande och signerade. Hitta utkastet **Hyresavtal höst** (eller det dokument du vill flytta) och fortsätt med nästa steg. Du kan markera flera dokument samtidigt om du vill rensa flera utkast på en gång.
+  <Step title="Hitta dokumentet i listan Dokument">
+    Listan [Dokument](https://app.sajn.se/~/documents) visar arbetsytans aktiva dokument. Sök eller filtrera fram raden du vill bli av med.
 
     <Frame>
-      <img src="/images/guider/trash-document/14-open-documents.png" alt="Sidan Dokument öppen med utkastet vi vill ta bort" />
+      <img src="/images/guider/trash-document/12-dokumentlistan.png" alt="Dokumentlistan med dokumentet som ska tas bort" />
     </Frame>
   </Step>
-  <Step title="Bocka för dokumentet i listan så att knappen Åtgärder dyker upp">
-    Klicka på kryssrutan längst till vänster på raden. Så fort minst ett dokument är markerat ersätts skapa-knappen uppe till höger med knappen **Åtgärder**. Siffran på knappen visar hur många rader du valt – markera flera om du vill flytta flera dokument till papperskorgen i samma steg.
+
+  <Step title="Bocka för dokumentet">
+    Klicka i kryssrutan längst till vänster. Knappen **Åtgärder** dyker upp bredvid **Skapa nytt**, med antalet valda rader. Markera flera om du vill rensa bort flera på en gång.
 
     <Frame>
-      <img src="/images/guider/trash-document/20-row-selected.png" alt="Dokumentraden markerad med kryssruta och knappen Åtgärder synlig" />
+      <img src="/images/guider/trash-document/13-markera-raden.png" alt="Dokumentraden markerad med kryssruta och knappen Åtgärder synlig" />
     </Frame>
   </Step>
-  <Step title="Öppna Åtgärder och välj Flytta till papperskorg">
-    Menyn **Åtgärder** samlar alla bulk-åtgärder för markerade dokument – flytta till mapp, exportera, arkivera, hantera taggar och skicka utkast. Längst ner i rött ligger **Flytta till papperskorg**. Även slutförda dokument kan flyttas dit – dialogen varnar då för att bevisdokumentationen följer med när papperskorgen töms.
+
+  <Step title="Flytta till papperskorg ligger längst ner">
+    Menyn samlar *Flytta till mapp*, *Exportera*, *Arkivera*, *Hantera taggar*, *Skicka utkast* och *Återkalla*. Längst ner, i rött, ligger **Flytta till papperskorg**.
 
     <Frame>
-      <img src="/images/guider/trash-document/23-actions-menu-open.png" alt="Menyn Åtgärder öppen med valet Flytta till papperskorg i rött" />
+      <img src="/images/guider/trash-document/14-oppna-atgarder.png" alt="Menyn Åtgärder öppen med Flytta till papperskorg i rött" />
     </Frame>
   </Step>
-  <Step title="Bekräfta i dialogen genom att klicka på Flytta till papperskorg">
-    Dialogen påminner om att dokument i papperskorgen raderas automatiskt efter arbetsytans lagringstid – under den tiden kan du när som helst återställa dem. Klicka på den röda knappen **Flytta till papperskorg** för att slutföra, eller **Avbryt** om du ändrar dig.
+
+  <Step title="Dialogen påminner om den automatiska raderingen">
+    **Flytta till papperskorgen?** säger hur många dokument som flyttas och att de raderas automatiskt efter 90 dagar. Klicka på den röda knappen för att slutföra, eller **Avbryt**.
 
     <Frame>
-      <img src="/images/guider/trash-document/26-confirm-trash-dialog.png" alt="Bekräftelsedialogen för att flytta dokumentet till papperskorgen" />
+      <img src="/images/guider/trash-document/17-bekraftelsen.png" alt="Bekräftelsedialogen Flytta till papperskorgen?" />
     </Frame>
   </Step>
-  <Step title="Dokumentet är borta från listan Dokument">
-    Tabellen uppdateras direkt och raden för **Hyresavtal höst** försvinner. Dokumentet är inte raderat – det ligger nu i papperskorgen där det väntar innan det rensas permanent. Nästa steg är att öppna **Papperskorg** för att hitta det igen.
+
+  <Step title="Raden försvinner ur listan Dokument">
+    Tabellen uppdateras direkt. Dokumentet är inte raderat – det väntar i papperskorgen.
 
     <Frame>
-      <img src="/images/guider/trash-document/30-list-without-document.png" alt="Listan Dokument utan raden för det borttagna dokumentet" />
+      <img src="/images/guider/trash-document/20-listan-utan.png" alt="Dokumentlistan utan den borttagna raden" />
     </Frame>
   </Step>
-  <Step title="Öppna Papperskorg i sidomenyn för att se borttagna dokument">
-    Här samlas alla dokument du flyttat hit. Kolumnen **Borttagen** visar när dokumentet togs bort och **Raderas om** räknar ner dagarna tills det rensas permanent – siffran blir orange efter 60 dagar och röd den sista veckan. Hitta **Hyresavtal höst** i listan och fortsätt med att återställa det.
+
+  <Step title="Papperskorg ligger under Dokument i sidomenyn">
+    Öppna [Dokument → Papperskorg](https://app.sajn.se/~/documents/trash). Kolumnen **Borttagen** visar när dokumentet togs bort och **Raderas om** räknar ner dagarna. Siffran blir orange när det är trettio dagar kvar och röd den sista veckan. Sök och filtren **Status** och **Ansvarig** hjälper dig hitta rätt rad.
 
     <Frame>
-      <img src="/images/guider/trash-document/34-trash-overview.png" alt="Sidan Papperskorg med borttagna dokument listade" />
+      <img src="/images/guider/trash-document/21-papperskorgen.png" alt="Sidan Papperskorg med borttagna dokument och nedräkningen Raderas om" />
     </Frame>
   </Step>
-  <Step title="Öppna radens trepunktsmeny och välj Återställ">
-    Längst till höger på varje rad finns en trepunktsmeny som dyker upp när du för muspekaren över raden. Menyn har två huvudval: **Återställ** för att flytta dokumentet tillbaka till listan **Dokument**, och **Radera permanent** för att ta bort det för alltid (kan inte ångras). Längst ner ser du när dokumentet togs bort.
+
+  <Step title="Radmenyn har Återställ och Radera permanent">
+    Menyn med tre punkter längst till höger på raden har två val: **Återställ** lägger tillbaka dokumentet i listan **Dokument**, **Radera permanent** tar bort det för alltid. Längst ner står när dokumentet togs bort.
+
+    Markerar du flera rader får du samma två val i knappen **Åtgärder** ovanför tabellen.
 
     <Frame>
-      <img src="/images/guider/trash-document/38-trash-row-menu-open.png" alt="Trepunktsmenyn öppen på en rad i papperskorgen med valet Återställ" />
+      <img src="/images/guider/trash-document/22-radmenyn.png" alt="Radmenyn i papperskorgen med Återställ och Radera permanent" />
     </Frame>
   </Step>
+
   <Step title="Bekräfta i dialogen Återställ dokument">
-    Dialogen visar dokumentets namn och bekräftar att det kommer att visas i din dokumentlista igen. Klicka på den blå knappen **Återställ** för att slutföra, eller **Avbryt** om du ändrar dig.
+    Dialogen visar dokumentets namn och bekräftar att det kommer tillbaka i din dokumentlista. Klicka **Återställ**.
 
     <Frame>
-      <img src="/images/guider/trash-document/41-confirm-restore-dialog.png" alt="Bekräftelsedialogen Återställ dokument" />
+      <img src="/images/guider/trash-document/25-aterstalldialogen.png" alt="Bekräftelsedialogen Återställ dokument" />
     </Frame>
   </Step>
-  <Step title="Dokumentet återställs och försvinner ur papperskorgen">
-    Så fort du bekräftar i dialogen flyttas dokumentet tillbaka och raden försvinner ur papperskorgen. Nu finns **Hyresavtal höst** åter i din vanliga **Dokument**-lista, med samma status och innehåll som innan.
+
+  <Step title="Raden försvinner ur papperskorgen">
+    Så fort du bekräftat flyttas dokumentet tillbaka och raden försvinner här.
 
     <Frame>
-      <img src="/images/guider/trash-document/45-trash-without-document.png" alt="Papperskorgen efter återställning – raden är borta" />
+      <img src="/images/guider/trash-document/28-papperskorgen-utan.png" alt="Papperskorgen efter återställningen" />
     </Frame>
   </Step>
-  <Step title="Tillbaka i Dokument – Hyresavtal höst finns med i listan igen">
-    Det återställda dokumentet behåller sin tidigare status, sina parter, fält och allt övrigt innehåll – det enda som ändras är att det inte längre är markerat som borttaget. Behöver du städa upp på riktigt kan du öppna dokumentet i papperskorgen och välja **Radera permanent** i radmenyn istället – men det går inte att ångra.
+
+  <Step title="Dokumentet är tillbaka i listan">
+    Det återställda dokumentet behåller status, parter, fält och allt annat innehåll. Det enda som ändras är att det inte längre är markerat som borttaget.
 
     <Frame>
-      <img src="/images/guider/trash-document/51-document-restored.png" alt="Dokumentlistan med det återställda dokumentet synligt igen" />
+      <img src="/images/guider/trash-document/29-tillbaka-i-listan.png" alt="Dokumentlistan med det återställda dokumentet" />
     </Frame>
   </Step>
 </Steps>
+
+<Warning>
+  Signerade avtal är ett specialfall. Raderas de permanent försvinner också bevisdokumentationen och den förseglade PDF:en hos oss. Ladda ner det du behöver först – er egen kopia går fortfarande att verifiera på egen hand. Väljer du **Flytta till papperskorg** i radmenyn på ett signerat dokument varnar dialogen för just detta.
+</Warning>
+
+<Note>
+  Omfattas dokumentet av arbetsytans lagringspolicy kan det flyttas tillbaka till papperskorgen vid nästa körning, även efter att du återställt det. sajn säger till när det händer.
+</Note>

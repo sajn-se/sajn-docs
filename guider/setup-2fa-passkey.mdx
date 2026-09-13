@@ -1,60 +1,66 @@
 ---
-title: "Säkra ditt konto med 2FA eller passkey"
-description: "Aktivera inloggningsnycklar (passkeys) eller tvåstegsautentisering för ditt personliga sajn-konto"
+title: "Säkra ditt konto med inloggningsnyckel eller 2FA"
+description: "Lägg till en inloggningsnyckel eller en autentiseringsapp som starkare skydd än e-postkoden"
 ---
 
-Vill du höja säkerheten på ditt sajn-konto? På sidan **Personuppgifter** hittar du två sektioner som hjälper dig härda inloggningen: **Inloggningsnycklar** (passkeys) för lösenordsfri inlogging med biometri eller säkerhetsnyckel, och **Tvåstegsautentisering** (2FA) som kräver en engångskod från en autentiseringsapp utöver lösenordet. Den här guiden visar var ingångarna ligger och vad varje val gör – den genomför inte själva registreringen åt dig.
+Tvåstegsautentisering krävs på alla sajn-konton, och e-postkod är påslagen från början. Vill du ha något snabbare och säkrare lägger du till ett starkare skydd: en **inloggningsnyckel** för lösenordsfri inloggning med biometri eller säkerhetsnyckel, eller en **autentiseringsapp** som ger en engångskod.
+
+Den här guiden visar var ingångarna finns och vad varje val gör. Den genomför inte registreringen åt dig.
 
 ## Innan du börjar
 
 - Du är inloggad på ditt sajn-konto.
 - Inställningarna gäller **ditt personliga konto** – inte arbetsytan eller organisationen. Skydden följer dig oavsett vilken arbetsyta du loggar in i.
-- För passkey behöver du en enhet och en webbläsare som stöder WebAuthn (t.ex. Touch ID, Face ID, Windows Hello eller en hårdvarunyckel).
+- För inloggningsnyckel behöver du en enhet och en webbläsare som stöder det, till exempel Touch ID, Face ID, Windows Hello eller en hårdvarusäkerhetsnyckel.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Personuppgifter i sidomenyn">
-    Sidan **Personuppgifter** samlar dina personliga konto­inställningar: namn, e-post, lösenord, kommunikations­val och – det vi tittar på här – säkerhets­funktionerna **Inloggningsnycklar** och **Tvåstegsautentisering**. Inställningarna är knutna till ditt användarkonto och följer med dig mellan arbetsytor.
+  <Step title="Öppna Inställningar → Personuppgifter → Säkerhet">
+    Sidan **Personuppgifter** har tre flikar: **Profil**, **Säkerhet** och **Appar**. Allt som rör inloggningen ligger under [Säkerhet](https://app.sajn.se/~/settings/account/security): *Inloggningsnycklar*, *Tvåstegsautentisering*, *Aktiva sessioner* och betrodda enheter.
 
     <Frame>
-      <img src="/images/guider/setup-2fa-passkey/02-open-user-settings.png" alt="Sidan Personuppgifter öppen under Personliga inställningar" />
+      <img src="/images/guider/setup-2fa-passkey/02-sakerhet.png" alt="Fliken Säkerhet under Personuppgifter med sektionerna Inloggningsnycklar, Tvåstegsautentisering och Aktiva sessioner" />
     </Frame>
   </Step>
-  <Step title="Inloggningsnycklar – lösenordsfri inlogging med biometri eller hårdvarunyckel">
-    Här ser du alla passkeys som är kopplade till ditt konto, när de skapades och senast användes. En passkey är en kryptografisk nyckel som lagras på din enhet (t.ex. i iCloud Keychain, Google Password Manager eller en YubiKey) och låter dig logga in med Touch ID, Face ID, Windows Hello eller PIN istället för lösenord.
+  <Step title="Inloggningsnycklar – logga in utan lösenord">
+    En inloggningsnyckel (passkey) är en kryptografisk nyckel som lagras på din enhet eller i din lösenordshanterare. Du loggar in med Touch ID, Face ID, Windows Hello eller PIN i stället för lösenord.
 
-    Knappen **Lägg till inloggningsnyckel** uppe till höger startar registreringen. Du kan ha flera passkeys parallellt – en per enhet är vanligt – och ta bort dem via trepunktsmenyn när du inte längre använder en viss enhet.
+    Har du registrerat nycklar listas de här med **Namn**, **Datum tillagd** och **Senast använd**. Via menyn med tre punkter på raden kan du byta namn på en nyckel eller ta bort den. Du kan ha flera parallellt – en per enhet är vanligt.
+
+    Knappen **Lägg till inloggningsnyckel** uppe till höger startar registreringen.
+  </Step>
+  <Step title="Rutan förklarar vad som händer innan webbläsaren tar över">
+    Klickar du **Fortsätt** lämnar sajn över till webbläsaren, som frågar var nyckeln ska sparas – i lösenordshanteraren, i nyckelringen eller på en säkerhetsnyckel – och du bekräftar med biometri eller PIN. Därefter får du namnge nyckeln så att du känner igen den senare.
+
+    Den här guiden stannar vid informationen och registrerar ingenting.
 
     <Frame>
-      <img src="/images/guider/setup-2fa-passkey/04-passkey-section.png" alt="Sektionen Inloggningsnycklar med lista över registrerade passkeys" />
+      <img src="/images/guider/setup-2fa-passkey/03-inloggningsnyckel.png" alt="Rutan Lägg till inloggningsnyckel med knappen Fortsätt" />
     </Frame>
   </Step>
-  <Step title="Dialogen Lägg till inloggningsnyckel förklarar hur registreringen går till">
-    När du klickar **Fortsätt** startar webbläsaren sin egen systemdialog där du väljer var nyckeln ska sparas (t.ex. iCloud Keychain, en lösenordshanterare eller en säkerhetsnyckel) och bekräftar med din biometri eller PIN. Efter det får du ge nyckeln ett namn så att du senare kan skilja den från andra enheter.
+  <Step title="Tvåstegsautentisering – e-postkod är utgångsläget">
+    Tvåstegsautentisering går inte att stänga av. **E-postkod** är alltid på från början och är märkt *Alltid på* i tabellen. Lägger du till en starkare metod kan du ta bort e-postkoden.
 
-    I den här guiden stannar vi vid info-rutan – vi går inte vidare så att inget faktiskt registreras.
-
-    <Frame>
-      <img src="/images/guider/setup-2fa-passkey/07-passkey-dialog-info.png" alt="Dialogen Lägg till inloggningsnyckel med info om registreringen" />
-    </Frame>
+    Under tabellen ligger inställningen **Kräv kod vid varje inloggning**. Av betyder att en kod krävs när du loggar in från en ny enhet. På betyder varje gång, även från enheter du litar på.
   </Step>
-  <Step title="Tvåstegsautentisering – kräver en engångskod från en autentiseringsapp">
-    Tvåstegsautentisering (2FA) lägger ett extra lager utöver lösenordet: när du loggar in måste du också ange en sexsiffrig kod från en autentiseringsapp på din telefon. Är 2FA inte aktiverat ser du beskrivnings­texten *"Du kan aktivera tvåfaktorsautentisering..."*; är det aktiverat visas en tabell med metoden **Autentiseringsapp (2FA)** och datumet den slogs på.
-
-    För att starta registreringen klickar du på **Lägg till autentiseringsmetod** uppe till höger.
-
-    <Frame>
-      <img src="/images/guider/setup-2fa-passkey/10-twofa-section.png" alt="Sektionen Tvåstegsautentisering med Lägg till autentiseringsmetod" />
-    </Frame>
-  </Step>
-  <Step title="Klicka på Lägg till autentiseringsmetod för att se vilka 2FA-metoder som finns">
-    I menyn finns för närvarande **Lägg till autentiseringsapp (2FA)** – det är den TOTP-baserade metoden som fungerar med Apple Passwords, Google Authenticator, Microsoft Authenticator, Authy och liknande appar. När du väljer den öppnas en dialog med en QR-kod du skannar in i appen, följt av ett verifieringssteg där du anger den genererade sexsiffriga koden för att aktivera 2FA.
-
-    Är 2FA redan aktiverat är valet utgråat – du behöver först stänga av den befintliga metoden via trepunktsmenyn i tabellen. Där hittar du också **Generera backup-kod**, som ger dig engångskoder att använda om du tappar bort telefonen.
+  <Step title="Lägg till autentiseringsmetod visar de tre metoderna">
+    - **Autentiseringsapp (TOTP)** – den vanliga sexsiffriga koden. Fungerar med Apple Lösenord, Google Authenticator, Microsoft Authenticator, Authy och liknande. Du skannar en QR-kod och bekräftar med den genererade koden.
+    - **sajn-appen (godkänn inloggningar)** – du godkänner inloggningen i mobilappen i stället för att skriva en kod.
+    - **E-postkod** – gråmarkerad så länge den redan är på.
 
     <Frame>
-      <img src="/images/guider/setup-2fa-passkey/13-twofa-dropdown-open.png" alt="Dropdownen Lägg till autentiseringsmetod öppen med 2FA-val" />
+      <img src="/images/guider/setup-2fa-passkey/06-autentiseringsmetod.png" alt="Menyn Lägg till autentiseringsmetod med tre val" />
     </Frame>
+
+    <Note>
+      När autentiseringsappen är aktiverad får dess rad en meny med tre punkter. Där hittar du **Generera backup kod**, som ger dig en reservkod att använda om du blir utan telefonen, och **Stäng av**.
+    </Note>
   </Step>
 </Steps>
+
+## Vilket skydd ska jag välja?
+
+- **Inloggningsnyckel** är både snabbast och starkast: inget lösenord, ingen kod att skriva av. Registrera gärna en per enhet du använder ofta.
+- **Autentiseringsapp** fungerar överallt och kräver ingen särskild hårdvara, men du får skriva av en kod varje gång.
+- **E-postkod** är utgångsläget och den svagaste varianten, eftersom den bygger på att din e-post är säker.

@@ -1,0 +1,35 @@
+{
+    "slug": "workspace-switching",
+    "title": "Växla mellan arbetsytor",
+    "intro": "En organisation kan ha flera arbetsytor parallellt, till exempel en för Sälj och en för HR, med egna dokument, mallar och kontakter. Raden längst upp i sidomenyn är både skylten som visar var du är och genvägen till att byta.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn.",
+        "Flera arbetsytor kräver Team eller Enterprise. Basic och Solo har en arbetsyta."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "imageDir": "../../images/guider/workspace-switching",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "sidomenyn",
+            "action": "goto",
+            "url": "/{workspace}",
+            "caption": "Raden längst upp i sidomenyn visar var du är",
+            "notes": "Ikonen och färgen är arbetsytans egna. Namnet bredvid är arbetsytans namn, utom på Basic och Solo som bara har en arbetsyta - där står organisationens namn. Till höger ligger sök och knappen som fäller ihop sidomenyn."
+        },
+        {
+            "name": "minimerad",
+            "action": "click",
+            "selector": "button[aria-label='Minimera sidofält']",
+            "caption": "Ihopfälld sidomeny visar bara ikonen",
+            "notes": "Fäller du ihop sidomenyn krymper raden till arbetsytans ikon. Ikonen blir då knappen som fäller ut sidomenyn igen, så för att byta arbetsyta fäller du först ut."
+        },
+        {
+            "name": "aterstall",
+            "action": "click",
+            "selector": "button[aria-label='Expandera sidofält']",
+            "screenshot": false
+        }
+    ]
+}

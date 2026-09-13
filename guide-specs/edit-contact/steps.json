@@ -1,0 +1,54 @@
+{
+    "slug": "edit-contact",
+    "title": "Redigera en kontakts uppgifter",
+    "intro": "Alla uppgifter på en kontakt redigeras direkt i panelen. Du klickar på värdet, skriver det nya och stänger rutan - ändringen sparas automatiskt. Det finns ingen spara-knapp.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får redigera kontakter.",
+        "Det finns minst en kontakt i arbetsytans lista."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "imageDir": "../../images/guider/edit-contact",
+    "steps": [
+        { "name": "login", "action": "login" },
+        { "name": "kontakter", "action": "goto", "url": "/{workspace}/contacts", "screenshot": false },
+        { "name": "sok", "action": "fill", "selector": "input[aria-label='Sök på namn, e-post, telefon, företag...']", "value": "Batch E", "screenshot": false },
+        { "name": "vanta-traff", "action": "waitForSelector", "selector": "tbody :text('Batch E Testkontakt')" },
+        {
+            "name": "hitta",
+            "action": "screenshot",
+            "caption": "Sök fram kontakten och klicka på raden",
+            "notes": "Sökfältet matchar namn, e-post, telefon och företag. Klicka var som helst på raden för att öppna kontaktens panel till höger."
+        },
+        { "name": "oppna", "action": "click", "selector": "tbody :text('Batch E Testkontakt')", "screenshot": false },
+        { "name": "vanta-panel", "action": "waitForSelector", "selector": "button:has-text('Lägg till fält')" },
+        {
+            "name": "panelen",
+            "action": "screenshot",
+            "caption": "Panelen öppnas med fliken Översikt",
+            "notes": "Översikt visar de redigerbara fälten: Telefon, E-post, Företag, Roll, Signaturmetod och Taggar. Längst ner står påminnelsen Klicka på värden för att redigera dem. Ändringar sparas automatiskt."
+        },
+        {
+            "name": "oppna-telefon",
+            "action": "click",
+            "selector": "div.p-1.group:has(span:text-is('Telefon')) [data-slot='popover-trigger']",
+            "caption": "Klicka på värdet bredvid Telefon",
+            "notes": "En liten ruta med ett textfält läggs över värdet. Skriv det nya numret. Enter eller ett klick utanför sparar, Esc avbryter och behåller det gamla värdet."
+        },
+        { "name": "skriv", "action": "fill", "selector": "[data-slot='popover-content'] input", "value": "+46701234567", "screenshot": false },
+        {
+            "name": "skrivet",
+            "action": "screenshot",
+            "caption": "Skriv in det nya värdet",
+            "notes": "Värdet uppdateras i rutan medan du skriver. Inget sparas förrän du stänger den."
+        },
+        { "name": "spara", "action": "press", "key": "Enter", "screenshot": false },
+        { "name": "vanta-sparat", "action": "waitForSelector", "selector": "[data-slot='popover-content']", "state": "hidden" },
+        {
+            "name": "sparat",
+            "action": "screenshot",
+            "caption": "Det nya numret syns direkt i panelen",
+            "notes": "Samma mönster gäller E-post, Företag, Roll och arbetsytans datafält. Vill du tömma ett fält klickar du på det igen och rensar innehållet innan du stänger rutan. Företag öppnar i stället en väljare där du kopplar kontakten till ett företag, och Signaturmetod är en lista."
+        }
+    ]
+}

@@ -1,0 +1,116 @@
+{
+    "slug": "create-sajn-id",
+    "title": "Skapa en identitetskontroll med sajn ID",
+    "intro": "Med sajn ID verifierar du någons identitet med BankID utan att skicka ett avtal. Du skickar en länk via e-post eller SMS, personen legitimerar sig, och resultatet landar i arbetsytan.",
+    "audience": "Användare med behörighet att hantera sajn-id",
+    "prerequisites": [
+        "Du är inloggad och har valt en arbetsyta.",
+        "Du har behörigheten Hantera sajn-id i arbetsytan.",
+        "sajn ID kräver Solo eller högre. Varje plan har ett antal identitetskontroller per månad."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "table tr td:nth-child(4)"
+    ],
+    "imageDir": "../../images/guider/create-sajn-id",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "listan",
+            "action": "goto",
+            "url": "/{workspace}/sajn-id",
+            "caption": "Öppna sajn ID i sidomenyn",
+            "notes": "Listan visar arbetsytans identitetskontroller med namn, verifieringsmetod, kanal, status, vem som skapade den och när. Sök på namn, e-post, telefon eller referens, och filtrera på status eller datum. Datumfiltret står på Senaste 7 dagarna från början, så äldre kontroller syns först när du vidgar det. Knappen Ny identitetskontroll ligger till höger i filterraden."
+        },
+        {
+            "name": "oppna-dialog",
+            "action": "clickText",
+            "text": "Ny identitetskontroll",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ny identitetskontroll')"
+        },
+        {
+            "name": "tom-dialog",
+            "action": "screenshot",
+            "caption": "Formuläret har tre obligatoriska fält",
+            "notes": "Namn, Utgångsdatum och Kanal måste fyllas i, plus e-postadress eller telefonnummer beroende på kanal. Utgångsdatum är förifyllt sju dagar fram men går att ändra fritt. Sök kontakt högst upp fyller i uppgifterna från en befintlig kontakt. Längst ner till vänster står hur många kontroller du har kvar den här månaden."
+        },
+        {
+            "name": "namn",
+            "action": "fill",
+            "selector": "input[placeholder='För- och efternamn']",
+            "value": "Batch E Testperson",
+            "screenshot": false
+        },
+        {
+            "name": "referens",
+            "action": "fill",
+            "selector": "input[placeholder='T.ex. ordernummer']",
+            "value": "Guideexempel",
+            "screenshot": false
+        },
+        {
+            "name": "epost",
+            "action": "fill",
+            "selector": "input[placeholder='namn@exempel.se']",
+            "value": "demo@sajn.se",
+            "screenshot": false
+        },
+        {
+            "name": "ifylld-dialog",
+            "action": "screenshot",
+            "caption": "Fyll i namn, kanal och kontaktuppgift",
+            "notes": "Namn är det namn BankID-verifieringen matchas mot. Lämnar du personnummer tomt görs en indirekt matchning på namnet; fyller du i det blir matchningen direkt mot personnumret. Kanal styr om länken skickas med e-post eller SMS, och fältet under byter till telefonnummer om du väljer SMS. Referens är frivillig och syns i listan, praktiskt för att koppla kontrollen till ett ärende."
+        },
+        {
+            "name": "stang-dialog",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickad",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-rad",
+            "action": "waitForSelector",
+            "selector": "tbody :text('Batch E Testperson')"
+        },
+        {
+            "name": "ny-rad",
+            "action": "screenshot",
+            "caption": "Kontrollen skickas direkt och hamnar överst i listan",
+            "notes": "Statusen är Skickat tills mottagaren öppnar länken. Klicka på raden för att öppna kontrollen."
+        },
+        {
+            "name": "oppna-rad",
+            "action": "click",
+            "selector": "tbody :text('Batch E Testperson')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-detalj",
+            "action": "waitForSelector",
+            "selector": "[role='tab']:has-text('Händelselogg')"
+        },
+        {
+            "name": "detaljsidan",
+            "action": "screenshot",
+            "caption": "Detaljsidan visar allt om kontrollen",
+            "notes": "Under Detaljer står namn, matchningstyp, kanal, referens, vem som skapade kontrollen och när länken slutar gälla. När verifieringen är klar visas resultatet från BankID här. Menyn Åtgärder uppe till höger har Skicka igen och Avbryt. Sidan uppdaterar sig själv, så du ser statusen ändras medan motparten legitimerar sig."
+        }
+    ]
+}

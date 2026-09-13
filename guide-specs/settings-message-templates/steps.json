@@ -1,0 +1,105 @@
+{
+    "slug": "settings-message-templates",
+    "title": "Spara meddelandemallar för utskick",
+    "intro": "Rundtur av Meddelandemallar: var sidan ligger, hur du sparar en mall och hur den plockas upp när du skickar ett dokument.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera arbetsytans inställningar."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": ["[data-guide-mask]"],
+    "imageDir": "../../images/guider/settings-message-templates",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "open-message-templates",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/message-templates",
+            "caption": "Öppna Inställningar och sedan Meddelandemallar",
+            "notes": "Mallarna hör till arbetsytan du står i. Är listan tom står det Inga mallar ännu."
+        },
+        {
+            "name": "open-create",
+            "action": "click",
+            "selector": "button:has-text('Skapa mall')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "wait-dialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Skriv in mallnamn']"
+        },
+        {
+            "name": "fill-name",
+            "action": "fill",
+            "selector": "input[placeholder='Skriv in mallnamn']",
+            "value": "Batch G: standardhälsning",
+            "screenshot": false
+        },
+        {
+            "name": "fill-content",
+            "action": "fill",
+            "selector": "textarea[placeholder='Skriv in mallinnehåll...']",
+            "value": "Hej {{recipientFirstName}},\n\nHär kommer avtalet vi pratade om. Hör av dig om något ser konstigt ut.\n\nVänliga hälsningar\n{{senderFullName}}",
+            "caption": "Fyll i mallnamn och innehåll",
+            "notes": "Mallnamnet är bara till för dig och syns i utskicksdialogen. Innehållet är texten mottagaren får."
+        },
+        {
+            "name": "open-variables",
+            "action": "click",
+            "selector": "[role='dialog'] button[type='button']:right-of(label:has-text('Innehåll'))",
+            "match": "first",
+            "caption": "Informationsikonen listar alla variabler",
+            "notes": "Skriv två klammerparenteser i innehållsfältet så dyker samma lista upp direkt där du skriver."
+        },
+        {
+            "name": "close-variables",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "save-template",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skapa mall')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-saved",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch G: standardhälsning')"
+        },
+        {
+            "name": "template-row",
+            "action": "screenshot",
+            "caption": "Den sparade mallen i listan",
+            "notes": "Varje rad visar namn, en förhandsvisning av innehållet, när mallen skapades och status. Menyn längst till höger har Redigera och Ta bort."
+        },
+        {
+            "name": "open-row-menu",
+            "action": "click",
+            "selector": "tr:has-text('Batch G: standardhälsning') button",
+            "match": "last",
+            "caption": "Menyn på raden har Redigera och Ta bort"
+        },
+        {
+            "name": "delete-template",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ta bort')",
+            "screenshot": false
+        },
+        {
+            "name": "confirm-delete",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Ta bort')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-deleted",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch G: standardhälsning')",
+            "state": "hidden"
+        }
+    ]
+}

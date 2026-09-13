@@ -3,71 +3,87 @@ title: "Anpassa e-postmallar per språk"
 description: "Förhandsgranska och anpassa de automatiska e-postmeddelanden sajn skickar — per språk och händelse"
 ---
 
-På sidan **E-postmallar** ser du alla automatiska e-postmeddelanden som sajn skickar – från signeringsförfrågningar till påminnelser och bekräftelser. Här kan du också byta språk för att se hur mallarna ser ut för mottagare på engelska, norska, finska och övriga språk. Den här guiden visar var sidan ligger och vilka mallar som finns. Den öppnar inte redigeraren och ändrar ingenting.
+Under [Profilering → E-post & SMS](https://app.sajn.se/~/settings/workspace/branding/email-templates) ser du alla automatiska utskick sajn gör i ert namn – från signeringsförfrågningar till påminnelser och bekräftelser. Du kan förhandsgranska varje mall på mottagarens språk och skriva om texten i de mallar som går att anpassa.
+
+Mallarna hör till **arbetsytan**. Har ni flera arbetsytor har var och en sin egen uppsättning texter.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera arbetsyteinställningar.
-- Mallarna är **organisationsövergripande** – ändringar du gör här gäller alla arbetsytor i organisationen.
+- Du är inloggad och har behörighet att hantera arbetsytans inställningar.
+- Profilering kräver Solo eller högre. På Basic visas i stället en uppmaning att uppgradera.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Profilering → E-postmallar i sidomenyn">
-    Sidan ligger under *Profilering* och listar alla automatiska e-postmeddelanden sajn skickar i ditt namn. Texten längst upp förklarar att varje ändring AI-granskas innan den sparas – så du kan inte råka skicka ut något som strider mot avsändaransvaret.
+  <Step title="Öppna Inställningar och sedan Profilering">
+    [Profilering](https://app.sajn.se/~/settings/workspace/branding) ligger bland arbetsytans inställningar och har tre flikar: **Allmänt** (logotyp och ikoner), **E-post & SMS** och **Dokument** (dokumentets sidhuvud).
 
     <Frame>
-      <img src="/images/guider/settings-email-templates/02-open-email-templates.png" alt="Sidan E-postmallar öppen under Profilering" />
+      <img src="/images/guider/settings-email-templates/02-open-branding.png" alt="Sidan Profilering med flikarna Allmänt, E-post och SMS samt Dokument" />
     </Frame>
   </Step>
-  <Step title="Översikt: sidolist med alla mallar till vänster, förhandsvisning till höger">
-    Vänsterspalten grupperar mallarna i två kategorier:
+  <Step title="Gå till fliken E-post & SMS">
+    Vänsterspalten listar mallarna i tre grupper, och högersidan visar en livevisning av den valda mallen så som mottagaren ser den i sin inkorg – komplett med ämnesrad. En liten prick bredvid en mall betyder att den är **anpassad** och avviker från standardtexten.
 
-    - **Dokument** – allt som rör ett specifikt dokument (inbjudan, påminnelse, klart, återkallat, m.fl.).
-    - **System** – kontorelaterade utskick (organisationsinbjudan, ID-verifiering).
+    Texten längst upp förklarar två saker: varje ändring AI-granskas innan den sparas, och SMS går att förhandsgranska men inte skriva om.
 
-    Högersidan visar en livevisning av mallen så som mottagaren ser den i sin inkorg, komplett med ämnesrad. En liten prick bredvid en mall betyder att den är **anpassad** och avviker från standardtexten.
-
-    <Frame>
-      <img src="/images/guider/settings-email-templates/04-overview.png" alt="Översikt av e-postmallar med lista till vänster och förhandsvisning till höger" />
-    </Frame>
-  </Step>
-  <Step title="Kategorin Dokument – alla mallar kring själva signeringsflödet">
-    Här ligger de mallar mottagare oftast får:
+    Gruppen **Dokument** är de mejl mottagare oftast får:
 
     - **Inbjudan till signering** – det första mejlet med signeringslänken.
     - **Din tur att signera** – när en sekventiell signering når nästa part.
-    - **Påminnelse om signering** – manuella och automatiska påminnelser.
     - **Dokument klart** – bekräftelse när alla har signerat.
-    - **Dokument öppnat**, **Dokument återkallat**, **Signering slutförd av part**, **Dokument återskapas**, **Chattmeddelande** – övriga lifecycle-mejl.
-
-    Klicka på en mall för att förhandsgranska den i panelen till höger.
+    - **Påminnelse om signering**, **Påminnelse: inte öppnat** och **Påminnelse: går snart ut** – de tre påminnelserna.
+    - **Dokument öppnat**, **Dokument återkallat**, **Signering slutförd av part**, **Dokument uppdaterat** och **Chattmeddelande** – övriga mejl kring dokumentets livscykel.
 
     <Frame>
-      <img src="/images/guider/settings-email-templates/05-documents-group.png" alt="Kategorin Dokument med alla mallar för signeringsflödet" />
+      <img src="/images/guider/settings-email-templates/03-open-email-templates.png" alt="Fliken E-post och SMS med mallista till vänster och förhandsvisning till höger" />
     </Frame>
   </Step>
-  <Step title="Kategorin System – kontorelaterade utskick">
-    Under *System* hittar du mallar som inte hör till ett enskilt dokument:
-
-    - **Organisationsinbjudan** – mejlet en kollega får när du bjuder in dem till organisationen.
-    - **ID-verifiering** – engångskoden vid e-legitimationsflöden.
-
-    Dessa kan anpassas på samma sätt som dokumentmallarna.
+  <Step title="System – utskick som inte hör till ett dokument">
+    Under *System* ligger **Organisationsinbjudan**, mejlet en kollega får när du bjuder in dem till organisationen, och **ID-verifiering**, engångskoden vid e-legitimationsflöden. Båda anpassas på samma sätt som dokumentmallarna.
 
     <Frame>
-      <img src="/images/guider/settings-email-templates/06-system-group.png" alt="Kategorin System med kontorelaterade mallar" />
+      <img src="/images/guider/settings-email-templates/04-open-system-template.png" alt="Mallen Organisationsinbjudan vald under gruppen System" />
     </Frame>
   </Step>
-  <Step title="Språkväljaren längst upp till höger – byt språk för att förhandsgranska översättningarna">
-    Sajn skickar mejlen på mottagarens språk. Med språkväljaren kan du växla mellan **Svenska**, **English**, **Norsk**, **Dansk**, **Suomi**, **Deutsch**, **Íslenska**, **Español**, **Français** och **Italiano** – och förhandsvisningen uppdateras direkt.
+  <Step title="SMS kan förhandsgranskas men inte ändras">
+    Den tredje gruppen är *SMS*. Här ser du exakt vad mottagaren får i telefonen, med teckenantal och hur många SMS texten blir. Märket **Kan inte anpassas** uppe till höger säger vad som gäller – texterna är låsta.
 
-    Varje språk har sin egen version av mallen. Anpassar du t.ex. inbjudningstexten på svenska påverkas inte den engelska översättningen – du redigerar och sparar per språk via knappen **Redigera** (öppnar fullskärmsredigeraren, som ligger utanför den här guiden).
-
-    Längst ned på sidan ser du en påminnelse: variabler som `{namn}` fylls i automatiskt vid utskick, och organisationsnamnet kan inte ersättas — det skyddar mottagaren mot vilseledande avsändare.
+    Förhandsvisningen är alltid på svenska, men själva SMS:et skickas på mottagarens språk.
 
     <Frame>
-      <img src="/images/guider/settings-email-templates/07-language-selector.png" alt="Språkväljaren längst upp till höger på e-postmallssidan" />
+      <img src="/images/guider/settings-email-templates/05-open-sms-template.png" alt="SMS-mallen Verifieringskod med märket Kan inte anpassas" />
+    </Frame>
+  </Step>
+  <Step title="Byt språk för att förhandsgranska översättningen">
+    Sajn skickar mejlen på mottagarens språk. Med väljaren uppe till höger växlar du mellan **Svenska**, **English**, **Norsk**, **Dansk**, **Suomi**, **Deutsch**, **Íslenska**, **Español**, **Français** och **Italiano** – förhandsvisningen uppdateras direkt.
+
+    Varje språk har sin egen version av mallen. Skriver du om inbjudningstexten på svenska påverkas inte den engelska.
+
+    <Frame>
+      <img src="/images/guider/settings-email-templates/07-language-selector.png" alt="Språkväljaren öppen med tio språk" />
+    </Frame>
+  </Step>
+  <Step title="Redigera öppnar mallen i helskärm">
+    Klicka **Redigera**. Till vänster ligger förhandsvisningen, som går att växla mellan dator och mobil. Till höger ligger mejlets textstycken som var sitt fält – **Ämnesrad**, **Rubrik**, **Brödtext** och **Knapp** – med en teckengräns var, och förhandsvisningen uppdateras medan du skriver.
+
+    **Lägg till variabel** under varje fält visar vilka variabler just det fältet får använda. Knapptexten tillåter inga variabler alls.
+
+    **Återställ allt** tar tillbaka standardtexten för det valda språket. **Granska & spara** skickar ändringen till AI-granskning och sparar den bara om den går igenom. **Tillbaka** stänger utan att spara.
+
+    <Frame>
+      <img src="/images/guider/settings-email-templates/11-editor.png" alt="Helskärmsredigeraren med förhandsvisning till vänster och fälten Ämnesrad, Rubrik, Brödtext och Knapp till höger" />
+    </Frame>
+  </Step>
+  <Step title="Variabler fylls i automatiskt vid utskick">
+    Raden längst ned påminner om att variabler skrivs som `{namn}` och byts mot riktiga värden vid utskick. Organisationsnamnet kan inte ersättas – det skyddar mottagaren mot vilseledande avsändare.
+
+    <Frame>
+      <img src="/images/guider/settings-email-templates/15-variables-note.png" alt="Raden om variabler längst ned på sidan" />
     </Frame>
   </Step>
 </Steps>
+
+<Note>
+  Texten du sparar gäller från nästa utskick. Mejl som redan har skickats påverkas inte.
+</Note>

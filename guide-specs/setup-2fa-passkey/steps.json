@@ -1,0 +1,41 @@
+{
+    "slug": "setup-2fa-passkey",
+    "title": "Säkra ditt konto med inloggningsnyckel eller tvåstegsautentisering",
+    "intro": "Tvåstegsautentisering krävs för alla sajn-konton, och e-postkod är påslagen från början. Den här guiden visar var du lägger till ett starkare skydd: en inloggningsnyckel för lösenordsfri inloggning, eller en autentiseringsapp. Guiden stannar innan registreringen, så ingenting ändras på ditt konto.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad på ditt sajn-konto.",
+        "Inställningarna gäller ditt personliga konto och följer med dig mellan arbetsytor.",
+        "För inloggningsnyckel behöver du en enhet och webbläsare som stöder det, till exempel Touch ID, Face ID, Windows Hello eller en säkerhetsnyckel."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": ["table tr td:nth-child(4)"],
+    "imageDir": "../../images/guider/setup-2fa-passkey",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "sakerhet",
+            "action": "goto",
+            "url": "/{workspace}/settings/account/security",
+            "caption": "Öppna Inställningar, Personuppgifter och fliken Säkerhet",
+            "notes": "Sidan Personuppgifter har tre flikar: Profil, Säkerhet och Appar. Under Säkerhet ligger Inloggningsnycklar, Tvåstegsautentisering, Aktiva sessioner och betrodda enheter. Allt här gäller ditt personliga konto, inte arbetsytan."
+        },
+        {
+            "name": "inloggningsnyckel",
+            "action": "clickText",
+            "text": "Lägg till inloggningsnyckel",
+            "caption": "Lägg till inloggningsnyckel förklarar vad som händer",
+            "notes": "Trycker du Fortsätt tar webbläsaren över och frågar var nyckeln ska sparas, till exempel i lösenordshanteraren eller på en säkerhetsnyckel. Du bekräftar med biometri eller PIN och får sedan namnge nyckeln. Här stannar vi vid informationen, så inget registreras."
+        },
+        { "name": "stang-dialogen", "action": "press", "key": "Escape", "screenshot": false },
+        { "name": "vanta-stangd", "action": "waitForSelector", "selector": "[role='dialog']", "state": "hidden" },
+        {
+            "name": "autentiseringsmetod",
+            "action": "clickText",
+            "text": "Lägg till autentiseringsmetod",
+            "caption": "Tvåstegsautentisering erbjuder tre metoder",
+            "notes": "Autentiseringsapp (TOTP) ger en sexsiffrig kod i en app som Google Authenticator eller Apple Lösenord. sajn-appen låter dig godkänna inloggningen i mobilen i stället för att skriva en kod. E-postkod är gråmarkerad här eftersom den redan är på."
+        },
+        { "name": "stang-menyn", "action": "press", "key": "Escape", "screenshot": false }
+    ]
+}

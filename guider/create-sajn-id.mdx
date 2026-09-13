@@ -1,60 +1,75 @@
 ---
-title: "Skapa ett sajnID för identifiering"
-description: "Verifiera någons identitet med BankID via en fristående länk – utan att skicka ett helt avtal"
+title: "Skapa en identitetskontroll med sajn ID"
+description: "Verifiera någons identitet med BankID via en fristående länk – utan att skicka ett avtal"
 ---
 
-Behöver du verifiera någons identitet med BankID utan att skicka ett helt avtal? Med **sajn ID** skapar du en fristående identitetskontroll och skickar en länk via e-post eller SMS – personen verifierar sig med BankID och du får en kvitterad bekräftelse direkt i arbetsytan.
+Behöver du veta att en person är den hen utger sig för att vara, utan att skicka ett helt avtal? Med **sajn ID** skapar du en fristående identitetskontroll och skickar en länk via e-post eller SMS. Personen legitimerar sig med BankID, och resultatet landar i arbetsytan.
 
 ## Innan du börjar
 
 - Du är inloggad i sajn och har valt en arbetsyta.
-- Du har behörigheten *Hantera sajn ID* i arbetsytan.
-- Arbetsytans abonnemang inkluderar sajn ID (ingår inte i Basic eller provperiod).
-- Identitetskontrollen hamnar i den arbetsyta du står i just nu – byter du arbetsyta byter du också listan över identitetskontroller.
+- Du har behörigheten **Hantera sajn-id** i arbetsytan. För att bara läsa räcker *Visa sajn-id*.
+- sajn ID kräver Solo eller högre, och varje plan har ett antal identitetskontroller per månad. Under provperioden går det att se sidan men inte att skicka.
+- Kontrollen hamnar i den arbetsyta du står i.
 
 ## Steg för steg
 
 <Steps>
   <Step title="Öppna sajn ID i sidomenyn">
-    Här ser du alla identitetskontroller i den aktuella arbetsytan – väntande, skickade, verifierade och misslyckade. Filtren längst upp låter dig söka på namn, e-post, telefon eller referens och filtrera per status eller datumintervall. Knappen **Ny identitetskontroll** uppe till höger startar en ny kontroll.
+    Öppna [sajn ID](https://app.sajn.se/~/sajn-id) i sidomenyn. Listan visar arbetsytans identitetskontroller med namn, verifieringsmetod, kanal, status, vem som skapade den och när. Du söker på namn, e-post, telefon eller referens och filtrerar på status eller datum.
+
+    Datumfiltret står på **Senaste 7 dagarna** från början, så äldre kontroller dyker upp först när du vidgar det. Knappen **Ny identitetskontroll** ligger till höger i filterraden.
 
     <Frame>
-      <img src="/images/guider/create-sajn-id/02-open-sajn-id.png" alt="Sidan sajn ID öppen från sidomenyn" />
+      <img src="/images/guider/create-sajn-id/02-listan.png" alt="Sidan sajn ID med filterrad och tom lista" />
     </Frame>
   </Step>
-  <Step title="Klicka på Ny identitetskontroll högst upp till höger">
-    Knappen syns bara om du har behörigheten *Hantera sajn ID* i arbetsytan. Saknas knappen är det rollens behörigheter du behöver justera, inte abonnemanget.
+  <Step title="Formuläret har tre obligatoriska fält">
+    **Namn**, **Utgångsdatum** och **Kanal** måste fyllas i, plus e-postadress eller telefonnummer beroende på kanal. Utgångsdatum är förifyllt sju dagar fram men går att ändra fritt – det är då kontrollen och dess länk slutar gälla.
+
+    **Sök kontakt** högst upp fyller i uppgifterna från en befintlig kontakt. Längst ner till vänster står hur många kontroller du har kvar den här månaden.
 
     <Frame>
-      <img src="/images/guider/create-sajn-id/04-highlight-create-button.png" alt="Knappen Ny identitetskontroll markerad högst upp till höger" />
+      <img src="/images/guider/create-sajn-id/05-tom-dialog.png" alt="Tomt formulär för en ny identitetskontroll" />
     </Frame>
   </Step>
-  <Step title="Ett formulär öppnas med fälten för identitetskontrollen">
-    Bara **Namn** och **Kanal** är obligatoriska – övriga fält är frivilliga. Till höger ser du en informationsruta som förklarar flödet steg för steg: du fyller i kontaktuppgifterna, väljer kanal, personen får en länk och verifierar sig med BankID, och du får en bekräftelse när det är klart. Länken är giltig i sju dagar.
+  <Step title="Fyll i namn, kanal och kontaktuppgift">
+    **Namn** är det namn BankID-verifieringen matchas mot.
+
+    **Personnummer** är frivilligt men styr hur matchningen görs. Lämnar du det tomt jämförs namnet som BankID returnerar med det du skrev – en *indirekt matchning*. Fyller du i personnumret, tolv siffror, blir det en *direkt matchning* mot numret.
+
+    **Kanal** styr hur länken levereras. Väljer du *SMS* byter fältet under till telefonnummer. **Referens** är frivillig, syns i listan under namnet och är bra för att koppla kontrollen till ett ärende eller ordernummer.
 
     <Frame>
-      <img src="/images/guider/create-sajn-id/07-empty-form.png" alt="Tomt formulär för att skapa en ny identitetskontroll" />
+      <img src="/images/guider/create-sajn-id/09-ifylld-dialog.png" alt="Ifyllt formulär med namn, referens och e-postadress" />
     </Frame>
   </Step>
-  <Step title="Fyll i Namn, välj Kanal och ange e-postadress eller telefonnummer">
-    **Namn** är det namn som BankID-verifieringen kommer att matcha mot. Personnummer är frivilligt – anger du det görs en exakt matchning mot BankID i stället för en fuzzy namnmatchning. **Kanal** styr hur länken levereras: väljer du **E-post** dyker e-postfältet upp, väljer du **SMS** dyker telefonfältet upp i stället. **Referens** och **Anteckning** är frivilliga – referensen visas i listan och är användbar för att koppla kontrollen till ett ärende eller ett ordernummer.
+  <Step title="Kontrollen skickas direkt och hamnar överst i listan">
+    Klicka **Skicka**. Länken går iväg på en gång och kontrollen får status **Skickat** tills mottagaren öppnar den.
 
     <Frame>
-      <img src="/images/guider/create-sajn-id/11-filled-form.png" alt="Ifyllt formulär med namn, kanal och kontaktuppgifter" />
+      <img src="/images/guider/create-sajn-id/13-ny-rad.png" alt="Den nya identitetskontrollen överst i listan med status Skickat" />
     </Frame>
   </Step>
-  <Step title="Klicka på Skicka – identitetskontrollen skapas och du landar tillbaka i listan">
-    När du klickar på **Skicka** skapas identitetskontrollen och länken skickas direkt via den valda kanalen. Du kommer tillbaka till listan där den nya kontrollen ligger högst upp med status **Skickat**. Klicka på raden för att öppna detaljvyn till höger och följa verifieringens framsteg.
+  <Step title="Detaljsidan visar allt om kontrollen">
+    Klicka på raden. Under **Detaljer** står verifieringsmetod, kanal, referens, vem som skapade kontrollen och när. När verifieringen är klar visas BankID:s svar här. Fliken **Händelselogg** är historiken.
+
+    Sidan uppdaterar sig själv medan motparten legitimerar sig, så du ser statusen ändras utan att ladda om. Menyn **Åtgärder** uppe till höger har *Skicka igen* och *Avbryt*.
 
     <Frame>
-      <img src="/images/guider/create-sajn-id/14-list-with-new-check.png" alt="Listan med den nya identitetskontrollen högst upp med status Skickat" />
-    </Frame>
-  </Step>
-  <Step title="Detaljvyn visar all information om identitetskontrollen">
-    I detaljvyn ser du namn, verifieringsmetod, kanal, referens, skapad-datum och utgångsdatum. Fliken **Händelselogg** visar tidslinjen för kontrollen – när den skapades, när den skickades, när mottagaren öppnade länken och när BankID-verifieringen genomfördes. Knappen **Bevaka live** uppe till höger uppdaterar vyn var femte sekund i upp till två minuter, vilket är användbart medan motparten verifierar sig.
-
-    <Frame>
-      <img src="/images/guider/create-sajn-id/17-detail-drawer.png" alt="Detaljvyn för identitetskontrollen med fliken Händelselogg" />
+      <img src="/images/guider/create-sajn-id/16-detaljsidan.png" alt="Detaljsidan för identitetskontrollen med fliken Detaljer" />
     </Frame>
   </Step>
 </Steps>
+
+<Tip>
+  Ska du kontrollera många personer på en gång finns [Massutskick](https://app.sajn.se/~/sajn-id/bulk-send) bakom ikonen uppe till höger på sajn ID-sidan.
+</Tip>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Följ upp en identitetskontroll" icon="list-check" href="/guider/manage-sajn-id">
+    Läs resultatet, följ händelseloggen och skicka om eller avbryt.
+  </Card>
+</CardGroup>

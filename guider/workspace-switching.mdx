@@ -1,44 +1,58 @@
 ---
 title: "Växla mellan arbetsytor"
-description: "Använd arbetsyteväljaren längst upp i sidomenyn för att hoppa mellan organisationens arbetsytor"
+description: "Raden längst upp i sidomenyn visar vilken arbetsyta du står i och låter dig hoppa till en annan"
 ---
 
-På Team- och Enterprise-paketen kan din organisation ha flera arbetsytor parallellt – t.ex. en för Sälj, en för HR och en för Juridik – med egna dokument, mallar och kontakter. Arbetsyteväljaren längst upp i sidomenyn är genvägen som låter dig hoppa mellan dem utan att lämna den vy du står i. Den här guiden visar var väljaren sitter, hur menyn är uppbyggd och hur du växlar arbetsyta.
+En organisation kan ha flera arbetsytor parallellt – till exempel en för Sälj, en för HR och en för Juridik – med egna dokument, mallar och kontakter. Raden längst upp i sidomenyn är både skylten som visar var du befinner dig och genvägen till att byta.
 
 ## Innan du börjar
 
 - Du är inloggad i sajn.
-- Du har tillgång till minst två arbetsytor i samma organisation – väljaren visar bara de arbetsytor du är medlem i. Är du bara medlem i en, ser du fortfarande väljaren men inga växlingsalternativ.
-- Det spelar ingen roll vilken vy du står i – väljaren ligger alltid längst upp i sidomenyn.
+- Flera arbetsytor kräver Team eller Enterprise. Basic och Solo har en arbetsyta var.
+- Väljaren visar bara arbetsytor du är medlem i, och bara de som tillhör organisationen du står i.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Arbetsyteväljaren sitter längst upp i sidomenyn">
-    Oavsett vilken vy du står i hittar du arbetsyteväljaren högst upp till vänster i sidomenyn. Den visar **organisationens namn** överst och **aktuell arbetsyta** under – tillsammans med arbetsytans ikon och färg, så att du visuellt ser var du befinner dig. En liten nedåtpil till höger om namnet signalerar att raden är klickbar.
+  <Step title="Raden längst upp i sidomenyn visar var du är">
+    Ikonen och färgen till vänster är arbetsytans egna. Namnet bredvid är arbetsytans namn – utom på Basic och Solo, som bara har en arbetsyta; där står organisationens namn i stället.
+
+    Till höger på samma rad ligger två knappar: sök (även ⌘K) och knappen som fäller ihop sidomenyn.
 
     <Frame>
-      <img src="/images/guider/workspace-switching/02-open-dashboard.png" alt="Arbetsyteväljaren längst upp till vänster i sidomenyn" />
+      <img src="/images/guider/workspace-switching/02-sidomenyn.png" alt="Raden längst upp i sidomenyn med arbetsytans ikon och namn" />
     </Frame>
   </Step>
-  <Step title="Klicka på väljaren för att öppna menyn">
-    Menyn som öppnas är uppdelad i två delar:
+  <Step title="Klicka på raden för att öppna menyn">
+    Har du fler än en arbetsyta – eller behörighet att hantera arbetsytor – visas en liten nedåtpil efter namnet, och raden går att klicka på. Menyn har tre delar:
 
-    - En **rubrikruta** överst med organisationens namn och ditt nuvarande paket (t.ex. *Enterprise* eller *Team*).
-    - En **lista med åtgärder** under:
-        - **Byt arbetsyta** – undermeny som listar alla arbetsytor du är medlem i, med en bock vid den arbetsyta du står i just nu. *Visas bara om du har tillgång till fler än en arbetsyta i organisationen* – i skärmdumpen ovan är det inloggade kontot bara medlem i en arbetsyta, så raden döljs.
-        - **Hantera arbetsytor** – snabbgenväg till *Inställningar → Organisation → Arbetsytor* där du kan skapa, redigera och ta bort arbetsytor (kräver behörighet).
-        - **Minimera sidofält** / **Expandera sidofält** – fäller ihop eller fäller ut sidomenyn till ikonläge.
-        - **Inställningar** – tar dig till *Inställningar* för aktuell arbetsyta.
+    - Överst ett kort med arbetsytans ikon, **organisationens namn** och vilket paket organisationen har.
+    - Under rubriken **Arbetsytor** listas varje arbetsyta du är medlem i, med sin egen ikon och färg. Den du står i har en bock till höger. Klicka på en annan för att växla dit.
+    - Längst ner **Hantera arbetsytor**, som tar dig till [Inställningar → Organisation → Arbetsytor](https://app.sajn.se/~/settings/organization/workspaces). Raden visas bara om du får skapa och redigera arbetsytor.
 
-    När du har tillgång till flera arbetsytor öppnas **Byt arbetsyta**-undermenyn när du för muspekaren över raden. Undermenyn listar samtliga arbetsytor du är medlem i, var och en med sin egen ikon och färg så att de är lätta att skilja åt. Den arbetsyta du står i just nu är markerad med en bock till höger om namnet.
-
-    **Klicka på en annan arbetsyta för att växla dit.** sajn behåller den vy du var i (t.ex. *Dokument* eller *Mallar*) och öppnar motsvarande vy i den nya arbetsytan. För djupare vyer (ett specifikt dokument eller en specifik medlem) tar växlingen dig istället till den vyns startsida i den nya arbetsytan, eftersom det enskilda objektet inte finns där.
-
-    Tips: om du fäller ihop sidomenyn (via **Minimera sidofält** i samma meny) krymper väljaren till bara arbetsytans ikon – men hela menyn fungerar fortfarande likadant. Klicka på ikonen för att öppna menyn och växla arbetsyta som vanligt.
+    Har du varken flera arbetsytor eller behörighet att hantera dem finns ingen meny alls – raden är då bara en skylt, utan nedåtpil.
+  </Step>
+  <Step title="Ihopfälld sidomeny visar bara ikonen">
+    Fäller du ihop sidomenyn krymper raden till arbetsytans ikon. Ikonen blir då knappen som fäller ut sidomenyn igen, så vill du byta arbetsyta fäller du först ut menyn.
 
     <Frame>
-      <img src="/images/guider/workspace-switching/06-switcher-menu.png" alt="Arbetsyteväljaren öppen med dropdown och åtgärder" />
+      <img src="/images/guider/workspace-switching/03-minimerad.png" alt="Sidomenyn ihopfälld till en smal rad med ikoner" />
     </Frame>
   </Step>
 </Steps>
+
+## Vad som händer med vyn du står i
+
+sajn försöker behålla samma vy i den nya arbetsytan. Står du på *Dokument* landar du på *Dokument*, står du i *Inställningar* landar du i samma inställningssida.
+
+Öppna detaljvyer följer däremot inte med, eftersom det enskilda objektet inte finns i den andra arbetsytan. Då landar du på sektionens startsida i stället:
+
+- ett enskilt dokument eller en enskild mall → dokument- respektive mallistan
+- en enskild identitetskontroll i sajn ID → sajn ID-listan
+- en enskild medlem under Organisation → medlemslistan
+
+## Vanliga frågor
+
+**Jag ser ingen nedåtpil på raden.** Då har du bara en arbetsyta i organisationen och saknar behörighet att hantera arbetsytor. Be en organisationsadministratör lägga till dig i fler arbetsytor.
+
+**Jag är medlem i flera organisationer.** Menyn listar bara arbetsytorna i den organisation du står i. Byte av organisation är ett eget flöde.

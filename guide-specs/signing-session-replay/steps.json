@@ -1,0 +1,42 @@
+{
+    "slug": "signing-session-replay",
+    "title": "Spela upp en mottagares signeringssession",
+    "intro": "När en mottagare öppnar ett dokument spelar sajn in hur de rör sig i det: vilka sidor de tittade på, hur länge, var de klickade och vad de markerade. Uppspelningen visar det i efterhand.",
+    "audience": "Alla som får se dokument i arbetsytan",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får se dokument.",
+        "Dokumentet har skickats och minst en mottagare har öppnat det.",
+        "Sessionsuppspelning kräver betalplan, alltså Solo, Team eller Enterprise."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "imageDir": "../../images/guider/signing-session-replay",
+    "steps": [
+        { "name": "login", "action": "login" },
+        { "name": "doc", "action": "goto", "url": "/{workspace}/documents/cmtzlz90d000702kuymy1z7ak?sidebar=participants", "screenshot": false },
+        { "name": "vanta-part", "action": "waitForSelector", "selector": "span.text-sm.text-foreground.font-medium.break-words:has-text('DEMO Account')" },
+        {
+            "name": "parter",
+            "action": "screenshot",
+            "caption": "Öppna dokumentet och gå till panelen Parter",
+            "notes": "Panelen Parter listar alla mottagare med sin status. Den är förvald när du öppnar ett dokument, annars öppnar du den med den översta ikonen i raden till höger."
+        },
+        {
+            "name": "partsruta",
+            "action": "click",
+            "selector": "span.text-sm.text-foreground.font-medium.break-words:has-text('DEMO Account')",
+            "match": "last",
+            "caption": "Klicka på partens namn för att se detaljerna",
+            "notes": "Rutan visar leveransmetod och signeringsmetod, tidslinjen Skickat, Öppnat, Läst och Signerat med exakta tidpunkter, och Visningstid, alltså hur länge mottagaren totalt hade dokumentet framme. Längst ner ligger Sessioner: en rad per gång mottagaren öppnade dokumentet. Har sajn hunnit spara interaktionsdata står Spela upp bredvid tidpunkten. Det är statusmärket som inte går att klicka på - det är namnet du ska klicka på."
+        },
+        { "name": "spela", "action": "clickText", "text": "Spela upp", "screenshot": false },
+        { "name": "vanta-uppspelning", "action": "waitForSelector", "selector": ":text('Händelseflöde')" },
+        { "name": "vanta-render", "action": "wait", "ms": 2500 },
+        {
+            "name": "uppspelningen",
+            "action": "screenshot",
+            "caption": "Uppspelningen öppnas i helskärm",
+            "notes": "Till vänster ligger dokumentet som mottagaren såg det, med spela och pausa, hastigheterna 1x, 2x och 4x och en tidslinje du kan dra i. Värmekarta lägger i stället en färgkarta över var uppmärksamheten låg. Till höger visar Sidstatistik tid, scrolldjup och antal klick per sida, och under det listar Händelseflöde varje händelse i tur och ordning. Klicka på en händelse för att hoppa dit i uppspelningen. Tillbaka uppe till vänster eller Esc stänger vyn."
+        },
+        { "name": "stang", "action": "press", "key": "Escape", "screenshot": false }
+    ]
+}

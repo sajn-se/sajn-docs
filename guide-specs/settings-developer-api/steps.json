@@ -1,0 +1,99 @@
+{
+    "slug": "settings-developer-api",
+    "title": "Hantera API-nycklar och utvecklarinställningar",
+    "intro": "Rundtur av Utvecklare: flikarna, API-nycklarna, övervakningen och loggarna. Guiden skapar ingen nyckel.",
+    "audience": "Utvecklare och arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera API-nycklar eller webhooks i arbetsytan.",
+        "API-åtkomst ingår i Team och Enterprise."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/settings-developer-api",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "open-developer",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/developer",
+            "caption": "Öppna Inställningar och sedan Utvecklare",
+            "notes": "Sidan hör till arbetsytan, inte organisationen. Fliken Hem samlar dokumentation, MCP-server, Postman och arbetsytans API-gränser."
+        },
+        {
+            "name": "open-api-keys",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('API-nycklar')",
+            "caption": "Fliken API-nycklar listar arbetsytans nycklar",
+            "notes": "Kolumnerna är Namn, en maskad API-nyckel, Skapad, Senast använd och Utgår. Sökfältet filtrerar på namn."
+        },
+        {
+            "name": "open-create-key",
+            "action": "click",
+            "selector": "button:has-text('Skapa API-nyckel')",
+            "caption": "Dialogen Skapa ny API-nyckel",
+            "notes": "Du anger ett namn och hur länge nyckeln ska gälla. Hela nyckelvärdet visas bara en gång, direkt efter att den skapats."
+        },
+        {
+            "name": "close-create-key",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "open-monitoring",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('Övervakning')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-monitoring",
+            "action": "waitForSelector",
+            "selector": "text=API-förfrågningar per timme"
+        },
+        {
+            "name": "scroll-top-monitoring",
+            "action": "scrollIntoView",
+            "selector": "h1:has-text('Utvecklare')",
+            "align": "start",
+            "screenshot": false
+        },
+        {
+            "name": "monitoring",
+            "action": "screenshot",
+            "caption": "Övervakning visar API- och webhook-hälsa",
+            "notes": "Statistiken bygger på loggarna och täcker därför samma 72 timmar som de."
+        },
+        {
+            "name": "open-logs",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('Loggar')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-logs",
+            "action": "waitForSelector",
+            "selector": "text=Webhook-loggar"
+        },
+        {
+            "name": "scroll-top-logs",
+            "action": "scrollIntoView",
+            "selector": "h1:has-text('Utvecklare')",
+            "align": "start",
+            "screenshot": false
+        },
+        {
+            "name": "logs",
+            "action": "screenshot",
+            "caption": "Loggar har både API-anrop och webhook-leveranser",
+            "notes": "Överst ligger API-loggarna, under dem webhook-leveranserna. Båda sparas i 72 timmar."
+        }
+    ]
+}

@@ -1,0 +1,104 @@
+{
+    "slug": "settings-tags",
+    "title": "Hantera taggar för dokument och kontakter",
+    "intro": "Taggar är färgkodade etiketter som kategoriserar dokument, mallar och kontakter. Sidan Taggar ligger som en flik under Datafält & taggar och visar alla taggar i arbetsytan: namn, färg, var de får användas och hur ofta de används.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har valt en arbetsyta.",
+        "Taggar är en arbetsyteinställning — varje arbetsyta har sin egen tagglista.",
+        "Du behöver behörighet att administrera arbetsytan för att skapa, redigera eller ta bort taggar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/settings-tags",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-taggar",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/data-fields/tags",
+            "caption": "Öppna Datafält & taggar och välj fliken Taggar",
+            "notes": "Sidan ligger under arbetsyteinställningarna tillsammans med datafält och dokumentkategorier. Byter du arbetsyta byter du också tagglista. Är tabellen tom har ingen i arbetsytan skapat en tagg ännu."
+        },
+        {
+            "name": "oppna-dialog",
+            "action": "clickText",
+            "text": "Lägg till tagg",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Skapa ny tagg')"
+        },
+        {
+            "name": "ny-tagg",
+            "action": "screenshot",
+            "caption": "Lägg till tagg öppnar en ruta med tre fält",
+            "notes": "Namn är det som visas överallt där taggen används. Tillgänglig för avgör var taggen får sättas — Dokument, Mallar eller Kontakter — och är det du använder för att hindra att en kontakttagg hamnar på ett dokument. Färg är den prick som följer med taggen i listor och filter."
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Ange taggnamn']",
+            "value": "Batch F: exempel",
+            "screenshot": false
+        },
+        {
+            "name": "skapa",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skapa tagg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-rad",
+            "action": "waitForSelector",
+            "selector": "text=Batch F: exempel"
+        },
+        {
+            "name": "kolumner",
+            "action": "screenshot",
+            "caption": "Så läser du en rad i tagglistan",
+            "notes": "Namn visar taggens färg som en prick följt av namnet. Tillgänglig på visar var taggen får användas, med grön bock för tillåten och grått kryss för inte tillåten. Skapad av visar vem som lade till taggen; står det System är den skapad automatiskt. Skapad är datumet, och Användning räknar hur många dokument som har taggen just nu — ett snabbt sätt att se vilka taggar som faktiskt används. Ikonen längst till höger i rubrikraden döljer och visar kolumner."
+        },
+        {
+            "name": "oppna-radmeny",
+            "action": "click",
+            "selector": "tbody tr:has-text('Batch F: exempel') button:has(svg)",
+            "match": "last",
+            "caption": "Trepunktsmenyn på raden: Redigera och Ta bort",
+            "notes": "Redigera öppnar samma ruta som när du skapade taggen, så du kan ändra namn, färg och var den får användas. Ta bort tar bort taggen från alla dokument, kontakter och mallar där den används — det går inte att ångra."
+        },
+        {
+            "name": "stad-ta-bort",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ta bort')",
+            "screenshot": false
+        },
+        {
+            "name": "stad-vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']"
+        },
+        {
+            "name": "stad-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Ta bort')",
+            "screenshot": false
+        },
+        {
+            "name": "stad-vanta-bort",
+            "action": "waitForSelector",
+            "selector": "text=Batch F: exempel",
+            "state": "hidden"
+        }
+    ]
+}

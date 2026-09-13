@@ -1,0 +1,104 @@
+{
+  "ranAt": "2026-09-13T10:51:19.802Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-foretag",
+      "action": "goto",
+      "screenshotFile": "02-oppna-foretag.png",
+      "caption": "Öppna Inställningar och välj Företag",
+      "notes": "Sidan heter Företag och har två flikar: Företagsuppgifter och Data & sekretess. Uppgifterna gäller hela organisationen, alltså alla arbetsytor. Varje kort redigeras för sig via länken Redigera i kortets övre högra hörn.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 3,
+      "name": "oppna-foretagsuppgifter",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 4,
+      "name": "vanta-dialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 5,
+      "name": "foretagsuppgifter-dialog",
+      "action": "screenshot",
+      "screenshotFile": "05-foretagsuppgifter-dialog.png",
+      "caption": "Företagsuppgifter är de formella uppgifterna",
+      "notes": "Företagsnamn är det juridiska namnet och behöver inte vara samma som visningsnamnet högst upp. Här fyller du också i organisationsnummer, e-post, telefon, VAT-nummer och webbplats. Fält du lämnar tomma visas som Ej angivet på sidan.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 6,
+      "name": "stang-dialog",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 7,
+      "name": "vanta-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 8,
+      "name": "oppna-fakturering",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 9,
+      "name": "vanta-fakturadialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 10,
+      "name": "fakturering-dialog",
+      "action": "screenshot",
+      "screenshotFile": "10-fakturering-dialog.png",
+      "caption": "Faktureringsinformation styr vart fakturan går",
+      "notes": "E-post för faktura är adressen fakturor från sajn skickas till; lämnas den tom används organisationens allmänna e-postadress. Er referens är fri text som hamnar på fakturan, till exempel ett kostnadsställe. Adressen används på fakturan.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 11,
+      "name": "stang-fakturadialog",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    }
+  ]
+}

@@ -3,62 +3,67 @@ title: "Företagsuppgifter — org.nr, adress, momsregistrering"
 description: "Hantera organisationens juridiska och administrativa uppgifter som används på fakturor och i avtal"
 ---
 
-På sidan **Företagsuppgifter** samlas all juridisk och administrativ information om er organisation: företagsnamn, organisationsnummer, kontaktuppgifter, momsregistrering (VAT) samt fakturaadress. Uppgifterna används bland annat på fakturor, i avtalstexter och i kommunikation med era motparter. Den här guiden visar var sidan ligger och vilka fält som finns – den ändrar inga värden.
+Sidan **Företag** samlar organisationens kontouppgifter: visningsnamn och standardspråk, de formella företagsuppgifterna, vem som är ansvarig person och vart fakturan ska skickas. Uppgifterna används bland annat på fakturor och i kommunikationen med era motparter. Den här guiden visar var sidan ligger och vad varje kort innehåller – den ändrar inga värden.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera organisationsinställningar.
-- Inställningarna är **organisationsövergripande** – ändringar slår igenom på samtliga arbetsytor i organisationen.
-- För att redigera ett fält klickar du på **Redigera** bredvid respektive sektion. Den här guiden öppnar inga dialoger – vi tittar bara på vilka uppgifter som visas.
+- Du är inloggad och har behörighet att hantera organisationens inställningar.
+- Uppgifterna är **organisationsövergripande** – de gäller samtliga arbetsytor i organisationen.
+- Varje kort redigeras för sig via länken **Redigera** i kortets övre högra hörn.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Organisation → Företagsuppgifter i sidomenyn">
-    Sidan ligger under *Organisationsinställningar* och inte under en specifik arbetsyta. Det betyder att uppgifterna gäller hela företaget i sajn – de visas likadant oavsett vilken arbetsyta du växlar till.
+  <Step title="Öppna Inställningar och välj Företag">
+    Sidan heter [Företag](https://app.sajn.se/~/settings/organization/business-details) och har två flikar: **Företagsuppgifter** (den här) och **Data & sekretess**. Den ligger under *Organisationsinställningar*, inte under en enskild arbetsyta.
 
-    Sidan består av tre fristående kort som var och en redigeras via en egen **Redigera**-knapp i kortets övre högra hörn.
+    Sidan består av fyra kort: Grundläggande inställningar, Företagsuppgifter, Ansvarig person och Faktureringsinformation.
 
     <Frame>
-      <img src="/images/guider/settings-organization-business-details/02-open-business-details.png" alt="Sidan Företagsuppgifter öppen under Organisationsinställningar" />
+      <img src="/images/guider/settings-organization-business-details/02-oppna-foretag.png" alt="Sidan Företag med fliken Företagsuppgifter öppen" />
     </Frame>
   </Step>
-  <Step title="Grundläggande inställningar – organisationens visningsnamn">
-    Det översta kortet innehåller bara fältet **Namn**: organisationens visningsnamn i sajn. Det är det namn som syns i sidomenyn, i organisationsväljaren och som standardavsändare i e-postutskick.
+  <Step title="Grundläggande inställningar – namn och standardspråk">
+    Det översta kortet innehåller två fält:
 
-    Namnet kan skilja sig från det formella företagsnamnet längre ner – t.ex. ett kortare varumärkesnamn. Klicka på **Redigera** för att byta.
+    - **Namn** – organisationens visningsnamn i sajn. Det är namnet som syns i sidomenyn och i organisationsväljaren. Nya namn granskas manuellt innan de börjar gälla, se [Byt organisationens namn](/guider/byt-organisationsnamn).
+    - **Standardspråk** – språket som nya dokument och nya medlemmar utgår från. Varje användare kan sedan välja sitt eget språk under sina personliga inställningar.
+  </Step>
+  <Step title="Företagsuppgifter – de formella uppgifterna">
+    Klicka på **Redigera** vid Företagsuppgifter. Här anger ni:
+
+    - **Företagsnamn** – det juridiska företagsnamnet. Det behöver inte vara samma som visningsnamnet ovan.
+    - **Organisationsnummer** – ert svenska organisationsnummer.
+    - **E-post** och **Telefon** – allmänna kontaktuppgifter till organisationen.
+    - **VAT-nummer** – momsregistreringsnumret, till exempel `SE556123456701`.
+    - **Webbplats** – er hemsida. Är fältet ifyllt visas adressen som en klickbar länk på sidan.
+
+    Fält ni lämnar tomma visas som *Ej angivet*.
 
     <Frame>
-      <img src="/images/guider/settings-organization-business-details/04-basic-settings.png" alt="Kortet Grundläggande inställningar med organisationens visningsnamn" />
+      <img src="/images/guider/settings-organization-business-details/05-foretagsuppgifter-dialog.png" alt="Rutan Redigera företagsuppgifter med fält för företagsnamn, organisationsnummer, e-post, telefon, VAT-nummer och webbplats" />
     </Frame>
   </Step>
-  <Step title="Företagsuppgifter – juridiskt namn, org.nr, kontakt och VAT">
-    Det här kortet innehåller den formella företagsinformationen som används på fakturor och i avtalstexter:
+  <Step title="Ansvarig person – den som legitimerar organisationen">
+    För att kunna skicka dokument för signering med e-legitimation behöver en person i organisationen legitimera sig som ansvarig. Klicka på **Legitimera dig** i kortet, eller **Byt ansvarig** om rollen ska lämnas över till någon annan.
 
-    - **Företagsnamn** (raden överst, i fetstil) – det juridiska företagsnamnet.
-    - **Organisationsnummer** – ert svenska organisationsnummer (ÅÅÅÅMM-XXXX för aktiebolag).
-    - **E-post** – allmän kontaktadress till organisationen.
-    - **Telefon** – allmänt telefonnummer.
-    - **VAT-nummer** – momsregistreringsnummer (t.ex. SE556677889901), används för fakturering inom EU.
-    - **Webbplats** – länk till er hemsida; renderas som klickbar länk när den är ifylld.
+    Namn och personnummer på den ansvariga personen visas aldrig för mottagare.
 
-    Fält som saknas visas som *Ej angivet*.
-
-    <Frame>
-      <img src="/images/guider/settings-organization-business-details/05-company-details.png" alt="Kortet Företagsuppgifter med juridiskt namn, organisationsnummer och VAT" />
-    </Frame>
+    <Note>
+      Finns ingen ansvarig person än visar kortet ett sista datum då kravet börjar gälla. Fram till dess kan ni skicka som vanligt.
+    </Note>
   </Step>
-  <Step title="Faktureringsinformation – fakturamottagare, referens och adress">
-    Det nedersta kortet styr hur sajn fakturerar er prenumeration:
+  <Step title="Faktureringsinformation – vart fakturan går">
+    Klicka på **Redigera** vid Faktureringsinformation.
 
-    - **E-post för faktura** – adressen som fakturor från sajn skickas till. Lämnas fältet tomt används den allmänna e-postadressen från företagsuppgifterna ovan.
-    - **Er referens** – fri text som hamnar på fakturan, t.ex. kostnadsställe, projektnummer eller namnet på personen som ska attestera.
-    - **Faktureringsadress** – postadress i två rader plus postnummer och ort. Används både på PDF-fakturan och vid kontroll mot momsregistret.
+    - **E-post för faktura** – adressen fakturor från sajn skickas till. Lämnas den tom används organisationens allmänna e-postadress.
+    - **Er referens** – fri text som hamnar på fakturan, till exempel kostnadsställe, projektnummer eller namnet på den som ska attestera.
+    - **Faktureringsadress** – land, gatuadress, eventuell andra adressrad, postnummer och postort.
 
-    Klicka på **Redigera** i kortets övre högra hörn för att uppdatera uppgifterna. Ändringar slår igenom på nästa faktura – pågående fakturor påverkas inte.
+    Samma uppgifter visas skrivskyddade under [Ditt abonnemang › Betalning](https://app.sajn.se/~/settings/organization/subscription/payment). Ändringar gör du alltid härifrån.
 
     <Frame>
-      <img src="/images/guider/settings-organization-business-details/06-billing-details.png" alt="Kortet Faktureringsinformation med fakturamottagare, referens och adress" />
+      <img src="/images/guider/settings-organization-business-details/10-fakturering-dialog.png" alt="Rutan Redigera faktureringsinformation med fält för fakturamottagare, referens och adress" />
     </Frame>
   </Step>
 </Steps>

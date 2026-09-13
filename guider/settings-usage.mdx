@@ -1,86 +1,67 @@
 ---
-title: "Se token- och kostnadsåtgång för AI"
-description: "Följ AI-kvot, dokument, signaturer, e-post, SMS och AI-användning per arbetsyta, medlem och period"
+title: "Följ organisationens användning"
+description: "Se AI-förbrukning, dokument, signaturer, e-post, SMS och ID-kontroller per arbetsyta, medlem och period"
 ---
 
-På sidan **Användning** följer du hur er organisation utnyttjar sajn – AI-kvot, dokument, signaturer, e-post, SMS och AI-användning per period. Den här guiden visar var sidan ligger, hur du läser AI-kvoten och hur du filtrerar siffrorna per arbetsyta, medlem eller tidsperiod. Allt är skrivskyddat – inga inställningar ändras.
+Under [Ditt abonnemang › Användning](https://app.sajn.se/~/settings/organization/subscription/usage) följer du hur organisationen utnyttjar sajn: AI-förbrukning, dokumentstatus, aktiva medlemmar, signaturer, e-post, SMS och ID-kontroller. Den här guiden visar var sidan ligger, hur du läser AI-stapeln och hur du filtrerar siffrorna. Allt är skrivskyddat så länge du inte rör aviseringsinställningarna längst ned.
 
 ## Innan du börjar
 
 - Du är inloggad och har behörighet att se organisationens användningsstatistik.
-- Sidan ligger under **Organisationsinställningar** – siffrorna gäller hela organisationen, oavsett vilken arbetsyta du står i.
-- AI-kvoten styrs av ert abonnemang. På Basic är AI-funktionerna inte aktiva och kvotbalken kan visa 0 % kvar.
+- Siffrorna gäller **hela organisationen**, oavsett vilken arbetsyta du står i.
+- Sidan är en flik under *Ditt abonnemang* – den ligger inte som ett eget kort i inställningarna. Länken **Se detaljerad användning** på abonnemangets översikt går också hit.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Användning i sidomenyn">
-    Sidan ligger under *Organisationsinställningar*. Brödsmulan högst upp visar **Inställningar → Organisation** så du vet att siffrorna gäller hela organisationen, inte bara den arbetsyta du står i just nu.
+  <Step title="Öppna Ditt abonnemang och välj fliken Användning">
+    Uppe till höger sitter tre filter som styr allt nedanför:
+
+    1. **Alla arbetsytor** – välj en eller flera arbetsytor. Tomt val betyder alla.
+    2. **Medlemmar** – filtrera på vem som skapat eller skickat. En liten siffra på knappen visar hur många du valt.
+    3. **Tidsperiod** – förinställda intervall eller ett eget datumintervall.
+
+    När minst ett filter är aktivt dyker länken **Återställ filter** upp till vänster om dem.
+
+    Under filtren ligger **AI-användning denna månad**. Stapeln visar hur mycket av månadens AI-kvot som är förbrukad, uppdelad på **Internt (Bob)** i blått och **Signeringschatt** i lila. Till höger står hur mycket som är kvar: siffran är grå vid normal förbrukning, gul när 10 % eller mindre återstår och röd när kvoten är slut. Har ert abonnemang obegränsad AI står det **Obegränsat**. Kvoten nollställs i början av varje kalendermånad.
+
+    Under den ligger **Dokumentstatus** och **Medlemsaktivitet** som munkdiagram, och sedan **Signaturer** som delar upp BankID och övriga metoder per dag.
 
     <Frame>
-      <img src="/images/guider/settings-usage/02-open-usage.png" alt="Sidan Användning öppen under Organisationsinställningar" />
+      <img src="/images/guider/settings-usage/02-oppna-anvandning.png" alt="Fliken Användning med filter, AI-stapel och diagrammen Dokumentstatus och Medlemsaktivitet" />
     </Frame>
   </Step>
-  <Step title="AI-kvot kvar denna månad – balken visar hur mycket av månadens AI-tokens som finns kvar">
-    Balken är *kvarvarande* andel, inte förbrukad. Den fylls från vänster och har tre lägen:
+  <Step title="Tidsperioden styr alla diagram på sidan">
+    Klicka på periodknappen för att välja *Senaste 7 dagarna*, *Senaste 30 dagarna*, *Senaste 3 månaderna*, *Senaste 6 månaderna* eller *I år* – eller markera ett eget intervall i kalendern.
 
-    - **Blå** – mer än 10 % kvar, normal användning.
-    - **Gul** – 10 % eller mindre kvar, dags att hålla utkik.
-    - **Röd** – 0 % kvar, kvoten är slut för månaden och AI-funktionerna pausas tills nästa månad eller tills ni uppgraderar.
-
-    Om ert abonnemang har obegränsad AI visas texten **Obegränsat** istället för en procentsats (som i exemplet ovan). Kvoten nollställs i början av varje kalendermånad.
+    Perioden påverkar bara din vy. Inget sparas i organisationen.
 
     <Frame>
-      <img src="/images/guider/settings-usage/05-ai-quota.png" alt="AI-kvotbalken som visar kvarvarande tokens denna månad" />
+      <img src="/images/guider/settings-usage/03-period.png" alt="Rutan med förinställda tidsperioder och kalender" />
     </Frame>
   </Step>
-  <Step title="Filtreringsraden – välj arbetsyta, medlemmar och tidsperiod">
-    Uppe till höger på sidan finns tre filter som styr alla diagram nedanför:
+  <Step title="Diagrammen längre ned följer samma upplägg">
+    Under signaturerna ligger ett diagram per mätvärde, alla med samma layout: rubrik, beskrivning och totalen för perioden till höger.
 
-    1. **Alla arbetsytor** – multi-select. Välj en eller flera arbetsytor om du vill begränsa siffrorna till just dem. Tomt val = alla arbetsytor i organisationen.
-    2. **Medlemmar** – multi-select. Filtrera på vem som skapat eller skickat. En liten siffra på knappen visar hur många medlemmar du valt.
-    3. **Tidsperiod** – datumväljare med förinställda intervaller (*Senaste 7 dagarna*, *Senaste 30 dagarna*, *Senaste 3/6 månaderna*, *I år*) eller en egen period.
+    - **Skapade dokument**, **Slutförda dokument** och **Skickade dokument**
+    - **E-post skickade** och **SMS skickade**
+    - **AI-generationer** – antal PDF→mall-genereringar
+    - **AI-chatmeddelanden** – antal meddelanden till AI-chatten
+    - **ID-kontroller (sajn ID)**
 
-    När minst ett filter är aktivt dyker länken **Återställ filter** upp till vänster om filtren – klicka för att rensa allt på en gång.
+    För muspekaren över en stapel för att se exakt värde för den dagen. AI-generationer och AI-chatmeddelanden är de två som drar från AI-kvoten högst upp, så börja där om stapeln rör sig snabbt.
 
     <Frame>
-      <img src="/images/guider/settings-usage/06-filter-toolbar.png" alt="Filtreringsraden med arbetsyta, medlemmar och tidsperiod" />
+      <img src="/images/guider/settings-usage/05-ai-generationer.png" alt="Diagrammen SMS skickade, AI-generationer och AI-chatmeddelanden" />
     </Frame>
   </Step>
-  <Step title="Klicka på tidsperioden för att välja en annan – t.ex. Senaste 3 månaderna eller I år">
-    I rutan listas alla förinställda perioder. Den aktiva perioden är markerad. Du kan också välja ett eget datumintervall via kalendern.
+  <Step title="Aviseringar varnar innan kvoten tar slut">
+    Längst ned på sidan ligger **Aviseringar**. Slå på **Aktivera användningsaviseringar** och välj vid vilka nivåer sajn ska höra av sig – 50 %, 80 %, 90 % eller 100 % av den inkluderade kvoten. Klicka **Spara ändringar**.
 
-    Obs: att ändra perioden påverkar bara *din vy* – inga inställningar sparas i organisationen.
-
-    <Frame>
-      <img src="/images/guider/settings-usage/09-period-presets.png" alt="Rutan med förinställda tidsperioder och kalender" />
-    </Frame>
-  </Step>
-  <Step title="AI-tokens – total AI-användning i tokens (input + output) per dag">
-    Det här är diagrammet att titta på om du vill förstå *kostnadsåtgången* för AI. Stapeln för varje dag visar det sammanlagda antalet tokens som AI-funktionerna förbrukat – både det som skickats in (input) och det som AI:n genererat tillbaka (output). Totalen för perioden står uppe till höger.
-
-    Kvotbalken högst upp på sidan räknas från samma siffra, så om grafen pikar kraftigt en viss dag är det också den dagen kvoten dragits ner mest. Använd filtren ovanför (arbetsyta / medlem / period) för att hitta vem eller vad som drev en topp.
+    Aviseringarna levereras enligt dina kanalinställningar under [Kommunikationsinställningar](https://app.sajn.se/~/settings/account/communication-preferences). Sektionen visas bara för den som får hantera organisationens inställningar.
 
     <Frame>
-      <img src="/images/guider/settings-usage/12-ai-tokens-chart.png" alt="AI-tokens-diagrammet med daglig användning över perioden" />
-    </Frame>
-  </Step>
-  <Step title="AI-generationer – antalet PDF→mall-genereringar per dag under vald period">
-    Det här diagrammet visar hur många gånger AI:n har konverterat uppladdade PDF:er till mallar – en av de mer kostnadstunga AI-operationerna per anrop. En enskild generering kan dra många tokens, så även få staplar här kan synas tydligt i *AI-tokens*-grafen ovan.
-
-    Kombinera gärna med medlemsfiltret för att se vilken användare som genererat mest, eller med arbetsytefiltret för att jämföra olika team.
-
-    <Frame>
-      <img src="/images/guider/settings-usage/13-ai-generations-chart.png" alt="AI-generationer-diagrammet med daglig användning" />
-    </Frame>
-  </Step>
-  <Step title="AI-chatmeddelanden – antal meddelanden till AI-chatten per dag">
-    Här ser du hur mycket Bob används som chattassistent. Varje meddelande drar tokens från månadskvoten ovan, så den här grafen är en bra indikator på vad som faktiskt äter upp kvotbalken.
-
-    Längre ner finns även diagram för *Skapade dokument*, *Slutförda dokument*, *Skickade dokument*, *E-post*, *SMS* och *ID-kontroller (sajn ID)* – allt med samma upplägg och samma filterval. För muspekaren över en stapel i ett diagram för att se exakt värde för den dagen.
-
-    <Frame>
-      <img src="/images/guider/settings-usage/14-ai-chat-chart.png" alt="AI-chatmeddelanden-diagrammet med daglig användning" />
+      <img src="/images/guider/settings-usage/06-aviseringar.png" alt="Sektionen Aviseringar med aviseringsgränser i procent" />
     </Frame>
   </Step>
 </Steps>

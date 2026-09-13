@@ -1,0 +1,74 @@
+{
+    "slug": "settings-organization-business-details",
+    "title": "Företagsuppgifter",
+    "intro": "Sidan Företag samlar organisationens kontouppgifter: visningsnamn, standardspråk, juridiska företagsuppgifter, ansvarig person och faktureringsuppgifter.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera organisationens inställningar."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": [],
+    "imageDir": "../../images/guider/settings-organization-business-details",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "oppna-foretag",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/business-details",
+            "caption": "Öppna Inställningar och välj Företag",
+            "notes": "Sidan heter Företag och har två flikar: Företagsuppgifter och Data & sekretess. Uppgifterna gäller hela organisationen, alltså alla arbetsytor. Varje kort redigeras för sig via länken Redigera i kortets övre högra hörn."
+        },
+        {
+            "name": "oppna-foretagsuppgifter",
+            "action": "click",
+            "selector": "div.flex.flex-col.gap-2:has(> div > h2:text-is('Företagsuppgifter')) span:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] :text('Organisationsnummer')"
+        },
+        {
+            "name": "foretagsuppgifter-dialog",
+            "action": "screenshot",
+            "caption": "Företagsuppgifter är de formella uppgifterna",
+            "notes": "Företagsnamn är det juridiska namnet och behöver inte vara samma som visningsnamnet högst upp. Här fyller du också i organisationsnummer, e-post, telefon, VAT-nummer och webbplats. Fält du lämnar tomma visas som Ej angivet på sidan."
+        },
+        {
+            "name": "stang-dialog",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-fakturering",
+            "action": "click",
+            "selector": "div.flex.flex-col.gap-2:has(> div > h2:text-is('Faktureringsinformation')) span:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-fakturadialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] :text('Er referens')"
+        },
+        {
+            "name": "fakturering-dialog",
+            "action": "screenshot",
+            "caption": "Faktureringsinformation styr vart fakturan går",
+            "notes": "E-post för faktura är adressen fakturor från sajn skickas till; lämnas den tom används organisationens allmänna e-postadress. Er referens är fri text som hamnar på fakturan, till exempel ett kostnadsställe. Adressen används på fakturan."
+        },
+        {
+            "name": "stang-fakturadialog",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        }
+    ]
+}

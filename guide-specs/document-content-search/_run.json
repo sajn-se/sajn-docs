@@ -1,0 +1,86 @@
+{
+  "ranAt": "2026-09-13T11:27:37.862Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "open-search-settings",
+      "action": "goto",
+      "screenshotFile": "02-open-search-settings.png",
+      "caption": "Slå på indexering under AI & Sökning",
+      "notes": "Fliken Sökning & indexering har två strömbrytare, en statusruta och en lista över dokumenten i indexet.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/ai/search"
+    },
+    {
+      "index": 3,
+      "name": "open-documents",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 4,
+      "name": "open-bob",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?panel=chat"
+    },
+    {
+      "index": 5,
+      "name": "wait-bob",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?panel=chat"
+    },
+    {
+      "index": 6,
+      "name": "ask",
+      "action": "type",
+      "screenshotFile": null,
+      "caption": "Fråga Bob vad som står i avtalen",
+      "notes": "Beskriv innehållet, inte titeln. Bob väljer själv att söka i dokumentens text.",
+      "url": "https://app.sajn.se/arlbn/documents?panel=chat"
+    },
+    {
+      "index": 7,
+      "name": "send",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?panel=chat"
+    },
+    {
+      "index": 8,
+      "name": "wait-answer",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?panel=chat"
+    },
+    {
+      "index": 9,
+      "name": "answer",
+      "action": "screenshot",
+      "screenshotFile": "09-answer.png",
+      "caption": "Svaret länkar till dokumenten med ett textutdrag",
+      "notes": "Varje träff är en länk till dokumentet, med dess status och ett kort utdrag ur texten.",
+      "url": "https://app.sajn.se/arlbn/documents?panel=chat"
+    }
+  ]
+}

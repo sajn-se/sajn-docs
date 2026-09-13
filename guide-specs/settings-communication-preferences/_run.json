@@ -1,0 +1,59 @@
+{
+  "ranAt": "2026-09-13T11:02:01.018Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna",
+      "action": "goto",
+      "screenshotFile": "02-oppna.png",
+      "caption": "Öppna Kommunikationsinställningar",
+      "notes": "Sidan är en enda lista med rubriker per område, inte flikar. Till höger finns tre kolumner: Webb är notiscentret i sajn, E-post är mejl till din inkorg och Mobil är pushnotiser i mobilappen. Kryssa i de kanaler du vill ha per rad, och avmarkera alla för att stänga av aviseringen helt. Ett streck i stället för en kryssruta betyder att kanalen inte finns för just den aviseringen.",
+      "url": "https://app.sajn.se/arlbn/settings/account/communication-preferences"
+    },
+    {
+      "index": 3,
+      "name": "dokument",
+      "action": "scrollIntoView",
+      "screenshotFile": "03-dokument.png",
+      "caption": "Dokument — hela dokumentets livscykel",
+      "notes": "Här ligger aviseringarna för dokument du ansvarar för: nytt dokument i inkorgen, öppnat första gången, återbesök, signerat, slutfört, avböjt, delegerad signering, dokument som snart går ut, vad lagringspolicyn gör med dokumentet, utskick som inte kunde levereras och begäran om åtkomst till ett dokument. Återbesök på dokument saknar e-postkolumn med flit — en part som läser om ett långt avtal skulle annars generera ett mejl per besök.",
+      "url": "https://app.sajn.se/arlbn/settings/account/communication-preferences"
+    },
+    {
+      "index": 4,
+      "name": "samarbete",
+      "action": "scrollIntoView",
+      "screenshotFile": "04-samarbete.png",
+      "caption": "Samarbete, godkännanden, massutskick och formulär",
+      "notes": "Samarbete innehåller aviseringen när någon nämner dig i en kommentar. Godkännanden täcker begärda, godkända och avvisade attester. Massutskick meddelar när ett utskick är klart eller misslyckats, och Formulär när ett formulär fått svar. Grupperna visas bara med de aviseringar som är relevanta för ditt konto.",
+      "url": "https://app.sajn.se/arlbn/settings/account/communication-preferences"
+    },
+    {
+      "index": 5,
+      "name": "konto",
+      "action": "scrollIntoView",
+      "screenshotFile": "05-konto.png",
+      "caption": "Konto & säkerhet — kontohändelser och sammanfattningar",
+      "notes": "Här ligger ny medlem, medlem som lämnat, ovanlig aktivitet på kontot, identitet som inte matchar vid signering, klar dataexport, veckosammanfattning, åtgärder att göra, förslag efter signering och när ni närmar er en användningsgräns. Veckosammanfattningen är ett typiskt exempel på en avisering man bara vill ha på e-post: lämna Webb och Mobil tomma och kryssa bara E-post.",
+      "url": "https://app.sajn.se/arlbn/settings/account/communication-preferences"
+    },
+    {
+      "index": 6,
+      "name": "utvecklare",
+      "action": "scrollIntoView",
+      "screenshotFile": "06-utvecklare.png",
+      "caption": "Utvecklare — visas bara med utvecklarbehörighet",
+      "notes": "Gruppen Utvecklare syns bara om du har behörighet att hantera utvecklarinställningar. Den samlar skapad och borttagen API-nyckel, webhookar som inte kunde levereras och nyheter för utvecklare. De här har ingen mobilkolumn, eftersom mobilappen är en app för att skicka dokument och inte ett driftverktyg. En webhook som tyst slutar fungera är svår att felsöka — låt e-postkolumnen stå kvar ikryssad. Knappen Spara längst ner sparar alla ändringar på sidan på en gång.",
+      "url": "https://app.sajn.se/arlbn/settings/account/communication-preferences"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "ranAt": "2026-09-13T11:11:48.849Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "open-developer",
+      "action": "goto",
+      "screenshotFile": "02-open-developer.png",
+      "caption": "Öppna Inställningar och sedan Utvecklare",
+      "notes": "Sidan hör till arbetsytan, inte organisationen. Fliken Hem samlar dokumentation, MCP-server, Postman och arbetsytans API-gränser.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer"
+    },
+    {
+      "index": 3,
+      "name": "open-api-keys",
+      "action": "click",
+      "screenshotFile": "03-open-api-keys.png",
+      "caption": "Fliken API-nycklar listar arbetsytans nycklar",
+      "notes": "Kolumnerna är Namn, en maskad API-nyckel, Skapad, Senast använd och Utgår. Sökfältet filtrerar på namn.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/api-keys"
+    },
+    {
+      "index": 4,
+      "name": "open-create-key",
+      "action": "click",
+      "screenshotFile": "04-open-create-key.png",
+      "caption": "Dialogen Skapa ny API-nyckel",
+      "notes": "Du anger ett namn och hur länge nyckeln ska gälla. Hela nyckelvärdet visas bara en gång, direkt efter att den skapats.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/api-keys"
+    },
+    {
+      "index": 5,
+      "name": "close-create-key",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/api-keys"
+    },
+    {
+      "index": 6,
+      "name": "open-monitoring",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/api-keys"
+    },
+    {
+      "index": 7,
+      "name": "wait-monitoring",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/monitoring"
+    },
+    {
+      "index": 8,
+      "name": "scroll-top-monitoring",
+      "action": "scrollIntoView",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/monitoring"
+    },
+    {
+      "index": 9,
+      "name": "monitoring",
+      "action": "screenshot",
+      "screenshotFile": "09-monitoring.png",
+      "caption": "Övervakning visar API- och webhook-hälsa",
+      "notes": "Statistiken bygger på loggarna och täcker därför samma 72 timmar som de.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/monitoring"
+    },
+    {
+      "index": 10,
+      "name": "open-logs",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/monitoring"
+    },
+    {
+      "index": 11,
+      "name": "wait-logs",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/logs"
+    },
+    {
+      "index": 12,
+      "name": "scroll-top-logs",
+      "action": "scrollIntoView",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/logs"
+    },
+    {
+      "index": 13,
+      "name": "logs",
+      "action": "screenshot",
+      "screenshotFile": "13-logs.png",
+      "caption": "Loggar har både API-anrop och webhook-leveranser",
+      "notes": "Överst ligger API-loggarna, under dem webhook-leveranserna. Båda sparas i 72 timmar.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/logs"
+    }
+  ]
+}

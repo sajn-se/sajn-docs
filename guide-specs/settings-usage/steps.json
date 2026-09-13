@@ -1,0 +1,58 @@
+{
+    "slug": "settings-usage",
+    "title": "Följ organisationens användning",
+    "intro": "Fliken Användning under Ditt abonnemang visar AI-förbrukning, dokumentstatus, signaturer, e-post, SMS och ID-kontroller per period.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att se organisationens användningsstatistik."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [],
+    "imageDir": "../../images/guider/settings-usage",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-anvandning",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/subscription/usage",
+            "caption": "Öppna Ditt abonnemang och välj fliken Användning",
+            "notes": "Siffrorna gäller hela organisationen. Överst ligger filtren, under dem AI-användningen och sedan diagram för dokument, medlemmar och signaturer."
+        },
+        {
+            "name": "period",
+            "action": "click",
+            "selector": "button:has-text('Senaste 30 dagarna')",
+            "caption": "Tidsperioden styr alla diagram på sidan",
+            "notes": "Välj en förinställd period eller markera ett eget intervall i kalendern. Valet gäller bara din vy och sparas inte i organisationen."
+        },
+        {
+            "name": "stang-period",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "ai-generationer",
+            "action": "scrollIntoView",
+            "selector": "div:text-is('AI-generationer')",
+            "align": "center",
+            "screenshot": true,
+            "caption": "Diagrammen längre ned följer samma upplägg",
+            "notes": "Skapade, slutförda och skickade dokument, E-post skickade, SMS skickade, AI-generationer, AI-chatmeddelanden och ID-kontroller (sajn ID). För muspekaren över en stapel för att se värdet för den dagen."
+        },
+        {
+            "name": "aviseringar",
+            "action": "scrollIntoView",
+            "selector": "div:text-is('Aviseringar')",
+            "align": "center",
+            "screenshot": true,
+            "caption": "Aviseringar varnar innan kvoten tar slut",
+            "notes": "Slå på användningsaviseringar och välj vid vilka nivåer sajn ska mejla. Kräver behörighet att hantera organisationens inställningar."
+        }
+    ]
+}

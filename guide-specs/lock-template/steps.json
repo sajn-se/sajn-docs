@@ -1,0 +1,213 @@
+{
+    "slug": "lock-template",
+    "title": "Lås en mall så ingen ändrar den av misstag",
+    "intro": "En låst mall går fortfarande att använda för nya dokument, men själva mallen kan inte redigeras förrän någon låser upp den.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du har behörigheten Lås mall i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/lock-template",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "mallistan",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "caption": "Öppna Mallar och välj mallen du vill låsa"
+        },
+        {
+            "name": "oppna-mallen",
+            "action": "click",
+            "selector": "a[href*='/templates/']:has-text('Konsultavtal')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-original",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "gor-kopia",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Gör en kopia')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-pa-kopian",
+            "action": "wait",
+            "ms": 4000
+        },
+        {
+            "name": "tillbaka-till-listan",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-kopian",
+            "action": "click",
+            "selector": "a[href*='/templates/']:has-text('Kopia av Konsultavtal')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-redigera-meny",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namndialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input#name",
+            "value": "Batch D: låsbar mall",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn-sparat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')",
+            "state": "hidden"
+        },
+        {
+            "name": "redigera-menyn",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "caption": "Lås ligger längst ner i Redigera-menyn"
+        },
+        {
+            "name": "valj-las",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Lås')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-bekraftelse",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']:has-text('Lås mall')"
+        },
+        {
+            "name": "bekraftelsen",
+            "action": "screenshot",
+            "caption": "Bekräfta i dialogen Lås mall"
+        },
+        {
+            "name": "bekrafta-las",
+            "action": "click",
+            "selector": "[role='alertdialog'] button",
+            "screenshot": false,
+            "match": "last"
+        },
+        {
+            "name": "vanta-last",
+            "action": "waitForSelector",
+            "selector": "text=inställningar, parter, sektioner och stil kan inte redigeras"
+        },
+        {
+            "name": "last-lage",
+            "action": "screenshot",
+            "caption": "Den låsta mallen får en banner högst upp"
+        },
+        {
+            "name": "las-upp",
+            "action": "click",
+            "selector": "button:has-text('Lås upp')",
+            "screenshot": false,
+            "match": "first"
+        },
+        {
+            "name": "vanta-upplasning",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']:has-text('Lås upp mall')"
+        },
+        {
+            "name": "upplasningsdialogen",
+            "action": "screenshot",
+            "caption": "Lås upp går via samma dialog"
+        },
+        {
+            "name": "bekrafta-upplasning",
+            "action": "click",
+            "selector": "[role='alertdialog'] button",
+            "screenshot": false,
+            "match": "last"
+        },
+        {
+            "name": "vanta-upplast",
+            "action": "waitForSelector",
+            "selector": "text=inställningar, parter, sektioner och stil kan inte redigeras",
+            "state": "hidden"
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagsdialog",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']:has-text('Ta bort mall')"
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button",
+            "screenshot": false,
+            "match": "last"
+        },
+        {
+            "name": "vanta-efter-stadning",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa ny mall')"
+        }
+    ]
+}

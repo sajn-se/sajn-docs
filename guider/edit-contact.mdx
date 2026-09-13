@@ -1,51 +1,67 @@
 ---
 title: "Redigera en kontakts uppgifter"
-description: "Uppdatera namn, e-post eller andra fält på en befintlig kontakt – ändringen sparas automatiskt"
+description: "Uppdatera telefon, e-post eller något annat fält direkt i kontaktpanelen – ändringen sparas automatiskt"
 ---
 
-Behöver du uppdatera ett telefonnummer, en e-postadress eller någon annan uppgift på en kontakt? Den här guiden visar hur du öppnar en befintlig kontakt från kontaktlistan, ändrar ett fält direkt i översiktsvyn och hur ändringen sparas automatiskt utan att du behöver klicka på någon Spara-knapp.
+Alla uppgifter på en kontakt redigeras direkt i panelen. Du klickar på värdet, skriver det nya och stänger rutan – ändringen sparas automatiskt. Det finns ingen spara-knapp.
 
 ## Innan du börjar
 
-- Du är inloggad i en arbetsyta där du har behörighet att redigera kontakter.
-- Det finns minst en kontakt i arbetsyta-listan.
+- Du är inloggad i en arbetsyta där du får redigera kontakter.
+- Det finns minst en kontakt i arbetsytans lista.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Hitta kontakten i listan Kontakter och klicka på raden">
-    Använd sökfältet eller filtrera fram kontakten du vill redigera. Klicka var som helst på raden för att öppna kontaktens panel till höger.
+  <Step title="Sök fram kontakten och klicka på raden">
+    Öppna [Kontakter](https://app.sajn.se/~/contacts) i sidomenyn. Sökfältet matchar namn, e-post, telefon och företag. Klicka var som helst på raden för att öppna kontaktens panel till höger.
 
     <Frame>
-      <img src="/images/guider/edit-contact/14-list-with-contact.png" alt="Kontaktlistan med raden vi vill öppna" />
+      <img src="/images/guider/edit-contact/05-hitta.png" alt="Kontaktlistan filtrerad till den kontakt som ska redigeras" />
     </Frame>
   </Step>
-  <Step title="Panelen Hantera kontakt öppnas till höger">
-    Fliken **Översikt** är förvald och visar alla redigerbara fält – *Telefon*, *E-post*, *Företag*, *Roll*, *Taggar* och eventuella *Anpassade fält*. Längst ner står tipset *Klicka på värden för att redigera dem. Ändringar sparas automatiskt.* – det vill säga: du behöver inte klicka på någon Spara-knapp.
+  <Step title="Panelen öppnas med fliken Översikt">
+    **Översikt** visar de redigerbara fälten: *Telefon*, *E-post*, *Företag*, *Roll*, *Signaturmetod* och *Taggar*, plus eventuella datafält du har lagt till. Längst ner står påminnelsen *Tips: Klicka på värden för att redigera dem. Ändringar sparas automatiskt.*
 
     <Frame>
-      <img src="/images/guider/edit-contact/17-drawer-overview.png" alt="Panelen Hantera kontakt öppen med fliken Översikt vald" />
+      <img src="/images/guider/edit-contact/08-panelen.png" alt="Kontaktpanelen med fliken Översikt vald" />
     </Frame>
   </Step>
-  <Step title="Klicka på värdet bredvid Telefon för att redigera det">
-    En liten ruta med ett textfält visas direkt över värdet du klickade på. Skriv in det nya telefonnumret och tryck **Enter** – eller klicka utanför fältet – för att spara. Tryck **Esc** om du vill avbryta och behålla det gamla värdet.
+  <Step title="Klicka på värdet bredvid Telefon">
+    En liten ruta med ett textfält läggs över värdet. Ett tomt fält visas som ett streck tills du fyller i något.
 
     <Frame>
-      <img src="/images/guider/edit-contact/20-phone-popover.png" alt="Rutan för att redigera telefonnumret" />
+      <img src="/images/guider/edit-contact/09-oppna-telefon.png" alt="Textfältet öppet över telefonvärdet" />
     </Frame>
   </Step>
-  <Step title="Skriv in det nya värdet i textfältet">
-    Värdet uppdateras i fältet allt eftersom du skriver. När du är nöjd trycker du **Enter** eller klickar utanför rutan för att spara ändringen.
+  <Step title="Skriv in det nya värdet">
+    Värdet uppdateras i rutan medan du skriver, men inget sparas förrän du stänger den. Tryck **Enter** eller klicka utanför rutan för att spara. Tryck **Esc** om du vill avbryta och behålla det gamla värdet.
 
     <Frame>
-      <img src="/images/guider/edit-contact/22-phone-typed.png" alt="Det nya telefonnumret inskrivet i rutan" />
+      <img src="/images/guider/edit-contact/11-skrivet.png" alt="Det nya telefonnumret inskrivet i rutan" />
     </Frame>
   </Step>
-  <Step title="Det uppdaterade telefonnumret syns direkt i panelen">
-    sajn sparar ändringen automatiskt i bakgrunden så fort rutan stängs. Samma mönster fungerar för alla redigerbara fält i översikten – *E-post*, *Företag*, *Roll* och eventuella *Anpassade fält*. Vill du återställa eller ta bort ett värde klickar du på fältet igen och rensar innehållet innan du stänger rutan.
+  <Step title="Det nya numret syns direkt i panelen">
+    Ändringen sparas i bakgrunden så fort rutan stängs. För muspekaren över ett ifyllt fält så dyker genvägar upp till höger: kopiera värdet, ringa upp ett telefonnummer eller skriva till en e-postadress.
 
     <Frame>
-      <img src="/images/guider/edit-contact/26-phone-saved.png" alt="Det uppdaterade telefonnumret synligt i kontaktpanelen" />
+      <img src="/images/guider/edit-contact/14-sparat.png" alt="Det uppdaterade telefonnumret i kontaktpanelen" />
     </Frame>
   </Step>
 </Steps>
+
+## Fält som fungerar annorlunda
+
+Samma klicka-och-skriv gäller *E-post*, *Roll* och arbetsytans datafält. Tre fält beter sig inte som de andra:
+
+- **Företag** öppnar en väljare där du kopplar kontakten till ett företag, i stället för ett fritextfält.
+- **Signaturmetod** är en lista: *Arbetsytans standard*, *Svenskt BankID*, *Klicksignering* eller *Ritad signatur*.
+- **Taggar** läggs till via *Lägg till tagg* och går bara att sätta på en kontakt som redan är sparad.
+
+Vill du tömma ett fält klickar du på det igen, rensar innehållet och stänger rutan.
+
+## De andra flikarna
+
+- **Dokument** listar dokumenten kontakten är part i.
+- **Anteckningar** är interna anteckningar som bara ni i arbetsytan ser.
+- **Aktivitet** är historiken för kontakten.

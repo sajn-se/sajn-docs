@@ -1,0 +1,139 @@
+{
+    "slug": "sajn-collection",
+    "title": "Använd sajn collection – färdiga mallar och sektioner",
+    "intro": "sajn collection är ett gemensamt bibliotek som sajn underhåller. Det dyker upp på två ställen: bland mallarna när du skapar ett dokument, och i sektionsbiblioteket inne i redigeraren.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/sajn-collection",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Öppna Dokument och klicka Skapa nytt"
+        },
+        {
+            "name": "skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialogen",
+            "action": "waitForSelector",
+            "selector": "text=Börja från en mall"
+        },
+        {
+            "name": "nytt-dokument",
+            "action": "screenshot",
+            "caption": "Nytt dokument öppnas med mallarna nedanför"
+        },
+        {
+            "name": "valj-collection",
+            "action": "click",
+            "selector": "button:text-is('sajn collection')",
+            "caption": "sajn collection är en av flikarna över mallistan"
+        },
+        {
+            "name": "sok",
+            "action": "fill",
+            "selector": "input[placeholder='Sök mallar...']",
+            "value": "avtal",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sokning",
+            "action": "wait",
+            "ms": 2000
+        },
+        {
+            "name": "sokresultat",
+            "action": "screenshot",
+            "caption": "Sökrutan filtrerar bland de gemensamma mallarna"
+        },
+        {
+            "name": "stang",
+            "action": "click",
+            "selector": "button:has-text('Tillbaka')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd",
+            "action": "waitForSelector",
+            "selector": "text=Börja från en mall",
+            "state": "hidden"
+        },
+        {
+            "name": "till-mallen",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-mallen",
+            "action": "click",
+            "selector": "a[href*='/templates/']:has-text('Konsultavtal')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-biblioteket",
+            "action": "click",
+            "selector": "button:has-text('Sektionsbibliotek')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-biblioteket",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Alla')"
+        },
+        {
+            "name": "vanta-laddning",
+            "action": "wait",
+            "ms": 4000
+        },
+        {
+            "name": "biblioteket",
+            "action": "screenshot",
+            "caption": "Sektionsbiblioteket har samma bibliotek per sektion"
+        },
+        {
+            "name": "oppna-filtret",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Alla')",
+            "caption": "Filtrera på sajn collection"
+        },
+        {
+            "name": "stang-filtret",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "stang-biblioteket",
+            "action": "press",
+            "key": "Escape"
+        }
+    ]
+}

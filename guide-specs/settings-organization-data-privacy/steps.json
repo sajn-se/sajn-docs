@@ -1,0 +1,37 @@
+{
+    "slug": "settings-organization-data-privacy",
+    "title": "Data och sekretess",
+    "intro": "Under Data & sekretess exporterar ni organisationens data och begär, som ägare, permanent radering av hela organisationen.",
+    "audience": "Organisationsadministratörer och ägare",
+    "prerequisites": [
+        "Du är inloggad och har behörigheten Administratör i organisationen."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1400
+    },
+    "mask": [],
+    "imageDir": "../../images/guider/settings-organization-data-privacy",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-data-sekretess",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/data-privacy",
+            "caption": "Öppna Företag och välj fliken Data & sekretess",
+            "notes": "Sidan ligger bredvid Företagsuppgifter under Inställningar › Företag. Överst ligger Exportera data, längst ned Permanent radering för organisationens ägare."
+        },
+        {
+            "name": "begar-export",
+            "action": "scrollIntoView",
+            "selector": "button:has-text('Begär export')",
+            "align": "center",
+            "screenshot": true,
+            "caption": "Knappen Begär export ligger längst ned i kortet",
+            "notes": "Knappen är inaktiverad tills minst en datatyp är vald. Exporten körs i bakgrunden och en zip-fil med CSV-filer skickas till e-postadressen på ditt användarkonto."
+        }
+    ]
+}

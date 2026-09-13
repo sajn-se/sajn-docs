@@ -1,0 +1,131 @@
+{
+  "ranAt": "2026-09-13T10:58:57.522Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-taggar",
+      "action": "goto",
+      "screenshotFile": "02-oppna-taggar.png",
+      "caption": "Öppna Datafält & taggar och välj fliken Taggar",
+      "notes": "Sidan ligger under arbetsyteinställningarna tillsammans med datafält och dokumentkategorier. Byter du arbetsyta byter du också tagglista. Är tabellen tom har ingen i arbetsytan skapat en tagg ännu.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 3,
+      "name": "oppna-dialog",
+      "action": "clickText",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 4,
+      "name": "vanta-dialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 5,
+      "name": "ny-tagg",
+      "action": "screenshot",
+      "screenshotFile": "05-ny-tagg.png",
+      "caption": "Lägg till tagg öppnar en ruta med tre fält",
+      "notes": "Namn är det som visas överallt där taggen används. Tillgänglig för avgör var taggen får sättas — Dokument, Mallar eller Kontakter — och är det du använder för att hindra att en kontakttagg hamnar på ett dokument. Färg är den prick som följer med taggen i listor och filter.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 6,
+      "name": "fyll-namn",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 7,
+      "name": "skapa",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 8,
+      "name": "vanta-rad",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 9,
+      "name": "kolumner",
+      "action": "screenshot",
+      "screenshotFile": "09-kolumner.png",
+      "caption": "Så läser du en rad i tagglistan",
+      "notes": "Namn visar taggens färg som en prick följt av namnet. Tillgänglig på visar var taggen får användas, med grön bock för tillåten och grått kryss för inte tillåten. Skapad av visar vem som lade till taggen; står det System är den skapad automatiskt. Skapad är datumet, och Användning räknar hur många dokument som har taggen just nu — ett snabbt sätt att se vilka taggar som faktiskt används. Ikonen längst till höger i rubrikraden döljer och visar kolumner.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 10,
+      "name": "oppna-radmeny",
+      "action": "click",
+      "screenshotFile": "10-oppna-radmeny.png",
+      "caption": "Trepunktsmenyn på raden: Redigera och Ta bort",
+      "notes": "Redigera öppnar samma ruta som när du skapade taggen, så du kan ändra namn, färg och var den får användas. Ta bort tar bort taggen från alla dokument, kontakter och mallar där den används — det går inte att ångra.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 11,
+      "name": "stad-ta-bort",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 12,
+      "name": "stad-vanta-dialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 13,
+      "name": "stad-bekrafta",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    },
+    {
+      "index": 14,
+      "name": "stad-vanta-bort",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/data-fields/tags"
+    }
+  ]
+}

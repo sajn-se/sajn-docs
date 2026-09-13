@@ -1,0 +1,167 @@
+{
+  "ranAt": "2026-09-13T11:32:41.504Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "signering",
+      "action": "goto",
+      "screenshotFile": "02-signering.png",
+      "caption": "Arbetsytans standardvärden ligger under Preferenser, fliken Signering",
+      "notes": "Tillåtna signaturtyper bestämmer vilka som går att välja alls i arbetsytan. Standard signaturtyp är den som nya parter får från början. Tillåtna verifieringsmetoder och de två standardvalen under styr verifieringen. Tillåtna sätt att signera gäller bara hur en ritad signatur får skapas: rita, skriva namnet eller ladda upp en bild.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/signing"
+    },
+    {
+      "index": 3,
+      "name": "tillatna-signaturtyper",
+      "action": "click",
+      "screenshotFile": "03-tillatna-signaturtyper.png",
+      "caption": "Sju signaturtyper går att tillåta",
+      "notes": "Fem är e-legitimationer: BankID, MitID, MitID Erhverv, FTN och iDIN. Två är enkla signaturer: Klicksignering, där parten bekräftar med ett klick, och Ritad signatur, där parten ritar sin namnteckning. Avmarkerar du en typ går den inte att välja på dokument i arbetsytan.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/signing"
+    },
+    {
+      "index": 4,
+      "name": "stang-tillatna",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/signing"
+    },
+    {
+      "index": 5,
+      "name": "vanta-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/signing"
+    },
+    {
+      "index": 6,
+      "name": "lagg-till-part",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 7,
+      "name": "vanta-panel",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 8,
+      "name": "oppna-part",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 9,
+      "name": "vanta-dialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 10,
+      "name": "partsdialogen",
+      "action": "screenshot",
+      "screenshotFile": "10-partsdialogen.png",
+      "caption": "De tre valen sitter tillsammans på parten",
+      "notes": "I dialogen Lägg till part ligger de under rubriken Signering och leverans. Roll avgör om parten ska signera, godkänna eller bara få en kopia. Signaturtyp, Leveransmetod och Verifiering vid signering är de tre axlarna, och de är oberoende av varandra. Värdena kommer från arbetsytans standard och gäller bara den här parten på det här dokumentet.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 11,
+      "name": "signaturtyp",
+      "action": "click",
+      "screenshotFile": "11-signaturtyp.png",
+      "caption": "Signaturtyp: hur parten skriver under",
+      "notes": "Listan är grupperad i E-legitimation och Enkel signatur. E-legitimation betyder att parten legitimerar sig med BankID, MitID, FTN eller iDIN, vilket ger högst bevisvärde. Enkel signatur är Klicksignering eller Ritad signatur, som är snabbare men bygger på svagare identifiering.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 12,
+      "name": "stang-signaturtyp",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 13,
+      "name": "leveransmetod",
+      "action": "click",
+      "screenshotFile": "13-leveransmetod.png",
+      "caption": "Leveransmetod: hur dokumentet når fram",
+      "notes": "E-post skickar en länk till adressen, SMS skickar den till mobilnumret och Ingen betyder att sajn inte skickar något alls - då delar du länken själv. Valet säger ingenting om hur parten signerar.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 14,
+      "name": "stang-leverans",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 15,
+      "name": "verifiering",
+      "action": "click",
+      "screenshotFile": "15-verifiering.png",
+      "caption": "Verifiering vid signering: extra kontroll i signeringsögonblicket",
+      "notes": "Utöver Ingen kan du kräva en engångskod via SMS eller e-post, en PIN-kod du delar med parten på annat sätt, eller en e-legitimation. Det här är ett lager ovanpå signaturtypen, inte ett alternativ till den. Vill du i stället kräva verifiering för att över huvud taget öppna dokumentet sätter du det på dokumentet, inte på parten.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 16,
+      "name": "stang-verifiering",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 17,
+      "name": "avbryt",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    },
+    {
+      "index": 18,
+      "name": "vanta-slut",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl?sidebar=participants"
+    }
+  ]
+}

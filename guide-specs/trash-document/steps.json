@@ -1,0 +1,261 @@
+{
+    "slug": "trash-document",
+    "title": "Flytta ett dokument till papperskorgen och återställa det",
+    "intro": "Papperskorgen är en mellanstation. Dokumentet försvinner ur listan men finns kvar tills arbetsytans lagringstid gått ut.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får ta bort dokument."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/trash-document",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "till-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-skapamenyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler alternativ']",
+            "screenshot": false
+        },
+        {
+            "name": "tomt-dokument",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skicka dokument')"
+        },
+        {
+            "name": "oppna-redigera",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namndialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input#name",
+            "value": "Batch D: hyresavtal höst",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn-sparat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')",
+            "state": "hidden"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Hitta dokumentet i listan Dokument"
+        },
+        {
+            "name": "markera-raden",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: hyresavtal höst') button[role='checkbox']",
+            "caption": "Bocka för dokumentet"
+        },
+        {
+            "name": "oppna-atgarder",
+            "action": "click",
+            "selector": "button:has-text('Åtgärder')",
+            "caption": "Flytta till papperskorg ligger längst ner"
+        },
+        {
+            "name": "valj-papperskorg",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Flytta till papperskorgen?')"
+        },
+        {
+            "name": "bekraftelsen",
+            "action": "screenshot",
+            "caption": "Dialogen påminner om den automatiska raderingen"
+        },
+        {
+            "name": "bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borta",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: hyresavtal höst')",
+            "state": "hidden"
+        },
+        {
+            "name": "listan-utan",
+            "action": "screenshot",
+            "caption": "Raden försvinner ur listan Dokument"
+        },
+        {
+            "name": "papperskorgen",
+            "action": "goto",
+            "url": "/{workspace}/documents/trash",
+            "caption": "Papperskorg ligger under Dokument i sidomenyn"
+        },
+        {
+            "name": "radmenyn",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: hyresavtal höst') button[aria-label='Åtgärder']",
+            "caption": "Radmenyn har Återställ och Radera permanent"
+        },
+        {
+            "name": "valj-aterstall",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Återställ')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-aterstalldialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Återställ dokument')"
+        },
+        {
+            "name": "aterstalldialogen",
+            "action": "screenshot",
+            "caption": "Bekräfta i dialogen Återställ dokument"
+        },
+        {
+            "name": "bekrafta-aterstall",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Återställ')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-aterstalld",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: hyresavtal höst')",
+            "state": "hidden"
+        },
+        {
+            "name": "papperskorgen-utan",
+            "action": "screenshot",
+            "caption": "Raden försvinner ur papperskorgen"
+        },
+        {
+            "name": "tillbaka-i-listan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Dokumentet är tillbaka i listan"
+        },
+        {
+            "name": "stadning-markera",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: hyresavtal höst') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-atgarder",
+            "action": "click",
+            "selector": "button:has-text('Åtgärder')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-vanta",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Flytta till papperskorgen?')"
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-borta",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: hyresavtal höst')",
+            "state": "hidden"
+        },
+        {
+            "name": "stadning-till-trash",
+            "action": "goto",
+            "url": "/{workspace}/documents/trash",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-radmeny",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: hyresavtal höst') button[aria-label='Åtgärder']",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-radera",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Radera permanent')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Radera permanent')"
+        },
+        {
+            "name": "stadning-bekrafta-radering",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Radera permanent')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-klar",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: hyresavtal höst')",
+            "state": "hidden"
+        }
+    ]
+}

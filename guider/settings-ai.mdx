@@ -1,80 +1,53 @@
 ---
-title: "Konfigurera AI-inställningar för din arbetsyta"
-description: "Styr om AI-funktioner är aktiverade, när PDF:er ska analyseras och vilken kontext AI:n får om er verksamhet"
+title: "AI-inställningar för din arbetsyta"
+description: "Styr om AI-funktioner är aktiverade, när PDF:er ska analyseras, om parter får chatta med dokumentet och vilka riktlinjer AI:n följer"
 ---
 
-På sidan **AI-inställningar** styr du hur sajns AI-funktioner beter sig i en specifik arbetsyta – om de ska vara aktiverade överhuvudtaget, när Bob ska analysera uppladdade PDF:er och vilken kontext han ska ha om er verksamhet. Den här guiden visar var sidan ligger och vad varje sektion gör. Den ändrar inga inställningar – du bestämmer själv om något ska justeras.
+På sidan [AI & Sökning](https://app.sajn.se/~/settings/workspace/ai) styr du hur sajns AI beter sig i en specifik arbetsyta – om den är påslagen, när Bob ska analysera uppladdade PDF:er, om parter får chatta med dokumentet och vilka förslag Bob får lämna. Sidan har tre flikar: *AI*, *Playbook* och *Sökning & indexering*. Den här guiden visar de två första och ändrar ingenting.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera arbetsyteinställningar.
-- AI-funktioner är en del av betalplanerna (Solo, Team eller Enterprise). På Basic är sektionerna gråade och inaktiverade.
-- Inställningarna är **arbetsytespecifika** – byter du arbetsyta får du en egen uppsättning AI-inställningar.
+- Du är inloggad och har behörighet att hantera arbetsytans inställningar.
+- Sidan går att öppna på alla plan. **Bob och AI-textredigering ingår även i Basic.** AI-analys av uppladdade PDF:er, AI-chatt för signerare, förslag och styrning samt Playbook kräver **Solo eller högre** – på Basic är de sektionerna gråade, med en länk till uppgradering.
+- Inställningarna är **arbetsytespecifika** – byter du arbetsyta får du en egen uppsättning.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → AI-inställningar i sidomenyn">
-    Sidan ligger under *Arbetsyteinställningar* – inställningarna gäller alltså bara den arbetsyta du är i just nu, inte hela organisationen. Rubriken längst upp beskriver vad sidan styr: AI-funktioner och anpassningar för just denna arbetsyta.
+  <Step title="Öppna Inställningar → AI & Sökning">
+    Rutan högst upp sammanfattar datahanteringen: sajn tränar aldrig modeller på ert innehåll, och chattar sparas hos sajn och kan raderas permanent när som helst. Länken **Läs mer** går till [AI i sajn](/guider/ai), som beskriver exakt vad som skickas och sparas.
+
+    **Generellt** innehåller huvudvalet *Aktivera AI-funktioner*. Står det **Nej** stängs allt AI-relaterat av i arbetsytan – chattassistenten, dokumentanalysen och AI-genereringen – och resten av sidan får ingen effekt. Det är rätt ställe att börja om ni av integritets- eller policyskäl inte vill ha AI i en viss arbetsyta.
+
+    **AI-analys av uppladdade PDF:er** bestämmer när Bob ska tolka en uppladdad PDF. *Alltid* kör analysen direkt och föreslår parter, signeringsinställningar och titel; *Manuellt* kör ingen analys automatiskt utan låter användaren starta den från dokumentet. PDF:er som kommer in via API:t analyseras aldrig automatiskt – inställningen gäller bara uppladdningar från dashboarden.
+
+    **AI-chatt för signerare** visar en assistent på signeringssidan som svarar på frågor om dokumentet – innehåll, parter, status och händelser – och bara utifrån dokumentet. Den kräver att dokumentets innehåll har indexerats, och kan stängas av per dokument i dokumentinställningarna.
 
     <Frame>
-      <img src="/images/guider/settings-ai/02-open-ai-settings.png" alt="Sidan AI-inställningar öppen under Arbetsyteinställningar" />
+      <img src="/images/guider/settings-ai/02-oppna.png" alt="Fliken AI med sektionerna Generellt, AI-analys och AI-chatt" />
     </Frame>
   </Step>
-  <Step title="Översikt av de tre sektionerna: Generellt, AI-analys av uppladdade PDF:er och Anpassade instruktioner">
-    Sidan är uppdelad i tre fält, ovanifrån och ned:
+  <Step title="Förslag och styrning – vad Bob får föreslå">
+    Varje rad är en typ av förslag Bob får lämna, med sina egna underval.
 
-    1. **Generellt** – huvudströmbrytaren för all AI i arbetsytan.
-    2. **AI-analys av uppladdade PDF:er** – styr när Bob ska försöka tolka inkommande PDF:er.
-    3. **Anpassade instruktioner** – fritext som ger AI:n kontext om er verksamhet.
+    - **Taggförslag** – föreslår taggar för färdigsignerade dokument utifrån innehållet. Undervalet *Endast befintliga taggar* begränsar förslagen till arbetsytans befintliga taggar i stället för att hitta på nya.
+    - **Påminnelseförslag** – föreslår framåtblickande påminnelser ur färdigsignerade avtal, till exempel inför en prishöjning eller ett uppsägningsfönster.
 
-    Längst ned finns knappen **Spara ändringar**, som bara aktiveras när du ändrat något.
+    Slår du av ett förslag försvinner även dess underval. Knappen **Spara ändringar** längst ner tänds först när du ändrat något.
 
     <Frame>
-      <img src="/images/guider/settings-ai/04-overview.png" alt="Översikt av AI-inställningssidan med de tre sektionerna" />
+      <img src="/images/guider/settings-ai/03-forslag.png" alt="Sektionen Förslag och styrning med taggförslag och påminnelseförslag" />
     </Frame>
   </Step>
-  <Step title="Generellt – huvudströmbrytaren Aktivera AI-funktioner">
-    Här slår du av eller på samtliga AI-funktioner i arbetsytan med ett val mellan **Ja** och **Nej**.
+  <Step title="Fliken Playbook – era riktlinjer för AI:n">
+    [Playbooken](https://app.sajn.se/~/settings/workspace/ai/playbook) är det ni alltid kräver, accepterar eller vill få flaggat. Den följs vid granskning och analys av avtal och i chatten med Bob, och ersätter de anpassade instruktioner som tidigare låg på AI-fliken.
 
-    När den står på **Nej** stängs allt AI-relaterat av: chattassistenten, dokumentanalysen och AI-genereringen. De två sektionerna nedanför gråas ut eftersom inställningarna då saknar effekt.
+    **Startpaket** är färdiga riktlinjer per avtalstyp – sekretessavtal, konsultavtal, leverantörsavtal, anställningsavtal och SaaS-avtal. Välj vilka dokument paketet ska gälla och klicka **Lägg till**, så kan du sedan ändra det som inte stämmer för er.
 
-    Det här är rätt ställe att börja om ni av integritets- eller policyskäl inte vill att AI ska användas i en viss arbetsyta. Vill du veta exakt vad som skickas, sparas och inte sparas när AI:n körs – se [AI i sajn](/guider/ai).
-
-    <Frame>
-      <img src="/images/guider/settings-ai/05-general-section.png" alt="Sektionen Generellt med valet Aktivera AI-funktioner" />
-    </Frame>
-  </Step>
-  <Step title="AI-analys av uppladdade PDF:er – välj mellan Alltid och Manuellt">
-    Här bestämmer du när Bob ska analysera en PDF som laddas upp via dashboarden.
-
-    - **Alltid** – Bob kör automatiskt så snart en PDF laddas upp och föreslår parter, signeringsinställningar och titel direkt på dokumentet.
-    - **Manuellt** – ingen analys körs automatiskt. Användaren måste själv starta analysen från dokumentvyn när hen vill ha förslag.
-
-    Observera notisen längst ner: **PDF:er som kommer in via API:t analyseras aldrig automatiskt** – inställningen gäller bara uppladdningar från dashboarden. Användare kan ändå starta analysen manuellt på ett enskilt dokument.
+    Under **Lägg till riktlinjer** skriver du egna riktlinjer, en per rad. Du kan också klistra in ett helt dokument, så delar Bob upp det i riktlinjer som du godkänner innan de sparas. Förslagen under fältet är exempel du kan klicka in direkt.
 
     <Frame>
-      <img src="/images/guider/settings-ai/06-analysis-section.png" alt="Sektionen AI-analys av uppladdade PDF:er med valen Alltid och Manuellt" />
-    </Frame>
-  </Step>
-  <Step title="Anpassade instruktioner – ge AI:n kontext om er verksamhet">
-    I textfältet kan du ge AI:n bakgrundsinformation som följer med varje AI-anrop i arbetsytan – t.ex. bransch, tonläge, terminologi eller standarder ni vill att den ska följa.
-
-    Instruktionerna används både av chattassistenten och vid dokumentgenerering. Max **2000 tecken**. Lämna fältet tomt om du inte vill skicka med någon extra kontext.
-
-    Exempel som platshållartexten föreslår: *"Vi är en advokatbyrå som specialiserar oss på fastighetsrätt. Använd formellt språk och juridiska termer..."*
-
-    <Frame>
-      <img src="/images/guider/settings-ai/07-custom-instructions-section.png" alt="Sektionen Anpassade instruktioner med textfält för bakgrundsinformation" />
-    </Frame>
-  </Step>
-  <Step title="Längst ned: knappen Spara ändringar">
-    Inga ändringar träder i kraft förrän du klickar **Spara ändringar**.
-
-    När du sparar bekräftas det med ett meddelande, och de nya inställningarna börjar gälla direkt för alla användare i arbetsytan.
-
-    <Frame>
-      <img src="/images/guider/settings-ai/08-save-button.png" alt="Knappen Spara ändringar längst ner på AI-inställningssidan" />
+      <img src="/images/guider/settings-ai/06-playbook-flik.png" alt="Fliken Playbook med startpaket och fältet för egna riktlinjer" />
     </Frame>
   </Step>
 </Steps>

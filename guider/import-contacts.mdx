@@ -1,56 +1,75 @@
 ---
 title: "Importera flera kontakter samtidigt"
-description: "Lägg till många kontakter i bulk från integrationer, andra arbetsytor, CSV eller företagssökning"
+description: "Lägg till många kontakter på en gång från CSV, en annan arbetsyta, dokumentparter, Bolagsverket eller en integration"
 ---
 
-När du behöver lägga till många kontakter samtidigt – till exempel när du startar en ny arbetsyta eller flyttar in ett befintligt register – kan du importera dem i bulk i stället för att skapa dem en och en. Importmenyn på sidan **Kontakter** samlar alla bulk-källor: installerade integrationer, andra arbetsytor inom samma organisation, CSV-filer och företagssökning. Den här guiden visar var menyn finns, vilka val du har och hur importflödet ser ut.
+Ska du fylla en ny arbetsyta eller flytta in ett befintligt register lägger du till kontakterna i klump i stället för en och en. Alla källor sitter i samma meny: pilen bredvid **Skapa kontakt** på sidan [Kontakter](https://app.sajn.se/~/contacts).
 
 ## Innan du börjar
 
-- Du är inloggad i sajn och står i arbetsytan som ska ta emot kontakterna.
+- Du är inloggad och står i arbetsytan som ska ta emot kontakterna.
 - Du har behörighet att skapa kontakter i arbetsytan.
-- För att importera från en annan arbetsyta måste du vara medlem i minst en annan arbetsyta inom organisationen.
-- För att importera från en integration måste integrationen vara installerad i arbetsytan (t.ex. ett CRM).
+- För att importera från en annan arbetsyta måste du vara medlem i minst en till arbetsyta i **samma organisation**.
+- För att importera från en integration måste integrationen vara installerad i arbetsytan.
 
-## Steg
+## Steg för steg
 
 <Steps>
-  <Step title="Öppna Kontakter i sidomenyn">
-    Kontaktlistan är startpunkten för all kontakthantering – både enskild kontaktskapande och bulkimport. Importknappen göms inne i en meny bredvid **Skapa kontakt**-knappen högst upp till höger, så att vyn ser ren ut när du inte behöver den.
+  <Step title="Öppna menyn bakom pilen vid Skapa kontakt">
+    Menyn samlar alla sätt att lägga till många kontakter. Överst listas varje installerad integration som har kontakter, till exempel ett CRM. Under dem ligger de fyra källor som alltid finns:
+
+    - **Skapa från dokumentparter**
+    - **Importera från annan arbetsyta**
+    - **Importera från CSV**
+    - **Importera från Bolagsverket**
 
     <Frame>
-      <img src="/images/guider/import-contacts/02-open-contacts.png" alt="Kontaktlistan med knappen Skapa kontakt högst upp till höger" />
+      <img src="/images/guider/import-contacts/03-menyn.png" alt="Menyn med de fyra importkällorna öppen" />
     </Frame>
   </Step>
-  <Step title="Öppna importmenyn bredvid Skapa kontakt">
-    Klicka på pilen bredvid **Skapa kontakt** för att öppna importmenyn. Menyn samlar alla bulk-källor på ett ställe:
+  <Step title="Importera från CSV">
+    Ladda upp en CSV-fil eller dra den till rutan. Första raden ska vara kolumnrubriker, och filen får innehålla högst 2 000 rader.
 
-    - **Importera från [integration]** – en rad per installerad integration som har kontakter (t.ex. ett CRM eller e-postverktyg). Saknar du integrationen i listan kan en administratör installera den under *Inställningar → Integrationer*.
-    - **Importera från annan arbetsyta** – kopierar valda kontakter från en annan sajn-arbetsyta du är medlem i. Praktiskt när du startar en ny arbetsyta eller delar register mellan team.
-    - **Importera från CSV** – visas som inaktiverad. Den här källan är på väg och blir klickbar så snart funktionen lanseras.
-    - **Sök företag** – inte en import i strikt mening, men en snabbväg att lägga till en kontakt utifrån en företagssökning mot Bolagsverket.
+    Importen går i två steg: först matchar du filens kolumner mot sajns kontaktfält – vanliga rubriker känns igen automatiskt – och sedan förhandsgranskar du raderna innan importen körs.
 
     <Frame>
-      <img src="/images/guider/import-contacts/06-import-menu-open.png" alt="Importmenyn öppen med alla bulk-källor" />
+      <img src="/images/guider/import-contacts/06-csv-dialog.png" alt="Rutan Importera kontakter från CSV med filväljaren" />
     </Frame>
   </Step>
-  <Step title="Importera från en annan arbetsyta">
-    Sidopanelen **Importera från annan arbetsyta** öppnas. Sidopanelen guidar dig i två steg:
+  <Step title="Importera från annan arbetsyta">
+    Panelen guidar dig i två steg:
 
-    1. **Välj källarbetsyta** – menyn längst upp listar alla arbetsytor du är medlem i (förutom den aktuella). Arbetsytorna är grupperade per organisation så att du snabbt hittar rätt om du är medlem i flera.
-    2. **Välj kontakter** – när du har valt en arbetsyta laddas dess kontakter automatiskt. Du kan söka i listan, kryssa enskilda rader eller välja alla på en gång.
+    1. **Välj en arbetsyta** – listan visar de arbetsytor du är medlem i, utom den du står i. Bara arbetsytor i samma organisation går att importera från.
+    2. **Välj kontakter** – när arbetsytan är vald laddas dess kontakter. Du kan söka, kryssa enskilda rader eller välja alla.
 
-    Knappen **Importera** längst ned visar löpande hur många kontakter du har valt och aktiveras först när allt är klart. Dubbletter (samma e-post) hoppas över automatiskt, så det är säkert att välja stora urval. Saknar du andra arbetsytor visar menyn meddelandet *Inga andra arbetsytor tillgängliga* – be då en organisationsadministratör att lägga till dig i fler arbetsytor, eller använd någon av de andra källorna i importmenyn.
+    Knappen **Importera** längst ner räknar hur många du valt. Kontakter vars e-postadress redan finns i mottagande arbetsyta hoppas över automatiskt, så det är ofarligt att välja stora urval.
+
+    Saknar du andra arbetsytor är listan tom – be då en organisationsadministratör lägga till dig i fler arbetsytor, eller använd en annan källa.
 
     <Frame>
-      <img src="/images/guider/import-contacts/09-import-drawer-open.png" alt="Sidopanelen Importera från annan arbetsyta öppen" />
+      <img src="/images/guider/import-contacts/12-arbetsyta-panel.png" alt="Panelen Importera från annan arbetsyta" />
     </Frame>
   </Step>
-  <Step title="Tillbaka i kontaktlistan">
-    Stäng panelen och du är tillbaka i kontaktlistan. När importen är klar (eller om du avbryter) stängs panelen och du landar tillbaka i kontaktlistan. Importerade kontakter får märkningen **Importerad** i tabellen, så att du lätt kan filtrera fram dem senare via tagg-filtret. Behöver du importera från fler källor öppnar du bara importmenyn igen – varje import kör i sin egen omgång och du kan blanda källor (integration, annan arbetsyta, CSV när den lanseras).
+  <Step title="Skapa från dokumentparter">
+    Den här källan plockar upp personer som redan varit parter på era dokument men aldrig sparats som kontakter. Varje rad visar hur många dokument personen förekommer i och när det senast hände.
+
+    Praktiskt när adressboken har släpat efter dokumenten – du fångar in alla på en gång i stället för att skriva in dem igen.
 
     <Frame>
-      <img src="/images/guider/import-contacts/12-back-in-contacts.png" alt="Kontaktlistan med importerade kontakter märkta Importerad" />
+      <img src="/images/guider/import-contacts/19-parter-panel.png" alt="Panelen Skapa kontakter från parter med fyra personer att välja" />
+    </Frame>
+  </Step>
+  <Step title="Importera från Bolagsverket">
+    Sök upp ett företag på namn eller organisationsnummer och lägg till företaget och dess företrädare som kontakter. Det är ingen massimport i egentlig mening, men den snabbaste vägen till rätt person på rätt bolag – med korrekt organisationsnummer från början.
+
+    <Frame>
+      <img src="/images/guider/import-contacts/25-bolagsverket-panel.png" alt="Panelen Importera från Bolagsverket med företagssökning" />
     </Frame>
   </Step>
 </Steps>
+
+## Efter importen
+
+De nya kontakterna dyker upp i listan direkt. Kontakter som kommit in från CSV, en integration, en företagssökning eller sajns AI får märket **Importerad** bredvid namnet. Kontakter som kopierats från en annan arbetsyta räknas som manuellt skapade och får inget märke.
+
+Du kan blanda källor hur du vill – varje import körs för sig, och du öppnar bara menyn igen för nästa omgång.

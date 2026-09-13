@@ -1,88 +1,60 @@
 ---
-title: "Anpassa branding för dokument och kommunikation"
-description: "Ladda upp logotyper, ikoner och webbplatsadress som följer med i e-postutskick och signeringssidor"
+title: "Er profilering i mejl och signeringssida"
+description: "Ladda upp logotyper och ikoner, anpassa texten i utskicken och sätt logotyp i sidhuvudet på genererade PDF:er"
 ---
 
-På sidan **Profilering** sätter du organisationens visuella identitet i sajn – logotyper och ikoner som följer med i e-postutskick och på signeringssidor, samt webbplatsadressen som logotypen länkar till. Den här guiden visar var sidan ligger och vad varje fält gör. Den ändrar inga inställningar – du laddar inte upp några bilder och sparar inte några ändringar.
+På sidan **Profilering** sätter du arbetsytans visuella identitet i sajn: logotyper och ikoner som följer med i e-postutskick och på signeringssidan, texten i de meddelanden som går ut, och en logotyp i sidhuvudet på genererade PDF:er. Den här guiden visar sidans tre flikar och vad varje fält gör, utan att ladda upp något eller spara.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera organisationsinställningar.
-- Branding kräver ett betalt abonnemang (Solo, Team eller Enterprise). På Basic visas i stället en uppmaning att uppgradera.
-- Inställningarna gäller på **organisationsnivå** – alltså samma logotyp och färger för alla arbetsytor i organisationen.
+- Du är inloggad och har behörighet att hantera arbetsytans inställningar.
+- Profilering kräver **Solo eller högre**. På Basic visas i stället en uppmaning att uppgradera.
+- Inställningarna är **arbetsytespecifika** – varje arbetsyta har sin egen profilering.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Profilering i sidomenyn">
-    Rubriken längst upp läser *Profilering* och beskrivs som *Logotyp, ikoner och e-postmallar för er branding*.
-
-    Under rubriken finns tre flikar:
-
-    1. **Inställningar** – den här sidan, där du laddar upp logotyper och anger webbplats.
-    2. **E-postmallar** – för att anpassa innehållet i utskick (se separat guide).
-    3. **Dokument** – för standardinställningar som ärvs till nya dokument.
+  <Step title="Kontrollera vilken arbetsyta du ändrar">
+    Namnet i brödsmulan högst upp visar vilken arbetsyta profileringen gäller. Har ni flera arbetsytor byter du arbetsyta där, och fälten nedanför laddas om med den arbetsytans bilder och texter.
 
     <Frame>
-      <img src="/images/guider/settings-branding/02-open-branding.png" alt="Sidan Profilering öppen under Organisationsinställningar" />
+      <img src="/images/guider/settings-branding/arbetsytevaljaren.png" alt="Arbetsyteväljaren i brödsmulan ovanför rubriken Profilering" />
     </Frame>
   </Step>
-  <Step title="Aktivera branding – huvudströmbrytaren för organisationens profilering">
-    Här slår du av eller på er branding med ett val mellan **Ja** och **Nej**.
+  <Step title="Fliken Allmänt – logotyper, ikoner och webbplats">
+    **Aktivera branding** är huvudvalet. Står det **Ja** används era bilder och er länk i e-postmeddelanden och på signeringssidan. Står det **Nej** visas sajns standardutseende i stället – bilderna ligger kvar sparade, men används inte.
 
-    När den står på **Ja** används era logotyper och er webbplats-länk i e-postmeddelanden och på signeringssidan. När den står på **Nej** visas sajns standardutseende i stället – bilderna ligger kvar sparade, men används inte i utskick.
+    - **Ikon (mörk)** och **Ikon (ljus)** – den fyrkantiga varianten, till exempel en symbol eller initialer, som visas som avatar i e-post och på små ytor. Minst 128×128 px och max 512 KB.
+    - **Logotyp (mörk)** och **Logotyp (ljus)** – den fullständiga logotypen, ofta symbol plus ordbild, som visas på större ytor. Rekommenderat minst 300 px bred, max 512 KB.
+
+    Den mörka varianten används på ljusa bakgrunder som e-postmallen, den ljusa på mörka bakgrunder som signeringssidan – ladda upp en vit eller ljus version i det ljusa fältet, annars syns den inte. Lägger ni upp båda varianterna får ni rätt utseende oavsett bakgrund.
+
+    **Webbplats** är adressen logotypen ska leda till när mottagaren klickar på den, till exempel `https://example.com`. Lämna fältet tomt om logotypen inte ska vara klickbar.
+
+    Ingenting träder i kraft förrän du klickar **Spara ändringar**.
 
     <Frame>
-      <img src="/images/guider/settings-branding/04-enable-section.png" alt="Sektionen Aktivera branding med valen Ja och Nej" />
+      <img src="/images/guider/settings-branding/02-allmant.png" alt="Fliken Allmänt med aktivering, ikoner, logotyper och webbplats" />
     </Frame>
   </Step>
-  <Step title="Ikoner – fyrkantig variant för avatarer och små ytor">
-    Här laddar du upp den fyrkantiga ikonen (t.ex. en symbol eller initialer) i två varianter:
+  <Step title="Fliken E-post & SMS – texten i utskicken">
+    Allmänt-fliken styr utseendet. Den här fliken styr innehållet.
 
-    - **Ikon (mörk)** – för ljusa bakgrunder, exempelvis i e-postmeddelanden.
-    - **Ikon (ljus)** – för mörka bakgrunder, t.ex. signeringssidans header. Använd en vit eller ljus variant.
+    Listan till vänster är varje meddelande som kan gå ut, grupperat i *Dokument*, *System* och *SMS* – inbjudan till signering, påminnelser, dokument klart, organisationsinbjudan, ID-verifiering och så vidare. Klicka på ett meddelande för att se det till höger. Växlaren uppe till höger i förhandsvisningen visar hur det ser ut på dator respektive mobil.
 
-    Rekommendation: minst 128×128 px och max 512 KB. Du laddar bara upp en bild när du själv klickar – det här fältet sparar ingenting förrän du trycker **Spara ändringar** längst ned.
+    Språkväljaren gör att du kan ha en egen text per språk. **Redigera** öppnar texten för ändring, och varje ändring AI-granskas innan den sparas. SMS-utskicken går att förhandsgranska men inte anpassa. Hela flödet för att skriva om en mall finns i [Anpassa e-postmallar per språk](/guider/settings-email-templates).
 
     <Frame>
-      <img src="/images/guider/settings-branding/05-icons-section.png" alt="Sektionen Ikoner med uppladdningsfält för mörk och ljus variant" />
+      <img src="/images/guider/settings-branding/05-epost-flik.png" alt="Fliken E-post och SMS med mallista och förhandsvisning" />
     </Frame>
   </Step>
-  <Step title="Logotyper – den fullständiga logotypen, även i mörk och ljus variant">
-    Här laddar du upp er fullständiga logotyp (med eventuell ordbild) i två varianter:
+  <Step title="Fliken Dokument – logotyp i sidhuvudet på PDF:er">
+    **Aktivera dokumentsidhuvud** lägger er logotyp i sidhuvudet på alla PDF-dokument som genereras, och **Logotypposition** väljer om den ska stå till vänster eller höger.
 
-    - **Logotyp (mörk)** – för ljusa bakgrunder som e-postmallen. Rekommenderat minst 300 px bred.
-    - **Logotyp (ljus)** – för mörka bakgrunder som signeringssidan. Använd en vit eller ljus variant.
-
-    Max 512 KB per fil. Genom att ha både en mörk och en ljus version får ni rätt utseende oavsett om sajn renderar i ljust eller mörkt läge.
+    Förhandsvisningen till höger uppdateras direkt, så du ser resultatet innan du sparar.
 
     <Frame>
-      <img src="/images/guider/settings-branding/06-logos-section.png" alt="Sektionen Logotyper med uppladdningsfält för mörk och ljus variant" />
-    </Frame>
-  </Step>
-  <Step title="Webbplats – var logotypen ska länka när mottagaren klickar">
-    Skriv in er publika webbplatsadress (t.ex. `https://example.com`). När branding är aktiverad blir logotypen i e-post och på signeringssidan klickbar och leder till den här adressen.
-
-    Lämna fältet tomt om du inte vill att logotypen ska vara klickbar.
-
-    <Frame>
-      <img src="/images/guider/settings-branding/07-website-section.png" alt="Sektionen Webbplats med fält för publik webbplatsadress" />
-    </Frame>
-  </Step>
-  <Step title="Längst ned: knappen Spara ändringar">
-    Inga ändringar träder i kraft förrän du klickar **Spara ändringar**.
-
-    När du sparar uppdateras inställningarna direkt för alla arbetsytor i organisationen.
-
-    <Frame>
-      <img src="/images/guider/settings-branding/08-save-button.png" alt="Knappen Spara ändringar längst ner på Profileringssidan" />
-    </Frame>
-  </Step>
-  <Step title="Bredvid: fliken E-postmallar för att redigera innehållet i utskick">
-    Det här fältet styr bara utseendet – ikoner, logotyp och färger. För att ändra **texten** i de mejl som skickas till mottagare (inbjudan, påminnelse, färdigsignerat osv.) går du till fliken **E-postmallar** ovanför. Se separat guide för hur du anpassar de mallarna.
-
-    <Frame>
-      <img src="/images/guider/settings-branding/09-email-templates-tab.png" alt="Fliken E-postmallar bredvid Inställningar på Profileringssidan" />
+      <img src="/images/guider/settings-branding/08-dokument-flik.png" alt="Fliken Dokument med dokumentsidhuvud och förhandsvisning" />
     </Frame>
   </Step>
 </Steps>

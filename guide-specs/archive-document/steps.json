@@ -1,0 +1,215 @@
+{
+    "slug": "archive-document",
+    "title": "Arkivera ett dokument",
+    "intro": "Arkivering flyttar ett dokument ur den aktiva listan utan att ta bort det. Allt går att öppna, ladda ner och plocka tillbaka.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får hantera dokument."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/archive-document",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "till-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-skapamenyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler alternativ']",
+            "screenshot": false
+        },
+        {
+            "name": "tomt-dokument",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skicka dokument')"
+        },
+        {
+            "name": "oppna-redigera",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namndialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input#name",
+            "value": "Batch D: dokument att arkivera",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn-sparat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')",
+            "state": "hidden"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Leta upp dokumentet i listan Dokument"
+        },
+        {
+            "name": "markera-raden",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: dokument att arkivera') button[role='checkbox']",
+            "caption": "Bocka för dokumentet"
+        },
+        {
+            "name": "oppna-atgarder",
+            "action": "click",
+            "selector": "button:has-text('Åtgärder')",
+            "caption": "Arkivera ligger i menyn Åtgärder"
+        },
+        {
+            "name": "valj-arkivera",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Arkivera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Är du säker?')"
+        },
+        {
+            "name": "bekraftelsen",
+            "action": "screenshot",
+            "caption": "Dialogen länkar till arkivet"
+        },
+        {
+            "name": "bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Arkivera')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borta",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: dokument att arkivera')",
+            "state": "hidden"
+        },
+        {
+            "name": "listan-utan",
+            "action": "screenshot",
+            "caption": "Raden försvinner ur den aktiva listan"
+        },
+        {
+            "name": "arkivet",
+            "action": "goto",
+            "url": "/{workspace}/archive",
+            "caption": "Dokumentet ligger nu under Arkiv"
+        },
+        {
+            "name": "markera-i-arkivet",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: dokument att arkivera') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-arkivatgarder",
+            "action": "click",
+            "selector": "button:has-text('Åtgärder')",
+            "caption": "Återställ från arkiv tar tillbaka dokumentet"
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-trashdialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')"
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stadat",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: dokument att arkivera')",
+            "state": "hidden"
+        },
+        {
+            "name": "till-papperskorgen",
+            "action": "goto",
+            "url": "/{workspace}/documents/trash",
+            "screenshot": false
+        },
+        {
+            "name": "radmenyn",
+            "action": "click",
+            "selector": "tr:has-text('Batch D: dokument att arkivera') button[aria-label='Åtgärder']",
+            "screenshot": false
+        },
+        {
+            "name": "radera-permanent",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Radera permanent')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-raderadialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Radera permanent')"
+        },
+        {
+            "name": "bekrafta-radering",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Radera permanent')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-efter",
+            "action": "waitForSelector",
+            "selector": "tr:has-text('Batch D: dokument att arkivera')",
+            "state": "hidden"
+        }
+    ]
+}

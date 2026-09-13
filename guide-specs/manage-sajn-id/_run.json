@@ -1,0 +1,113 @@
+{
+  "ranAt": "2026-09-13T11:34:27.192Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "listan",
+      "action": "goto",
+      "screenshotFile": "02-listan.png",
+      "caption": "Statuskolumnen ger lägesbilden",
+      "notes": "Väntande betyder att kontrollen är skapad men inte skickad, Skickat att länken gått iväg, Öppnat att mottagaren klickat på den, Verifierat att BankID-flödet är klart, Misslyckades att verifieringen avbröts eller inte matchade, Utgången att utgångsdatumet passerat och Avbrutet att någon återkallade kontrollen. Referensen står under namnet. Kryssrutorna längst till vänster låter dig skicka igen eller avbryta flera på en gång.",
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 3,
+      "name": "oppna",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id"
+    },
+    {
+      "index": 4,
+      "name": "vanta-detalj",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 5,
+      "name": "detaljer",
+      "action": "screenshot",
+      "screenshotFile": "05-detaljer.png",
+      "caption": "Fliken Detaljer visar uppgifterna och resultatet",
+      "notes": "Verifieringsmetod är antingen Namn med indirekt matchning eller Personnummer med direkt matchning. Kanal visar adressen eller numret länken gick till. Är kontrollen verifierad står BankID:s svar här, och för misslyckade eller utgångna kontroller står anledningen i stället. Överst syns status och när länken slutar gälla.",
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 6,
+      "name": "logg",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 7,
+      "name": "vanta-logg",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 8,
+      "name": "handelselogg",
+      "action": "screenshot",
+      "screenshotFile": "08-handelselogg.png",
+      "caption": "Händelseloggen är kontrollens hela historik",
+      "notes": "Varje viktig händelse listas med den senaste överst: skapad, skickad, öppnad, verifierad eller misslyckad. Klicka på en rad för att fälla ut tidpunkt, händelse-ID, IP-adress och enhet. Loggen går inte att ändra eller ta bort i efterhand, och det är den som ger kontrollen sitt bevisvärde.",
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 9,
+      "name": "atgarder",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 10,
+      "name": "vanta-meny",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 11,
+      "name": "atgardsmenyn",
+      "action": "screenshot",
+      "screenshotFile": "11-atgardsmenyn.png",
+      "caption": "Åtgärder skickar länken igen eller avbryter kontrollen",
+      "notes": "Skicka igen skickar samma länk en gång till på samma kanal. Avbryt återkallar kontrollen så att länken slutar fungera. Båda är gråmarkerade när kontrollen redan är avslutad, alltså verifierad, misslyckad, utgången eller avbruten.",
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    },
+    {
+      "index": 12,
+      "name": "stang-meny",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/sajn-id/cmtzq7rej000g02jfjobaqfd8"
+    }
+  ]
+}

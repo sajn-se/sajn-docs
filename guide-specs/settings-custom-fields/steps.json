@@ -1,0 +1,90 @@
+{
+    "slug": "settings-custom-fields",
+    "title": "Skapa egna datafält för dokument och kontakter",
+    "intro": "Rundtur av Datafält: var sidan ligger, vad kolumnerna betyder och hur du skapar ett fält.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera arbetsytans inställningar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/settings-custom-fields",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "open-data-fields",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/data-fields",
+            "caption": "Öppna Inställningar och sedan Datafält & taggar",
+            "notes": "Sidan har två flikar: Datafält och Taggar. Fliken Datafält innehåller i sin tur två avsnitt — Datafält och Dokumenttyper."
+        },
+        {
+            "name": "open-create",
+            "action": "click",
+            "selector": "button:has-text('Lägg till fält')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-drawer",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='t.ex. Fakturanummer, Avtalsdatum']"
+        },
+        {
+            "name": "fill-name",
+            "action": "fill",
+            "selector": "input[placeholder='t.ex. Fakturanummer, Avtalsdatum']",
+            "value": "Batch G: projektkod",
+            "caption": "Panelen Skapa fält",
+            "notes": "Fältnamn är det du och dina kollegor ser. Tillämpa på avgör om fältet hör till dokument eller kontakter, och Fälttyp avgör vad som får skrivas in."
+        },
+        {
+            "name": "open-field-type",
+            "action": "click",
+            "selector": "button[role='combobox']:below(label:has-text('Fälttyp'))",
+            "match": "first",
+            "caption": "Fälttyperna du kan välja mellan",
+            "notes": "JSON finns bara för dokumentfält. De andra tio gäller både dokument och kontakter."
+        },
+        {
+            "name": "pick-textarea",
+            "action": "click",
+            "selector": "[data-slot='select-item']:has-text('Flerradigt text')",
+            "screenshot": false
+        },
+        {
+            "name": "scroll-secured",
+            "action": "scrollIntoView",
+            "selector": "label:has-text('Säkrat fält')",
+            "align": "center",
+            "screenshot": false
+        },
+        {
+            "name": "enable-secured",
+            "action": "click",
+            "selector": "button[role='switch']",
+            "match": "last",
+            "caption": "Säkrat fält krypterar värdet",
+            "notes": "Säkrat fält går bara att slå på för Text och Flerradigt text, och bara när fältet skapas. Rutan som dyker upp räknar upp följderna: värdet krypteras, visas dolt, varje visning loggas och fältet går inte att söka på."
+        },
+        {
+            "name": "cancel",
+            "action": "click",
+            "selector": "button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-closed",
+            "action": "waitForSelector",
+            "selector": "[data-slot='drawer-content']",
+            "state": "hidden"
+        }
+    ]
+}

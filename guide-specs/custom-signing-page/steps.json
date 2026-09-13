@@ -1,0 +1,48 @@
+{
+    "slug": "custom-signing-page",
+    "title": "Anpassa signeringssidan med din profilering",
+    "intro": "Vad mottagaren ser i sidhuvudet på signeringssidan, och var du styr det.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera arbetsytans inställningar.",
+        "Profilering kräver Solo eller högre."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/custom-signing-page",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "open-branding",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/branding",
+            "caption": "Allt som syns på signeringssidan styrs från Profilering",
+            "notes": "Fliken Allmänt innehåller Aktivera branding, två ikoner, två logotyper och Webbplats. Det finns ingen separat sida för signeringssidans utseende."
+        },
+        {
+            "name": "open-document-tab",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('Dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-document-tab",
+            "action": "waitForSelector",
+            "selector": "text=dokumentsidhuvud"
+        },
+        {
+            "name": "document-tab",
+            "action": "screenshot",
+            "caption": "Fliken Dokument gäller dokumentets sidhuvud, inte signeringssidans",
+            "notes": "Här slår du på ett sidhuvud i själva PDF:en och väljer var logotypen ska sitta. Det påverkar inte ramen runt dokumentet på signeringssidan."
+        }
+    ]
+}

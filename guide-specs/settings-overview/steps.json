@@ -1,0 +1,52 @@
+{
+    "slug": "settings-overview",
+    "title": "Hitta rätt i inställningarna",
+    "intro": "Inställningarna är grupperade i nivåer: personliga inställningar som bara gäller dig, arbetsyteinställningar som gäller en arbetsyta och organisationsinställningar som gäller hela kontot. Guiden visar strukturen och tar några exempel, utan att gå in i en enskild inställning.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]",
+        "td code"
+    ],
+    "imageDir": "../../images/guider/settings-overview",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "goto",
+            "url": "/{workspace}/settings",
+            "caption": "Öppna Inställningar i sidomenyn",
+            "notes": "Varje kort är en länk till en inställningssida. Saknas ett kort har du antingen inte behörighet, eller så ingår funktionen inte i ert abonnemang. Längst ner finns Ge feedback och versionsnumret — numret är bra att ha med om du kontaktar supporten."
+        },
+        {
+            "name": "personliga",
+            "action": "goto",
+            "url": "/{workspace}/settings/account",
+            "caption": "Personliga inställningar följer ditt konto",
+            "notes": "Personuppgifter och Kommunikationsinställningar hör till dig som användare och ser likadana ut oavsett vilken arbetsyta du står i. Personuppgifter har tre flikar: Profil, Säkerhet och Appar."
+        },
+        {
+            "name": "arbetsyta",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/preferences",
+            "caption": "Arbetsyteinställningar gäller en arbetsyta i taget",
+            "notes": "Preferenser, Datafält & taggar, Meddelandemallar, Inbox, AI & Sökning och Profilering hör till arbetsytan. Byter du arbetsyta får du en egen uppsättning. Väljaren bredvid brödsmulan högst upp visar vilken arbetsyta du ändrar."
+        },
+        {
+            "name": "organisation",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/business-details",
+            "caption": "Organisationsinställningar gäller hela kontot",
+            "notes": "Företagsuppgifter, abonnemang, medlemmar och roller delas av alla i organisationen. På paket med en enda arbetsyta — Basic och Solo — visas arbetsytekorten under samma rubrik som organisationskorten, eftersom det ändå bara finns en arbetsyta att välja mellan. Först med flera arbetsytor delas listan upp i två rubriker."
+        }
+    ]
+}

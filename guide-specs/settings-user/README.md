@@ -1,0 +1,61 @@
+# Hantera ditt personliga konto
+
+<!--
+slug: settings-user
+audience: Alla användare
+last_verified: 2026-09-13
+auto-generated from steps.json — edit the spec, then re-run the runner
+-->
+
+Personuppgifter samlar allt som hör till ditt eget konto. Sidan har tre flikar: Profil för namn, språk, lösenord och organisationer, Säkerhet för inloggningsnycklar, tvåstegsautentisering, sessioner och IP-begränsning, och Appar för de appar du gett åtkomst till ditt konto.
+
+## Innan du börjar
+
+- Du är inloggad i sajn.
+- Sidan är personlig — inställningarna hör till ditt konto, inte till en arbetsyta eller organisation.
+
+## Steg
+
+### 1. Fliken Profil — namn, språk och lösenord
+
+![](../../images/guider/settings-user/02-profil.png)
+
+E-post är adressen du loggar in med och går inte att ändra härifrån; kontakta supporten om den ska bytas. Förnamn och Efternamn visas i appen, på dokument och i utskick till mottagare. Språk styr språket i gränssnittet och kan ärvas från organisationen. Lösenordet visas alltid maskerat — klicka Redigera uppe till höger för att komma åt att byta det.
+
+### 2. Anslutna konton och organisationer
+
+![](../../images/guider/settings-user/03-anslutna-konton.png)
+
+Under Anslutna konton kopplar du Google eller Microsoft så att du kan logga in med dem. Du måste alltid ha minst en inloggningsmetod kvar — lösenord, anslutet konto eller inloggningsnyckel. Under Organisationer ser du varje organisation du är medlem i med dess ID. Väntande inbjudningar listas i en egen tabell ovanför. I trepunktsmenyn på en rad kan du lämna organisationen; är du ägare är valet inaktiverat tills du överlåtit ägarskapet. Skapa ny organisation ligger uppe till höger i sektionen.
+
+Längst ner på fliken ligger Radera konto, som begär permanent radering av ditt konto. Du har 24 timmar på dig att ångra dig innan raderingen genomförs.
+
+### 3. Fliken Säkerhet — inloggningsnycklar och tvåstegsautentisering
+
+![](../../images/guider/settings-user/06-sakerhet-flik.png)
+
+Inloggningsnycklar är lösenordsfri inloggning med Touch ID, Face ID, Windows Hello eller en hårdvarunyckel. Lägg till inloggningsnyckel registrerar en ny; befintliga nycklar listas med namn och datum, och i trepunktsmenyn byter du namn eller tar bort en.
+
+Tvåstegsautentisering krävs alltid, och e-postkod är påslaget som standard och märkt Alltid på. Lägg till autentiseringsmetod kopplar en starkare metod, till exempel en autentiseringsapp, och då kan du ta bort e-postkoden. Kräv kod vid varje inloggning begär en kod även från enheter du litar på — utan den krävs kod bara från en ny enhet.
+
+### 4. Aktiva sessioner och betrodda enheter
+
+![](../../images/guider/settings-user/07-sessioner.png)
+
+Aktiva sessioner listar varje enhet och app som är inloggad på ditt konto, med tidpunkt och IP-adress. Den du sitter vid är märkt Den här enheten. Logga ut en rad du inte känner igen, eller använd Logga ut övriga enheter för att lämna kvar bara den du sitter vid. Betrodda enheter nedanför är de enheter som slipper engångskod vid inloggning.
+
+### 5. IP-begränsning — lås inloggningen till betrodda adresser
+
+![](../../images/guider/settings-user/08-ip-begransning.png)
+
+Du kan begränsa inloggning till ditt konto till en eller flera IP-adresser eller IP-intervall. Din nuvarande adress visas överst, och Lägg till IP-adress låter dig ange en själv eller lägga till den du sitter på. Funktionen går att slå på först när du har minst en regel. Tänk efter innan du aktiverar: en regeluppsättning utan din egen adress låser ute dig själv. IP-begränsning kräver Solo eller högre.
+
+### 6. Fliken Appar — appar du har gett åtkomst
+
+![](../../images/guider/settings-user/11-appar-flik.png)
+
+Varje rad är en app du loggat in i med ditt sajn-konto, med utvecklare, datum och antal behörigheter. I trepunktsmenyn längst till höger återkallar du åtkomsten; appen förlorar då sin koppling till kontot direkt.
+
+---
+
+*Senast verifierad: 2026-09-13. Generad av `scripts/guide-runner.ts`.*

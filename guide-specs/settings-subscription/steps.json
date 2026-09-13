@@ -1,0 +1,61 @@
+{
+    "slug": "settings-subscription",
+    "title": "Hantera din prenumeration och tillägg",
+    "intro": "Under Ditt abonnemang ser du vilken plan organisationen har, vad som ingår, när nästa faktura skickas och var fakturorna ligger.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera organisationens abonnemang."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "div.border-l .text-4xl",
+        "table:has(thead) tbody td:nth-child(1)",
+        "table:has(thead) tbody td:nth-child(2)",
+        "div:has(> h2)+div > span, h2+span"
+    ],
+    "imageDir": "../../images/guider/settings-subscription",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-abonnemang",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/subscription",
+            "caption": "Öppna Inställningar och välj Ditt abonnemang",
+            "notes": "Sidan gäller hela organisationen; alla arbetsytor delar samma abonnemang. Till höger står planen, priset och datum för nästa faktura, under det vad som ingår. Till vänster sammanfattas periodens rörliga avgifter."
+        },
+        {
+            "name": "fakturor",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/subscription/invoices",
+            "caption": "Fliken Fakturor listar alla utställda fakturor",
+            "notes": "Varje rad har fakturanummer, status, belopp och datum. Menyn med tre punkter längst till höger öppnar fakturan hos vår betalleverantör eller laddar ner PDF:en."
+        },
+        {
+            "name": "betalning",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/subscription/payment",
+            "caption": "Fliken Betalning – betalmetoder och faktureringsuppgifter",
+            "notes": "Överst ligger organisationens betalmetoder. Under visas faktureringsinformationen skrivskyddad; den ändrar du under Inställningar › Företag via länken Ändra under Företag."
+        },
+        {
+            "name": "saldo",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/subscription/balance",
+            "caption": "Fliken Saldo – fyll på och följ transaktionerna",
+            "notes": "Saldot täcker rörliga avgifter som SMS och extra signeringar. Fliken visas inte på Basic."
+        },
+        {
+            "name": "valj-abonnemang",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/subscription/choose",
+            "caption": "Välj abonnemang visar planerna sida vid sida",
+            "notes": "Basic, Solo och Team ligger som tre kort, med Enterprise som ett eget kort under. Din nuvarande plan är markerad och dess knapp är inaktiverad. På Team-kortet väljer du antal användare i listan. Längst ned finns Avsluta abonnemang om du redan har en betald plan."
+        }
+    ]
+}

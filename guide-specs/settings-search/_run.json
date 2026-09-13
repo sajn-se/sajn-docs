@@ -1,0 +1,41 @@
+{
+  "ranAt": "2026-09-13T10:57:20.190Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna",
+      "action": "goto",
+      "screenshotFile": "02-oppna.png",
+      "caption": "Öppna AI & Sökning och välj fliken Sökning & indexering",
+      "notes": "Indexera dokumentinnehåll gör det möjligt att söka inuti signerade dokument. Endast färdiga dokument indexeras — utkast och pågående dokument lämnas alltid utanför. Stänger du av indexeringen raderas inte sparad data automatiskt.\n\nTillåt AI-tolkning av sökfrågor gör att en fråga i vanligt språk, som \"alla avtal som löper ut i mars\", tolkas om till strukturerade filter. Endast själva sökfrågan skickas till AI-modellen — inget dokumentinnehåll. Brytaren går inte att slå på om AI är avstängt i arbetsytan eller om innehållsindexering är av.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/ai/search"
+    },
+    {
+      "index": 3,
+      "name": "status",
+      "action": "scrollIntoView",
+      "screenshotFile": "03-status.png",
+      "caption": "Indexeringsstatus — hur långt indexeringen kommit",
+      "notes": "Raden visar hur många av arbetsytans indexerbara dokument som är klara, plus misslyckanden och dokument som saknar textlager, till exempel inskannade PDF:er utan OCR.\n\nÅterindexera köar om alla indexerbara dokument i bakgrunden och är användbart om du nyss slagit på indexeringen eller om något saknas i sökningen. Radera sökindex tar bort all extraherad text för arbetsytan och öppnar en bekräftelseruta först; åtgärden går inte att ångra, men du kan alltid indexera om efteråt så länge indexering fortfarande är på.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/ai/search"
+    },
+    {
+      "index": 4,
+      "name": "dokument-i-indexet",
+      "action": "scrollIntoView",
+      "screenshotFile": "04-dokument-i-indexet.png",
+      "caption": "Dokument i indexet — se och undanta enskilda dokument",
+      "notes": "Flikarna delar upp dokumenten i Indexerade, Misslyckade, Utan textlager och Undantagna, och sökrutan hittar ett enskilt dokument. Ikonen med det överkryssade ögat längst till höger på en rad undantar dokumentet: det plockas ur indexet och tas inte med igen vid en återindexering. Använd den för dokument som inte ska gå att hitta via fritextsök.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/ai/search"
+    }
+  ]
+}

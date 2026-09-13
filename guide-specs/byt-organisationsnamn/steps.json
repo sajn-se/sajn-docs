@@ -1,0 +1,66 @@
+{
+    "slug": "byt-organisationsnamn",
+    "title": "Byt organisationens namn",
+    "intro": "Organisationens namn ändras inte direkt. Du skickar en begäran som sajn granskar manuellt innan det nya namnet aktiveras.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att ändra organisationens inställningar."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": [],
+    "imageDir": "../../images/guider/byt-organisationsnamn",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "oppna-foretag",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/business-details",
+            "caption": "Öppna Inställningar och välj Företag",
+            "notes": "Organisationens namn står högst upp under Grundläggande inställningar, på raden Namn."
+        },
+        {
+            "name": "oppna-redigera",
+            "action": "click",
+            "selector": "div.flex.flex-col.gap-2:has(> div > h2:text-is('Grundläggande inställningar')) span:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] :text('Organisationsnamn')"
+        },
+        {
+            "name": "redigera-dialog",
+            "action": "screenshot",
+            "caption": "Rutan Redigera grundläggande inställningar",
+            "notes": "Rutan innehåller två fält: Organisationsnamn och Standardspråk. Texten under namnfältet säger att detta är namnet som visas i applikationen."
+        },
+        {
+            "name": "skriv-nytt-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Min Organisation']",
+            "value": "Exempelbolaget AB",
+            "caption": "Skriv det nya namnet",
+            "notes": "Så fort du ändrar namnet byter hjälptexten under fältet till en påminnelse om att nya namn granskas manuellt av sajn-teamet innan de aktiveras."
+        },
+        {
+            "name": "aterstall-namnet",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Min Organisation']",
+            "value": "DEMO",
+            "screenshot": false
+        },
+        {
+            "name": "stang-dialog",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        }
+    ]
+}

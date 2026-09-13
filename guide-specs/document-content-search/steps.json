@@ -1,0 +1,76 @@
+{
+    "slug": "document-content-search",
+    "title": "Sök i innehållet av dokument",
+    "intro": "Indexera arbetsytans signerade dokument och låt Bob hitta avtal på vad som faktiskt står i dem.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera arbetsytans inställningar.",
+        "Innehållsindexering kräver Solo eller högre.",
+        "Det finns minst ett färdigsignerat dokument med ett textlager."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/document-content-search",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "open-search-settings",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/ai/search",
+            "caption": "Slå på indexering under AI & Sökning",
+            "notes": "Fliken Sökning & indexering har två strömbrytare, en statusruta och en lista över dokumenten i indexet."
+        },
+        {
+            "name": "open-documents",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "open-bob",
+            "action": "click",
+            "selector": "button[aria-label='Öppna assistent']",
+            "screenshot": false
+        },
+        {
+            "name": "wait-bob",
+            "action": "waitForSelector",
+            "selector": "div[contenteditable='true']"
+        },
+        {
+            "name": "ask",
+            "action": "type",
+            "selector": "div[contenteditable='true']",
+            "text": "Vilka avtal nämner uppsägningstid?",
+            "delay": 20,
+            "caption": "Fråga Bob vad som står i avtalen",
+            "notes": "Beskriv innehållet, inte titeln. Bob väljer själv att söka i dokumentens text.",
+            "match": "last"
+        },
+        {
+            "name": "send",
+            "action": "press",
+            "key": "Enter",
+            "screenshot": false
+        },
+        {
+            "name": "wait-answer",
+            "action": "wait",
+            "ms": 30000
+        },
+        {
+            "name": "answer",
+            "action": "screenshot",
+            "caption": "Svaret länkar till dokumenten med ett textutdrag",
+            "notes": "Varje träff är en länk till dokumentet, med dess status och ett kort utdrag ur texten."
+        }
+    ]
+}

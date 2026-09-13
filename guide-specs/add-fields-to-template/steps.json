@@ -1,0 +1,139 @@
+{
+    "slug": "add-fields-to-template",
+    "title": "Lägg till sektioner och fält i en mall",
+    "intro": "En mall är ett dokument du återanvänder. Den byggs av samma sektioner som ett vanligt dokument, men signerarna är roller i stället för personer.",
+    "audience": "Alla som skapar mallar",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får skapa mallar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/add-fields-to-template",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "mallistan",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "caption": "Öppna Mallar",
+            "notes": "Skapa ny mall skapar direkt en tom mall och öppnar den. Nedåtpilen bredvid har ett enda alternativ, Från PDF."
+        },
+        {
+            "name": "oppna-skapa-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler sätt att skapa en mall']",
+            "caption": "Nedåtpilen rymmer Från PDF"
+        },
+        {
+            "name": "stang-skapa-menyn",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "oppna-mallen",
+            "action": "click",
+            "selector": "a[href*='/templates/']:has-text('Konsultavtal')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "redigeraren",
+            "action": "screenshot",
+            "caption": "Mallen öppnas i redigeraren"
+        },
+        {
+            "name": "parter",
+            "action": "click",
+            "selector": "button[aria-label='Parter']",
+            "caption": "Parter är rollerna som ska signera"
+        },
+        {
+            "name": "oppna-partdialogen",
+            "action": "click",
+            "selector": "button:has-text('Lägg till part eller roll')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-partdialogen",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Lägg till part / roll')"
+        },
+        {
+            "name": "partdialogen",
+            "action": "screenshot",
+            "caption": "Bara namnet är obligatoriskt"
+        },
+        {
+            "name": "stang-partdialogen",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Lägg till part / roll')",
+            "state": "hidden"
+        },
+        {
+            "name": "sektionsmenyn",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "caption": "Lägg till sektion listar alla sektionstyper"
+        },
+        {
+            "name": "stang-sektionsmenyn",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "oppna-faltet",
+            "action": "click",
+            "selector": ":text('Organisationsnummer')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigera-falt",
+            "action": "waitForSelector",
+            "selector": "text=Redigera fält"
+        },
+        {
+            "name": "redigera-falt",
+            "action": "screenshot",
+            "caption": "Fylls i av avgör vem som fyller i fältet"
+        },
+        {
+            "name": "fylls-i-av",
+            "action": "click",
+            "selector": "button:has-text('Fast värde')",
+            "caption": "Välj part för att göra fältet till en signeraruppgift"
+        },
+        {
+            "name": "stang-valjaren",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "stang-faltet",
+            "action": "press",
+            "key": "Escape"
+        }
+    ]
+}

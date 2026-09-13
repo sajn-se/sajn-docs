@@ -1,0 +1,128 @@
+{
+    "slug": "create-template-from-pdf",
+    "title": "Skapa en mall från en befintlig PDF",
+    "intro": "Har du redan avtalet som PDF kan du göra om det till en mall — antingen genom att låta AI:n bygga om innehållet till redigerbar text, eller genom att behålla PDF:en som den är.",
+    "audience": "Alla som skapar mallar",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får skapa mallar.",
+        "Du har en PDF att utgå från."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/create-template-from-pdf",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "mallistan",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "caption": "Öppna Mallar"
+        },
+        {
+            "name": "oppna-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler sätt att skapa en mall']",
+            "caption": "Från PDF ligger under nedåtpilen"
+        },
+        {
+            "name": "valj-fran-pdf",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Från PDF')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sidan",
+            "action": "waitForSelector",
+            "selector": "text=Hur ska mallen skapas?"
+        },
+        {
+            "name": "ny-mall-fran-pdf",
+            "action": "screenshot",
+            "caption": "Välj hur mallen ska byggas innan du laddar upp"
+        },
+        {
+            "name": "ladda-upp",
+            "action": "uploadFile",
+            "selector": "input[aria-label='Dra och släpp PDF-filer här']",
+            "filePath": "/private/tmp/claude-501/-Users-andreasenemyr-Developer-sajn-sajn-app/da8da584-4866-421f-a09f-5007b580e0c4/scratchpad/fixtures/konsultavtal.pdf",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-filen",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa mall')"
+        },
+        {
+            "name": "filen-vald",
+            "action": "screenshot",
+            "caption": "Filen är vald och knappen Skapa mall dyker upp"
+        },
+        {
+            "name": "valj-behall",
+            "action": "click",
+            "selector": "label[for='template-source-keep']",
+            "caption": "Behåll originalet hoppar över AI-steget"
+        },
+        {
+            "name": "skapa",
+            "action": "click",
+            "selector": "button:has-text('Skapa mall')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "vanta-pdf",
+            "action": "wait",
+            "ms": 15000
+        },
+        {
+            "name": "mallen-klar",
+            "action": "screenshot",
+            "caption": "Mallen öppnas med PDF:en som en sektion"
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagsdialog",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']:has-text('Ta bort mall')"
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-efter-stadning",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa ny mall')"
+        }
+    ]
+}

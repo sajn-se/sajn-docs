@@ -1,0 +1,53 @@
+{
+    "slug": "redirect-after-signing",
+    "title": "Skicka mottagaren vidare efter signering",
+    "intro": "Var omdirigeringen ställs in: i formulärets inställningar, eller via REST-API:t på ett enskilt dokument.",
+    "audience": "Arbetsyteadministratörer och utvecklare",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera formulär i arbetsytan."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": ["[data-guide-mask]"],
+    "imageDir": "../../images/guider/redirect-after-signing",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "open-forms",
+            "action": "goto",
+            "url": "/{workspace}/templates/forms",
+            "screenshot": false
+        },
+        {
+            "name": "open-form",
+            "action": "click",
+            "selector": "tbody tr",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "wait-form",
+            "action": "waitForSelector",
+            "selector": "button[role='tab']:has-text('Inställningar')"
+        },
+        {
+            "name": "open-settings-tab",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('Inställningar')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-redirect-field",
+            "action": "waitForSelector",
+            "selector": "label:has-text('Skicka vidare efter signering')"
+        },
+        {
+            "name": "redirect-field",
+            "action": "scrollIntoView",
+            "selector": "label:has-text('Skicka vidare efter signering')",
+            "align": "center",
+            "screenshot": true,
+            "caption": "Skicka vidare efter signering i formulärets inställningar",
+            "notes": "Fältet ligger under Dokument och signering, mellan dagar att signera och kvittenstexten. Skriv en fullständig https-adress."
+        }
+    ]
+}

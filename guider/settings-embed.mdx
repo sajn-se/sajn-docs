@@ -3,59 +3,46 @@ title: "Bädda in signering på din egen webbplats"
 description: "Konfigurera vilka domäner som får ladda sajns inbäddade signeringsvy via iframe eller embed-SDK"
 ---
 
-Vill du låta dina egna användare signera direkt i ditt produktgränssnitt – utan att de skickas iväg till sajn.se? Då kan du bädda in signeringsvyn som en iframe. På sidan **Inbäddning** styr du vilka domäner som får ladda den inbäddade vyn. Den här guiden visar var sidan ligger och vad du kan konfigurera.
+Vill du låta era egna användare signera direkt i ert produktgränssnitt, utan att skickas iväg till sajn? Då kan du bädda in signeringsvyn som en iframe. På sidan **Inbäddning** listar du vilka domäner som får göra det.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att administrera organisationen.
-- Inbäddning konfigureras på **organisationsnivå** – alla arbetsytor i organisationen delar samma lista över tillåtna domäner.
-- Den faktiska inbäddningen sker via sajns embed-SDK eller en iframe mot signeringslänken – den här sidan styr bara vilka domäner som tillåts ladda vyn.
+- Du är inloggad och har behörighet att hantera arbetsytans inställningar.
+- **Inbäddad signering måste slås på för organisationen av sajn.** Det finns ingen knapp för det i gränssnittet — hör av dig till oss först. Är funktionen avstängd finns fliken *Inbäddning* inte, och de inbäddade vyerna svarar inte.
+- Själva inbäddningen sker från er webbplats, med en iframe eller sajns embed-SDK. Den här sidan styr bara vilka ursprung som får ladda vyn.
 
-## Steg för steg
+## Var sidan ligger
 
-<Steps>
-  <Step title="Öppna Inställningar → Inbäddning i sidomenyn">
-    Brödsmulorna högst upp visar att sidan ligger under *Inställningar → Organisation*. Det betyder att inställningarna gäller hela organisationen – inte bara den arbetsyta du är i just nu. Underrubriken sammanfattar syftet: *Konfigurera utseende och tillåtna domäner för inbäddad signering*.
+[Inställningar → Utvecklare → Inbäddning](https://app.sajn.se/~/settings/workspace/developer/embed). Utvecklarsidan hör till arbetsytan, men listan över tillåtna domäner sparas på **organisationen** — alla arbetsytor delar samma lista.
 
-    <Frame>
-      <img src="/images/guider/settings-embed/02-open-embed-settings.png" alt="Sidan Inbäddning öppen under Organisationsinställningar" />
-    </Frame>
-  </Step>
-  <Step title="Översikt av sidan Inbäddning">
-    Sidan består av ett enda formulär: sektionen **Tillåtna domäner**, där du listar de domäner som får bädda in signeringsvyn. Längst ned ligger knappen **Spara ändringar**.
+## Tillåtna domäner
 
-    Själva inbäddningen sker från din egen webbplats (med iframe eller sajns embed-SDK). Den här sidan är säkerhetsspärren som avgör vilka ursprung som tillåts ladda vyn.
+Sidan är ett enda formulär med sektionen **Tillåtna domäner**.
 
-    <Frame>
-      <img src="/images/guider/settings-embed/04-embed-overview.png" alt="Översikt av sidan Inbäddning med sektionen Tillåtna domäner" />
-    </Frame>
-  </Step>
-  <Step title="Tillåtna domäner – kontrollera vilka ursprung som får ladda signeringsvyn">
-    Skriv en domän i fältet **Domäner** och tryck Enter för att lägga till den. Varje domän kan tas bort med krysset till höger. Befintliga domäner laddas in automatiskt från organisationens inställningar.
+Skriv en domän i fältet *Domäner* och tryck Enter för att lägga till den som en etikett. Krysset på en etikett tar bort den. Klicka **Spara ändringar** längst ned — inget träder i kraft innan dess.
 
-    Ange domäner utan protokoll, t.ex. `app.exempel.se` eller `kundportal.exempel.se`. Domänlistan jämförs mot `Origin`-headern på inkommande embed-förfrågningar – står domänen inte med så vägras inbäddningen.
+Ange domänen utan protokoll, t.ex. `app.exempel.se` eller `kundportal.exempel.se`.
 
-    <Frame>
-      <img src="/images/guider/settings-embed/05-allowed-domains-section.png" alt="Sektionen Tillåtna domäner med tagg-input för domäner" />
-    </Frame>
-  </Step>
-  <Step title="Wildcard för subdomäner och tom lista">
-    Hjälptexten under fältet förklarar två viktiga specialfall:
+- **Wildcard.** `*.exempel.se` matchar både `exempel.se` och varje underdomän, hur många nivåer djupt som helst.
+- **Bara HTTPS.** En domän i listan släpps bara in över `https://`. En sida som körs över `http://` kan inte bädda in vyn i produktion.
 
-    - **Wildcard:** använd `*` för att matcha alla subdomäner under en domän – t.ex. `*.example.com` tillåter `kund1.example.com`, `kund2.example.com` osv.
-    - **Tom lista:** om du lämnar fältet helt tomt tillåts **alla** domäner. Det är praktiskt under utveckling men bör undvikas i produktion – det betyder att vem som helst kan bädda in dina signeringsvyer på sin egen sida.
+<Warning>
+  En **tom lista tillåter ingenting utifrån** — bara sajns egen domän. Vill du bädda in signering måste varje domän stå med. Hjälptexten i fältet säger i dag att en tom lista tillåter alla domäner; det stämmer inte med hur det faktiskt fungerar.
+</Warning>
 
-    <Frame>
-      <img src="/images/guider/settings-embed/06-wildcard-hint.png" alt="Hjälptext om wildcard och tom lista under domänfältet" />
-    </Frame>
-  </Step>
-  <Step title="Längst ned: knappen Spara ändringar">
-    Ändringar börjar inte gälla förrän du klickar **Spara ändringar**.
+## Så fungerar spärren
 
-    När du sparat bekräftas det med ett meddelande och den nya domänlistan börjar gälla direkt för alla inbäddningar i organisationen.
+Sajn sätter en `Content-Security-Policy` med `frame-ancestors` på de inbäddade vyerna `/embed/sign/...` och `/embed/view/...`. Direktivet byggs av er domänlista och jämförs mot `Origin`- eller `Referer`-huvudet på förfrågan. Matchar inget — eller saknas huvudet — faller sajn tillbaka på `frame-ancestors 'self'`, och webbläsaren vägrar visa vyn i er iframe.
 
-    <Frame>
-      <img src="/images/guider/settings-embed/07-save-button.png" alt="Knappen Spara ändringar längst ner på Inbäddningssidan" />
-    </Frame>
-  </Step>
-</Steps>
+Spärren avgör alltså **var** vyn får visas. Vem mottagaren är avgörs fortfarande av signeringen, med den metod ni valt per part i dokumentet.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Utvecklarinställningar" icon="key" href="/guider/settings-developer-api">
+    API-nycklar och webhooks på samma sida.
+  </Card>
+  <Card title="Signeringsupplevelsen" icon="signature" href="/guider/signeringsupplevelsen">
+    Vad mottagaren möter i vyn du bäddar in.
+  </Card>
+</CardGroup>

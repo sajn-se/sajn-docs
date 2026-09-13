@@ -1,0 +1,59 @@
+{
+  "ranAt": "2026-09-13T10:56:55.360Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-sakerhet",
+      "action": "goto",
+      "screenshotFile": "02-oppna-sakerhet.png",
+      "caption": "Öppna Team & säkerhet och välj fliken Säkerhet",
+      "notes": "Sidan har två sektioner: Tvåstegsautentisering och Geografiska regler. Knappen Spara ändringar längst ned är grå tills du har ändrat något.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/security"
+    },
+    {
+      "index": 3,
+      "name": "oppna-2fa",
+      "action": "click",
+      "screenshotFile": "03-oppna-2fa.png",
+      "caption": "Tvåstegsautentisering: välj Ja för att tvinga hela teamet",
+      "notes": "Med Ja måste alla teammedlemmar utan tvåstegsverifiering aktivera det nästa gång de loggar in. Med Nej är det frivilligt per användare.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/security"
+    },
+    {
+      "index": 4,
+      "name": "stang-2fa",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/security"
+    },
+    {
+      "index": 5,
+      "name": "valj-tillatelselista",
+      "action": "click",
+      "screenshotFile": "05-valj-tillatelselista.png",
+      "caption": "Geografiska regler: välj läge och länder",
+      "notes": "Av betyder inga begränsningar. Tillåtelselista släpper bara in de länder du väljer. Blockeringslista släpper in alla utom de du väljer. När ett annat läge än Av är aktivt får rubriken en grön etikett Aktiv.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/security"
+    },
+    {
+      "index": 6,
+      "name": "aterstall-av",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/security"
+    }
+  ]
+}

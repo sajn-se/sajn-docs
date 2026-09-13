@@ -1,0 +1,32 @@
+{
+    "slug": "settings-inbox",
+    "title": "Skicka in dokument via inbox-e-post",
+    "intro": "Rundtur av Inbox: arbetsytans två inbox-adresser, vem som får mejla in och vad som hände med varje mejl.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera arbetsytans inställningar.",
+        "Inbox kräver Solo eller högre."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]",
+        "input.font-mono"
+    ],
+    "imageDir": "../../images/guider/settings-inbox",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "open-inbox-settings",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/inbox",
+            "caption": "Öppna Inställningar och sedan Inbox",
+            "notes": "Sidan har tre avsnitt ovanifrån och ned: Tillgängliga e-postadresser, Tillåtna avsändare och Uppladdningshistorik. Adresserna är maskade i bilden."
+        }
+    ]
+}

@@ -1,0 +1,114 @@
+{
+    "slug": "settings-email-templates",
+    "title": "Anpassa e-postmallar per språk",
+    "intro": "Rundtur av E-post & SMS under Profilering: var sidan ligger, vilka mallar som finns och hur redigeraren fungerar.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera arbetsytans inställningar.",
+        "Profilering kräver Solo eller högre."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/settings-email-templates",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "open-branding",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/branding",
+            "caption": "Öppna Inställningar och sedan Profilering",
+            "notes": "Profilering ligger under arbetsytans inställningar och har tre flikar: Allmänt, E-post & SMS och Dokument."
+        },
+        {
+            "name": "open-email-templates",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('E-post & SMS')",
+            "caption": "Gå till fliken E-post & SMS",
+            "notes": "Sidan listar alla utskick sajn gör i ert namn. Texten överst förklarar att varje ändring AI-granskas innan den sparas, och att SMS går att förhandsgranska men inte anpassa."
+        },
+        {
+            "name": "open-system-template",
+            "action": "click",
+            "selector": "button:has-text('Organisationsinbjudan')",
+            "caption": "System: utskick som inte hör till ett dokument",
+            "notes": "Under System ligger Organisationsinbjudan och ID-verifiering. De anpassas på samma sätt som dokumentmallarna."
+        },
+        {
+            "name": "open-sms-template",
+            "action": "click",
+            "selector": "button:has-text('Verifieringskod')",
+            "caption": "SMS kan förhandsgranskas men inte ändras",
+            "notes": "Den tredje gruppen är SMS. Här ser du exakt vad mottagaren får i telefonen, men texterna är låsta."
+        },
+        {
+            "name": "back-to-email",
+            "action": "click",
+            "selector": "button:has-text('Inbjudan till signering')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "language-selector",
+            "action": "click",
+            "selector": "button[role='combobox']:has-text('Svenska')",
+            "caption": "Byt språk för att se översättningen",
+            "notes": "Varje språk har sin egen version av mallen. Anpassar du den svenska texten ändras inte den engelska."
+        },
+        {
+            "name": "close-language",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "open-editor",
+            "action": "click",
+            "selector": "button:has-text('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-editor",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Granska & spara')"
+        },
+        {
+            "name": "editor",
+            "action": "screenshot",
+            "caption": "Redigeraren visar förhandsvisning till vänster och textfälten till höger",
+            "notes": "Varje textstycke i mejlet är ett eget fält. Förhandsvisningen uppdateras medan du skriver och kan växlas mellan dator och mobil. Återställ allt tar tillbaka standardtexten, och Granska & spara skickar ändringen till AI-granskning."
+        },
+        {
+            "name": "close-editor",
+            "action": "click",
+            "selector": "button:has-text('Tillbaka')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-closed",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Granska & spara')",
+            "state": "hidden"
+        },
+        {
+            "name": "scroll-variables",
+            "action": "scrollIntoView",
+            "selector": "p:has-text('Variabler skrivs som')",
+            "align": "end",
+            "screenshot": false
+        },
+        {
+            "name": "variables-note",
+            "action": "screenshot",
+            "caption": "Variabler fylls i automatiskt vid utskick",
+            "notes": "Raden under rutan påminner om att variabler skrivs som {namn} och fylls i vid utskick. Organisationsnamnet går inte att byta ut."
+        }
+    ]
+}

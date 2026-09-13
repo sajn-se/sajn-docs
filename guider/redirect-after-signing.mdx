@@ -1,61 +1,80 @@
 ---
 title: "Skicka mottagaren vidare till en egen URL efter signering"
-description: "Omdirigera mottagaren till en egen tacksida efter signering – sätts via REST-API:t på documentMeta.redirectUrl"
+description: "Omdirigera mottagaren till en egen tacksida efter signering – via formulärets inställningar eller REST-API:t"
 ---
 
-När en motpart signerar färdigt landar de som standard på sajns kvittenssida. Om du bygger en inbäddad signeringslösning eller vill skicka tillbaka mottagaren till en specifik tacksida, en kassasida eller ett interna system kan du i stället låta sajn omdirigera automatiskt efter signering.
+När en motpart signerat färdigt landar hen som standard på sajns kvittenssida. Vill du i stället skicka hen vidare till en egen tacksida, en kassasida eller ett internt system finns två vägar:
 
-**Viktigt:** Den här inställningen är i dagsläget *inte* exponerad i dashboardens högerpanel – fältet finns på dokumentet (`documentMeta.redirectUrl` + `redirectEnabled`) men sätts via sajns REST-API. Den här guiden visar var i UI:t inställningen *inte* ligger, så att du vet att du inte missat den, och hur du i stället sätter den via API:t.
+- **Formulär** – fältet *Skicka vidare efter signering* i formulärets inställningar. Det här är den enda vägen i gränssnittet.
+- **REST-API:t** – fältet `redirectUrl` på ett dokuments `documentMeta`.
+
+För ett vanligt dokument som du skapar i dashboarden finns ingen inställning. Letar du efter den i högerpanelen är det alltså inte du som missat något – den finns inte där.
 
 ## Innan du börjar
 
 - Du är inloggad i sajn och har valt en arbetsyta.
-- Du har behörighet att skapa dokument och hantera API-nycklar i arbetsytan.
-- Du har ett verktyg för att anropa REST-API:t (curl, Postman, Insomnia eller liknande).
+- För API-vägen: behörighet att hantera API-nycklar, och ett verktyg för att anropa API:t (curl, Postman eller liknande).
 
-## Steg för steg
+## Alternativ 1: på ett formulär
 
 <Steps>
-  <Step title="Öppna Motpartsinställningar i högerpanelen och notera att fältet inte finns där">
-    Det här är den sektion där en inställning som *Omdirigera efter signering* logiskt skulle bo, tillsammans med språk, påminnelser och delegering. Men i dagsläget exponerar sajn inte fältet i dashboarden – varken här eller i någon annan accordion. Om du letar efter inställningen är det alltså inte du som missat den; den sätts via REST-API:t.
+  <Step title="Öppna formuläret och gå till fliken Inställningar">
+    Fältet **Skicka vidare efter signering** ligger under *Dokument och signering*, mellan dagar att signera och kvittenstexten. Skriv en fullständig `https://`-adress och spara.
+
+    Varje dokument som formuläret skapar får adressen med sig, så besökaren skickas vidare direkt efter att ha signerat.
 
     <Frame>
-      <img src="/images/guider/redirect-after-signing/16-counterpart-no-redirect.png" alt="Accordion Motpartsinställningar utan fält för omdirigerings-URL" />
-    </Frame>
-  </Step>
-  <Step title="Gå till Inställningar → Utvecklare för att skapa en API-nyckel">
-    Under **Inställningar → Utvecklare** hanterar du API-nycklar och webhooks. Skapa en nyckel med rätt scope (skapa/uppdatera dokument) och kopiera den – du behöver den för att kunna sätta `redirectUrl` och `redirectEnabled` via API:t.
-
-    <Frame>
-      <img src="/images/guider/redirect-after-signing/19-developer-settings-view.png" alt="Sidan Inställningar → Utvecklare för API-nycklar och webhooks" />
-    </Frame>
-  </Step>
-  <Step title="Sätt fälten redirectUrl och redirectEnabled via REST-API:t på documentMeta">
-    På `DocumentMeta` finns två fält:
-
-    - **`redirectUrl`** *(string, valfri)* – fullständig URL som mottagaren skickas till efter att de signerat klart. Måste vara en giltig `https://`-adress.
-    - **`redirectEnabled`** *(boolean, standard: `false`)* – styr om omdirigering är aktiverad. Båda behöver vara satta för att det ska fungera; bara en URL räcker inte.
-
-    Du kan sätta fälten antingen när du skapar dokumentet eller via en PATCH efteråt. Exempel med curl mot ett befintligt dokument:
-
-    ```bash
-    curl -X PATCH "https://app.sajn.se/api/v1/documents/<DOKUMENT-ID>" \
-      -H "Authorization: Bearer <DIN-API-NYCKEL>" \
-      -H "Content-Type: application/json" \
-      -d '{
-        "documentMeta": {
-          "redirectUrl": "https://exempel.se/tack-for-signering",
-          "redirectEnabled": true
-        }
-      }'
-    ```
-
-    När en mottagare signerat färdigt visar signeringssidan en kort nedräkning innan de skickas vidare till din URL. sajn lägger automatiskt på query-parametrarna `?documentId=...&signerId=...` så att du kan koppla landningssidan till rätt signering. Mottagaren kan alltid välja att stanna kvar genom att avbryta nedräkningen.
-
-    **Sammanfattning:** Funktionen finns och är fullt fungerande – den är bara inte exponerad i dashboardens UI. Sätt fälten via API:t eller via en sajn-mall som skapas programmatiskt.
-
-    <Frame>
-      <img src="/images/guider/redirect-after-signing/20-api-usage.png" alt="Exempel på API-anrop som sätter redirectUrl och redirectEnabled" />
+      <img src="/images/guider/redirect-after-signing/07-redirect-field.png" alt="Formulärets inställningar med fältet Skicka vidare efter signering" />
     </Frame>
   </Step>
 </Steps>
+
+## Alternativ 2: via REST-API:t
+
+På `documentMeta` finns fältet **`redirectUrl`** *(sträng, valfritt)* – den fullständiga adressen mottagaren skickas till när signeringen är klar. Den måste vara `http` eller `https`; andra scheman avvisas. Bredvid det finns **`redirectEnabled`** *(boolean)*, men signeringssidan går på om det finns en URL, så det räcker att sätta `redirectUrl`.
+
+Du kan sätta fältet när du skapar dokumentet eller med en PATCH efteråt:
+
+```bash
+curl -X PATCH "https://app.sajn.se/api/v1/documents/<DOKUMENT-ID>" \
+  -H "Authorization: Bearer <DIN-API-NYCKEL>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documentMeta": {
+      "redirectUrl": "https://exempel.se/tack-for-signering",
+      "redirectEnabled": true
+    }
+  }'
+```
+
+API-nyckeln skapar du under [Inställningar → Utvecklare → API-nycklar](https://app.sajn.se/~/settings/workspace/developer/api-keys). Se [Hantera API-nycklar](/guider/settings-developer-api).
+
+## Så ser det ut för mottagaren
+
+När mottagaren signerat färdigt visas kvittensen, och knappen längst ned byter till en nedräkning: *Omdirigerar om 5…*. När nedräkningen är slut öppnas din adress i samma flik.
+
+Vill du veta vilket dokument och vilken part det gällde lägger du in platshållare i adressen. Sajn byter ut dem innan omdirigeringen:
+
+- `{documentId}` – dokumentets id
+- `{signerId}` – partens id
+
+```
+https://exempel.se/tack?dok={documentId}&part={signerId}
+```
+
+Sajn lägger inte till några parametrar av sig själv. Står det inga platshållare i adressen skickas den vidare precis som du skrev den.
+
+<Warning>
+  Mottagaren har ingen knapp för att stanna kvar – nedräkningen går alltid i mål. Se till att sidan du skickar vidare till bekräftar att signeringen lyckades, annars kan mottagaren bli osäker på om det gick vägen.
+</Warning>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Skapa ett formulär" icon="list-check" href="/guider/formular">
+    Hela flödet där omdirigeringen hör hemma i gränssnittet.
+  </Card>
+  <Card title="Utvecklarinställningar" icon="key" href="/guider/settings-developer-api">
+    Skapa API-nyckeln du behöver för PATCH-anropet.
+  </Card>
+</CardGroup>

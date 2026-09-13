@@ -1,0 +1,86 @@
+{
+  "ranAt": "2026-09-13T11:15:48.050Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "open-webhooks",
+      "action": "goto",
+      "screenshotFile": "02-open-webhooks.png",
+      "caption": "Öppna Inställningar, Utvecklare och fliken Webhooks",
+      "notes": "Tabellen visar URL, vilka händelser som utlöser anropet och när webhooken skapades. Sökfältet filtrerar listan.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/webhooks"
+    },
+    {
+      "index": 3,
+      "name": "open-create",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/webhooks"
+    },
+    {
+      "index": 4,
+      "name": "wait-dialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/webhooks"
+    },
+    {
+      "index": 5,
+      "name": "fill-url",
+      "action": "fill",
+      "screenshotFile": "05-fill-url.png",
+      "caption": "Dialogen Skapa webhook",
+      "notes": "Fälten är Webhook URL, Aktiv, Händelser, E-post vid fel och Hemlighet. Det finns ingen arbetsyteväljare — webhooken hör till den arbetsyta du står i. Hemligheten är maskad i bilden.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/webhooks"
+    },
+    {
+      "index": 6,
+      "name": "open-events",
+      "action": "click",
+      "screenshotFile": "06-open-events.png",
+      "caption": "Välj bland tillgängliga händelser",
+      "notes": "Listan är lång. Skriv i fältet för att filtrera, och välj så få händelser som möjligt.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/webhooks"
+    },
+    {
+      "index": 7,
+      "name": "blur-events",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/webhooks"
+    },
+    {
+      "index": 8,
+      "name": "cancel",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/webhooks"
+    },
+    {
+      "index": 9,
+      "name": "wait-closed",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/developer/webhooks"
+    }
+  ]
+}

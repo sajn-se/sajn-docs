@@ -1,49 +1,45 @@
 ---
-title: "Sökinställningar — indexering och AI-tolkning"
-description: "Styr hur dokumentinnehåll indexeras för fritextsök och om AI får tolka sökfrågor i arbetsytan"
+title: "Sökning och indexering"
+description: "Styr hur dokumentinnehåll indexeras för fritextsök, om AI får tolka sökfrågor, och vilka dokument som ingår i indexet"
 ---
 
-På sidan **Sökinställningar** styr du hur dokumentinnehåll indexeras för fritextsök och om AI får tolka dina sökfrågor. Sidan visar också hur långt indexeringen har kommit för arbetsytan. Den här guiden är en rundtur — den ändrar inga inställningar och raderar inget, du bestämmer själv om något ska justeras.
-
-*Notera:* Sajn har idag inget separat gränssnitt för sökhistorik eller sparade sökningar — den här sidan handlar uteslutande om indexering och AI-tolkning.
+[Sökning & indexering](https://app.sajn.se/~/settings/workspace/ai/search) styr om innehållet i era dokument görs sökbart, om AI får tolka era sökfrågor, och vilka dokument som ingår i indexet. Sidan ligger som en flik under *AI & Sökning* i arbetsyteinställningarna. Den här guiden är en rundtur — den ändrar inga inställningar och raderar ingenting.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera arbetsyteinställningar.
+- Du är inloggad och har behörighet att hantera arbetsytans inställningar.
+- Sökning i dokumentinnehåll kräver **Solo eller högre**. På Basic är både indexering och AI-tolkning avstängda.
 - Inställningarna är **arbetsytespecifika** — varje arbetsyta har sitt eget sökindex.
-- AI-tolkning kräver att AI är aktiverat globalt under *AI-inställningar*.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Sökinställningar i sidomenyn">
-    Sidan ligger under *Arbetsyteinställningar*. Rubriken längst upp beskriver vad sidan styr: hur dokumentinnehåll indexeras och hur sökningar tolkas — för just den här arbetsytan, inte hela organisationen.
-
-    <Frame>
-      <img src="/images/guider/settings-search/02-open-search-settings.png" alt="Sidan Sökinställningar öppen under Arbetsyteinställningar" />
-    </Frame>
-  </Step>
-  <Step title="Indexering — två strömbrytare högst upp">
+  <Step title="Öppna AI & Sökning och välj fliken Sökning & indexering">
     *Indexera dokumentinnehåll* gör det möjligt att söka inuti signerade dokument. Endast färdiga dokument indexeras — utkast och pågående dokument lämnas alltid utanför. Stänger du av indexeringen raderas inte sparad data automatiskt; använd *Radera sökindex* nedan om du vill ta bort den.
 
-    *Tillåt AI-tolkning av sökfrågor* gör att naturliga sökningar som *”alla avtal som löper ut i mars”* tolkas automatiskt till strukturerade filter via en AI-modell. Endast själva sökfrågan skickas till AI:n — inget dokumentinnehåll. Brytaren är låst om AI är avstängt globalt i arbetsytan eller om innehållsindexering är avstängd.
+    *Tillåt AI-tolkning av sökfrågor* gör att en fråga i vanligt språk, som "alla avtal som löper ut i mars", tolkas om till strukturerade filter via en AI-modell. Endast själva sökfrågan skickas till modellen — inget dokumentinnehåll. Brytaren går inte att slå på om AI är avstängt i arbetsytan eller om innehållsindexering är av.
 
     <Frame>
-      <img src="/images/guider/settings-search/04-indexing-section.png" alt="Sektionen Indexering med två strömbrytare för innehåll och AI-tolkning" />
+      <img src="/images/guider/settings-search/02-oppna.png" alt="Fliken Sökning och indexering med två strömbrytare" />
     </Frame>
   </Step>
   <Step title="Indexeringsstatus — progress, Återindexera och Radera sökindex">
-    Här ser du hur många av arbetsytans indexerbara dokument som faktiskt är klara, plus eventuella misslyckanden och dokument som saknar textlager (t.ex. inskannade PDF:er utan OCR).
+    Raden visar hur många av arbetsytans indexerbara dokument som är klara, plus eventuella misslyckanden och dokument som saknar textlager, till exempel inskannade PDF:er utan OCR.
 
-    Två åtgärder finns:
-
-    - **Återindexera** — köar om alla indexerbara dokument i bakgrunden. Användbart om du nyligen aktiverat indexeringen eller om något verkar saknas i sökningen. Knappen är gråad om indexering är avstängd.
-    - **Radera sökindex** — tar bort all extraherad text och alla embeddings för arbetsytan. Det öppnar en bekräftelseruta innan något händer; åtgärden kan inte ångras, men du kan alltid starta återindexering efteråt om indexering fortfarande är på.
-
-    Den här guiden klickar inte på någon av knapparna — sidan är en rundtur, eventuella ändringar är upp till dig.
+    - **Återindexera** — köar om alla indexerbara dokument i bakgrunden. Användbart om du nyss slagit på indexeringen eller om något verkar saknas i sökningen. Knappen är gråad om indexering är avstängd.
+    - **Radera sökindex** — tar bort all extraherad text för arbetsytan. En bekräftelseruta visas först. Åtgärden går inte att ångra, men du kan alltid indexera om efteråt så länge indexering fortfarande är på.
 
     <Frame>
-      <img src="/images/guider/settings-search/05-status-section.png" alt="Sektionen Indexeringsstatus med progress och åtgärdsknappar" />
+      <img src="/images/guider/settings-search/03-status.png" alt="Sektionen Indexeringsstatus med progress och åtgärdsknappar" />
+    </Frame>
+  </Step>
+  <Step title="Dokument i indexet — se och undanta enskilda dokument">
+    Flikarna delar upp dokumenten i *Indexerade*, *Misslyckade*, *Utan textlager* och *Undantagna*, och sökrutan hittar ett enskilt dokument.
+
+    Ikonen med det överkryssade ögat längst till höger på en rad undantar dokumentet: det plockas ur indexet och tas inte med igen vid en återindexering. Använd den för dokument som inte ska gå att hitta via fritextsök.
+
+    <Frame>
+      <img src="/images/guider/settings-search/04-dokument-i-indexet.png" alt="Tabellen Dokument i indexet med flikar och statuskolumn" />
     </Frame>
   </Step>
 </Steps>

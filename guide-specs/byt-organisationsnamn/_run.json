@@ -1,0 +1,86 @@
+{
+  "ranAt": "2026-09-13T10:52:20.372Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-foretag",
+      "action": "goto",
+      "screenshotFile": "02-oppna-foretag.png",
+      "caption": "Öppna Inställningar och välj Företag",
+      "notes": "Organisationens namn står högst upp under Grundläggande inställningar, på raden Namn.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 3,
+      "name": "oppna-redigera",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 4,
+      "name": "vanta-dialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 5,
+      "name": "redigera-dialog",
+      "action": "screenshot",
+      "screenshotFile": "05-redigera-dialog.png",
+      "caption": "Rutan Redigera grundläggande inställningar",
+      "notes": "Rutan innehåller två fält: Organisationsnamn och Standardspråk. Texten under namnfältet säger att detta är namnet som visas i applikationen.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 6,
+      "name": "skriv-nytt-namn",
+      "action": "fill",
+      "screenshotFile": "06-skriv-nytt-namn.png",
+      "caption": "Skriv det nya namnet",
+      "notes": "Så fort du ändrar namnet byter hjälptexten under fältet till en påminnelse om att nya namn granskas manuellt av sajn-teamet innan de aktiveras.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 7,
+      "name": "aterstall-namnet",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 8,
+      "name": "stang-dialog",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    },
+    {
+      "index": 9,
+      "name": "vanta-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/business-details"
+    }
+  ]
+}

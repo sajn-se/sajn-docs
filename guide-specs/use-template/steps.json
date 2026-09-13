@@ -1,0 +1,145 @@
+{
+    "slug": "use-template",
+    "title": "Använd en mall för att skapa ett nytt dokument",
+    "intro": "Snabbaste vägen från en färdig mall till ett utkast går via mallens egen Arkiv-meny.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta med minst en mall."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/use-template",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "mallistan",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "caption": "Öppna Mallar i sidomenyn"
+        },
+        {
+            "name": "oppna-mallen",
+            "action": "click",
+            "selector": "a[href*='/templates/']:has-text('Konsultavtal')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "mallen",
+            "action": "screenshot",
+            "caption": "Mallen öppnas i redigeraren"
+        },
+        {
+            "name": "arkivmenyn",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "caption": "Skapa dokument ligger överst i Arkiv"
+        },
+        {
+            "name": "skapa-dokument",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Skapa dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dokument",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skicka dokument')"
+        },
+        {
+            "name": "dokumentet",
+            "action": "screenshot",
+            "caption": "Dokumentet ärver innehåll, parter och fält"
+        },
+        {
+            "name": "oppna-redigera",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namndialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input#name",
+            "value": "Batch D: konsultavtal från mall",
+            "screenshot": false
+        },
+        {
+            "name": "namndialogen",
+            "action": "screenshot",
+            "caption": "Byt namn på dokumentet"
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn-sparat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')",
+            "state": "hidden"
+        },
+        {
+            "name": "klart",
+            "action": "screenshot",
+            "caption": "Utkastet är klart att anpassas och skicka"
+        },
+        {
+            "name": "stadning-arkivmenyn",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-bekraftelse",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')"
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-efter-stadning",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa nytt')"
+        }
+    ]
+}

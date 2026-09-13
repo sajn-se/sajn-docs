@@ -1,0 +1,140 @@
+{
+  "ranAt": "2026-09-13T11:38:18.879Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "kontakter",
+      "action": "goto",
+      "screenshotFile": "02-kontakter.png",
+      "caption": "Öppna Kontakter i sidomenyn",
+      "notes": "Tabellen visar namn, e-post, telefon, taggar och när kontakten senast uppdaterades. Överst söker du på namn, e-post, telefon eller företag och filtrerar per företag, tagg eller datafält. Ikonen längst till höger i tabellhuvudet väljer vilka kolumner som ska synas.",
+      "url": "https://app.sajn.se/arlbn/contacts"
+    },
+    {
+      "index": 3,
+      "name": "skapa",
+      "action": "click",
+      "screenshotFile": "03-skapa.png",
+      "caption": "Klicka på Skapa kontakt",
+      "notes": "Panelen för den nya kontakten öppnas till höger, och en liten ruta ber om namnet direkt. Pilen bredvid knappen döljer i stället de sätt att lägga till många kontakter på en gång.",
+      "url": "https://app.sajn.se/arlbn/contacts?new=true"
+    },
+    {
+      "index": 4,
+      "name": "fornamn",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?new=true"
+    },
+    {
+      "index": 5,
+      "name": "efternamn",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?new=true"
+    },
+    {
+      "index": 6,
+      "name": "farg",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?new=true"
+    },
+    {
+      "index": 7,
+      "name": "namnrutan",
+      "action": "screenshot",
+      "screenshotFile": "07-namnrutan.png",
+      "caption": "Fyll i förnamn, efternamn och välj en färg",
+      "notes": "Bara namnet behövs för att skapa kontakten. Färgen används i kontaktens avatar överallt där den syns, så att den blir lätt att känna igen. Knappen längst ner uppdateras med namnet du skriver.",
+      "url": "https://app.sajn.se/arlbn/contacts?new=true"
+    },
+    {
+      "index": 8,
+      "name": "spara",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?new=true"
+    },
+    {
+      "index": 9,
+      "name": "vanta-namnruta-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 10,
+      "name": "vanta-skapad",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 11,
+      "name": "detaljer",
+      "action": "screenshot",
+      "screenshotFile": "11-detaljer.png",
+      "caption": "Kontakten är skapad och panelen visar detaljerna",
+      "notes": "Panelen heter Hantera följt av kontaktens namn och har flikarna Översikt, Dokument, Anteckningar och Aktivitet. Under Översikt kompletterar du telefon, e-post, företag och roll genom att klicka på värdet. Ändringar sparas automatiskt. Signaturmetod bestämmer hur den här kontakten signerar när du lägger till den som part, och Arbetsytans standard betyder att den följer arbetsytans val.",
+      "url": "https://app.sajn.se/arlbn/contacts?id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 12,
+      "name": "fler-falt",
+      "action": "click",
+      "screenshotFile": "12-fler-falt.png",
+      "caption": "Lägg till fält öppnar de övriga uppgifterna",
+      "notes": "Här finns personnummer, adress, externt ID, LinkedIn och webbplats, plus arbetsytans egna datafält. Ett fält försvinner ur listan när det redan syns i panelen.",
+      "url": "https://app.sajn.se/arlbn/contacts?id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 13,
+      "name": "stang-menyn",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts?id=cmtzqpwzy000q02jsr61g5x59"
+    },
+    {
+      "index": 14,
+      "name": "tillbaka",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/contacts"
+    },
+    {
+      "index": 15,
+      "name": "i-listan",
+      "action": "screenshot",
+      "screenshotFile": "15-i-listan.png",
+      "caption": "Den nya kontakten ligger i listan",
+      "notes": "Klicka på raden för att öppna panelen igen. Menyn längst till höger på raden har kontaktens åtgärder, bland annat Skapa dokument och Ta bort.",
+      "url": "https://app.sajn.se/arlbn/contacts"
+    }
+  ]
+}

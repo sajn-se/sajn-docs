@@ -1,52 +1,88 @@
 ---
 title: "Skapa en mall från en befintlig PDF"
-description: "Låt AI bygga en återanvändbar mall åt dig utifrån en uppladdad PDF"
+description: "Gör om ett avtal du redan har som PDF till en återanvändbar mall"
 ---
 
-Har du redan ett avtal som PDF? sajn kan analysera filen med AI och bygga en återanvändbar mall åt dig – med rubrik, parter och innehåll på plats. Den här guiden visar hur du laddar upp en PDF och får tillbaka en färdig mall som du sedan kan finjustera.
+Har du redan avtalet som PDF? Då behöver du inte skriva om det. sajn gör om filen till en mall på ett av två sätt: antingen låter du AI:n bygga om innehållet till redigerbar sajn-text, eller så behåller du PDF:en precis som den är och placerar bara fält ovanpå den.
 
 ## Innan du börjar
 
 - Du är inloggad i en arbetsyta där du har behörighet att skapa mallar.
-- Arbetsytan har AI-funktioner aktiverade och kvot kvar för månaden.
-- Du har en PDF (max 5 MB) som du vill bygga mallen utifrån.
+- Du har minst en PDF att utgå från. Du kan ladda upp upp till tio filer åt gången.
+- Väljer du AI-vägen behöver organisationen ha AI-kvot kvar för månaden, och varje fil får vara högst 5 MB. Behåller du originalet gäller 25 MB per fil.
 
 ## Steg
 
 <Steps>
-  <Step title="Öppna Mallar och hitta Skapa ny mall">
-    Öppna **Mallar** och hitta knappen *Skapa ny mall* uppe till höger. Bredvid knappen **Skapa ny mall** finns en liten pil som öppnar en meny med fler sätt att skapa en mall – däribland alternativet att utgå från en befintlig PDF.
+  <Step title="Öppna Mallar">
+    Öppna [Mallar](https://app.sajn.se/~/templates). Uppe till höger ligger **Skapa ny mall** med en nedåtpil bredvid sig.
 
     <Frame>
-      <img src="/images/guider/create-template-from-pdf/02-open-templates.png" alt="Malllistan med knappen Skapa ny mall uppe till höger" />
+      <img src="/images/guider/create-template-from-pdf/02-mallistan.png" alt="Mallistan med knappen Skapa ny mall uppe till höger" />
     </Frame>
   </Step>
-  <Step title="Öppna menyn vid Skapa ny mall">
-    Klicka på pilen bredvid *Skapa ny mall* för att öppna menyn. Menyn visar två alternativ: **Tom mall** för att börja från grunden, och **Ladda upp PDF** för att låta AI bygga mallen åt dig utifrån en befintlig PDF.
+
+  <Step title="Från PDF ligger under nedåtpilen">
+    Klicka på pilen. Menyn har ett enda val: **Från PDF**.
 
     <Frame>
-      <img src="/images/guider/create-template-from-pdf/03-open-create-menu.png" alt="Menyn vid Skapa ny mall öppen med alternativen Tom mall och Ladda upp PDF" />
+      <img src="/images/guider/create-template-from-pdf/03-oppna-menyn.png" alt="Menyn vid Skapa ny mall öppen med valet Från PDF" />
     </Frame>
   </Step>
-  <Step title="Dialogen Skapa mall från PDF öppnas">
-    Dialogen *Skapa mall från PDF* öppnas. Dra och släpp en PDF i ytan – eller klicka för att bläddra. Du ser också en kort förklaring av hur AI:n läser strukturen och bygger upp mallen, samt hur mycket av månadens AI-kvot du har kvar.
+
+  <Step title="Välj hur mallen ska byggas innan du laddar upp">
+    Sidan **Ny mall från PDF** öppnas i helskärm. Valet högst upp styr resten:
+
+    - **Gör PDF:en redigerbar** – AI:n läser filen och bygger om innehållet till vanliga sajn-sektioner som du kan redigera fritt. Förvalt.
+    - **Behåll originalet** – PDF:en läggs in som den är i en PDF-sektion. Ingen AI, ingen storleksgräns på 5 MB, och utseendet blir exakt som i originalfilen.
+
+    Dra sedan in filerna i ytan, eller klicka **Välj filer**.
 
     <Frame>
-      <img src="/images/guider/create-template-from-pdf/06-pdf-dialog.png" alt="Dialogen Skapa mall från PDF öppen med uppladdningsyta" />
+      <img src="/images/guider/create-template-from-pdf/06-ny-mall-fran-pdf.png" alt="Sidan Ny mall från PDF med de två sätten att skapa mallen och uppladdningsytan" />
     </Frame>
   </Step>
-  <Step title="Filen är vald och redo att analyseras">
-    PDF:en är vald och redo att analyseras. Filnamn och storlek visas i uppladdningsytan. När du är nöjd klickar du på **Generera mall** för att skicka PDF:en till AI:n. Vill du byta fil kan du klicka på krysset och välja en annan.
+
+  <Step title="Filen är vald och knappen Skapa mall dyker upp">
+    Filnamn och storlek listas under uppladdningsytan; krysset tar bort en fil. Nere till vänster visas en stapel med hur mycket av månadens AI-kvot som är kvar – för muspekaren över den för att se siffran.
+
+    Laddar du upp flera filer dyker ett andra val upp: **Separata mallar** gör varje fil till en egen mall, **Kombinerad mall** slår ihop alla filer till en.
 
     <Frame>
-      <img src="/images/guider/create-template-from-pdf/09-file-selected.png" alt="Dialogen med vald PDF-fil och knappen Generera mall" />
+      <img src="/images/guider/create-template-from-pdf/09-filen-vald.png" alt="Sidan med vald PDF-fil och knappen Skapa mall nere till höger" />
     </Frame>
   </Step>
-  <Step title="Den färdiga mallen öppnas i editorn">
-    Den färdiga mallen öppnas i editorn. AI:n har gett mallen ett namn utifrån PDF:ens innehåll och lagt in rubrik, parter och avtalstext som separata fält. Härifrån kan du justera texten, lägga till eller ta bort fält, och spara mallen för framtida bruk – allt sparas löpande, ingen spara-knapp behövs.
+
+  <Step title="Behåll originalet hoppar över AI-steget">
+    Med **Behåll originalet** valt skapas mallen direkt. Klicka **Skapa mall**.
 
     <Frame>
-      <img src="/images/guider/create-template-from-pdf/21-generated-template.png" alt="Den AI-genererade mallen öppen i editorn med rubrik, parter och avtalstext" />
+      <img src="/images/guider/create-template-from-pdf/10-valj-behall.png" alt="Valet Behåll originalet markerat" />
+    </Frame>
+  </Step>
+
+  <Step title="Mallen öppnas med PDF:en som en sektion">
+    Mallen får filens namn och öppnas i redigeraren. PDF:en ligger som en sektion i pappret, och under **PDF-FÄLT** i panelen till höger kan du nu dra ut *Textfält*, *Datum*, *Kryssruta* och *Listruta* och släppa dem ovanpå sidan. *Signatur* och *Initialer* tänds så fort mallen har en part.
+
+    <Frame>
+      <img src="/images/guider/create-template-from-pdf/14-mallen-klar.png" alt="Den färdiga mallen i redigeraren med PDF:en inlagd och PDF-fälten tillgängliga" />
     </Frame>
   </Step>
 </Steps>
+
+## Om du väljer AI-vägen i stället
+
+**Gör PDF:en redigerbar** körs i bakgrunden. När du klickat **Skapa mall** bekräftar sajn att analysen är påbörjad och stänger sidan – mallen öppnas alltså inte direkt. Du får ett mejl med en länk så fort den är klar, och den dyker då upp i listan **Mallar**. Laddar du upp flera filer som separata mallar mejlas du en gång per mall.
+
+Ett resultat från AI:n är ett utkast: läs igenom texten, justera rubriker och stycken, och lägg till parter och fält innan du använder mallen skarpt.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Lägg till sektioner och fält" icon="input-text" href="/guider/add-fields-to-template">
+    Komplettera mallen med parter, fält och nycklar.
+  </Card>
+  <Card title="Använd mallen" icon="file-plus" href="/guider/use-template">
+    Skapa ett dokument utifrån den färdiga mallen.
+  </Card>
+</CardGroup>

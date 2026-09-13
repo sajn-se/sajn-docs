@@ -1,0 +1,54 @@
+{
+    "slug": "notifications",
+    "title": "Håll koll på aviseringar",
+    "intro": "Aviseringar samlar det som händer kring dina dokument: signeringar, kommentarer, förslag på påminnelser och säkerhetshändelser. Klockan i toppmenyn visar de senaste, och sidan Aviseringar visar hela historiken.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn.",
+        "Vilka aviseringar du får styrs av dina kommunikationsinställningar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "imageDir": "../../images/guider/notifications",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "hem",
+            "action": "goto",
+            "url": "/{workspace}",
+            "screenshot": false
+        },
+        {
+            "name": "klockan",
+            "action": "click",
+            "selector": "button:has(svg.lucide-bell-icon), button:has(svg.lucide-bell)",
+            "caption": "Klockan i toppmenyn visar de senaste aviseringarna",
+            "notes": "Siffran bredvid Oläst är hur många du inte har öppnat. Klicka på en rad för att gå till dokumentet den handlar om. Det är bara här aviseringar markeras som lästa, en och en eller med bocken uppe till höger. Längst ner tar Visa alla aviseringar dig till hela listan."
+        },
+        {
+            "name": "stang-rutan",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "aviseringar",
+            "action": "goto",
+            "url": "/{workspace}/notifications",
+            "caption": "Sidan Aviseringar visar hela historiken",
+            "notes": "Kolumnen Avisering är meddelandet, Datum är när det skapades. Olästa rader står i fet stil med en färgad prick framför. Oläst och Alla överst filtrerar listan, och valet ligger i adressen så att du kan spara en vy som bokmärke. Längst ner väljer du 10, 25 eller 50 rader per sida och bläddrar med pilarna."
+        },
+        {
+            "name": "kommunikation",
+            "action": "goto",
+            "url": "/{workspace}/settings/account/communication-preferences",
+            "caption": "Hantera inställningar styr vad du får",
+            "notes": "Knappen uppe till höger på aviseringssidan leder hit. Varje rad är en händelse och kolumnerna Webb, E-post och Mobil styr var du får den. Ett streck betyder att kanalen inte finns för den händelsen."
+        }
+    ]
+}

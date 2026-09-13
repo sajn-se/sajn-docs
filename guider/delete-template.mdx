@@ -3,7 +3,9 @@ title: "Ta bort en mall"
 description: "Städa bort en inaktuell mall ur biblioteket utan att påverka befintliga dokument"
 ---
 
-När en mall är inaktuell eller skapades av misstag vill du gärna städa bort den ur biblioteket så att kollegor inte börjar dokument från fel underlag. Den här guiden visar hur du hittar mallen i listan **Mallar**, öppnar dess radmeny, bekräftar borttagningen i dialogen och ser hur den försvinner ur listan.
+När en mall är inaktuell eller skapades av misstag vill du gärna städa bort den så att kollegor inte börjar dokument från fel underlag. Att ta bort en mall är inte slutgiltigt: mallen flyttas till **Papperskorg** under Mallar, ligger kvar i 90 dagar och går att återställa hela tiden.
+
+Dokument som redan skapats utifrån mallen påverkas inte.
 
 ## Innan du börjar
 
@@ -14,38 +16,62 @@ När en mall är inaktuell eller skapades av misstag vill du gärna städa bort 
 
 <Steps>
   <Step title="Hitta mallen du vill ta bort i listan Mallar">
-    Använd sökfältet eller filtren *Skapad av* och *Taggar* för att snabbt få fram rätt mall. Tänk på att borttagningen är permanent för själva mallen – befintliga dokument som redan skapats utifrån mallen påverkas dock inte.
+    Öppna [Mallar](https://app.sajn.se/~/templates). Använd sökfältet eller filtren *Skapad av* och *Taggar* för att snabbt få fram rätt mall.
 
     <Frame>
-      <img src="/images/guider/delete-template/14-list-with-template.png" alt="Listan Mallar med mallen vi vill ta bort synlig" />
+      <img src="/images/guider/delete-template/11-tillbaka-till-listan.png" alt="Listan Mallar med mallen vi vill ta bort" />
     </Frame>
   </Step>
-  <Step title="Bocka för mallen i listan Mallar">
-    Klicka på kryssrutan längst till vänster på raden. Så fort minst en mall är markerad dyker knappen **Åtgärder** upp uppe till höger. Du kan markera flera mallar samtidigt om du vill ta bort flera på en gång – siffran på **Åtgärder**-knappen visar hur många rader du valt.
+
+  <Step title="Bocka för mallen så dyker Åtgärder upp">
+    Klicka i kryssrutan längst till vänster på raden. Så fort minst en mall är markerad dyker knappen **Åtgärder** upp ovanför tabellen, med antalet valda rader. Du kan markera flera mallar och ta bort dem på en gång.
 
     <Frame>
-      <img src="/images/guider/delete-template/17-row-selected.png" alt="Mallraden markerad med kryssruta och knappen Åtgärder synlig" />
+      <img src="/images/guider/delete-template/12-markera-raden.png" alt="Mallraden markerad med kryssruta och knappen Åtgärder synlig" />
     </Frame>
   </Step>
-  <Step title="Öppna Åtgärder och välj Ta bort">
-    Menyn **Åtgärder** samlar alla bulk-åtgärder du kan göra på markerade mallar – flytta till mapp, skapa kopior, hantera taggar och ta bort. Klicka på den röda raden **Ta bort** längst ner för att gå vidare.
+
+  <Step title="Ta bort ligger längst ner i Åtgärder">
+    Menyn samlar de åtgärder du kan köra på markerade mallar: *Flytta till mapp*, *Gör kopior*, *Hantera taggar* och **Ta bort**. Klicka på den röda raden längst ner.
 
     <Frame>
-      <img src="/images/guider/delete-template/20-actions-menu-open.png" alt="Menyn Åtgärder öppen med valet Ta bort markerat i rött" />
+      <img src="/images/guider/delete-template/13-oppna-atgarder.png" alt="Menyn Åtgärder öppen med Ta bort markerat i rött" />
     </Frame>
   </Step>
-  <Step title="Bekräfta borttagningen i dialogen Ta bort mallar">
-    Dialogen visar hur många mallar som kommer att tas bort och påminner om att åtgärden inte kan ångras. Befintliga dokument som redan skapats utifrån mallen behålls – det är bara själva mallen som försvinner. Klicka på den röda knappen **Ta bort** för att slutföra eller **Avbryt** om du ändrar dig.
+
+  <Step title="Dialogen säger vart mallen tar vägen">
+    Dialogen **Ta bort mallar** visar hur många mallar som berörs och att de flyttas till papperskorgen och raderas permanent efter 90 dagar. Klicka **Ta bort** för att slutföra, eller **Avbryt** om du ändrar dig.
 
     <Frame>
-      <img src="/images/guider/delete-template/23-confirm-dialog.png" alt="Bekräftelsedialogen Ta bort mallar med röd Ta bort-knapp" />
+      <img src="/images/guider/delete-template/16-bekraftelsen.png" alt="Bekräftelsedialogen Ta bort mallar" />
     </Frame>
   </Step>
-  <Step title="Mallen är borta från listan">
-    När dialogen stängts uppdateras tabellen direkt och raden försvinner. Sökrutan visar att inga mallar matchar längre. Behöver du återskapa innehållet får du bygga en ny mall från grunden – eller duplicera en liknande mall innan du tar bort den.
+
+  <Step title="Raden försvinner ur listan">
+    Tabellen uppdateras direkt. Mallen går inte längre att välja när någon skapar ett dokument.
 
     <Frame>
-      <img src="/images/guider/delete-template/27-list-without-template.png" alt="Listan Mallar uppdaterad och raden för den borttagna mallen försvunnen" />
+      <img src="/images/guider/delete-template/19-listan-utan-mallen.png" alt="Listan Mallar uppdaterad utan den borttagna mallen" />
+    </Frame>
+  </Step>
+
+  <Step title="Mallen ligger kvar i Papperskorg">
+    [Papperskorg](https://app.sajn.se/~/templates/trash) ligger som en undersida till **Mallar** i sidomenyn. Kolumnen *Borttagen* visar när mallen togs bort och *Raderas om* räknar ner dagarna tills den rensas permanent.
+
+    <Frame>
+      <img src="/images/guider/delete-template/20-papperskorgen.png" alt="Sidan Papperskorg med den borttagna mallen" />
+    </Frame>
+  </Step>
+
+  <Step title="Radmenyn har Återställ och Radera permanent">
+    **Återställ** lägger tillbaka mallen i listan med allt innehåll intakt. **Radera permanent** tar bort mallen, dess fält, parter och versioner för gott, och tar samtidigt bort delningar till andra arbetsytor. Det går inte att ångra.
+
+    <Frame>
+      <img src="/images/guider/delete-template/21-oppna-radmenyn.png" alt="Radmenyn i papperskorgen med Återställ och Radera permanent" />
     </Frame>
   </Step>
 </Steps>
+
+<Tip>
+  Ska du bara ta bort en enda mall går det lika bra via menyn med tre punkter längst till höger på raden. Den dialogen räknar dessutom upp hur många dokument som skapats från mallen, så du ser hur använd den varit innan du tar bort den.
+</Tip>

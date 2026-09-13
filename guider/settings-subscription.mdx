@@ -3,60 +3,64 @@ title: "Hantera din prenumeration och tillägg"
 description: "Se din plan, kostnader och fakturadatum — byt abonnemang, hantera betalmetoder och fyll på saldo"
 ---
 
-På sidan **Ditt abonnemang** ser du vilken plan din organisation har, vad den kostar, när nästa faktura skickas och vilka tillägg som ingår. Härifrån kan du också byta plan, hantera betalmetoder eller fylla på saldot. Den här guiden gör en rundtur i sidan – den ändrar inte din plan. Klick på **Byt abonnemang** används bara för att visa hur plan-väljaren ser ut.
+På sidan [Ditt abonnemang](https://app.sajn.se/~/settings/organization/subscription) ser du vilken plan organisationen har, vad som ingår, när nästa faktura skickas och var fakturorna ligger. Härifrån byter du också plan, hanterar betalmetoder och fyller på saldot. Den här guiden är en rundtur i sidan – den ändrar inte din plan.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera organisationens prenumeration.
+- Du är inloggad och har behörighet att hantera organisationens abonnemang.
 - Sidan är en organisationsinställning – alla arbetsytor i organisationen delar samma abonnemang.
+- Beloppen i bilderna är maskerade.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Ditt abonnemang i sidomenyn">
-    Sidan visas under *Organisationsinställningar* – inställningarna gäller hela organisationen, inte den enskilda arbetsytan. Brödsmulorna högst upp visar sökvägen: *Inställningar → Organisation → Ditt abonnemang*.
+  <Step title="Öppna Inställningar och välj Ditt abonnemang">
+    Sidan har fem flikar: **Översikt**, **Användning**, **Fakturor**, **Betalning** och **Saldo**. Vilka som visas beror på din behörighet och på planen – *Saldo* finns till exempel inte på Basic.
+
+    Till höger står planen, priset och datum för nästa faktura, och under det vad som ingår i planen: dokument, BankID-signaturer, sajn ID-verifieringar, antal användare och AI-assistent. Knappen **Hantera abonnemang** (eller **Uppgradera** på Basic) leder till planväljaren.
+
+    Till vänster sammanfattas periodens rörliga avgifter – SMS, extra eID-signaturer och sajn ID-verifieringar. Länken **Se detaljerad användning** tar dig vidare till fliken Användning.
 
     <Frame>
-      <img src="/images/guider/settings-subscription/02-open-subscription.png" alt="Sidan Ditt abonnemang öppen under Organisationsinställningar" />
-    </Frame>
-  </Step>
-  <Step title="Översikt av abonnemanget – nuvarande plan, pris och fakturadatum">
-    Till höger ser du **nuvarande plan**, månads- eller årspris samt datum för nästa faktura. Knappen **Byt abonnemang** tar dig till plan-väljaren och **Hantera abonnemang** öppnar Stripes kundportal där du kan uppdatera kort, adress eller säga upp abonnemanget. Under finns även **Saldo** med snabbpåfyllning för organisationens kreditsaldo (50/100/250/500 kr eller valfritt belopp).
-
-    Till vänster finns fyra flikar:
-
-    - **Översikt** – sammanställer förbrukningen den här perioden (Dokument, BankID, SMS) plus en detaljerad användningstabell längre ned.
-    - **Saldo** – transaktionshistorik för saldopåfyllningar (visas inte på Basic).
-    - **Fakturor** – alla utställda fakturor med möjlighet att ladda ner PDF.
-    - **Betalning** – betalmetoder och faktureringsuppgifter.
-
-    <Frame>
-      <img src="/images/guider/settings-subscription/04-overview.png" alt="Översikt av abonnemangssidan med plan, pris och flikar" />
+      <img src="/images/guider/settings-subscription/02-oppna-abonnemang.png" alt="Fliken Översikt med periodens användning till vänster och planen till höger" />
     </Frame>
   </Step>
   <Step title="Fliken Fakturor listar alla utställda fakturor">
-    Här ser du en löpande lista med fakturor som Stripe har genererat för organisationen. Varje rad har datum, belopp och status, och du kan ladda ner PDF-versionen direkt. Den här fliken är användbar för bokföring eller om du behöver bevisa abonnemangets historik.
+    Varje rad visar fakturanummer, status, belopp och datum. Menyn med tre punkter längst till höger öppnar fakturan hos vår betalleverantör eller laddar ner PDF:en. Längst ned räknas hur många fakturor som visas och du bläddrar bakåt i tiden.
 
     <Frame>
-      <img src="/images/guider/settings-subscription/05-invoices-tab.png" alt="Fliken Fakturor med lista över utställda fakturor" />
+      <img src="/images/guider/settings-subscription/03-fakturor.png" alt="Fliken Fakturor med en lista över utställda fakturor" />
     </Frame>
   </Step>
   <Step title="Fliken Betalning – betalmetoder och faktureringsuppgifter">
-    Längst upp ser du de betalmetoder (kort eller faktura via Stripe) som är knutna till organisationen och vilken som är förvald. Längre ned finns **Faktureringsinformation** med organisationens uppgifter – företagsnamn, org.nr, momsnummer, adress och eventuell fakturareferens. Här ändrar du också mejladressen som fakturor skickas till.
+    Överst ligger organisationens betalmetoder och vilken som är förvald. Har ni ingen ännu står det att inga betalmetoder lagts till, med knappen **Lägg till betalningsmetod**.
+
+    Under visas **Faktureringsinformation** – företagsnamn, org.nummer, e-post för faktura, telefon, VAT-nummer, er referens och faktureringsadress. Uppgifterna är skrivskyddade här; du ändrar dem under [Inställningar › Företag](https://app.sajn.se/~/settings/organization/business-details) via länken **Ändra under Företag**.
 
     <Frame>
-      <img src="/images/guider/settings-subscription/06-billing-tab.png" alt="Fliken Betalning med betalmetoder och faktureringsuppgifter" />
+      <img src="/images/guider/settings-subscription/04-betalning.png" alt="Fliken Betalning med betalmetoder och skrivskyddad faktureringsinformation" />
     </Frame>
   </Step>
-  <Step title="Klicka Byt abonnemang för att se plan-väljaren">
-    Plan-väljaren visar de tre publika abonnemangen sida vid sida – **Basic** (gratis), **Solo** (229 kr/mån) och **Team** (499 kr/mån) – plus ett separat **Enterprise**-kort längst ned för specialavtal med dedikerad support och anpassade integrationer.
-
-    Varje kort listar vad som ingår och vilka tillägg som följer med planen. På Team-kortet kan du också välja antal användare (3, 10 eller 25) via rullistan – tilläggen för fler användare följer planen automatiskt. Din nuvarande plan är markerad med **Nuvarande abonnemang** och knappen är inaktiverad så att du inte byter till den du redan har. Klickar du på en annan plan startar Stripes betalflöde – men i den här guiden stannar vi vid översikten utan att välja något.
-
-    Längst ned finns även länken **Information om prissättningen** som öppnar prissidan på sajn.se, samt knappen **Avsluta abonnemang** om du redan har en betald plan och vill säga upp den.
+  <Step title="Fliken Saldo – fyll på och följ transaktionerna">
+    Saldot täcker det som ligger utöver planens kvot: BankID, SMS och ID-kontroller. Fyll på med 50, 100, 250 eller 500 kr, eller skriv ett eget belopp och klicka **Fyll på**. Under ligger **Saldohistorik** med påfyllningar och förbrukning.
 
     <Frame>
-      <img src="/images/guider/settings-subscription/08-open-choose-plan.png" alt="Plan-väljaren med Basic, Solo, Team och Enterprise-kort" />
+      <img src="/images/guider/settings-subscription/05-saldo.png" alt="Fliken Saldo med snabbpåfyllning och saldohistorik" />
+    </Frame>
+  </Step>
+  <Step title="Välj abonnemang visar planerna sida vid sida">
+    Klicka **Hantera abonnemang** på översikten. **Basic**, **Solo** och **Team** ligger som tre kort, med **Enterprise** som ett eget kort under för specialavtal med dedikerad support och SLA.
+
+    Varje kort listar vad som ingår. Din nuvarande plan är markerad med **Nuvarande abonnemang** och dess knapp är inaktiverad. På Team-kortet väljer du antal användare i listan – 3, 6, 10 eller 20 – och priset räknas om därefter.
+
+    Längst ned finns länken **Information om prissättningen** som öppnar prissidan på sajn.se, och **Avsluta abonnemang** om du har en betald plan och vill säga upp den.
+
+    <Frame>
+      <img src="/images/guider/settings-subscription/06-valj-abonnemang.png" alt="Planväljaren med korten Basic, Solo, Team och Enterprise" />
     </Frame>
   </Step>
 </Steps>
+
+<Note>
+  Föredrar ni faktura i stället för kort? Länken **Hör av dig** längst ned på planväljaren skickar ett mejl till oss. Fakturaupplägget sköts av sajn, och då visar abonnemangssidan bara en sammanfattning i stället för planväljaren.
+</Note>

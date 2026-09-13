@@ -1,0 +1,166 @@
+{
+    "slug": "ai-generate-template-section",
+    "title": "Skapa en sektion med AI i en mall",
+    "intro": "Beskriv vad sektionen ska handla om, så skriver AI:n den och lägger in den i mallen.",
+    "audience": "Alla som skapar mallar",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får redigera mallar.",
+        "Organisationen har AI-kvot kvar för månaden."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/ai-generate-template-section",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "till-mallistan",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-mall",
+            "action": "click",
+            "selector": "button:has-text('Skapa ny mall')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-redigera-meny",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namndialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input#name",
+            "value": "Batch D: AI-sektion",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn-sparat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Ändra dokumentnamn')",
+            "state": "hidden"
+        },
+        {
+            "name": "mallen",
+            "action": "screenshot",
+            "caption": "Öppna mallen du vill lägga till sektionen i"
+        },
+        {
+            "name": "sektionsmenyn",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "caption": "Skapa med AI ligger under Verktyg"
+        },
+        {
+            "name": "valj-ai",
+            "action": "click",
+            "selector": "[role='option']:has-text('Skapa med AI')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-promptrutan",
+            "action": "waitForSelector",
+            "selector": "textarea[placeholder='Beskriv sektionen du vill skapa...']"
+        },
+        {
+            "name": "skriv-prompt",
+            "action": "fill",
+            "selector": "textarea[placeholder='Beskriv sektionen du vill skapa...']",
+            "value": "En sekretessklausul som gäller i två år efter avtalets slut och undantar information som redan är offentlig.",
+            "screenshot": false
+        },
+        {
+            "name": "promptrutan",
+            "action": "screenshot",
+            "caption": "Beskriv vad sektionen ska innehålla"
+        },
+        {
+            "name": "generera",
+            "action": "press",
+            "selector": "textarea[placeholder='Beskriv sektionen du vill skapa...']",
+            "key": "Meta+Enter"
+        },
+        {
+            "name": "vanta-resultat",
+            "action": "waitForSelector",
+            "selector": "textarea[placeholder='Beskriv sektionen du vill skapa...']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-lite",
+            "action": "wait",
+            "ms": 2500
+        },
+        {
+            "name": "resultatet",
+            "action": "screenshot",
+            "caption": "Sektionen läggs in i mallen"
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagsdialog",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']:has-text('Ta bort mall')"
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-efter-stadning",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa ny mall')"
+        }
+    ]
+}

@@ -1,0 +1,110 @@
+{
+    "slug": "create-contact",
+    "title": "Skapa en ny kontakt",
+    "intro": "Kontakter är personerna du skickar dokument till - mottagare, motparter, kunder och kollegor. Adressboken tillhör arbetsytan, så varje arbetsyta har sin egen lista. Så här lägger du till en kontakt manuellt.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad och står i den arbetsyta kontakten ska tillhöra.",
+        "Du har behörighet att skapa kontakter i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "imageDir": "../../images/guider/create-contact",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "kontakter",
+            "action": "goto",
+            "url": "/{workspace}/contacts",
+            "caption": "Öppna Kontakter i sidomenyn",
+            "notes": "Tabellen visar namn, e-post, telefon, taggar och när kontakten senast uppdaterades. Överst söker du på namn, e-post, telefon eller företag och filtrerar per företag, tagg eller datafält. Ikonen längst till höger i tabellhuvudet väljer vilka kolumner som ska synas."
+        },
+        {
+            "name": "skapa",
+            "action": "click",
+            "selector": "button:has-text('Skapa kontakt')",
+            "match": "first",
+            "caption": "Klicka på Skapa kontakt",
+            "notes": "Panelen för den nya kontakten öppnas till höger, och en liten ruta ber om namnet direkt. Pilen bredvid knappen döljer i stället de sätt att lägga till många kontakter på en gång."
+        },
+        {
+            "name": "fornamn",
+            "action": "fill",
+            "selector": "input[placeholder='Ange förnamn']",
+            "value": "Batch E",
+            "screenshot": false
+        },
+        {
+            "name": "efternamn",
+            "action": "fill",
+            "selector": "input[placeholder='Ange efternamn']",
+            "value": "Testkontakt",
+            "screenshot": false
+        },
+        {
+            "name": "farg",
+            "action": "click",
+            "selector": "button[aria-label='Grön']",
+            "screenshot": false
+        },
+        {
+            "name": "namnrutan",
+            "action": "screenshot",
+            "caption": "Fyll i förnamn, efternamn och välj en färg",
+            "notes": "Bara namnet behövs för att skapa kontakten. Färgen används i kontaktens avatar överallt där den syns, så att den blir lätt att känna igen. Knappen längst ner uppdateras med namnet du skriver."
+        },
+        {
+            "name": "spara",
+            "action": "click",
+            "selector": "button:has-text('Skapa Batch E Testkontakt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namnruta-stangd",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange förnamn']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-skapad",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Lägg till fält')"
+        },
+        {
+            "name": "detaljer",
+            "action": "screenshot",
+            "caption": "Kontakten är skapad och panelen visar detaljerna",
+            "notes": "Panelen heter Hantera följt av kontaktens namn och har flikarna Översikt, Dokument, Anteckningar och Aktivitet. Under Översikt kompletterar du telefon, e-post, företag och roll genom att klicka på värdet. Ändringar sparas automatiskt. Signaturmetod bestämmer hur den här kontakten signerar när du lägger till den som part, och Arbetsytans standard betyder att den följer arbetsytans val."
+        },
+        {
+            "name": "fler-falt",
+            "action": "click",
+            "selector": "button:has-text('Lägg till fält')",
+            "caption": "Lägg till fält öppnar de övriga uppgifterna",
+            "notes": "Här finns personnummer, adress, externt ID, LinkedIn och webbplats, plus arbetsytans egna datafält. Ett fält försvinner ur listan när det redan syns i panelen."
+        },
+        {
+            "name": "stang-menyn",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "tillbaka",
+            "action": "goto",
+            "url": "/{workspace}/contacts",
+            "screenshot": false
+        },
+        {
+            "name": "i-listan",
+            "action": "screenshot",
+            "caption": "Den nya kontakten ligger i listan",
+            "notes": "Klicka på raden för att öppna panelen igen. Menyn längst till höger på raden har kontaktens åtgärder, bland annat Skapa dokument och Ta bort."
+        }
+    ]
+}

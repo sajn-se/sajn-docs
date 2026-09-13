@@ -1,0 +1,80 @@
+{
+    "slug": "webhooks",
+    "title": "Konfigurera webhooks för dokumenthändelser",
+    "intro": "Rundtur av webhooks: var de ligger, vad dialogen innehåller och vilka händelser du kan prenumerera på. Guiden skapar ingen webhook.",
+    "audience": "Utvecklare och arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad och har behörighet att hantera webhooks i arbetsytan.",
+        "API-åtkomst ingår i Team och Enterprise.",
+        "Din endpoint går att nå över HTTPS från publika internet."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]",
+        "[role='dialog'] input.pr-10"
+    ],
+    "imageDir": "../../images/guider/webhooks",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "open-webhooks",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/developer/webhooks",
+            "caption": "Öppna Inställningar, Utvecklare och fliken Webhooks",
+            "notes": "Tabellen visar URL, vilka händelser som utlöser anropet och när webhooken skapades. Sökfältet filtrerar listan."
+        },
+        {
+            "name": "open-create",
+            "action": "click",
+            "selector": "button:has-text('Skapa webhook')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "wait-dialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='https://dittforetag.se/api/webhook']"
+        },
+        {
+            "name": "fill-url",
+            "action": "fill",
+            "selector": "input[placeholder='https://dittforetag.se/api/webhook']",
+            "value": "https://exempel.se/api/sajn-webhook",
+            "caption": "Dialogen Skapa webhook",
+            "notes": "Fälten är Webhook URL, Aktiv, Händelser, E-post vid fel och Hemlighet. Det finns ingen arbetsyteväljare — webhooken hör till den arbetsyta du står i. Hemligheten är maskad i bilden."
+        },
+        {
+            "name": "open-events",
+            "action": "click",
+            "selector": "[role='dialog'] input[role='combobox']",
+            "match": "first",
+            "caption": "Välj bland tillgängliga händelser",
+            "notes": "Listan är lång. Skriv i fältet för att filtrera, och välj så få händelser som möjligt."
+        },
+        {
+            "name": "blur-events",
+            "action": "click",
+            "selector": "[role='dialog'] h2",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "cancel",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-closed",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='https://dittforetag.se/api/webhook']",
+            "state": "hidden"
+        }
+    ]
+}

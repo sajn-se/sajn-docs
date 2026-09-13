@@ -3,70 +3,84 @@ title: "Hantera API-nycklar och utvecklarinställningar"
 description: "Skapa och hantera API-nycklar, webhooks och loggar för integrationer mot sajns REST API"
 ---
 
-På sidan **Utvecklare** hittar du allt som behövs för att bygga integrationer mot sajns REST API: API-nycklar, webhooks och loggar över anrop som gjorts mot er organisation. Den här guiden är en rundtur av sidan och visar var allt ligger. Den skapar ingen nyckel och tar inte bort något – du bestämmer själv när du vill ta nästa steg.
+På sidan [Utvecklare](https://app.sajn.se/~/settings/workspace/developer) finns allt som behövs för att bygga mot sajns REST API: API-nycklar, webhooks, övervakning och loggar. Den här guiden är en rundtur av flikarna. Den skapar ingen nyckel – API-nycklar är riktiga inloggningsuppgifter och ska bara skapas när du faktiskt behöver en.
+
+Sidan hör till **arbetsytan**, inte organisationen. Nycklar och webhooks du skapar här gäller den arbetsyta du står i.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera utvecklarinställningar på organisationsnivå.
-- Utvecklarinställningar ligger på **organisationen**, inte på enskilda arbetsytor – nycklar och webhooks delas mellan alla arbetsytor i organisationen.
+- Du är inloggad och har behörighet att hantera API-nycklar eller webhooks i arbetsytan.
+- API-åtkomst ingår i Team och Enterprise.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Utvecklare i sidomenyn">
-    Sidan ligger under *Organisationsinställningar* och hanterar API-nycklar och webhooks för hela organisationen. Rubriken längst upp förklarar att du här hanterar **API-nycklar och webhooks för integrationer**.
+  <Step title="Öppna Inställningar och sedan Utvecklare">
+    Fliken **Hem** samlar det du behöver för att komma igång: genvägar till dokumentationen, MCP-servern och sajns Postman-samling, adressen till MCP-servern, och arbetsytans **API-gränser**. Gränserna – förfrågningar per minut och per dygn – räknas per organisation, och `X-RateLimit-*`-headrarna i svaren visar aktuell status.
+
+    Längst ned kan du prenumerera på **Utvecklarnyheter**, som går till din inloggningsadress.
 
     <Frame>
-      <img src="/images/guider/settings-developer-api/02-open-developer-settings.png" alt="Sidan Utvecklare öppen under Organisationsinställningar" />
+      <img src="/images/guider/settings-developer-api/02-open-developer.png" alt="Fliken Hem under Utvecklare med genvägar, MCP-adress och API-gränser" />
     </Frame>
   </Step>
-  <Step title="Sektionen API-nycklar listar alla nycklar i organisationen">
-    Tabellen visar **Namn**, **Typ** (API eller Personlig), **Arbetsyta**, **Behörighet**, en maskad förhandsvisning av själva nyckeln (klicka på den för att avslöja prefixet), när den **Skapades** och när den **Senast användes**.
-
-    Kolumnen *Typ* skiljer på nycklar som är knutna till organisationen (**API**) och personliga nycklar som tillhör en enskild användare (**Personlig**). Använd sökfältet uppe till vänster för att filtrera bland nycklarna när listan blir lång.
+  <Step title="Fliken API-nycklar listar arbetsytans nycklar">
+    Tabellen på fliken [API-nycklar](https://app.sajn.se/~/settings/workspace/developer/api-keys) visar **Namn**, en maskad **API-nyckel** (klicka på den för att avslöja prefixet), när nyckeln **skapades**, när den **senast användes** och när den **utgår**. Sökfältet uppe till vänster filtrerar på namn.
 
     <Frame>
-      <img src="/images/guider/settings-developer-api/04-api-keys-section.png" alt="Sektionen API-nycklar med tabell över alla nycklar i organisationen" />
+      <img src="/images/guider/settings-developer-api/03-open-api-keys.png" alt="Fliken API-nycklar med tabell och knappen Skapa API-nyckel" />
     </Frame>
   </Step>
-  <Step title="Knappen Skapa API-nyckel uppe till höger startar guiden för att generera en ny nyckel">
-    Klicka på **Skapa API-nyckel** för att öppna dialogen där du namnger nyckeln, väljer arbetsyta och behörighetsnivå. När nyckeln genereras visas hela värdet **endast en gång** – kopiera den direkt och spara den på en säker plats, eftersom du aldrig kommer kunna se den igen.
+  <Step title="Skapa API-nyckel">
+    Dialogen har två fält: ett **namn** och hur länge nyckeln ska gälla – *30 dagar*, *90 dagar*, *1 år* eller *Aldrig*.
 
-    Den här guiden klickar **inte** på knappen – API-nycklar är riktiga inloggningsuppgifter och ska bara skapas när du faktiskt behöver en.
+    Det finns ingen behörighetsväljare. Nyckeln **ärver dina behörigheter i arbetsytan**: ändras dina behörigheter, eller tas du bort från arbetsytan, slutar nyckeln fungera.
+
+    När nyckeln genereras visas hela värdet **bara en gång**. Kopiera den direkt och spara den säkert – du kommer inte att kunna se den igen.
 
     <Frame>
-      <img src="/images/guider/settings-developer-api/05-hover-create-key.png" alt="Knappen Skapa API-nyckel uppe till höger på Utvecklarsidan" />
+      <img src="/images/guider/settings-developer-api/04-open-create-key.png" alt="Dialogen Skapa ny API-nyckel med namn och utgångstid" />
     </Frame>
   </Step>
-  <Step title="Trepunktsmenyn på varje rad – Regenerera eller Återkalla en befintlig nyckel">
-    Längst till höger på varje rad finns en trepunktsmeny (⋯) som låter dig:
+  <Step title="Menyn på varje rad – regenerera eller återkalla">
+    Menyn längst till höger på en nyckelrad låter dig:
 
-    - **Regenerera** – byter ut nyckelns hemliga värde mot ett nytt. Det gamla värdet slutar fungera direkt, så glöm inte att uppdatera dina integrationer.
-    - **Återkalla** – tar bort nyckeln helt. Alla anrop med den nyckeln avvisas omedelbart.
+    - **Regenerera** – byter ut nyckelns hemliga värde mot ett nytt, som visas en gång. Det gamla värdet slutar fungera direkt, så uppdatera dina integrationer.
+    - **Återkalla** – tar bort nyckeln helt. Alla anrop med den avvisas omedelbart.
 
-    Längst ner i menyn står även vem som ursprungligen skapade nyckeln, så att du kan följa upp internt innan du gör något destruktivt.
+    Längst ned i menyn står vem som skapade nyckeln, så att du kan stämma av internt innan du gör något destruktivt.
+  </Step>
+  <Step title="Övervakning visar API- och webhook-hälsa">
+    Fliken **Övervakning** sammanfattar de senaste 24 eller 72 timmarna: antal **API-förfrågningar**, **API-felfrekvens**, **svarstid p50 och p95**, antal **webhook-leveranser**, **webhook-fel** och **leveranstid p50 och p95**. Under nyckeltalen ligger två diagram – förfrågningar per timme och webhook-leveranstid.
+
+    Statistiken bygger på loggarna och täcker därför samma 72 timmar som de.
 
     <Frame>
-      <img src="/images/guider/settings-developer-api/07-key-row-actions.png" alt="Trepunktsmenyn öppen på en API-nyckelrad med Regenerera och Återkalla" />
+      <img src="/images/guider/settings-developer-api/09-monitoring.png" alt="Fliken Övervakning med nyckeltal och två diagram" />
     </Frame>
   </Step>
-  <Step title="Sektionen Webhooks låter dig prenumerera på händelser i sajn">
-    Webhooks postar JSON-payloads till en URL du själv anger när vissa händelser inträffar – t.ex. när ett dokument blir signerat eller en mottagare avböjer. Tabellen visar **URL**, **Arbetsyta**, vilka **Event** som triggar anropet och när webhooken **skapades**.
+  <Step title="Loggar har både API-anrop och webhook-leveranser">
+    Fliken **Loggar** innehåller två tabeller:
 
-    Klicka **Skapa webhook** för att lägga till en ny endpoint, eller använd trepunktsmenyn på en rad för att **Redigera** eller **Ta bort** en befintlig.
+    - **API-loggar** – varje anrop mot REST-API:t, med tid, metod, sökväg, statuskod, varaktighet och IP-adress. Filtrera på metod eller statuskod, eller sök på sökväg och IP. Klicka på en rad för att se hela anropet.
+    - **Webhook-loggar** – utgående anrop sajn skickat till era endpoints, med webhook, händelse, URL, status och svarskod.
 
-    <Frame>
-      <img src="/images/guider/settings-developer-api/08-webhooks-section.png" alt="Sektionen Webhooks med tabell över aktiva webhooks" />
-    </Frame>
-  </Step>
-  <Step title="API-loggar och Webhook-loggar – felsök integrationer i realtid">
-    Längre ned på sidan finns två loggsektioner:
-
-    - **API-loggar** – varje anrop som gjorts mot REST API:t med en av era nycklar, med statuskod, ändpunkt och tidsstämpel. Klicka på en rad för att se hela request/response-payloaden.
-    - **Webhook-loggar** – utgående webhook-anrop som sajn skickat till era endpoints, inklusive svarstid och statuskod. Loggarna sparas i **72 timmar** och är det första stället att titta när en integration inte beter sig som förväntat.
+    Båda sparas i **72 timmar** och är det första stället att titta när en integration inte beter sig som väntat.
 
     <Frame>
-      <img src="/images/guider/settings-developer-api/09-api-logs-section.png" alt="Sektionen API-loggar med tabell över senaste API-anrop" />
+      <img src="/images/guider/settings-developer-api/13-logs.png" alt="Fliken Loggar med API-loggar överst och webhook-loggar under" />
     </Frame>
   </Step>
 </Steps>
+
+## De andra flikarna
+
+- **OAuth-appar** – egna OAuth-klienter, för den som bygger en app som andra sajn-organisationer ska kunna ansluta.
+- **Webhooks** – prenumerationer på händelser i arbetsytan. Se [Konfigurera webhooks](/guider/webhooks).
+- **Sandbox** – en separat testmiljö kopplad till organisationen, så att du kan bygga utan att röra skarpa dokument.
+
+Två flikar dyker bara upp när funktionen är påslagen för organisationen: **sajn Login** och **Inbäddning**.
+
+<Warning>
+  En API-nyckel ger åtkomst till arbetsytans data. Lägg den aldrig i klientkod, i ett publikt repo eller i en skärmdump. Misstänker du att en nyckel läckt – återkalla den direkt.
+</Warning>

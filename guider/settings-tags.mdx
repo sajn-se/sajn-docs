@@ -3,53 +3,57 @@ title: "Hantera taggar för dokument och kontakter"
 description: "Skapa och hantera färgkodade taggar för att kategorisera dokument, mallar och kontakter i arbetsytan"
 ---
 
-Taggar är ett enkelt sätt att kategorisera dokument, mallar och kontakter med färgkodade etiketter. På sidan **Taggar** under arbetsyteinställningarna får du en samlad vy över alla taggar i arbetsytan – vad de heter, vilken färg de har, var de får användas och hur ofta de faktiskt används. Den här guiden tar dig genom sidan utan att skapa eller ändra någon tagg.
+Taggar är ett enkelt sätt att kategorisera dokument, mallar och kontakter med färgkodade etiketter. Sidan [Taggar](https://app.sajn.se/~/settings/workspace/data-fields/tags) ligger som en flik under *Datafält & taggar* i arbetsyteinställningarna och ger en samlad vy över alla taggar i arbetsytan – vad de heter, vilken färg de har, var de får användas och hur ofta de faktiskt används.
 
 ## Innan du börjar
 
 - Du är inloggad i sajn och har valt en arbetsyta.
 - Taggar är en arbetsyteinställning – du ser bara taggarna i den arbetsyta du är i just nu.
-- För att kunna skapa, redigera eller ta bort taggar behöver du behörighet att administrera arbetsytan.
+- För att skapa, redigera eller ta bort taggar behöver du behörighet att administrera arbetsytan.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Taggar i sidomenyn">
-    Taggsidan ligger under arbetsyteinställningarna, eftersom varje arbetsyta har sin egen uppsättning taggar. Byter du arbetsyta byter du också tagglista.
+  <Step title="Öppna Inställningar → Datafält & taggar och välj fliken Taggar">
+    Sidan ligger under arbetsyteinställningarna tillsammans med datafält och dokumentkategorier, eftersom varje arbetsyta har sin egen uppsättning. Byter du arbetsyta byter du också tagglista.
+
+    Är tabellen tom har ingen i arbetsytan skapat en tagg ännu.
 
     <Frame>
-      <img src="/images/guider/settings-tags/02-open-tags-settings.png" alt="Sidan Taggar öppen under Arbetsyteinställningar" />
+      <img src="/images/guider/settings-tags/02-oppna-taggar.png" alt="Fliken Taggar under Datafält och taggar" />
     </Frame>
   </Step>
-  <Step title="Översikt över alla taggar i arbetsytan">
-    Rubriken **Taggar** ligger högst upp tillsammans med en kort beskrivning. Till höger ligger knappen **Lägg till tagg** som öppnar en dialog där du kan skapa en ny tagg – men i den här guiden tittar vi bara på listan.
-
-    Tabellen visar varje tagg som en rad. Tom lista? Då har ingen i arbetsytan skapat en tagg ännu.
+  <Step title="Lägg till tagg öppnar en ruta med tre fält">
+    - **Namn** – det som visas överallt där taggen används.
+    - **Tillgänglig för** – var taggen får sättas: *Dokument*, *Mallar* eller *Kontakter*. Det är så du hindrar att till exempel en kontakttagg hamnar på ett dokument.
+    - **Färg** – den prick som följer med taggen i listor och filter.
 
     <Frame>
-      <img src="/images/guider/settings-tags/04-tags-overview.png" alt="Översikt av tagglistan med Lägg till tagg-knapp" />
+      <img src="/images/guider/settings-tags/05-ny-tagg.png" alt="Rutan Skapa ny tagg med namn, tillgänglighet och färg" />
     </Frame>
   </Step>
-  <Step title="Kolumnerna i tagglistan – så här läser du raden">
-    **Namn** visar taggens färg som en liten cirkel följt av taggens namn. Färgen är samma som används överallt där taggen visas – på dokumentkort, i kontaktlistan och i filter.
+  <Step title="Så här läser du en rad i tagglistan">
+    **Namn** visar taggens färg som en liten prick följt av namnet. Färgen är densamma överallt där taggen visas – på dokumentkort, i kontaktlistan och i filter.
 
-    **Tillgänglig på** visar var taggen får användas: *Dokument*, *Mallar* och/eller *Kontakter*. Grön bock = tillåten, grått kryss = inte tillåten. Det är så du begränsar att t.ex. en kontakttagg inte hamnar på fel ställe.
+    **Tillgänglig på** visar var taggen får användas. Grön bock = tillåten, grått kryss = inte tillåten.
 
     **Skapad av** visar vem som lade till taggen. Står det *System* är taggen skapad automatiskt.
 
-    **Skapad** är datumet då taggen lades till.
+    **Skapad** är datumet då taggen lades till, och **Användning** räknar hur många dokument som har taggen just nu – ett snabbt sätt att se vilka taggar som faktiskt används.
 
-    **Användning** räknar hur många dokument som just nu har taggen – ett snabbt sätt att se vilka taggar som faktiskt används.
+    Ikonen längst till höger i rubrikraden döljer och visar kolumner.
 
     <Frame>
-      <img src="/images/guider/settings-tags/06-tags-columns.png" alt="Detaljvy av kolumnerna Namn, Tillgänglig på, Skapad av och Användning" />
+      <img src="/images/guider/settings-tags/09-kolumner.png" alt="Tagglistan med kolumnerna namn, tillgänglig på, skapad av, skapad och användning" />
     </Frame>
   </Step>
   <Step title="Trepunktsmenyn (⋯) längst till höger på varje rad">
-    På varje tagg-rad finns en trepunktsmeny med två alternativ: **Redigera** – ändra namn, färg och var taggen får användas – och **Ta bort**. När du tar bort en tagg försvinner den från alla dokument, kontakter och mallar där den används, så använd kommandot med eftertanke.
+    **Redigera** öppnar samma ruta som när du skapade taggen, så du kan ändra namn, färg och var taggen får användas.
+
+    **Ta bort** tar bort taggen från alla dokument, kontakter och mallar där den används. En bekräftelseruta visas först, och åtgärden går inte att ångra.
 
     <Frame>
-      <img src="/images/guider/settings-tags/07-tags-row-actions.png" alt="Trepunktsmenyn öppen på en taggrad med Redigera och Ta bort" />
+      <img src="/images/guider/settings-tags/10-oppna-radmeny.png" alt="Trepunktsmenyn öppen på en taggrad med Redigera och Ta bort" />
     </Frame>
   </Step>
 </Steps>

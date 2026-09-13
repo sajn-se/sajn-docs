@@ -1,0 +1,50 @@
+{
+  "ranAt": "2026-09-13T11:20:09.565Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "open-branding",
+      "action": "goto",
+      "screenshotFile": "02-open-branding.png",
+      "caption": "Allt som syns på signeringssidan styrs från Profilering",
+      "notes": "Fliken Allmänt innehåller Aktivera branding, två ikoner, två logotyper och Webbplats. Det finns ingen separat sida för signeringssidans utseende.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding"
+    },
+    {
+      "index": 3,
+      "name": "open-document-tab",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding"
+    },
+    {
+      "index": 4,
+      "name": "wait-document-tab",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/document"
+    },
+    {
+      "index": 5,
+      "name": "document-tab",
+      "action": "screenshot",
+      "screenshotFile": "05-document-tab.png",
+      "caption": "Fliken Dokument gäller dokumentets sidhuvud, inte signeringssidans",
+      "notes": "Här slår du på ett sidhuvud i själva PDF:en och väljer var logotypen ska sitta. Det påverkar inte ramen runt dokumentet på signeringssidan.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/branding/document"
+    }
+  ]
+}

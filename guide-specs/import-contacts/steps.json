@@ -1,0 +1,171 @@
+{
+    "slug": "import-contacts",
+    "title": "Importera flera kontakter samtidigt",
+    "intro": "Ska du fylla en ny arbetsyta eller flytta in ett befintligt register lägger du till kontakterna i klump i stället för en och en. Alla källor sitter i menyn bakom pilen vid Skapa kontakt.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad och står i arbetsytan som ska ta emot kontakterna.",
+        "Du har behörighet att skapa kontakter i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "imageDir": "../../images/guider/import-contacts",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "kontakter",
+            "action": "goto",
+            "url": "/{workspace}/contacts",
+            "screenshot": false
+        },
+        {
+            "name": "menyn",
+            "action": "click",
+            "selector": "button.rounded-l-none.w-7",
+            "caption": "Öppna menyn bakom pilen vid Skapa kontakt",
+            "notes": "Menyn samlar alla sätt att lägga till många kontakter. Överst listas varje installerad integration som har kontakter, till exempel ett CRM. Under dem ligger de fyra källorna som alltid finns."
+        },
+        {
+            "name": "csv",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Importera från CSV')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-csv",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']"
+        },
+        {
+            "name": "csv-dialog",
+            "action": "screenshot",
+            "caption": "Importera från CSV",
+            "notes": "Du väljer en fil och går igenom två steg: först matchar du filens kolumner mot kontaktfälten, sedan förhandsgranskar du raderna innan importen körs."
+        },
+        {
+            "name": "stang-csv",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-csv",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "menyn-2",
+            "action": "click",
+            "selector": "button.rounded-l-none.w-7",
+            "screenshot": false
+        },
+        {
+            "name": "arbetsyta",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Importera från annan arbetsyta')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-arbetsyta",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']"
+        },
+        {
+            "name": "arbetsyta-panel",
+            "action": "screenshot",
+            "caption": "Importera från annan arbetsyta",
+            "notes": "Först väljer du källarbetsytan, sedan laddas dess kontakter och du kryssar de du vill ha. Bara arbetsytor i samma organisation går att importera från, och kontakter med en e-postadress som redan finns hoppas över automatiskt. Har du inga andra arbetsytor står det här."
+        },
+        {
+            "name": "stang-arbetsyta",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-arbetsyta",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "menyn-3",
+            "action": "click",
+            "selector": "button.rounded-l-none.w-7",
+            "screenshot": false
+        },
+        {
+            "name": "parter",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Skapa från dokumentparter')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-parter",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']"
+        },
+        {
+            "name": "vanta-parter-laddat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] :text('Laddar parter')",
+            "state": "hidden"
+        },
+        {
+            "name": "parter-panel",
+            "action": "screenshot",
+            "caption": "Skapa från dokumentparter",
+            "notes": "Den här källan plockar upp personer som redan varit parter på era dokument men aldrig sparats som kontakter. Praktiskt när adressboken släpar efter dokumenten."
+        },
+        {
+            "name": "stang-parter",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-parter",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "menyn-4",
+            "action": "click",
+            "selector": "button.rounded-l-none.w-7",
+            "screenshot": false
+        },
+        {
+            "name": "bolagsverket",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Importera från Bolagsverket')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-bolagsverket",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']"
+        },
+        {
+            "name": "bolagsverket-panel",
+            "action": "screenshot",
+            "caption": "Importera från Bolagsverket",
+            "notes": "Här söker du upp ett företag på namn eller organisationsnummer och lägger till dess företrädare som kontakter. Det är ingen massimport i egentlig mening, men en snabb väg till rätt person på rätt bolag."
+        },
+        {
+            "name": "stang-bolagsverket",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        }
+    ],
+    "mask": [
+        "p.truncate.text-xs.text-muted-foreground"
+    ]
+}

@@ -1,0 +1,51 @@
+{
+    "slug": "statistics",
+    "title": "Statistik och nyckeltal",
+    "intro": "Statistik visar arbetsytans dokumentflöde: hur mycket som är på gång, hur stor andel som blir signerat och hur lång tid det tar.",
+    "audience": "Alla som arbetar i en arbetsyta",
+    "prerequisites": [
+        "Du är inloggad och har valt en arbetsyta."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "tbody td span.text-xs.text-muted-foreground"
+    ],
+    "imageDir": "../../images/guider/statistics",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-statistik",
+            "action": "goto",
+            "url": "/{workspace}/statistics",
+            "caption": "Öppna Statistik via sidomenyn",
+            "notes": "Siffrorna gäller den arbetsyta du står i. KPI-korten överst visar antal dokument och sammanlagt värde per status för den valda perioden."
+        },
+        {
+            "name": "period",
+            "action": "click",
+            "selector": "button:has-text('Senaste 30 dagarna')",
+            "caption": "Tidsperioden uppe till höger styr alla siffror",
+            "notes": "Välj en förinställd period eller markera ett eget intervall i kalendern. Valet hamnar i adressfältet, så du kan dela en länk till exakt samma vy."
+        },
+        {
+            "name": "stang-period",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "anvandare",
+            "action": "scrollIntoView",
+            "selector": "h2:has-text('Aktiva användare')",
+            "align": "start",
+            "screenshot": true,
+            "caption": "Aktiva användare och Mest använda mallar längst ned",
+            "notes": "Aktiva användare listar medlemmar som skickat eller signerat under perioden, med Skickade, Signerade och Signeringsgrad. Mest använda mallar rankar mallarna efter antal skickade dokument; klicka på ett namn för att öppna mallen."
+        }
+    ]
+}
