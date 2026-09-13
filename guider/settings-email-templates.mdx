@@ -76,7 +76,9 @@ Mallarna hör till **arbetsytan**. Har ni flera arbetsytor har var och en sin eg
     </Frame>
   </Step>
   <Step title="Variabler fylls i automatiskt vid utskick">
-    Raden längst ned påminner om att variabler skrivs som `{namn}` och byts mot riktiga värden vid utskick. Organisationsnamnet kan inte ersättas – det skyddar mottagaren mot vilseledande avsändare.
+    Raden längst ned påminner om att variabler skrivs som `{namn}` och byts mot riktiga värden vid utskick. Vanliga variabler är `{organizationName}` för din organisation, `{recipientFirstName}` för mottagarens förnamn, `{documentName}` för dokumentets namn och `{inviterFullName}` för den som bjudit in.
+
+    Vissa variabler är obligatoriska i sin mall och går inte att ta bort – granskningen stoppar en text som saknar dem. Organisationsnamnet kan inte ersättas med egen text, vilket skyddar mottagaren mot vilseledande avsändare.
 
     <Frame>
       <img src="/images/guider/settings-email-templates/15-variables-note.png" alt="Raden om variabler längst ned på sidan" />
@@ -87,3 +89,14 @@ Mallarna hör till **arbetsytan**. Har ni flera arbetsytor har var och en sin eg
 <Note>
   Texten du sparar gäller från nästa utskick. Mejl som redan har skickats påverkas inte.
 </Note>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Profilering" icon="palette" href="/guider/settings-branding">
+    Logotyp, ikoner och dokumentets sidhuvud på samma sida.
+  </Card>
+  <Card title="Meddelandemallar" icon="message" href="/guider/settings-message-templates">
+    Sparade följebrev som du väljer när du skickar ett dokument.
+  </Card>
+</CardGroup>

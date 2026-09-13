@@ -5,7 +5,7 @@ description: "Definiera datafält som berikar dokument och kontakter med extra d
 
 Med **datafält** lagrar du extra uppgifter på dokument och kontakter – t.ex. *Fakturanummer*, *Avtalsdatum*, *Projektkod* eller *Kundnummer*. Fälten går att filtrera och rapportera på, och kan användas som variabler i utskick.
 
-Fälten definieras på **organisationsnivå** och syns i alla arbetsytor.
+Fälten hör till **arbetsytan**. Har ni flera arbetsytor har var och en sin egen uppsättning fält.
 
 ## Innan du börjar
 
@@ -71,11 +71,23 @@ Fälten definieras på **organisationsnivå** och syns i alla arbetsytor.
   **Dokumenttyper** i avsnittet under fältlistan är kategorier du sätter på ett dokument. Kopplar du datafält till en typ visas bara de fälten på dokument av den typen. Mallar och dokument utan typ visar alla fält.
 </Note>
 
+## Så används fälten
+
+Ett fält du har lagt upp dyker upp i panelen **Datafält** när du öppnar ett dokument eller en mall i redigeraren. Där fyller du i värdet, och värdet kan sedan:
+
+- skrivas in i dokumentets text som en variabel
+- filtreras och grupperas på i dokumentlistan och i rapporter
+- läsas och sättas via API:et
+
+<Tip>
+  Vill du sätta värdet programmatiskt? Se [Custom Fields](/guides/custom-fields) för API-anropen.
+</Tip>
+
 ## Nästa steg
 
 <CardGroup cols={2}>
-  <Card title="Använd fälten på ett dokument" icon="input-text" href="/guider/anpassade-falt-i-dokument">
-    Så fyller du i datafälten när du arbetar med ett dokument.
+  <Card title="Fyll i datafälten i redigeraren" icon="input-text" href="/guider/dokumentredigeraren">
+    Panelen Datafält i dokument- och mallredigeraren.
   </Card>
   <Card title="Taggar" icon="tag" href="/guider/settings-tags">
     Den andra fliken på samma sida, för fri märkning av dokument och kontakter.

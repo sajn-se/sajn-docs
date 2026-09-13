@@ -120,7 +120,7 @@
           {
             "group": "Konto & inställningar",
             "pages": [
-              "guider/personliga-installningar",
+              "guider/settings-user",
               "guider/settings-communication-preferences",
               "guider/settings-overview",
               "guider/settings-preferences"
@@ -130,12 +130,12 @@
             "group": "Arbetsyta",
             "pages": [
               "guider/arbetsytor",
-              "guider/arbetsyteinstellningar",
+              "guider/settings-workspaces",
               "guider/settings-workspace-members-roles",
               "guider/settings-branding",
-              "guider/anpassade-epostmallar",
+              "guider/settings-email-templates",
               "guider/settings-message-templates",
-              "guider/anpassade-falt-i-dokument",
+              "guider/settings-custom-fields",
               "guider/settings-tags",
               "guider/settings-ai",
               "guider/settings-search",
@@ -573,6 +573,22 @@
     {
       "source": "/developer-mcp",
       "destination": "/workspace-mcp"
+    },
+    {
+      "source": "/guider/personliga-installningar",
+      "destination": "/guider/settings-user"
+    },
+    {
+      "source": "/guider/arbetsyteinstellningar",
+      "destination": "/guider/settings-workspaces"
+    },
+    {
+      "source": "/guider/anpassade-epostmallar",
+      "destination": "/guider/settings-email-templates"
+    },
+    {
+      "source": "/guider/anpassade-falt-i-dokument",
+      "destination": "/guider/settings-custom-fields"
     }
   ],
   "contextual": {
