@@ -35,6 +35,18 @@ Listan visar bara medlemmar vars roll har behörigheten Godkänna dokument. Har 
 
 Under Inställningar → Preferenser → Allmänt finns Kräv godkännande innan utskick. Slår du på den måste varje dokument i arbetsytan godkännas internt innan det skickas — även av den som annars får skicka utan godkännande. Saknar ett dokument godkännare läggs arbetsytans standardkedja till automatiskt.
 
+### 4. Vem som får godkänna styrs av arbetsytans roller
+
+![](../../images/guider/approval-workflow/25-rollerna.png)
+
+Under Inställningar → Team → Roller listas arbetsytans roller med hur många behörigheter var och en ger och hur många medlemmar som har dem. Det är här du delar ut rätten att godkänna.
+
+### 5. Behörigheterna ligger i gruppen Dokumentflöde
+
+![](../../images/guider/approval-workflow/28-dokumentflode.png)
+
+Godkänna dokument gör att medlemmen dyker upp som valbar godkännare i dialogen Internt godkännande. Skicka utan godkännande låter medlemmen skicka direkt även när arbetsytan kräver godkännande — ta bort den från roller som alltid ska attestera. Inbyggda roller går bara att läsa; skapa en egen roll för att ändra behörigheterna.
+
 ---
 
 *Senast verifierad: 2026-09-13. Generad av `scripts/guide-runner.ts`.*

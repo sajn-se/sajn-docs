@@ -1,0 +1,111 @@
+---
+title: "Bygg upp produktkatalogen"
+description: "Lägg upp varor och tjänster en gång och hämta in dem i dokumentens produkttabeller"
+---
+
+**Produkter** är arbetsytans katalog över varor och tjänster. Du lägger upp namn, pris, enhet och moms en gång, och hämtar sedan in raden i vilket dokument som helst i stället för att skriva av samma siffror varje gång.
+
+Katalogen används av sektionstypen **Produkttabell** i dokument och mallar. Den här guiden går igenom båda halvorna: hur du fyller katalogen och hur du plockar ur den.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Du har behörighet att hantera produkter i arbetsytan.
+- Katalogen tillhör arbetsytan. Har du flera arbetsytor har var och en sin egen katalog.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Produkter i sidomenyn">
+    [Produkter](https://app.sajn.se/~/products) listar namn, artikelnummer, pris och moms. Sökfältet söker på både namn och artikelnummer.
+
+    <Frame>
+      <img src="/images/guider/produkter/02-oppna-produkter.png" alt="Sidan Produkter med tom katalog" />
+    </Frame>
+  </Step>
+
+  <Step title="En produkt är namn, pris, enhet och moms">
+    Klicka på **Ny produkt**. Bara produktnamnet är obligatoriskt.
+
+    - **Pris** är styckpriset exklusive moms.
+    - **Enhet** är vad priset gäller per, till exempel timme, styck eller år.
+    - **Moms** väljs bland 0, 6, 12 och 25 procent.
+    - **Artikelnummer** är ditt eget och gör produkten sökbar.
+
+    <Frame>
+      <img src="/images/guider/produkter/11-fyll-artikelnummer.png" alt="Rutan Ny produkt med namn, beskrivning, pris, moms, enhet och artikelnummer ifyllda" />
+    </Frame>
+  </Step>
+
+  <Step title="Katalogen redigerar du direkt i listan">
+    Pennan öppnar produkten för ändring, papperskorgen tar bort den ur katalogen.
+
+    Tar du bort en produkt behåller dokument som redan använder den sina värden, eftersom raden i dokumentet är en kopia.
+
+    <Frame>
+      <img src="/images/guider/produkter/36-listan.png" alt="Katalogen med tre produkter och åtgärderna Redigera och Ta bort" />
+    </Frame>
+  </Step>
+
+  <Step title="Har du redan en prislista importerar du den">
+    Pilen bredvid **Ny produkt** döljer **Importera från CSV**. Släpp filen i rutan, så läser sajn rubrikraden och föreslår vilken kolumn som är namn, beskrivning, artikelnummer, pris, enhet och moms. Du kan ändra förslaget innan du importerar.
+
+    Första raden i filen måste vara kolumnrubriker, och högst 2 000 rader läses in per fil.
+
+    <Frame>
+      <img src="/images/guider/produkter/40-csv-import.png" alt="Rutan Importera produkter från CSV med ytan för att välja fil" />
+    </Frame>
+  </Step>
+
+  <Step title="I dokumentet hämtar du raden ur katalogen">
+    Lägg till en **Produkttabell**-sektion i dokumentet eller mallen. Knappen **Lägg till produkt** ger en tom rad du fyller i själv. Pilen bredvid öppnar **Från bibliotek**, och där ligger arbetsytans katalog.
+
+    Klicka **Infoga** på produkten du vill ha. Du kan också skapa en ny produkt direkt härifrån, och den hamnar i katalogen som vanligt.
+
+    <Frame>
+      <img src="/images/guider/produkter/58-biblioteket.png" alt="Rutan Produktbibliotek öppnad från en produkttabell i dokumentet" />
+    </Frame>
+  </Step>
+
+  <Step title="Raden kommer in med namn, pris, enhet och moms">
+    Den övre raden i bilden är den tomma som **Lägg till produkt** skapade. Den undre kom från katalogen och är redan ifylld.
+
+    **Antal** fyller du i per dokument, eftersom det är det enda som varierar mellan avtal. Tabellen summerar exklusive moms, moms och total längst ner.
+
+    <Frame>
+      <img src="/images/guider/produkter/61-tabellen.png" alt="Produkttabell med en tom rad och en rad hämtad från katalogen, med summering" />
+    </Frame>
+  </Step>
+
+  <Step title="Vägen tillbaka är Spara i bibliotek">
+    Klicka på en rad i tabellen för att ändra den. Har du skrivit en rad för hand som du vill återanvända lägger **Spara i bibliotek** upp den som en produkt i katalogen.
+
+    I samma ruta väljer du **Typ**: *Vara* eller *Tjänst*. För tjänster tillkommer **Avdrag**, där du kan välja ROT (30 %) eller RUT (50 %). Ändringar du gör här stannar i dokumentet.
+
+    <Frame>
+      <img src="/images/guider/produkter/64-spara-i-bibliotek.png" alt="Rutan Redigera produkt med knappen Spara i bibliotek" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Katalogen och dokumentet är två olika saker
+
+När du infogar en produkt kopieras värdena in i dokumentet. Kopplingen bryts där.
+
+- Höjer du priset i katalogen ändras **inte** dokument som redan är skrivna. Det är avsiktligt: ett skickat avtal ska inte ändra sig i efterhand.
+- Ändrar du priset på en rad i ett dokument ändras **inte** katalogen. Vill du att ändringen ska gälla framåt använder du **Spara i bibliotek**, eller redigerar produkten på sidan Produkter.
+
+<Tip>
+  Ska mottagaren själv välja bland raderna slår du på **Mottagarval** under tabellen och pekar ut vilken part som väljer. Tabellen får då en kryssruta per rad, där du bestämmer vilka som är ikryssade från början, och summan följer det mottagaren lämnar ikryssat.
+</Tip>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Lägg till sektioner och fält i ett dokument" icon="input-text" href="/guider/add-fields-to-document">
+    Produkttabellen är en av åtta sektionstyper i redigeraren.
+  </Card>
+  <Card title="Product tables via API" icon="code" href="/guides/product-tables">
+    Så skapar du produkttabeller från ett eget system.
+  </Card>
+</CardGroup>

@@ -1,72 +1,80 @@
 ---
-title: "Bjud in medlemmar och tilldela arbetsyteroller"
+title: "Medlemmar och roller i en arbetsyta"
 description: "Hantera vilka i organisationen som har tillgång till arbetsytan och vilken roll de får"
 ---
 
-I varje arbetsyta finns två sidor som hör ihop: **Medlemmar**, där du ser vilka som har tillgång och tilldelar dem en roll, och **Roller**, där du definierar vilka behörigheter rollerna ger. Den här guiden visar var sidorna ligger, vad varje kolumn betyder och hur det ser ut när du lägger till en ny medlem – utan att faktiskt bjuda in någon eller ändra en roll.
+Varje arbetsyta har sin egen medlemslista och sina egna roller. Under **Team** väljer du vilka i organisationen som kommer åt arbetsytan och vilken roll de får. På fliken **Roller** bestämmer du vad rollerna ger för behörigheter.
+
+Den här guiden bjuder inte in någon och ändrar ingen roll.
 
 ## Innan du börjar
 
-- Sidorna **Team** och **Roller** för arbetsytan kräver **Team eller Enterprise**. På Basic och Solo finns bara en användare, och korten visas inte i inställningarna.
-- Du är inloggad med en användare som har behörighet **Hantera medlemmar** och **Hantera roller** i arbetsytan.
-- Det finns minst en organisationsmedlem utöver dig själv – nya arbetsytemedlemmar måste först finnas på organisationsnivå.
-- Inställningarna är **arbetsytespecifika** – varje arbetsyta har sin egen uppsättning medlemmar och roller.
+- Sidan **Team** för arbetsytan kräver **Team** eller **Enterprise**. På Basic och Solo finns bara en användare, och kortet visas inte i inställningarna.
+- Du har behörigheterna **Hantera medlemmar** och **Hantera roller** i arbetsytan.
+- Personen finns redan i organisationen. Nya arbetsytemedlemmar måste först bjudas in på organisationsnivå.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Arbetsyta → Medlemmar i sidomenyn">
-    Sidan [Medlemmar](https://app.sajn.se/~/settings/workspace/members) listar alla användare som har tillgång till just den här arbetsytan. Rubriken **Medlemmar** står överst, och underrubriken förklarar att du hanterar både medlemmar och deras roller härifrån. Sidan är arbetsytespecifik – byter du arbetsyta får du en helt egen lista.
+  <Step title="Öppna Team för arbetsytan">
+    Sidan [Team](https://app.sajn.se/~/settings/workspace/members) har tre flikar: **Medlemmar**, **Inbjudningar** och **Roller**. Arbetsytans namn står i brödsmulan högst upp, och byter du arbetsyta får du en helt egen lista.
+
+    Tabellen har fem kolumner:
+
+    - **Medlem** visar namn och e-postadress.
+    - **Roll** är arbetsyterollen. Klicka på rollnamnet för att välja en annan.
+    - **2FA** visar om tvåfaktorsautentisering är På eller Av.
+    - **Status** är Aktiv eller Inaktiv.
+    - **Senast aktiv** visar hur länge sedan personen använde arbetsytan.
+
+    Knapparna **Alla**, **Aktiva** och **Inaktiva** filtrerar listan, och sökrutan söker på namn eller e-postadress. Trepunktsmenyn längst till höger innehåller **Ta bort medlem**. Du kan inte ta bort dig själv.
 
     <Frame>
-      <img src="/images/guider/settings-workspace-members-roles/02-open-members.png" alt="Sidan Medlemmar öppen under Arbetsyteinställningar" />
+      <img src="/images/guider/settings-workspace-members-roles/02-medlemmar.png" alt="Fliken Medlemmar under Team med arbetsytans medlemstabell" />
     </Frame>
   </Step>
-  <Step title="Medlemstabellen visar Namn, status, E-postadress, Roll och Senast aktiv / Utgår">
-    Varje rad är en medlem i arbetsytan:
+  <Step title="Klicka på Lägg till för att öppna panelen">
+    Panelen **Lägg till medlemmar i arbetsytan** glider in från höger. För varje rad väljer du **Organisationsmedlem** och **Roll**. **Lägg till fler** ger en rad till, upp till tio åt gången.
 
-    - **Namn** – för- och efternamn från användarens profil.
-    - **Status** – visar *Aktiv* (har använt sajn nyligen) eller *Inaktiv*. För väntande inbjudningar står det *Väntar*.
-    - **E-postadress** – adressen där medlemmen får sina aviseringar.
-    - **Roll** – arbetsyterollen som styr behörigheterna. Klicka på trepunktsmenyn längst till höger för att välja **Ändra roll**.
-    - **Senast aktiv / Utgår** – för medlemmar visas när de senast var aktiva, för väntande inbjudningar när inbjudan går ut.
+    Står det *Inga medlemmar tillgängliga* är alla i organisationen redan med i arbetsytan. Bjud i så fall in nya personer under [Inställningar → Team & säkerhet → Inbjudningar](https://app.sajn.se/~/settings/organization/invites) först.
 
-    Trepunktsmenyn längst till höger innehåller också **Ta bort medlem** (du kan inte ta bort dig själv). Vill du bara se utestående inbjudningar går det att filtrera via URL-parametern `?status=pending_invites`.
+    Inget händer förrän du klickar **Lägg till** längst ner. **Avbryt** eller krysset stänger panelen utan att skapa något.
 
     <Frame>
-      <img src="/images/guider/settings-workspace-members-roles/04-members-table.png" alt="Medlemstabellen med kolumner för namn, status, e-post, roll och aktivitet" />
+      <img src="/images/guider/settings-workspace-members-roles/03-lagg-till.png" alt="Panelen Lägg till medlemmar i arbetsytan med val för organisationsmedlem och roll" />
     </Frame>
   </Step>
-  <Step title="Klicka på Lägg till uppe till höger för att öppna inbjudningspanelen">
-    Panelen *Lägg till medlemmar i arbetsytan* glider in från höger. Här väljer du:
-
-    - **Organisationsmedlem** – endast personer som redan finns i organisationen kan läggas till i arbetsytan. Är listan tom är alla redan med – bjud i så fall in nya personer via [Organisationsinställningar → Medlemmar](https://app.sajn.se/~/settings/organization/members).
-    - **Roll** – arbetsyterollen den nya medlemmen ska få. Rollerna definieras på nästa sida vi tittar på.
-
-    Du kan lägga till upp till **10 medlemmar samtidigt** – klicka på **Lägg till fler** för en ny rad. Inget skickas förrän du klickar på **Lägg till**-knappen längst ner. *Avbryt* eller krysset stänger panelen utan att skapa något.
+  <Step title="Följ upp inbjudningar på fliken Inbjudningar">
+    Här ligger personer som har bjudits in till arbetsytan men ännu inte gått med, med kolumnerna **E-postadress**, **Roll**, **Inbjuden av** och **Giltighet**.
 
     <Frame>
-      <img src="/images/guider/settings-workspace-members-roles/08-add-drawer.png" alt="Panelen Lägg till medlemmar i arbetsytan med valbara organisationsmedlemmar och roller" />
+      <img src="/images/guider/settings-workspace-members-roles/05-inbjudningar.png" alt="Fliken Inbjudningar för arbetsytan" />
     </Frame>
   </Step>
-  <Step title="Gå vidare till Inställningar → Arbetsyta → Roller">
-    [Rollsidan](https://app.sajn.se/~/settings/workspace/roles) ligger precis under Medlemmar i sidomenyn. Här bestämmer du *vad* en roll får göra – på Medlemmar-sidan bestämmer du *vem* som har vilken roll.
+  <Step title="Bestäm behörigheterna på fliken Roller">
+    På fliken Medlemmar bestämmer du vem som har vilken roll. Här bestämmer du vad en roll får göra.
+
+    **Namn** visar rollens namn, **Behörigheter** antalet rättigheter med en info-ikon som listar dem, och **Antal medlemmar** hur många i arbetsytan som har rollen.
+
+    Inbyggda roller är märkta **Inbyggd** och går bara att läsa. Trepunktsmenyn innehåller **Redigera** eller **Visa behörigheter**, **Gör en kopia** och **Ta bort**. Kopian heter *Namn (Kopia)* och är en bra utgångspunkt för en egen roll. Uppe till höger finns **Skapa roll**.
 
     <Frame>
-      <img src="/images/guider/settings-workspace-members-roles/11-open-roles.png" alt="Sidan Roller öppen under Arbetsyteinställningar" />
-    </Frame>
-  </Step>
-  <Step title="Rolltabellen visar Namn, Behörigheter och Antal medlemmar per roll">
-    Varje rad är en roll som finns i arbetsytan:
-
-    - **Namn** – rollens namn. Inbyggda roller (t.ex. *Admin* och *Medlem*) är märkta **Inbyggd** och kan inte tas bort eller döpas om.
-    - **Behörigheter** – antal aktiva behörigheter. Klicka på info-ikonen för att se hela listan av behörighetsnycklar.
-    - **Antal medlemmar** – hur många personer i arbetsytan som har rollen just nu.
-
-    Trepunktsmenyn till höger innehåller **Redigera** (endast egna roller), **Gör en kopia** (skapar `<Namn> (Kopia)` som utgångspunkt för en ny roll) och **Ta bort** (gråad för inbyggda roller och så länge minst en medlem har rollen). Uppe till höger finns **Skapa roll** för att lägga till en helt ny roll från grunden.
-
-    <Frame>
-      <img src="/images/guider/settings-workspace-members-roles/13-roles-table.png" alt="Rolltabellen med namn, behörigheter och antal medlemmar" />
+      <img src="/images/guider/settings-workspace-members-roles/06-roller.png" alt="Fliken Roller med arbetsytans roller, behörigheter och antal medlemmar" />
     </Frame>
   </Step>
 </Steps>
+
+## Slipp bygga om samma roll i varje arbetsyta
+
+Har organisationen flera arbetsytor som behöver samma roll, beskriv den som en rollmall i stället. En rollmall definieras en gång på organisationsnivå och används i alla arbetsytor, och ändras den uppdateras rollen överallt. Läs mer i [Rollmallar för arbetsytor](/guider/settings-role-blueprints).
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Arbetsytor" icon="layer-group" href="/guider/settings-workspaces">
+    Alla arbetsytor i organisationen och vad du gör per arbetsyta.
+  </Card>
+  <Card title="Medlemmar & roller i organisationen" icon="users" href="/guider/settings-organization-members-roles">
+    Vem som har tillgång till hela kontot och med vilken organisationsroll.
+  </Card>
+</CardGroup>

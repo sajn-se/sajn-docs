@@ -1,0 +1,121 @@
+{
+    "slug": "atgarder",
+    "title": "Åtgärder",
+    "intro": "Åtgärder är sajns förberedda förslag: påminnelser till parter som inte signerat, förlängd signeringstid för dokument som håller på att gå ut, rättade e-postadresser som studsat och avtal som närmar sig uppsägning eller slutdatum. Varje förslag är ett kort du utför, justerar, skjuter upp eller avfärdar.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Åtgärder kräver Solo eller högre.",
+        "Föreslagna åtgärder är påslaget under arbetsytans inställningar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/atgarder",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-atgarder",
+            "action": "goto",
+            "url": "/{workspace}/actions",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-korten",
+            "action": "wait",
+            "ms": 5000
+        },
+        {
+            "name": "floder",
+            "action": "screenshot",
+            "caption": "Öppna Åtgärder från blixtikonen i toppraden",
+            "notes": "Siffran bredvid blixten räknar hur många förslag som väntar. Varje kort säger vad sajn hittat, vilket dokument det gäller och vad som händer om du trycker på knappen till höger. Kort med en deadline får en färgad ikon när det börjar bli bråttom. Samma lista finns som widget på startsidan."
+        },
+        {
+            "name": "oppna-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler alternativ']",
+            "match": "first",
+            "caption": "Skjut upp eller avfärda ett förslag",
+            "notes": "De tre prickarna uppe till höger på kortet öppnar menyn. Skjut upp lägger undan kortet till imorgon, om tre dagar eller om en vecka och tar sedan tillbaka det. Avfärda tar bort det för gott. Avfärdar du ett AI-förslag får du samtidigt frågan om du vill stänga av just den sortens förslag helt."
+        },
+        {
+            "name": "stang-menyn",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-meny-stangd",
+            "action": "wait",
+            "ms": 800
+        },
+        {
+            "name": "justera",
+            "action": "click",
+            "selector": "button:has-text('Justera')",
+            "match": "first",
+            "caption": "Justera innan du utför",
+            "notes": "Justera byter kortets nedre rad mot ett skrivfält. Skriv vad du vill ändra med egna ord, till exempel \"2 dagar istället\", och tryck Enter. Förslag som innehåller ett färdigt meddelande går också att redigera direkt i textrutan på kortet innan du skickar det."
+        },
+        {
+            "name": "stang-justera",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "till-installningar",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/preferences",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-installningar",
+            "action": "waitForSelector",
+            "selector": "text=Föreslagna åtgärder"
+        },
+        {
+            "name": "scrolla-till-atgarder",
+            "action": "scrollIntoView",
+            "selector": "text=Föreslagna åtgärder",
+            "screenshot": false
+        },
+        {
+            "name": "installningar",
+            "action": "screenshot",
+            "caption": "Slå av eller på hela flödet per arbetsyta",
+            "notes": "Under Inställningar, Preferenser, fliken Allmänt styr Föreslagna åtgärder hela flödet: av betyder inga kort, ingen räknare och inga utskick. Avtalsbevakning styr de avtalsrelaterade förslagen, och de två fälten under bestämmer hur många dagar i förväg förslaget dyker upp inför sista uppsägningsdag respektive slutdatum."
+        },
+        {
+            "name": "till-ai",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/ai",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-ai",
+            "action": "waitForSelector",
+            "selector": "text=Förslag och styrning"
+        },
+        {
+            "name": "scrolla-till-forslag",
+            "action": "scrollIntoView",
+            "selector": "text=Förslag och styrning",
+            "screenshot": false
+        },
+        {
+            "name": "ai-forslag",
+            "action": "screenshot",
+            "caption": "Styr vilka AI-förslag som får dyka upp",
+            "notes": "Under Inställningar, AI & Sökning, fliken AI ligger rubriken Förslag och styrning. Taggförslag föreslår taggar utifrån innehållet i färdigsignerade dokument, och kan begränsas till taggar som redan finns i arbetsytan. Påminnelseförslag läser färdiga avtal och föreslår påminnelser framåt i tiden, till exempel inför en prishöjning eller ett uppsägningsfönster."
+        }
+    ]
+}

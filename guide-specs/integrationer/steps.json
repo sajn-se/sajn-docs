@@ -1,0 +1,156 @@
+{
+    "slug": "integrationer",
+    "title": "Anslut en integration",
+    "intro": "En integration kopplar ihop sajn med en tjänst du redan använder: ett CRM, en molnlagring, ett bokföringsprogram eller Slack. När kopplingen finns kan du hämta kontakter och filer därifrån i stället för att ladda upp dem manuellt.\n\nGuiden går igenom katalogen, skillnaden mellan en personlig och en organisationsgemensam anslutning, och vad som händer när du klickar Anslut.",
+    "audience": "Organisationsadministratörer och medlemmar",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Integrationer kräver Solo eller högre.",
+        "För att koppla en tjänst som delas av hela organisationen behöver du behörigheten Hantera integrationer."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        ".group\\/promo"
+    ],
+    "imageDir": "../../images/guider/integrationer",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "hem",
+            "action": "goto",
+            "url": "/{workspace}",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-sok",
+            "action": "click",
+            "selector": "button[aria-label='Sök']",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-sok",
+            "action": "fill",
+            "selector": "input[placeholder='Sök...']",
+            "value": "integration",
+            "screenshot": false
+        },
+        {
+            "name": "wait-sok",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "hitta-sidan",
+            "action": "screenshot",
+            "caption": "Hitta Integrationer via sökrutan",
+            "notes": "Integrationer har ingen egen rad i sidomenyn. Klicka på förstoringsglaset bredvid arbetsytans namn, eller tryck Cmd+K, och skriv integration. Sidan ligger under Sidor i träfflistan."
+        },
+        {
+            "name": "katalogen",
+            "action": "goto",
+            "url": "/{workspace}/integrations",
+            "caption": "Katalogen visar allt du kan koppla på",
+            "notes": "Rutan högst upp är dina anslutna tjänster. Är den tom står det i stället hur många tjänster som är redo att kopplas. Under den ligger Tillägg och appar, som är sajn inuti andra program, och därefter katalogen sorterad i kategorier."
+        },
+        {
+            "name": "personlig-eller-delad",
+            "action": "scrollIntoView",
+            "selector": "h2:has-text('Produktivitet & Molntjänster')",
+            "align": "start",
+            "screenshot": true,
+            "caption": "Ikonen bakom namnet säger vem kopplingen gäller",
+            "notes": "En liten figur betyder personlig anslutning: varje medlem kopplar sitt eget konto och ser bara sina egna filer. En byggnad betyder att kopplingen delas av hela organisationen, och då räcker det att någon med behörigheten Hantera integrationer kopplar den en gång. Molntjänsterna är personliga, CRM-systemen och ekonomisystemen är gemensamma.\n\nRader märkta Kommer snart är inte byggda än, och Öppna betyder att tjänsten kopplas från sin egen sida i stället för härifrån."
+        },
+        {
+            "name": "scrolla-till-hr",
+            "action": "scrollIntoView",
+            "selector": "h2:has-text('HR & Rekrytering')",
+            "align": "start",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-begaran",
+            "action": "click",
+            "selector": "div.group:has-text('Teamtailor') button:has-text('Begär')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-begaran",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Integrationsbegäran')"
+        },
+        {
+            "name": "begaran",
+            "action": "screenshot",
+            "caption": "Saknas tjänsten kan du begära den",
+            "notes": "För muspekaren över en rad märkt Kommer snart så byts märkningen mot Begär. Tjänsten är redan ifylld i rutan. Skriv vad du vill använda den till och klicka Skicka förfrågan. Längst ner på katalogsidan finns Låt oss veta för tjänster som inte står i listan alls."
+        },
+        {
+            "name": "stang-begaran",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Integrationsbegäran')",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-mcp",
+            "action": "click",
+            "selector": "section:has(h2:has-text('Tillägg och appar')) button:has-text('Anslut')",
+            "screenshot": false
+        },
+        {
+            "name": "wait-mcp",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Anslut sajn till din AI-klient')"
+        },
+        {
+            "name": "mcp",
+            "action": "screenshot",
+            "caption": "MCP-servern kopplas med en adress, inte via katalogen",
+            "notes": "Kopiera serveradressen och klistra in den i din AI-klient. Du loggar in med ditt sajn-konto och väljer vilken arbetsyta och vilka behörigheter assistenten får. Assistenten kan aldrig göra mer än du själv får göra."
+        },
+        {
+            "name": "stang-mcp",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "wait-mcp-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Anslut sajn till din AI-klient')",
+            "state": "hidden"
+        },
+        {
+            "name": "arkivering",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/preferences/retention",
+            "screenshot": false
+        },
+        {
+            "name": "wait-arkivering",
+            "action": "waitForSelector",
+            "selector": "h2:has-text('Extern arkivering')"
+        },
+        {
+            "name": "extern-arkivering",
+            "action": "screenshot",
+            "caption": "Molnlagring kan också ta emot färdiga dokument",
+            "notes": "Har du kopplat en molnlagring kan varje dokument som förseglas i arbetsytan sparas som en kopia där. Det ställs in under Inställningar, Arbetsyta, Preferenser, fliken Lagring. Det gäller framåt: inget arkiveras i efterhand."
+        }
+    ]
+}

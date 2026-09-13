@@ -1,0 +1,42 @@
+{
+    "slug": "settings-organization-members-roles",
+    "title": "Hantera organisationens medlemmar och roller",
+    "intro": "Organisationen är hela företagskontot, arbetsytorna är rummen inuti det. Under Team & säkerhet ser du alla som har tillgång till organisationen, vilken organisationsroll de har och hur många arbetsytor de är med i. Guiden ändrar ingenting.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Du är inloggad som kontoinnehavare eller administratör för organisationen.",
+        "Sidan Team & säkerhet kräver Team eller Enterprise."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": [
+        "[data-guide-mask]",
+        "tbody td p.truncate.text-xs.text-muted-foreground",
+        "tbody td p.truncate.text-sm.font-medium.text-foreground"
+    ],
+    "hide": [".group\\/promo"],
+    "imageDir": "../../images/guider/settings-organization-members-roles",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "medlemmar",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/members",
+            "caption": "Öppna Team & säkerhet",
+            "notes": "Sidan ligger under Organisationsinställningar och har fyra flikar: Medlemmar, Inbjudningar, Roller och Säkerhet. Fliken Medlemmar listar alla som har tillgång till organisationen, oavsett vilken arbetsyta de arbetar i.\n\nKolumnerna är Medlem (namn och e-postadress), Roll (organisationsrollen), Arbetsytor (hur många arbetsytor personen är med i), 2FA (På eller Av), Status och Senast aktiv. Märket Innehavare visar vem som äger kontot, och Du markerar dig själv.\n\nOvanför tabellen filtrerar knapparna Alla, Aktiva och Inaktiva, sökrutan söker på namn eller e-post och Exportera laddar ner listan som en CSV-fil."
+        },
+        {
+            "name": "inbjudningar",
+            "action": "click",
+            "selector": "[role='tab']:has-text('Inbjudningar')",
+            "caption": "Inbjudningar har en egen flik",
+            "notes": "Personer du har bjudit in syns inte i medlemslistan förrän de tackat ja. Fram till dess ligger de här, med kolumnerna E-postadress, Roll, Inbjuden av, Status och Giltighet. Status är Utkast för en inbjudan som ännu inte skickats och Väntar på svar för en skickad. Giltighet visar när inbjudan går ut."
+        },
+        {
+            "name": "roller",
+            "action": "click",
+            "selector": "[role='tab']:has-text('Roller')",
+            "caption": "Roller styr vad medlemmar får göra",
+            "notes": "Organisationsroller gäller organisationen: medlemmar, fakturering och inställningar. Vad någon får göra med dokument avgörs i stället av arbetsyterollerna. De färdiga rollerna heter Administratör och Användare och är märkta Inbyggd. Behörigheter visar antalet rättigheter i rollen, och info-ikonen listar dem. Antal medlemmar visar hur många som har rollen just nu.\n\nLängst ner ligger Rollmallar för arbetsytor. Det är arbetsyteroller som du definierar en gång och använder i alla arbetsytor, inte organisationsroller. De har en egen guide."
+        }
+    ]
+}

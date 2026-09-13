@@ -1,0 +1,302 @@
+{
+  "ranAt": "2026-09-13T16:00:36.034Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-massutskick",
+      "action": "goto",
+      "screenshotFile": "02-oppna-massutskick.png",
+      "caption": "Öppna Massutskick under Dokument",
+      "notes": "Sidan listar utskicken du gjort, med mallen de utgår från, antal mottagare och hur långt de kommit. Ett nytt utskick startar du uppe till höger.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 3,
+      "name": "nytt-massutskick",
+      "action": "clickText",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 4,
+      "name": "vanta-mallvaljare",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 5,
+      "name": "valj-mall",
+      "action": "screenshot",
+      "screenshotFile": "05-valj-mall.png",
+      "caption": "Välj mallen som ska skickas",
+      "notes": "Alla mallar i arbetsytan går att skicka som massutskick. Vi väljer Konsultavtal.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 6,
+      "name": "klicka-mall",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 7,
+      "name": "vanta-dialog",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 8,
+      "name": "parter-och-fil",
+      "action": "screenshot",
+      "screenshotFile": "08-parter-och-fil.png",
+      "caption": "Bestäm vilka parter som kommer från filen",
+      "notes": "Mallens parter listas överst. Från CSV betyder att parten byts ut för varje rad, alltså mottagaren. Fast part betyder samma person på alla dokument, till exempel du själv som motpart. Behöver du en part till på varje dokument lägger du till den på raden längst ner.\n\nLadda ner CSV-mall ger en fil där rubrikraden redan är de kolumner utskicket känner igen. Fyll i den i Excel eller Google Kalkylark och ladda upp den här. Max 250 mottagare per utskick.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 9,
+      "name": "ladda-upp-fil",
+      "action": "uploadFile",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 10,
+      "name": "vanta-mappning",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 11,
+      "name": "matcha-kolumner",
+      "action": "screenshot",
+      "screenshotFile": "11-matcha-kolumner.png",
+      "caption": "Matcha filens kolumner mot fälten",
+      "notes": "Vänsterkolumnen är vad utskicket kan fylla, högerkolumnen är vilken kolumn i din fil som ska användas. Kolumner som heter samma sak som fältet matchas automatiskt, resten väljer du själv. Under varje matchad rad visas värdet från filens första rad, så du ser direkt att rätt kolumn hamnat rätt.\n\nNamn är det enda som krävs. Fält du inte vill fylla lämnar du på Ignorera.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 12,
+      "name": "pausa-fore-scroll",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 13,
+      "name": "scrolla-till-sammanfogning",
+      "action": "scrollIntoView",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 14,
+      "name": "sammanfogningsfalt",
+      "action": "screenshot",
+      "screenshotFile": "14-sammanfogningsfalt.png",
+      "caption": "Sammanfogningsfälten är mallens egna fält",
+      "notes": "Raderna märkta sammanfogningsfält är fälten i mallen som har en nyckel. Värdet i filen skrivs in i dokumentets fält med den nyckeln, så varje mottagare får sitt eget organisationsnummer, startdatum och timarvode i avtalstexten. Fält utan nyckel kan inte fyllas från en fil.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 15,
+      "name": "oppna-kolumnval",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 16,
+      "name": "vanta-kolumnlista",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 17,
+      "name": "valj-kolumn",
+      "action": "screenshot",
+      "screenshotFile": "17-valj-kolumn.png",
+      "caption": "Välj kolumn själv när namnen inte stämmer",
+      "notes": "Heter kolumnen i ditt kalkylark något annat än fältets nyckel hittas den inte automatiskt. Öppna listan på raden och peka ut rätt kolumn. Listan innehåller alla rubriker i filen.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 18,
+      "name": "klicka-kolumn",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 19,
+      "name": "klicka-granska",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 20,
+      "name": "vanta-granskning",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 21,
+      "name": "granska-raderna",
+      "action": "screenshot",
+      "screenshotFile": "21-granska-raderna.png",
+      "caption": "Granska raderna innan du skickar",
+      "notes": "Varje rad kontrolleras innan något skickas. Klara rader skickas. Rader med fel hoppas över, till exempel om namnet saknas eller om varken e-post eller mobilnummer finns. Gula rader skickas, men är värda en titt: samma e-postadress på flera rader är oftast ett misstag.\n\nSiffran till vänster är radnumret i filen, så du hittar tillbaka till rätt rad i kalkylarket. Visa bara problem filtrerar listan när filen är lång.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 22,
+      "name": "klicka-fortsatt",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 23,
+      "name": "vanta-installningar",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 24,
+      "name": "namnge",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 25,
+      "name": "meddelande",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 26,
+      "name": "installningar",
+      "action": "screenshot",
+      "screenshotFile": "26-installningar.png",
+      "caption": "Namnge utskicket och sätt sista signeringsdag",
+      "notes": "Namnet är ditt eget, det syns bara internt. Sista signeringsdag gäller alla dokument i utskicket och står som förslag två veckor fram. Meddelandet skrivs in i e-postinbjudan till varje mottagare.\n\nKräv BankID tvingar alla mottagare från filen att signera med BankID, oavsett vad mallen säger. Skicka test skickar första raden till din egen adress som ett riktigt dokument, så du ser exakt vad mottagarna får.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 27,
+      "name": "skicka-test",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 28,
+      "name": "vanta-test",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 29,
+      "name": "klicka-skicka",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 30,
+      "name": "vanta-dialog-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 31,
+      "name": "vanta-jobb",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 32,
+      "name": "ladda-om",
+      "action": "reload",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    },
+    {
+      "index": 33,
+      "name": "folj-utskicket",
+      "action": "screenshot",
+      "screenshotFile": "33-folj-utskicket.png",
+      "caption": "Följ utskicket på Massutskick-sidan",
+      "notes": "Dokumenten skapas i bakgrunden, en rad i taget, och listan uppdaterar sig själv medan det pågår. Förloppet räknar signerade, väntande, avböjda och eventuella fel. Klicka på raden för att se de enskilda dokumenten.",
+      "url": "https://app.sajn.se/arlbn/documents/bulk-send"
+    }
+  ]
+}

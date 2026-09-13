@@ -1,0 +1,311 @@
+{
+  "ranAt": "2026-09-13T15:57:00.789Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "hem",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 3,
+      "name": "oppna-bob",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 4,
+      "name": "vanta-panel",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 5,
+      "name": "panelen",
+      "action": "screenshot",
+      "screenshotFile": "05-panelen.png",
+      "caption": "Öppna Bob från ikonen uppe till höger",
+      "notes": "Panelen lägger sig bredvid sidan du står på, så du tappar aldrig sammanhanget. Ovanför skrivfältet ligger förslag som byts ut beroende på var du är: på översikten handlar de om dokument och statistik, inne i ett dokument om just det dokumentet.",
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 6,
+      "name": "stall-fragan",
+      "action": "clickText",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 7,
+      "name": "vanta-svar",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 8,
+      "name": "svaret",
+      "action": "screenshot",
+      "screenshotFile": "08-svaret.png",
+      "caption": "Bob visar vad den gör innan den svarar",
+      "notes": "Raden över svaret är steget Bob tog, till exempel Sökte i dokumentinnehåll. Klickar du på raden ser du vad steget gav. Svaret bygger på din arbetsyta och på det du själv får se, så en kollega med andra behörigheter kan få ett annat svar på samma fråga. Under svaret finns tummen upp och ner, en kopieringsknapp och förslag på följdfrågor.",
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 9,
+      "name": "oppna-helskarm",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=fullscreen&c=na03DFR9xCtp"
+    },
+    {
+      "index": 10,
+      "name": "vanta-helskarm",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=fullscreen&c=na03DFR9xCtp"
+    },
+    {
+      "index": 11,
+      "name": "helskarm",
+      "action": "screenshot",
+      "screenshotFile": "11-helskarm.png",
+      "caption": "Helskärm ger mer plats",
+      "notes": "Samma samtal, bredare yta och en lista med dina samtal till vänster. Escape tar dig tillbaka till panelen.",
+      "url": "https://app.sajn.se/arlbn?panel=fullscreen&c=na03DFR9xCtp"
+    },
+    {
+      "index": 12,
+      "name": "tillbaka-till-panelen",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 13,
+      "name": "vanta-panel-igen",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 14,
+      "name": "ny-chatt",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 15,
+      "name": "vanta-tom",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 16,
+      "name": "skriv-snabel-a",
+      "action": "type",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 17,
+      "name": "vanta-menyn",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 18,
+      "name": "tagga",
+      "action": "screenshot",
+      "screenshotFile": "18-tagga.png",
+      "caption": "Skriv @ för att peka ut ett dokument, en mall eller en kontakt",
+      "notes": "Menyn söker medan du skriver och delar upp träffarna i Dokument, Mallar och Kontakter. Väljer du en träff vet Bob exakt vad du menar i stället för att behöva gissa utifrån namnet. Plusknappen nere till vänster i skrivfältet öppnar samma meny.",
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 19,
+      "name": "markera-allt",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 20,
+      "name": "rensa",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 21,
+      "name": "skriv-snedstreck",
+      "action": "type",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 22,
+      "name": "vanta-kommandon",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 23,
+      "name": "kommandon",
+      "action": "screenshot",
+      "screenshotFile": "23-kommandon.png",
+      "caption": "Skriv / för färdiga arbetsflöden",
+      "notes": "Under Arbetsflöden ligger vanliga uppgifter som redan är nedbrutna i steg, till exempel Skicka ett avtal och Jaga osignerade dokument. Du väljer ett och svarar på Bobs frågor på vägen. Under Kommandon ligger Ny chatt, som bara rensar samtalet.",
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 24,
+      "name": "markera-allt-igen",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 25,
+      "name": "rensa-igen",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 26,
+      "name": "historik",
+      "action": "click",
+      "screenshotFile": "26-historik.png",
+      "caption": "Tidigare samtal ligger kvar",
+      "notes": "Varje samtal sparas med en rubrik som Bob sätter själv. Klicka på rubriken uppe till vänster för att döpa om det, och på papperskorgen i listan för att radera ett samtal permanent.",
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 27,
+      "name": "stang-historik",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=chat"
+    },
+    {
+      "index": 28,
+      "name": "till-dokument",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 29,
+      "name": "oppna-dokumentet",
+      "action": "clickText",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 30,
+      "name": "vanta-dokument",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzlz90d000702kuymy1z7ak"
+    },
+    {
+      "index": 31,
+      "name": "oppna-bob-i-dokument",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzlz90d000702kuymy1z7ak?panel=chat"
+    },
+    {
+      "index": 32,
+      "name": "vanta-kontext",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzlz90d000702kuymy1z7ak?panel=chat"
+    },
+    {
+      "index": 33,
+      "name": "vanta-chip",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzlz90d000702kuymy1z7ak?panel=chat"
+    },
+    {
+      "index": 34,
+      "name": "dokumentkontext",
+      "action": "screenshot",
+      "screenshotFile": "34-dokumentkontext.png",
+      "caption": "Inne i ett dokument vet Bob vilket dokument du menar",
+      "notes": "Dokumentet fästs som en etikett ovanför skrivfältet, så du kan be Bob sammanfatta dokumentet utan att nämna namnet. Krysset på etiketten kopplar loss dokumentet igen. Står det skrivskyddad kan Bob läsa dokumentet men inte ändra det.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzlz90d000702kuymy1z7ak?panel=chat"
+    }
+  ]
+}

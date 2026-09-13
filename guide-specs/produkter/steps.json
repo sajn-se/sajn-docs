@@ -1,0 +1,507 @@
+{
+    "slug": "produkter",
+    "title": "Bygg upp produktkatalogen",
+    "intro": "Produkter är arbetsytans katalog över varor och tjänster. Du lägger upp priset en gång och hämtar sedan in raden i vilket dokument som helst, i stället för att skriva av samma siffror varje gång.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får hantera produkter."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/produkter",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-produkter",
+            "action": "goto",
+            "url": "/{workspace}/products",
+            "caption": "Öppna Produkter i sidomenyn",
+            "notes": "Katalogen tillhör arbetsytan, så alla som arbetar i den delar samma produkter. Listan visar namn, artikelnummer, pris och moms. Sökfältet söker på både namn och artikelnummer."
+        },
+        {
+            "name": "ny-produkt",
+            "action": "clickText",
+            "text": "Ny produkt",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialogen",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange produktnamn']"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "input[placeholder='Ange produktnamn']",
+            "value": "Batch L: Konsulttimme",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-beskrivning",
+            "action": "fill",
+            "selector": "textarea[placeholder='Beskriv produkten (valfritt)']",
+            "value": "Löpande konsultarbete på plats eller på distans.",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-pris",
+            "action": "fill",
+            "selector": "input[placeholder='Ange pris']",
+            "value": "1250",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-moms",
+            "action": "click",
+            "selector": "[role='dialog'] button[role='combobox']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-moms",
+            "action": "click",
+            "selector": "[role='option']:has-text('25%')",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-enhet",
+            "action": "fill",
+            "selector": "input[placeholder='t.ex. timme']",
+            "value": "timme",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-artikelnummer",
+            "action": "fill",
+            "selector": "input[placeholder='SKU']",
+            "value": "KONS-001",
+            "caption": "En produkt är namn, pris, moms och enhet",
+            "notes": "Bara produktnamnet är obligatoriskt. Priset är styckpriset exklusive moms, och enheten är vad priset gäller per, till exempel timme, styck eller år. Momsen väljs bland 0, 6, 12 och 25 procent. Artikelnumret är ditt eget och används för att söka fram produkten."
+        },
+        {
+            "name": "spara-produkt",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skapa produkt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-produkt-1",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch L: Konsulttimme')"
+        },
+        {
+            "name": "ny-produkt-2",
+            "action": "clickText",
+            "text": "Ny produkt",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialogen-2",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange produktnamn']"
+        },
+        {
+            "name": "fyll-namn-2",
+            "action": "fill",
+            "selector": "input[placeholder='Ange produktnamn']",
+            "value": "Batch L: Projektledning",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-beskrivning-2",
+            "action": "fill",
+            "selector": "textarea[placeholder='Beskriv produkten (valfritt)']",
+            "value": "Ledning och uppföljning av projektet.",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-pris-2",
+            "action": "fill",
+            "selector": "input[placeholder='Ange pris']",
+            "value": "1450",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-moms-2",
+            "action": "click",
+            "selector": "[role='dialog'] button[role='combobox']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-moms-2",
+            "action": "click",
+            "selector": "[role='option']:has-text('25%')",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-enhet-2",
+            "action": "fill",
+            "selector": "input[placeholder='t.ex. timme']",
+            "value": "timme",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-artikelnummer-2",
+            "action": "fill",
+            "selector": "input[placeholder='SKU']",
+            "value": "KONS-002",
+            "screenshot": false
+        },
+        {
+            "name": "spara-produkt-2",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skapa produkt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-produkt-2",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch L: Projektledning')"
+        },
+        {
+            "name": "ny-produkt-3",
+            "action": "clickText",
+            "text": "Ny produkt",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialogen-3",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange produktnamn']"
+        },
+        {
+            "name": "fyll-namn-3",
+            "action": "fill",
+            "selector": "input[placeholder='Ange produktnamn']",
+            "value": "Batch L: Systemlicens",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-beskrivning-3",
+            "action": "fill",
+            "selector": "textarea[placeholder='Beskriv produkten (valfritt)']",
+            "value": "Årslicens per användare, inklusive support.",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-pris-3",
+            "action": "fill",
+            "selector": "input[placeholder='Ange pris']",
+            "value": "4900",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-moms-3",
+            "action": "click",
+            "selector": "[role='dialog'] button[role='combobox']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-moms-3",
+            "action": "click",
+            "selector": "[role='option']:has-text('25%')",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-enhet-3",
+            "action": "fill",
+            "selector": "input[placeholder='t.ex. timme']",
+            "value": "år",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-artikelnummer-3",
+            "action": "fill",
+            "selector": "input[placeholder='SKU']",
+            "value": "LIC-100",
+            "screenshot": false
+        },
+        {
+            "name": "spara-produkt-3",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skapa produkt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-produkt-3",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch L: Systemlicens')"
+        },
+        {
+            "name": "listan",
+            "action": "screenshot",
+            "caption": "Katalogen är en lista du redigerar direkt",
+            "notes": "Pennan öppnar produkten för ändring, papperskorgen tar bort den ur katalogen. Tar du bort en produkt behåller dokument som redan använder den sina värden, eftersom raden i dokumentet är en kopia."
+        },
+        {
+            "name": "oppna-importmenyn",
+            "action": "click",
+            "selector": "div:has(> button:has-text('Ny produkt')) > button[aria-haspopup='menu']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-csv",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Importera från CSV')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-csv",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']"
+        },
+        {
+            "name": "csv-import",
+            "action": "screenshot",
+            "caption": "Har du redan en prislista importerar du den",
+            "notes": "Pilen bredvid Ny produkt döljer Importera från CSV. Släpp filen i rutan, så läser sajn rubrikraden och föreslår vilken kolumn som är namn, beskrivning, artikelnummer, pris, enhet och moms. Du kan ändra förslaget innan du importerar. Högst 2 000 rader per fil."
+        },
+        {
+            "name": "stang-csv",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-csv-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "goto-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler alternativ']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-tomt",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "klicka-titeln",
+            "action": "click",
+            "selector": "header h3[role='button']",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "fill",
+            "selector": "input[aria-label='Titel']",
+            "value": "Batch L: produkttabell",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namnet",
+            "action": "press",
+            "key": "Enter",
+            "screenshot": false
+        },
+        {
+            "name": "sektionsmenyn",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-produkttabell",
+            "action": "click",
+            "selector": "[cmdk-item][data-value='Produkttabell']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-tabellen",
+            "action": "wait",
+            "ms": 2000
+        },
+        {
+            "name": "forsta-raden",
+            "action": "click",
+            "selector": "text=Klicka för att lägga till första produkten",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-raden",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "oppna-bibliotekmenyn",
+            "action": "click",
+            "selector": "div:has(> button:has-text('Lägg till produkt')) > button[aria-haspopup='menu']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-fran-bibliotek",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Från bibliotek')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-biblioteket",
+            "action": "waitForSelector",
+            "selector": "text=Produktbibliotek"
+        },
+        {
+            "name": "biblioteket",
+            "action": "screenshot",
+            "caption": "I dokumentet hämtar du raden ur katalogen",
+            "notes": "I en Produkttabell-sektion lägger knappen Lägg till produkt till en tom rad. Pilen bredvid öppnar Från bibliotek, och där ligger arbetsytans katalog. Infoga lägger produkten sist i tabellen. Du kan också skapa en ny produkt direkt härifrån."
+        },
+        {
+            "name": "infoga",
+            "action": "click",
+            "selector": "tr:has-text('Batch L: Konsulttimme') button:has-text('Infoga')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-infogad",
+            "action": "wait",
+            "ms": 2000
+        },
+        {
+            "name": "tabellen",
+            "action": "screenshot",
+            "caption": "Raden kommer in med namn, pris, enhet och moms",
+            "notes": "Den översta raden är den tomma du la till för hand; den undre kom från katalogen. Raden är en kopia, så ändrar du priset i katalogen senare påverkas inte dokument som redan är skrivna. Antal fyller du i per dokument, och tabellen summerar längst ner."
+        },
+        {
+            "name": "oppna-raden",
+            "action": "click",
+            "selector": ":text('Batch L: Konsulttimme')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-popover",
+            "action": "waitForSelector",
+            "selector": "text=Redigera produkt"
+        },
+        {
+            "name": "spara-i-bibliotek",
+            "action": "screenshot",
+            "caption": "Vägen tillbaka: Spara i bibliotek",
+            "notes": "Klicka på en rad i tabellen för att ändra den. Har du skrivit en rad för hand som du vill återanvända lägger Spara i bibliotek upp den som en produkt i katalogen. Ändringar du gör här stannar i dokumentet."
+        },
+        {
+            "name": "stang-popover",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-slang",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dokumentlistan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa nytt')"
+        },
+        {
+            "name": "tillbaka-produkter",
+            "action": "goto",
+            "url": "/{workspace}/products",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-produkterna",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Ta bort Batch L: Konsulttimme']"
+        },
+        {
+            "name": "ta-bort-1",
+            "action": "click",
+            "selector": "button[aria-label='Ta bort Batch L: Konsulttimme']",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-1",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Radera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagen-1",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch L: Konsulttimme')",
+            "state": "hidden"
+        },
+        {
+            "name": "ta-bort-2",
+            "action": "click",
+            "selector": "button[aria-label='Ta bort Batch L: Projektledning']",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-2",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Radera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagen-2",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch L: Projektledning')",
+            "state": "hidden"
+        },
+        {
+            "name": "ta-bort-3",
+            "action": "click",
+            "selector": "button[aria-label='Ta bort Batch L: Systemlicens']",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-3",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Radera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagen-3",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch L: Systemlicens')",
+            "state": "hidden"
+        },
+        {
+            "name": "efter-rensning",
+            "action": "wait",
+            "ms": 2500
+        }
+    ]
+}

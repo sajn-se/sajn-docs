@@ -1,66 +1,82 @@
 ---
 title: "Hantera organisationens medlemmar och roller"
-description: "Granska medlemmar, bjud in nya och hantera roller på organisationsnivå — inte enskilda arbetsytor"
+description: "Granska medlemmar, följ upp inbjudningar och se vad organisationsrollerna ger för behörigheter"
 ---
 
-Den här guiden visar var du administrerar **organisationens** medlemmar och roller – alltså de personer som har tillgång till hela organisationen och de behörighetsuppsättningar som gäller på organisationsnivå. Tänk så här: *organisationen* är den övergripande enheten (företaget eller kontoinnehavet), medan *arbetsytor* är specifika ytor inom organisationen. En medlem som finns på organisationsnivå kan ha åtkomst till flera arbetsytor – men varje enskild arbetsyta har dessutom egna medlemmar och roller. Den här guiden ändrar ingenting – vi rör inga roller och bjuder inte in någon. Vi tittar bara på sidorna och förklarar kolumnerna.
+Organisationen är hela företagskontot. Arbetsytorna är rummen inuti det. Under **Team & säkerhet** ser du alla som har tillgång till organisationen, vilken organisationsroll de har och hur många arbetsytor de är med i. En och samma person kan finnas i flera arbetsytor, men varje arbetsyta har dessutom sin egen medlemslista och sina egna roller.
+
+Den här guiden går igenom sidan utan att ändra något. Vi rör inga roller och bjuder inte in någon.
 
 ## Innan du börjar
 
-- Du är inloggad som ägare eller administratör för organisationen.
-- Du har behörighet att se sidorna under **Inställningar → Organisation**.
-- Du vet skillnaden mellan *organisation* (övergripande) och *arbetsyta* (specifik yta inom organisationen) – arbetsytespecifika medlemmar hanteras på en separat sida.
+- Du är inloggad som kontoinnehavare eller administratör för organisationen.
+- Sidan **Team & säkerhet** kräver **Team** eller **Enterprise**. På Basic och Solo visas kortet inte i inställningarna.
+- Du vet skillnaden mellan organisationen (hela kontot) och en arbetsyta (ett rum inuti kontot).
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar → Organisation → Medlemmar i sidomenyn">
-    Sidan ligger under *Organisationsinställningar* (inte *Arbetsyteinställningar*). Det betyder att listan visar **alla personer som har åtkomst till organisationen** – oavsett vilken arbetsyta de jobbar i. Brödsmulan högst upp läser [Inställningar › Organisation › Medlemmar](https://app.sajn.se/~/settings/organization/members) så att det är tydligt på vilken nivå du befinner dig.
+  <Step title="Öppna Team & säkerhet under Organisation">
+    Sidan [Team & säkerhet](https://app.sajn.se/~/settings/organization/members) ligger under *Organisationsinställningar* och har fyra flikar: **Medlemmar**, **Inbjudningar**, **Roller** och **Säkerhet**. Fliken Medlemmar listar alla som har tillgång till organisationen, oavsett vilken arbetsyta de arbetar i.
 
-    Uppe till höger finns knappen **Lägg till medlem** (vi klickar inte på den i den här guiden).
+    Tabellen har sex kolumner:
+
+    - **Medlem** visar namn och e-postadress. Märket **Innehavare** visar vem som äger kontot, och **Du** markerar dig själv.
+    - **Roll** är personens organisationsroll.
+    - **Arbetsytor** räknar hur många arbetsytor personen är med i.
+    - **2FA** visar om tvåfaktorsautentisering är På eller Av.
+    - **Status** är Aktiv, Inaktiv, Pausad eller Avstängd.
+    - **Senast aktiv** visar hur länge sedan personen använde sajn.
+
+    Ovanför tabellen filtrerar knapparna **Alla**, **Aktiva** och **Inaktiva**, sökrutan söker på namn eller e-postadress, och **Exportera** laddar ner listan som en CSV-fil.
 
     <Frame>
-      <img src="/images/guider/settings-organization-members-roles/02-open-organization-members.png" alt="Sidan Medlemmar öppen under Organisationsinställningar" />
+      <img src="/images/guider/settings-organization-members-roles/02-medlemmar.png" alt="Fliken Medlemmar under Team och säkerhet med medlemstabellen" />
     </Frame>
   </Step>
-  <Step title="Översikt: status-flikar och medlemstabellen">
-    Högst upp finns fyra statusflikar: **Alla medlemmar**, **Aktiva medlemmar**, **Inbjudningar** och **Inaktiva medlemmar**. Siffran i varje flik visar hur många som matchar respektive status. Klicka på en flik för att filtrera tabellen – URL:en uppdateras så att filtret kan delas via länk.
+  <Step title="Följ upp inbjudningar på fliken Inbjudningar">
+    Personer du har bjudit in syns inte i medlemslistan förrän de har tackat ja. Fram till dess ligger de på fliken **Inbjudningar**, med kolumnerna **E-postadress**, **Roll**, **Inbjuden av**, **Status** och **Giltighet**.
 
-    Tabellen nedanför har kolumnerna **Namn**, en kolumn för märkningar (t.ex. *Du*, *Innehavare* eller *Inbjudan väntar*), **E-postadress**, **Roll** och **Senast aktiv / Utgår**. Sist finns en trepunktsmeny per rad för åtgärder.
+    Status är **Utkast** för en inbjudan som ännu inte har skickats och **Väntar på svar** för en skickad. Giltighet visar när inbjudan går ut. Trepunktsmenyn på raden skickar, skickar om eller tar bort inbjudan.
 
     <Frame>
-      <img src="/images/guider/settings-organization-members-roles/04-members-overview.png" alt="Översikt av medlemssidan med statusflikar och medlemstabell" />
+      <img src="/images/guider/settings-organization-members-roles/03-inbjudningar.png" alt="Fliken Inbjudningar med kolumnerna e-postadress, roll, inbjuden av, status och giltighet" />
     </Frame>
   </Step>
-  <Step title="Kolumnen Roll visar varje medlems organisationsroll">
-    Rollen som syns här är medlemmens **organisationsroll** – alltså vilka behörigheter personen har på organisationsnivå (t.ex. *Owner*, *Admin* eller en egen roll). Det är skilt från eventuella arbetsytespecifika roller som styr åtkomst inom en enskild arbetsyta.
+  <Step title="Se behörigheterna på fliken Roller">
+    Organisationsroller styr vad medlemmar får göra med själva organisationen: medlemmar, fakturering och inställningar. Vad någon får göra med dokument avgörs i stället av arbetsyterollerna.
 
-    För att ändra en medlems roll går du in på medlemmens detaljsida via trepunktsmenyn → *Redigera*. Du kan också skicka, skicka om eller ta bort inbjudningar härifrån – vi rör inga av dessa åtgärder i den här guiden.
+    De färdiga rollerna heter **Administratör** och **Användare** och är märkta **Inbyggd**. Kolumnen **Behörigheter** visar hur många rättigheter rollen har, och info-ikonen listar dem. **Antal medlemmar** visar hur många som har rollen just nu. En roll som används kan inte tas bort förrän medlemmarna har fått en annan roll.
 
-    <Frame>
-      <img src="/images/guider/settings-organization-members-roles/05-scroll-role-column.png" alt="Kolumnen Roll i medlemstabellen med organisationsroller" />
-    </Frame>
-  </Step>
-  <Step title="Öppna Inställningar → Organisation → Roller">
-    Bredvid *Medlemmar* finns sidan [Roller](https://app.sajn.se/~/settings/organization/roles), som är *definitionen* av vilka behörighetspaket som finns att tilldela. Här ser du både inbyggda roller (märkta *Inbyggd*) och eventuella egna roller som organisationen har skapat.
-
-    Uppe till höger finns knappen **Skapa roll** om du har behörigheten *MANAGE_ROLES* – den klickar vi inte på.
+    Trepunktsmenyn på en egen roll erbjuder **Redigera**, **Gör en kopia** och **Ta bort**. På inbyggda roller heter valet **Visa behörigheter**, eftersom rättigheterna i dem är låsta. Uppe till höger finns **Skapa roll**.
 
     <Frame>
-      <img src="/images/guider/settings-organization-members-roles/06-open-organization-roles.png" alt="Sidan Roller öppen under Organisationsinställningar" />
-    </Frame>
-  </Step>
-  <Step title="Översikt: rollistan med kolumnerna Namn, Behörigheter och Antal medlemmar">
-    Tabellen visar varje roll på en rad:
-
-    - **Namn** – rollens namn. Inbyggda roller är märkta **Inbyggd** och kan inte tas bort.
-    - **Behörigheter** – antalet behörigheter rollen har. Klicka på info-ikonen för att se exakt vilka rättigheter som ingår (varje rad listar både den tekniska nyckeln och en läsbar etikett).
-    - **Antal medlemmar** – hur många medlemmar som just nu har rollen tilldelad. En roll som används av medlemmar kan inte tas bort förrän de medlemmarna har en annan roll.
-
-    Trepunktsmenyn längst till höger på en egen (icke-inbyggd) roll erbjuder *Redigera*, *Gör en kopia* och *Ta bort*. På inbyggda roller är *Redigera* och *Ta bort* otillgängliga av designskäl – behörigheterna i dem är låsta.
-
-    <Frame>
-      <img src="/images/guider/settings-organization-members-roles/08-roles-overview.png" alt="Översikt av rollistan med namn, behörigheter och antal medlemmar" />
+      <img src="/images/guider/settings-organization-members-roles/04-roller.png" alt="Fliken Roller med organisationsroller och avsnittet Rollmallar för arbetsytor" />
     </Frame>
   </Step>
 </Steps>
+
+## Så byter du roll på en medlem
+
+Rollen ändras direkt i kolumnen **Roll** i medlemslistan: klicka på rollnamnet och välj en annan roll i menyn. Du kan inte ändra din egen roll, och kontoinnehavaren behåller sin roll tills ägarskapet överförs. Trepunktsmenyn längst till höger på raden innehåller **Visa profil** och **Ta bort medlem**.
+
+## Rollmallar ligger på samma flik
+
+Längst ner på fliken Roller finns **Rollmallar för arbetsytor**. Det är inte organisationsroller utan arbetsyteroller som du definierar en gång och använder i alla arbetsytor. Läs mer i [Rollmallar för arbetsytor](/guider/settings-role-blueprints).
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Rollmallar för arbetsytor" icon="layer-group" href="/guider/settings-role-blueprints">
+    Definiera en arbetsyteroll en gång och använd den i alla arbetsytor.
+  </Card>
+  <Card title="Medlemmar & roller i en arbetsyta" icon="users" href="/guider/settings-workspace-members-roles">
+    Vem som kommer åt en enskild arbetsyta, och med vilken roll.
+  </Card>
+  <Card title="Aktivitetslogg" icon="scroll" href="/guider/settings-audit-log">
+    Följ inloggningar, medlemshantering och säkerhetshändelser.
+  </Card>
+  <Card title="Säkerhet" icon="lock" href="/guider/settings-organization-security">
+    Tvåfaktorskrav och andra säkerhetsinställningar för organisationen.
+  </Card>
+</CardGroup>

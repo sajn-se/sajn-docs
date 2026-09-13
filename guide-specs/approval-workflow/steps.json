@@ -20,7 +20,7 @@
         { "name": "valj-mall", "action": "click", "selector": "button[title='Konsultavtal']", "screenshot": false },
         { "name": "vanta-redigerare", "action": "waitForSelector", "selector": "button[aria-label='Arbetsflöde']" },
         { "name": "oppna-installningar", "action": "click", "selector": "button[aria-label='Inställningar']", "screenshot": false },
-        { "name": "satt-titel", "action": "fill", "selector": "input[placeholder='Dokumenttitel']", "value": "Batch B: attest", "screenshot": false },
+        { "name": "satt-titel", "action": "fill", "selector": "input[placeholder='Dokumenttitel']", "value": "Batch N: attest", "screenshot": false },
         { "name": "oppna-arbetsflode", "action": "click", "selector": "button[aria-label='Arbetsflöde']", "screenshot": false },
         { "name": "vanta-panel", "action": "wait", "ms": 1500 },
         { "name": "arbetsflodet", "action": "screenshot", "caption": "Attesten sitter i panelen Arbetsflöde", "notes": "Kedjan visar dokumentets väg från Utkast till Slutfört. Steget Internt godkännande ligger mellan Utkast och Skickat, och innehåller reglaget Kräv godkännande. Så länge det är avslaget går dokumentet direkt till parterna när du skickar." },
@@ -36,6 +36,10 @@
         { "name": "preferenser", "action": "goto", "url": "/{workspace}/settings/preferences", "screenshot": false },
         { "name": "vanta-preferenser", "action": "waitForSelector", "selector": "text=Kräv godkännande innan utskick" },
         { "name": "scrolla", "action": "scrollIntoView", "selector": "text=Kräv godkännande innan utskick", "align": "center", "screenshot": false },
-        { "name": "arbetsytans-krav", "action": "screenshot", "caption": "Gör attesten obligatorisk för hela arbetsytan", "notes": "Under Inställningar → Preferenser → Allmänt finns Kräv godkännande innan utskick. Slår du på den måste varje dokument i arbetsytan godkännas internt innan det skickas — även av den som annars får skicka utan godkännande. Saknar ett dokument godkännare läggs arbetsytans standardkedja till automatiskt." }
+        { "name": "arbetsytans-krav", "action": "screenshot", "caption": "Gör attesten obligatorisk för hela arbetsytan", "notes": "Under Inställningar → Preferenser → Allmänt finns Kräv godkännande innan utskick. Slår du på den måste varje dokument i arbetsytan godkännas internt innan det skickas — även av den som annars får skicka utan godkännande. Saknar ett dokument godkännare läggs arbetsytans standardkedja till automatiskt." },
+        { "name": "rollerna", "action": "goto", "url": "/{workspace}/settings/workspace/roles", "caption": "Vem som får godkänna styrs av arbetsytans roller", "notes": "Under Inställningar → Team → Roller listas arbetsytans roller med hur många behörigheter var och en ger och hur många medlemmar som har dem. Det är här du delar ut rätten att godkänna." },
+        { "name": "oppna-roll", "action": "click", "selector": "tbody tr:first-child a", "screenshot": false },
+        { "name": "vanta-roll", "action": "waitForSelector", "selector": "button[aria-expanded]:has-text('Dokumentflöde')" },
+        { "name": "dokumentflode", "action": "click", "selector": "button[aria-expanded]:has-text('Dokumentflöde')", "caption": "Behörigheterna ligger i gruppen Dokumentflöde", "notes": "Godkänna dokument gör att medlemmen dyker upp som valbar godkännare i dialogen Internt godkännande. Skicka utan godkännande låter medlemmen skicka direkt även när arbetsytan kräver godkännande — ta bort den från roller som alltid ska attestera. Inbyggda roller går bara att läsa; skapa en egen roll för att ändra behörigheterna." }
     ]
 }

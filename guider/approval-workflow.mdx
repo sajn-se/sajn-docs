@@ -10,7 +10,7 @@ Den här guiden visar var attesten slås på, hur godkännarkedjan sätts ihop o
 ## Innan du börjar
 
 - Du är inloggad i sajn och har valt en arbetsyta.
-- Dokumentet är i status **Utkast** – godkännare kan bara läggas till på ett utkast.
+- Dokumentet är i status **Utkast**. Godkännare kan bara läggas till på ett utkast.
 - Det finns minst en annan medlem i arbetsytan med behörigheten **Godkänna dokument**.
 
 ## Steg
@@ -39,7 +39,7 @@ Den här guiden visar var attesten slås på, hur godkännarkedjan sätts ihop o
     </Note>
   </Step>
   <Step title="Gör attesten obligatorisk för hela arbetsytan">
-    Under [Inställningar → Preferenser → Allmänt](https://app.sajn.se/~/settings/workspace/preferences) finns **Kräv godkännande innan utskick**. Slår du på den måste varje dokument i arbetsytan godkännas internt innan det skickas – även av den som annars får skicka utan godkännande. Saknar ett dokument godkännare läggs arbetsytans standardkedja till automatiskt.
+    Under [Inställningar → Preferenser → Allmänt](https://app.sajn.se/~/settings/workspace/preferences) finns **Kräv godkännande innan utskick**. Slår du på den måste varje dokument i arbetsytan godkännas internt innan det skickas, även av den som annars får skicka utan godkännande. Saknar ett dokument godkännare läggs arbetsytans standardkedja till automatiskt.
 
     <Frame>
       <img src="/images/guider/approval-workflow/24-arbetsytans-krav.png" alt="Inställningen Kräv godkännande innan utskick under Preferenser" />
@@ -57,15 +57,38 @@ Den här guiden visar var attesten slås på, hur godkännarkedjan sätts ihop o
 
 ## Vem får godkänna?
 
-Två behörigheter i arbetsytans roller styr attesten. De ligger båda i gruppen **Dokumentflöde** under [Inställningar → Arbetsyta → Roller](https://app.sajn.se/~/settings/workspace/roles):
+Vem som kan väljas som godkännare bestäms av arbetsytans roller. Under [Inställningar → Team → Roller](https://app.sajn.se/~/settings/workspace/roles) listas rollerna med hur många behörigheter var och en ger och hur många medlemmar som har dem.
 
-- **Godkänna dokument** – medlemmar med den här behörigheten dyker upp som valbara godkännare i dialogen **Internt godkännande**. Det finns också en färdig roll som heter *Godkännare*.
-- **Skicka utan godkännande** – medlemmar med den här behörigheten kan skicka dokument direkt, även när arbetsytan kräver godkännande. Ta bort den från roller som alltid ska attestera.
+<Frame>
+  <img src="/images/guider/approval-workflow/25-rollerna.png" alt="Fliken Roller under Team med arbetsytans roller" />
+</Frame>
+
+Klicka på en roll och fäll ut gruppen **Dokumentflöde**. Två behörigheter där styr attesten:
+
+- **Godkänna dokument** gör att medlemmen dyker upp som valbar godkännare i dialogen **Internt godkännande**.
+- **Skicka utan godkännande** låter medlemmen skicka dokument direkt, även när arbetsytan kräver godkännande. Ta bort den från roller som alltid ska attestera.
+
+<Frame>
+  <img src="/images/guider/approval-workflow/28-dokumentflode.png" alt="Gruppen Dokumentflöde utfälld i en arbetsyteroll" />
+</Frame>
+
+Inbyggda roller går bara att läsa. Vill du ändra behörigheterna gör du en kopia av rollen från rollistan, eller skapar en ny roll med **Skapa roll**.
 
 <Note>
-  Rollhantering kräver en plan med arbetsytemedlemmar. Saknar du sidan **Roller** i inställningarna har din arbetsyta inte den funktionen aktiverad – hör av dig till [hej@sajn.se](mailto:hej@sajn.se).
+  Sidan **Roller** för arbetsytan kräver **Team** eller **Enterprise**. På Basic och Solo finns bara en användare i arbetsytan, och då visas varken Team eller Roller i inställningarna.
 </Note>
 
 <Tip>
   En mall kan ha en färdig godkännarkedja, och kedjan kan låsas i mallen. Då går den inte att ta bort på dokument som skapas från mallen.
 </Tip>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Rollmallar för arbetsytor" icon="layer-group" href="/guider/settings-role-blueprints">
+    Beskriv en godkännarroll en gång och använd den i alla arbetsytor.
+  </Card>
+  <Card title="Medlemmar & roller i en arbetsyta" icon="user-group" href="/guider/settings-workspace-members-roles">
+    Lägg till kollegan i arbetsytan och ge rätt roll.
+  </Card>
+</CardGroup>

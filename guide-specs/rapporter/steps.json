@@ -1,0 +1,250 @@
+{
+    "slug": "rapporter",
+    "title": "Bygg en rapport",
+    "intro": "Statistik är den färdiga översikten. Rapporter är den du bygger själv: du väljer datakälla, mätvärden, gruppering och diagramtyp, och sparar resultatet som en egen sida.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får läsa och skapa rapporter.",
+        "Rapporter kräver Solo eller högre."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/rapporter",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-rapporter",
+            "action": "goto",
+            "url": "/{workspace}/reports",
+            "caption": "Öppna Rapporter under Statistik",
+            "notes": "Rapporter ligger som en undersida till Statistik i sidomenyn. Listan visar namn, beskrivning och när rapporten senast ändrades. Rapporterna tillhör arbetsytan, så alla som får läsa rapporter ser samma lista."
+        },
+        {
+            "name": "skapa-rapport",
+            "action": "clickText",
+            "text": "Skapa rapport",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-rapporten",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Ny sektion')"
+        },
+        {
+            "name": "vanta-data",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "ny-rapport",
+            "action": "screenshot",
+            "caption": "En ny rapport börjar med tre färdiga sektioner",
+            "notes": "Rapporten heter Ny rapport och innehåller en nyckeltalsrad, ett linjediagram över skapade dokument och en tabell per status. Varje ruta är en sektion med sin egen fråga mot databasen. Raden under rubriken styr perioden för hela rapporten."
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-installningar",
+            "action": "waitForSelector",
+            "selector": "text=Rapportinställningar"
+        },
+        {
+            "name": "namnge",
+            "action": "fill",
+            "selector": "#report-name",
+            "value": "Batch L: dokumentöversikt",
+            "screenshot": false
+        },
+        {
+            "name": "beskrivning",
+            "action": "fill",
+            "selector": "#report-description",
+            "value": "Volym och signeringsgrad för arbetsytans dokument.",
+            "caption": "Ge rapporten ett namn och en beskrivning",
+            "notes": "Kugghjulet uppe till höger öppnar rapportens inställningar. Namnet är det som står i listan, och beskrivningen hjälper dina kollegor att förstå vad rapporten svarar på."
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangt",
+            "action": "waitForSelector",
+            "selector": "text=Rapportinställningar",
+            "state": "hidden"
+        },
+        {
+            "name": "byt-period",
+            "action": "click",
+            "selector": "button:text-is('3M')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-period",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "perioden",
+            "action": "screenshot",
+            "caption": "Perioden och jämförelsen gäller hela rapporten",
+            "notes": "Knapparna 7D, 1M, 3M, 6M och 12M byter period för alla sektioner samtidigt. Menyn bredvid väljer vad siffrorna jämförs mot: ingen jämförelse, föregående period eller föregående år. Valet sparas i rapporten, så nästa person som öppnar den ser samma period."
+        },
+        {
+            "name": "ny-sektion",
+            "action": "click",
+            "selector": "button:has-text('Ny sektion')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Namnge sektionen...']"
+        },
+        {
+            "name": "namnge-sektion",
+            "action": "fill",
+            "selector": "input[placeholder='Namnge sektionen...']",
+            "value": "Dokument per status",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-forhandsvisning",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "sektionsredigeraren",
+            "action": "screenshot",
+            "caption": "Sektionsredigeraren visar resultatet medan du bygger",
+            "notes": "Till vänster ligger förhandsvisningen, till höger frågan. Panelen läses uppifrån och ner: Datakälla är vad du mäter på, Mätvärden är talen, Gruppera efter delar upp dem och Visualisering avgör hur de ritas. Varje ändring syns direkt i förhandsvisningen."
+        },
+        {
+            "name": "oppna-datakalla",
+            "action": "click",
+            "selector": "div:has(> p:text-is('Datakälla')) > button[role='combobox']",
+            "caption": "Sex datakällor att välja mellan",
+            "notes": "Dokument räknar dokumenten själva. Mottagare räknar per part, med leverans, öppningar och signeringar. Mallar räknar mallarna i arbetsytan. AI-granskning räknar anmärkningar från AI-granskningen. Engagemang och Sidengagemang mäter hur mottagaren beter sig på signeringssidan. Byter du källa börjar sektionen om, eftersom mätvärden och grupperingar hör till en källa."
+        },
+        {
+            "name": "stang-datakalla",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-gruppering",
+            "action": "click",
+            "selector": "div:has(> p:text-is('Gruppera efter')) button[role='combobox']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-status",
+            "action": "click",
+            "selector": "[cmdk-item]:has-text('Status')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-diagram",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "gruppering",
+            "action": "screenshot",
+            "caption": "En gruppering gör talet till ett diagram",
+            "notes": "Utan gruppering är sektionen ett enda tal. Grupperar du på Status delas talet upp per status och sektionen byter automatiskt från nyckeltal till stapeldiagram. Grupperar du på ett datum får du i stället en tidslinje, och då dyker en meny upp för dagligen, veckovis, månadsvis, kvartalsvis eller årsvis."
+        },
+        {
+            "name": "oppna-visualisering",
+            "action": "click",
+            "selector": "div:has(> p:text-is('Visualisering')) > button[role='combobox']",
+            "caption": "Diagramtyper som inte passar frågan står kvar men är släckta",
+            "notes": "Listan visar alla typer: nyckeltal, linje, stapel, staplat stapeldiagram, cirkel, munk, yta och tabell. En typ som inte går att rita med den aktuella frågan är släckt och skriver ut vad som saknas, till exempel Kräver en tidsgruppering. Tabell fungerar alltid."
+        },
+        {
+            "name": "stang-visualisering",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "spara-sektion",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Klar')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-tillbaka",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Namnge sektionen...']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-omrakning",
+            "action": "wait",
+            "ms": 4000
+        },
+        {
+            "name": "fardig-rapport",
+            "action": "screenshot",
+            "caption": "Sektionen läggs till sist i rapporten",
+            "notes": "Rapporten sparas automatiskt. Menyn med tre punkter på varje sektion har Ladda ner CSV, Redigera, Duplicera och Ta bort. Pilen uppe till höger laddar ner hela rapporten som CSV, och uppdateringsknappen bredvid hämtar färska siffror i stället för de cachade."
+        },
+        {
+            "name": "tillbaka-till-listan",
+            "action": "goto",
+            "url": "/{workspace}/reports",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch L: dokumentöversikt')"
+        },
+        {
+            "name": "listan",
+            "action": "screenshot",
+            "caption": "Rapporten finns kvar i listan",
+            "notes": "Klicka på en rad för att öppna rapporten igen. Papperskorgen längst till höger tar bort rapporten permanent."
+        },
+        {
+            "name": "ta-bort",
+            "action": "click",
+            "selector": "tr:has-text('Batch L: dokumentöversikt') button[aria-label='Ta bort']",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-ta-bort",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Ta bort')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagen",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch L: dokumentöversikt')",
+            "state": "hidden"
+        },
+        {
+            "name": "efter-rensning",
+            "action": "wait",
+            "ms": 2000
+        }
+    ]
+}

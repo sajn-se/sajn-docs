@@ -1,0 +1,41 @@
+{
+    "slug": "settings-workspaces",
+    "title": "Lista och hantera dina arbetsytor",
+    "intro": "Arbetsytor är separata utrymmen inom samma organisation, till exempel en för Sälj, en för HR och en för Juridik, med egna dokument, mallar, kontakter och medlemmar. På sidan Arbetsytor ser du alla arbetsytor som hör till organisationen. Guiden skapar, döper inte om och byter inte arbetsyta.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Sidan Arbetsytor kräver Team eller Enterprise. På Basic och Solo ingår en enda arbetsyta.",
+        "Du har behörighet att hantera arbetsytor i organisationen."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": ["[data-guide-mask]"],
+    "hide": [".group\\/promo"],
+    "imageDir": "../../images/guider/settings-workspaces",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "arbetsytor",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/workspaces",
+            "caption": "Öppna Arbetsytor under Organisation",
+            "notes": "Sidan är organisationsövergripande: listan är densamma oavsett vilken arbetsyta du står i. Under rubriken står hur många arbetsytor du använder av paketets kvot, och rutan under förklarar när arbetsytor är rätt verktyg.\n\nTabellen visar Namn med arbetsytans ikon och färg, URL som är den del av adressen som pekar ut arbetsytan, Medlemmar som räknar personer med tillgång, och Skapad. Byter arbetsyta gör du med väljaren längst upp till vänster i sidomenyn, inte härifrån."
+        },
+        {
+            "name": "radmenyn",
+            "action": "click",
+            "selector": "tbody tr:first-child button:has(svg)",
+            "match": "last",
+            "caption": "Trepunktsmenyn på raden",
+            "notes": "Redigera öppnar en ruta där du byter namn, ikon och färg. URL-delen ändras inte i efterhand. Hantera medlemmar och Hantera roller tar dig till just den arbetsytans inställningar. Ta bort raderar arbetsytan permanent efter en bekräftelse, och är gråad så länge det bara finns en arbetsyta kvar."
+        },
+        { "name": "stang-menyn", "action": "press", "key": "Escape" },
+        {
+            "name": "ny-arbetsyta",
+            "action": "clickText",
+            "text": "Lägg till arbetsyta",
+            "caption": "Skapa en ny arbetsyta",
+            "notes": "Du anger namn och väljer ikon och färg. URL-delen skapas automatiskt utifrån namnet. Har du nått paketets maxantal är knappen gråad, och texten ovanför tabellen visar hur många du använder av kvoten."
+        },
+        { "name": "avbryt", "action": "press", "key": "Escape" }
+    ]
+}

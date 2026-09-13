@@ -1,0 +1,217 @@
+{
+    "slug": "bob",
+    "title": "Bob, din AI-assistent",
+    "intro": "Bob är assistenten som följer med överallt i sajn. Du öppnar den från ikonen uppe till höger, skriver på svenska och får svar som bygger på din egen arbetsyta.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "AI-funktioner är påslagna för arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/bob",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "hem",
+            "action": "goto",
+            "url": "/{workspace}",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-bob",
+            "action": "click",
+            "selector": "button[aria-label='Öppna assistent']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-panel",
+            "action": "waitForSelector",
+            "selector": ".tiptap[contenteditable='true']"
+        },
+        {
+            "name": "panelen",
+            "action": "screenshot",
+            "caption": "Öppna Bob från ikonen uppe till höger",
+            "notes": "Panelen lägger sig bredvid sidan du står på, så du tappar aldrig sammanhanget. Ovanför skrivfältet ligger förslag som byts ut beroende på var du är: på översikten handlar de om dokument och statistik, inne i ett dokument om just det dokumentet."
+        },
+        {
+            "name": "stall-fragan",
+            "action": "clickText",
+            "text": "Hitta avtal som nämner uppsägningstid",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-svar",
+            "action": "wait",
+            "ms": 30000
+        },
+        {
+            "name": "svaret",
+            "action": "screenshot",
+            "caption": "Bob visar vad den gör innan den svarar",
+            "notes": "Raden över svaret är steget Bob tog, till exempel Sökte i dokumentinnehåll. Klickar du på raden ser du vad steget gav. Svaret bygger på din arbetsyta och på det du själv får se, så en kollega med andra behörigheter kan få ett annat svar på samma fråga. Under svaret finns tummen upp och ner, en kopieringsknapp och förslag på följdfrågor."
+        },
+        {
+            "name": "oppna-helskarm",
+            "action": "click",
+            "selector": "button[aria-label='Öppna i helskärm']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-helskarm",
+            "action": "wait",
+            "ms": 8000
+        },
+        {
+            "name": "helskarm",
+            "action": "screenshot",
+            "caption": "Helskärm ger mer plats",
+            "notes": "Samma samtal, bredare yta och en lista med dina samtal till vänster. Escape tar dig tillbaka till panelen."
+        },
+        {
+            "name": "tillbaka-till-panelen",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-panel-igen",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "ny-chatt",
+            "action": "click",
+            "selector": "button[aria-label='Ny chatt']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-tom",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "skriv-snabel-a",
+            "action": "type",
+            "selector": ".tiptap[contenteditable='true']",
+            "text": "@konsult",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-menyn",
+            "action": "wait",
+            "ms": 2500
+        },
+        {
+            "name": "tagga",
+            "action": "screenshot",
+            "caption": "Skriv @ för att peka ut ett dokument, en mall eller en kontakt",
+            "notes": "Menyn söker medan du skriver och delar upp träffarna i Dokument, Mallar och Kontakter. Väljer du en träff vet Bob exakt vad du menar i stället för att behöva gissa utifrån namnet. Plusknappen nere till vänster i skrivfältet öppnar samma meny."
+        },
+        {
+            "name": "markera-allt",
+            "action": "press",
+            "selector": ".tiptap[contenteditable='true']",
+            "key": "Meta+a",
+            "screenshot": false
+        },
+        {
+            "name": "rensa",
+            "action": "press",
+            "key": "Backspace",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-snedstreck",
+            "action": "type",
+            "selector": ".tiptap[contenteditable='true']",
+            "text": "/",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-kommandon",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "kommandon",
+            "action": "screenshot",
+            "caption": "Skriv / för färdiga arbetsflöden",
+            "notes": "Under Arbetsflöden ligger vanliga uppgifter som redan är nedbrutna i steg, till exempel Skicka ett avtal och Jaga osignerade dokument. Du väljer ett och svarar på Bobs frågor på vägen. Under Kommandon ligger Ny chatt, som bara rensar samtalet."
+        },
+        {
+            "name": "markera-allt-igen",
+            "action": "press",
+            "selector": ".tiptap[contenteditable='true']",
+            "key": "Meta+a",
+            "screenshot": false
+        },
+        {
+            "name": "rensa-igen",
+            "action": "press",
+            "key": "Backspace",
+            "screenshot": false
+        },
+        {
+            "name": "historik",
+            "action": "click",
+            "selector": "button[aria-label='Visa historik']",
+            "caption": "Tidigare samtal ligger kvar",
+            "notes": "Varje samtal sparas med en rubrik som Bob sätter själv. Klicka på rubriken uppe till vänster för att döpa om det, och på papperskorgen i listan för att radera ett samtal permanent."
+        },
+        {
+            "name": "stang-historik",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "till-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-dokumentet",
+            "action": "clickText",
+            "text": "Guideexempel: konsultavtal",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dokument",
+            "action": "wait",
+            "ms": 5000
+        },
+        {
+            "name": "oppna-bob-i-dokument",
+            "action": "click",
+            "selector": "button[aria-label='Öppna assistent']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-kontext",
+            "action": "waitForSelector",
+            "selector": ".tiptap[contenteditable='true']"
+        },
+        {
+            "name": "vanta-chip",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "dokumentkontext",
+            "action": "screenshot",
+            "caption": "Inne i ett dokument vet Bob vilket dokument du menar",
+            "notes": "Dokumentet fästs som en etikett ovanför skrivfältet, så du kan be Bob sammanfatta dokumentet utan att nämna namnet. Krysset på etiketten kopplar loss dokumentet igen. Står det skrivskyddad kan Bob läsa dokumentet men inte ändra det."
+        }
+    ]
+}

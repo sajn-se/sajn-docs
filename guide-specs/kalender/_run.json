@@ -1,0 +1,122 @@
+{
+  "ranAt": "2026-09-13T15:57:12.905Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-kalendern",
+      "action": "goto",
+      "screenshotFile": "02-oppna-kalendern.png",
+      "caption": "Öppna Kalender under Dokument",
+      "notes": "Varje ruta i månaden är en dag, och varje färgad rad är en händelse på ett dokument. Dagens datum är markerat. Klicka på en händelse för att öppna dokumentet.\n\nFärgen säger vilken sorts händelse det är: grått för skickat, grönt för signerat, blått för påminnelse och gult för sista dag. Ett utgångsdatum som redan passerat blir rött.",
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 3,
+      "name": "vanta-manad",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 4,
+      "name": "oppna-dag",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 5,
+      "name": "vanta-dagsruta",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 6,
+      "name": "dagens-handelser",
+      "action": "screenshot",
+      "screenshotFile": "06-dagens-handelser.png",
+      "caption": "Dagar med många händelser öppnas i en ruta",
+      "notes": "En dagruta visar två händelser. Finns det fler står det plus så och så många till längst ner. Klicka på dagen så listas allt som händer den dagen, med tid och dokumentnamn.",
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 7,
+      "name": "stang-dagsruta",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 8,
+      "name": "vanta-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 9,
+      "name": "filtrera-typ",
+      "action": "click",
+      "screenshotFile": "09-filtrera-typ.png",
+      "caption": "Släck de händelsetyper du inte vill se",
+      "notes": "Knapparna överst tänder och släcker en typ i taget. Påminnelser är ofta flest, så att släcka dem gör månaden lättläst när du vill se vad som signerats eller vad som går ut.\n\nTill höger väljer du vems dokument som ska visas: alla i arbetsytan, bara dina egna eller bara andras. Kalendern visar aldrig dokument du inte har rätt att se, så en kollegas privata dokument syns inte här.",
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 10,
+      "name": "tand-paminnelser",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 11,
+      "name": "oppna-manadsvaljare",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 12,
+      "name": "vanta-manadsvaljare",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    },
+    {
+      "index": 13,
+      "name": "byt-manad",
+      "action": "screenshot",
+      "screenshotFile": "13-byt-manad.png",
+      "caption": "Hoppa till en annan månad",
+      "notes": "Klicka på månadsnamnet för att välja månad och år direkt. Pilarna bläddrar en månad i taget och Idag tar dig tillbaka till den här månaden.",
+      "url": "https://app.sajn.se/arlbn/documents/calendar"
+    }
+  ]
+}

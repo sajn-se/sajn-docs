@@ -1,0 +1,79 @@
+---
+title: "Rollmallar för arbetsytor"
+description: "Beskriv en arbetsyteroll en gång på organisationsnivå och använd den i alla arbetsytor"
+---
+
+En rollmall är en **arbetsyteroll** som du beskriver en gång på organisationsnivå och sedan använder i alla arbetsytor. Ändrar du mallen ändras rollen överallt den används. Utan mallar får du bygga om samma roll i varje arbetsyta, och de glider isär.
+
+<Note>
+  Rollmallar är inte organisationsroller. En organisationsroll styr vad någon får göra med själva kontot: medlemmar, fakturering och inställningar. En rollmall beskriver vad någon får göra inne i en arbetsyta: dokument, mallar, kontakter och rapporter. Båda ligger på samma flik, men de styr helt olika saker.
+</Note>
+
+## Innan du börjar
+
+- Du är inloggad som kontoinnehavare eller administratör för organisationen.
+- Rollmallar ligger under **Team & säkerhet**, som kräver **Team** eller **Enterprise**.
+- Du har behörigheten **Hantera roller** i organisationen.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna fliken Roller under Team & säkerhet">
+    Rollmallarna ligger längst ner på fliken [Roller](https://app.sajn.se/~/settings/organization/roles), under organisationsrollerna. Avsnittet heter **Rollmallar för arbetsytor** och är tomt tills den första mallen finns.
+
+    Varje mall får sedan en egen rad med namn, hur många behörigheter den ger och i hur många arbetsytor den används. Färdiga mallar som följer med organisationen är märkta **Inbyggd** och går bara att läsa.
+
+    <Frame>
+      <img src="/images/guider/settings-role-blueprints/03-rollmallar.png" alt="Avsnittet Rollmallar för arbetsytor längst ner på fliken Roller" />
+    </Frame>
+  </Step>
+  <Step title="Klicka på Skapa rollmall och ge mallen ett namn">
+    Namnet är det arbetsytorna kommer att se rollen som, till exempel *Granskare* eller *Säljare*.
+
+    Reglaget **Använd direkt i alla arbetsytor** lägger till rollen i varje arbetsyta så fort du sparar. Slår du av det skapas bara mallen, och du väljer arbetsytor senare.
+
+    Behörigheterna ligger i grupper: Dokument, Dokumentflöde, Dokumentadministration, Kommentarer, AI-funktioner, Formulär, Mallar, Filer, Mappar, Kontakter, Taggar, Datafält, Rapporter och fler. Reglaget på gruppraden slår på hela gruppen på en gång. Räknaren nere till höger visar hur många av alla behörigheter mallen ger.
+
+    <Frame>
+      <img src="/images/guider/settings-role-blueprints/06-formularet.png" alt="Formuläret Ny rollmall med namnfält, reglage och behörighetsgrupper" />
+    </Frame>
+  </Step>
+  <Step title="Fäll ut en grupp för enskilda behörigheter">
+    Pilen framför gruppnamnet visar behörigheterna en och en, var och en med sitt eget reglage och en förklaring. I gruppen **Dokumentflöde** ligger bland annat **Skicka dokument**, **Godkänna dokument** och **Skicka utan godkännande**, som avgör vem som får vara godkännare i ett attestflöde.
+
+    Sökrutan högst upp hittar en enskild behörighet utan att du behöver leta i grupperna. Klicka **Skapa** när mallen är klar.
+
+    <Frame>
+      <img src="/images/guider/settings-role-blueprints/07-gruppen.png" alt="Gruppen Dokumentflöde utfälld med en behörighet per rad" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Använd en mall i arbetsytorna
+
+Trepunktsmenyn på en mallrad har tre val:
+
+- **Använd i arbetsytor** öppnar en ruta där du kryssar för vilka arbetsytor rollen ska läggas till i. Lämnar du allt omarkerat läggs den till i alla. Arbetsytor som redan har rollen påverkas inte.
+- **Redigera** öppnar mallen. På en inbyggd mall heter valet **Visa behörigheter**, eftersom den bara går att läsa.
+- **Ta bort** tar bort mallen. Rollerna i arbetsytorna försvinner inte utan blir vanliga roller, som varje arbetsyta sedan redigerar själv.
+
+<Warning>
+  Ändrar du en mall som redan används slår ändringen igenom i varje arbetsyta som har rollen, direkt. Ta bort en behörighet ur mallen och alla med den rollen förlorar den. En ruta överst i mallen påminner om hur många arbetsytor som berörs.
+</Warning>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Medlemmar & roller i organisationen" icon="users" href="/guider/settings-organization-members-roles">
+    Organisationsroller, medlemmar och inbjudningar.
+  </Card>
+  <Card title="Medlemmar & roller i en arbetsyta" icon="user-group" href="/guider/settings-workspace-members-roles">
+    Vem som kommer åt en enskild arbetsyta, och med vilken roll.
+  </Card>
+  <Card title="Arbetsytor" icon="layer-group" href="/guider/settings-workspaces">
+    Alla arbetsytor i organisationen och vad du gör per arbetsyta.
+  </Card>
+  <Card title="Attestflöde" icon="check" href="/guider/approval-workflow">
+    Behörigheterna Godkänna dokument och Skicka utan godkännande i praktiken.
+  </Card>
+</CardGroup>

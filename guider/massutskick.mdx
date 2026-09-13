@@ -1,0 +1,138 @@
+---
+title: "Skicka ett massutskick"
+description: "Skicka samma mall till många mottagare på en gång, med egna uppgifter i varje dokument"
+---
+
+Ett massutskick tar en mall och en fil med mottagare, och skapar ett eget dokument per rad i filen. Varje mottagare får sin egen inbjudan och signerar sitt eget dokument. Ingen ser någon annans.
+
+Det som gör utskicket användbart är kopplingen mellan filen och mallen. Kolumnerna i din CSV-fil matchas mot mallens fält, så samma avtal kan gå ut med olika organisationsnummer, startdatum och belopp i texten. Kopplingen sker på fältets **nyckel**, samma nyckel som formulär och API:et använder.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Du har behörighet att skapa dokument och skicka dem utan godkännande. Kräver arbetsytan godkännande innan utskick går massutskick inte att använda.
+- Du har en mall att utgå från. Fälten i mallen behöver nycklar för att kunna fyllas från filen, se [Lägg till fält i en mall](/guider/add-fields-to-template).
+- Massutskick kräver Solo eller högre.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Massutskick under Dokument">
+    [Massutskick](https://app.sajn.se/~/documents/bulk-send) ligger som en undersida till **Dokument** i sidomenyn. Listan visar utskicken du gjort, vilken mall de utgår från, antal mottagare och hur långt de kommit.
+
+    <Frame>
+      <img src="/images/guider/massutskick/02-oppna-massutskick.png" alt="Sidan Massutskick med tidigare utskick i en lista" />
+    </Frame>
+  </Step>
+
+  <Step title="Välj mallen som ska skickas">
+    Klicka på **Nytt massutskick** och välj mallen i listan. Alla mallar i arbetsytan går att skicka så här. Du kan också starta utskicket från mallen själv, via **Skicka som massutskick** i Arkiv-menyn.
+
+    <Frame>
+      <img src="/images/guider/massutskick/05-valj-mall.png" alt="Dialogen Välj mall för massutskicket med sökfält och mallista" />
+    </Frame>
+  </Step>
+
+  <Step title="Bestäm vilka parter som kommer från filen">
+    Mallens parter listas överst. **Från CSV** betyder att parten byts ut för varje rad, alltså mottagaren. **Fast part** betyder samma person på alla dokument, till exempel du själv som motpart. En part utan kontaktuppgifter i mallen behandlas som mottagare, en part med e-post eller mobilnummer som fast part.
+
+    Behöver du ytterligare en part på varje dokument lägger du till namn, e-post och roll på raden längst ner.
+
+    <Frame>
+      <img src="/images/guider/massutskick/08-parter-och-fil.png" alt="Dialogen med partlistan och rutan för att ladda upp en CSV-fil" />
+    </Frame>
+
+    <Tip>
+      Klicka **Ladda ner CSV-mall** först. Filen du får har redan rätt rubrikrad: mottagarkolumnerna plus en kolumn per fält i mallen, med fältets nyckel som rubrik. Fyll i den i Excel eller Google Kalkylark och ladda upp den igen. Ett utskick tar högst 250 mottagare, dela upp större listor.
+    </Tip>
+  </Step>
+
+  <Step title="Matcha filens kolumner mot fälten">
+    Vänsterkolumnen är vad utskicket kan fylla, högerkolumnen är vilken kolumn i din fil som ska användas. Rubriker som stämmer med fältets nyckel matchas automatiskt. Under varje matchad rad visas värdet från filens första rad, så du ser direkt att rätt kolumn hamnat rätt.
+
+    **Namn** är det enda som krävs. Fält du inte vill fylla lämnar du på *Ignorera*.
+
+    <Frame>
+      <img src="/images/guider/massutskick/11-matcha-kolumner.png" alt="Steg 1 med parter och de översta kolumnmatchningarna" />
+    </Frame>
+  </Step>
+
+  <Step title="Sammanfogningsfälten är mallens egna fält">
+    Längre ner står raderna märkta **sammanfogningsfält**. Det är fälten i mallen som har en nyckel. Värdet i filen skrivs in i dokumentets fält med den nyckeln, så varje mottagare får sitt eget organisationsnummer, startdatum och timarvode i avtalstexten. Ett fält utan nyckel dyker inte upp här och kan inte fyllas från en fil.
+
+    Raderna **Signeringsmetod**, **Leveransmetod** och **Roll** gäller mottagaren och kan sättas per rad. Lämnar du dem tomma gäller det mallen säger.
+
+    <Frame>
+      <img src="/images/guider/massutskick/14-sammanfogningsfalt.png" alt="Kolumnmatchningen scrollad till sammanfogningsfälten" />
+    </Frame>
+  </Step>
+
+  <Step title="Byt kolumn när rubriken heter något annat">
+    Heter kolumnen i ditt kalkylark något annat än fältets nyckel hittas den inte automatiskt. Öppna listan på raden och peka ut rätt kolumn. Listan innehåller alla rubriker i filen.
+
+    <Frame>
+      <img src="/images/guider/massutskick/17-valj-kolumn.png" alt="Kolumnlistan öppen på raden Organisationsnummer" />
+    </Frame>
+  </Step>
+
+  <Step title="Granska raderna innan du skickar">
+    Klicka **Granska**. Varje rad kontrolleras innan något skickas.
+
+    - **Klara** rader skickas.
+    - **Hoppas över** betyder ett fel som stoppar raden, till exempel att namnet saknas, att adressen inte är en giltig e-postadress eller att varken e-post eller mobilnummer finns.
+    - **Att titta på** är gula varningar. Raden skickas ändå, men är värd en blick. Samma e-postadress på flera rader är oftast ett misstag.
+
+    Siffran till vänster är radnumret i filen, så du hittar tillbaka till rätt rad i kalkylarket. **Visa bara problem** filtrerar listan när filen är lång. Rätta i kalkylarket, ladda upp filen igen och granska om.
+
+    <Frame>
+      <img src="/images/guider/massutskick/21-granska-raderna.png" alt="Granskningssteget med två klara rader och en rad som hoppas över" />
+    </Frame>
+  </Step>
+
+  <Step title="Namnge utskicket och sätt sista signeringsdag">
+    Namnet är ditt eget och syns bara internt. Sista signeringsdag gäller alla dokument i utskicket och föreslås två veckor fram. Meddelandet skrivs in i e-postinbjudan till varje mottagare.
+
+    **Kräv BankID** tvingar alla mottagare från filen att signera med BankID, oavsett vad mallen säger.
+
+    <Frame>
+      <img src="/images/guider/massutskick/26-installningar.png" alt="Steg 3 med namn, sista signeringsdag, meddelande och testutskick" />
+    </Frame>
+
+    <Note>
+      **Skicka test** skickar filens första rad till din egen adress som ett riktigt dokument. Du ser exakt vad mottagarna får, med rätt värden i texten. Testet förbrukar en e-signatur ur kvoten, precis som vilket dokument som helst.
+    </Note>
+  </Step>
+
+  <Step title="Följ utskicket">
+    Klicka **Skicka**. Dokumenten skapas i bakgrunden, en rad i taget, och listan uppdaterar sig själv medan det pågår. Förloppet räknar signerade, väntande, avböjda och eventuella fel. Klicka på raden för att se de enskilda dokumenten.
+
+    <Frame>
+      <img src="/images/guider/massutskick/33-folj-utskicket.png" alt="Massutskick-sidan med utskick och förlopp per rad" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Vad som händer med kvoten
+
+Varje rad blir ett dokument och förbrukar en e-signatur ur arbetsytans kvot. Rader som hoppas över kostar ingenting. Har du fasta parter får de en inbjudan per dokument, alltså lika många som det finns mottagare.
+
+## När massutskick inte går att använda
+
+- **Arbetsytan kräver godkännande innan utskick.** Godkännande sker per dokument och kan inte gälla en hel omgång. Stäng av kravet under arbetsytans inställningar, eller skicka dokumenten enskilt.
+- **Du saknar behörighet.** Massutskick kräver rätt att skapa dokument, skicka dem och skicka utan godkännande.
+- **Abonnemanget är Basic.** Massutskick ingår från Solo.
+
+## Massutskick av ID-kontroller är något annat
+
+Under **sajn ID** finns också ett [Massutskick](https://app.sajn.se/~/sajn-id/bulk-send). Det är ett eget flöde: där laddar du upp en fil med personer som ska identifiera sig med BankID, och varje rad blir en ID-kontroll, inte ett dokument. Ingen mall, inga fält och ingen signering. Se [Skapa en sajn ID-kontroll](/guider/create-sajn-id).
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Lägg till fält i en mall" icon="input-text" href="/guider/add-fields-to-template">
+    Fälten med nycklar är de du kan fylla från en fil.
+  </Card>
+  <Card title="Skapa ett formulär" icon="clipboard-list" href="/guider/formular">
+    Låt mottagarna fylla i sina uppgifter själva i stället.
+  </Card>
+</CardGroup>

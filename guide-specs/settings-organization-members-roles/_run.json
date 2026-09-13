@@ -1,0 +1,41 @@
+{
+  "ranAt": "2026-09-13T16:00:03.544Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "medlemmar",
+      "action": "goto",
+      "screenshotFile": "02-medlemmar.png",
+      "caption": "Öppna Team & säkerhet",
+      "notes": "Sidan ligger under Organisationsinställningar och har fyra flikar: Medlemmar, Inbjudningar, Roller och Säkerhet. Fliken Medlemmar listar alla som har tillgång till organisationen, oavsett vilken arbetsyta de arbetar i.\n\nKolumnerna är Medlem (namn och e-postadress), Roll (organisationsrollen), Arbetsytor (hur många arbetsytor personen är med i), 2FA (På eller Av), Status och Senast aktiv. Märket Innehavare visar vem som äger kontot, och Du markerar dig själv.\n\nOvanför tabellen filtrerar knapparna Alla, Aktiva och Inaktiva, sökrutan söker på namn eller e-post och Exportera laddar ner listan som en CSV-fil.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/members"
+    },
+    {
+      "index": 3,
+      "name": "inbjudningar",
+      "action": "click",
+      "screenshotFile": "03-inbjudningar.png",
+      "caption": "Inbjudningar har en egen flik",
+      "notes": "Personer du har bjudit in syns inte i medlemslistan förrän de tackat ja. Fram till dess ligger de här, med kolumnerna E-postadress, Roll, Inbjuden av, Status och Giltighet. Status är Utkast för en inbjudan som ännu inte skickats och Väntar på svar för en skickad. Giltighet visar när inbjudan går ut.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/invites"
+    },
+    {
+      "index": 4,
+      "name": "roller",
+      "action": "click",
+      "screenshotFile": "04-roller.png",
+      "caption": "Roller styr vad medlemmar får göra",
+      "notes": "Organisationsroller gäller organisationen: medlemmar, fakturering och inställningar. Vad någon får göra med dokument avgörs i stället av arbetsyterollerna. De färdiga rollerna heter Administratör och Användare och är märkta Inbyggd. Behörigheter visar antalet rättigheter i rollen, och info-ikonen listar dem. Antal medlemmar visar hur många som har rollen just nu.\n\nLängst ner ligger Rollmallar för arbetsytor. Det är arbetsyteroller som du definierar en gång och använder i alla arbetsytor, inte organisationsroller. De har en egen guide.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/roles"
+    }
+  ]
+}

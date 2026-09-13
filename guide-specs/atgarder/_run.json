@@ -1,0 +1,158 @@
+{
+  "ranAt": "2026-09-13T15:59:11.398Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-atgarder",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/actions"
+    },
+    {
+      "index": 3,
+      "name": "vanta-korten",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/actions"
+    },
+    {
+      "index": 4,
+      "name": "floder",
+      "action": "screenshot",
+      "screenshotFile": "04-floder.png",
+      "caption": "Öppna Åtgärder från blixtikonen i toppraden",
+      "notes": "Siffran bredvid blixten räknar hur många förslag som väntar. Varje kort säger vad sajn hittat, vilket dokument det gäller och vad som händer om du trycker på knappen till höger. Kort med en deadline får en färgad ikon när det börjar bli bråttom. Samma lista finns som widget på startsidan.",
+      "url": "https://app.sajn.se/arlbn/actions"
+    },
+    {
+      "index": 5,
+      "name": "oppna-menyn",
+      "action": "click",
+      "screenshotFile": "05-oppna-menyn.png",
+      "caption": "Skjut upp eller avfärda ett förslag",
+      "notes": "De tre prickarna uppe till höger på kortet öppnar menyn. Skjut upp lägger undan kortet till imorgon, om tre dagar eller om en vecka och tar sedan tillbaka det. Avfärda tar bort det för gott. Avfärdar du ett AI-förslag får du samtidigt frågan om du vill stänga av just den sortens förslag helt.",
+      "url": "https://app.sajn.se/arlbn/actions"
+    },
+    {
+      "index": 6,
+      "name": "stang-menyn",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/actions"
+    },
+    {
+      "index": 7,
+      "name": "vanta-meny-stangd",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/actions"
+    },
+    {
+      "index": 8,
+      "name": "justera",
+      "action": "click",
+      "screenshotFile": "08-justera.png",
+      "caption": "Justera innan du utför",
+      "notes": "Justera byter kortets nedre rad mot ett skrivfält. Skriv vad du vill ändra med egna ord, till exempel \"2 dagar istället\", och tryck Enter. Förslag som innehåller ett färdigt meddelande går också att redigera direkt i textrutan på kortet innan du skickar det.",
+      "url": "https://app.sajn.se/arlbn/actions"
+    },
+    {
+      "index": 9,
+      "name": "stang-justera",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/actions"
+    },
+    {
+      "index": 10,
+      "name": "till-installningar",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences"
+    },
+    {
+      "index": 11,
+      "name": "vanta-installningar",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences"
+    },
+    {
+      "index": 12,
+      "name": "scrolla-till-atgarder",
+      "action": "scrollIntoView",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences"
+    },
+    {
+      "index": 13,
+      "name": "installningar",
+      "action": "screenshot",
+      "screenshotFile": "13-installningar.png",
+      "caption": "Slå av eller på hela flödet per arbetsyta",
+      "notes": "Under Inställningar, Preferenser, fliken Allmänt styr Föreslagna åtgärder hela flödet: av betyder inga kort, ingen räknare och inga utskick. Avtalsbevakning styr de avtalsrelaterade förslagen, och de två fälten under bestämmer hur många dagar i förväg förslaget dyker upp inför sista uppsägningsdag respektive slutdatum.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences"
+    },
+    {
+      "index": 14,
+      "name": "till-ai",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/ai"
+    },
+    {
+      "index": 15,
+      "name": "vanta-ai",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/ai"
+    },
+    {
+      "index": 16,
+      "name": "scrolla-till-forslag",
+      "action": "scrollIntoView",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/ai"
+    },
+    {
+      "index": 17,
+      "name": "ai-forslag",
+      "action": "screenshot",
+      "screenshotFile": "17-ai-forslag.png",
+      "caption": "Styr vilka AI-förslag som får dyka upp",
+      "notes": "Under Inställningar, AI & Sökning, fliken AI ligger rubriken Förslag och styrning. Taggförslag föreslår taggar utifrån innehållet i färdigsignerade dokument, och kan begränsas till taggar som redan finns i arbetsytan. Påminnelseförslag läser färdiga avtal och föreslår påminnelser framåt i tiden, till exempel inför en prishöjning eller ett uppsägningsfönster.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/ai"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+---
+title: "Åtgärder"
+description: "Förslagen sajn förbereder åt dig, och hur du utför, justerar, skjuter upp eller avfärdar dem"
+---
+
+Åtgärder är sajns förberedda förslag. I stället för att du ska hålla reda på vem som inte har signerat, vilket dokument som håller på att gå ut och vilket avtal som snart passerar sin uppsägningsdag, lägger sajn fram det som ett kort med en knapp.
+
+Varje kort säger vad som hänt, vilket dokument det gäller och vad som händer om du trycker på knappen. Du utför, justerar, skjuter upp eller avfärdar. Ingenting skickas förrän du säger till.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Åtgärder kräver Solo eller högre. På Basic är flödet tomt.
+- **Föreslagna åtgärder** är påslaget under [Inställningar, Preferenser](https://app.sajn.se/~/settings/workspace/preferences).
+
+## Vad som dyker upp i flödet
+
+Ett förslag skapas av en regel, inte av en gissning. De vanligaste:
+
+- **En part har inte öppnat dokumentet.** Dyker upp när det gått minst fem dagar sedan utskicket. Kortet innehåller ett färdigskrivet meddelande du kan ändra innan du skickar.
+- **Dokumentet håller på att gå ut.** Dyker upp de sista tre dagarna före utgångsdatum om någon fortfarande inte har signerat, och föreslår 14 dagars förlängning.
+- **En e-postadress har studsat.** Dyker upp när utskicket inte kom fram, och leder dig till parten så att du kan rätta adressen.
+- **Ett avtal närmar sig sin sista uppsägningsdag eller sitt slutdatum.** Hur många dagar i förväg bestämmer du själv under arbetsytans inställningar.
+- **Ett avtal har förnyats automatiskt** för att ingen sa upp det i tid.
+- **Taggförslag och påminnelseförslag** som AI:n tagit fram ur färdigsignerade avtal.
+- **Påminnelser och bevakningar du själv har skapat**, direkt eller via Bob.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Åtgärder från blixtikonen i toppraden">
+    Blixten med en siffra visar hur många förslag som väntar. Finns inga förslag syns ikonen inte alls. Samma lista finns som widget på [startsidan](/guider/startsidan-widgets).
+
+    Kort med ett datum får en färgad blixt när det börjar bli bråttom: gul inom 45 dagar, röd inom 30. De små staplarna bredvid dokumentnamnet visar hur säker sajn är på ett AI-förslag. För muspekaren över dem så står det: tre gröna staplar betyder hög träffsäkerhet, två gula att du bör granska förslaget, en grå att det är osäkert.
+
+    <Frame>
+      <img src="/images/guider/atgarder/04-floder.png" alt="Sidan Åtgärder med förslagskort i två kolumner under rubriken Förslag" />
+    </Frame>
+  </Step>
+
+  <Step title="Utför förslaget">
+    Knappen längst till höger på kortet gör det kortet beskriver: **Skicka påminnelse**, **Förläng**, **Lägg till tagg**. Innehåller kortet ett färdigskrivet meddelande kan du ändra texten i rutan innan du trycker.
+
+    Knappen byts mot **Utförd ✓** när det är klart. Vissa förslag leder vidare i stället, till exempel till partlistan på dokumentet.
+  </Step>
+
+  <Step title="Justera innan du utför">
+    **Justera** byter kortets nedre rad mot ett skrivfält. Skriv vad du vill ändra med egna ord, till exempel *"2 dagar istället"*, och tryck Enter. Escape stänger fältet utan att något händer.
+
+    <Frame>
+      <img src="/images/guider/atgarder/08-justera.png" alt="Ett kort där nedre raden bytts mot ett skrivfält med platshållaren Justera, t.ex. 2 dagar istället" />
+    </Frame>
+  </Step>
+
+  <Step title="Skjut upp eller avfärda">
+    De tre prickarna uppe till höger på kortet öppnar menyn. **Skjut upp** lägger undan kortet till imorgon, om tre dagar eller om en vecka och tar sedan tillbaka det. **Avfärda** tar bort det för gott.
+
+    Avfärdar du ett AI-förslag får du samtidigt frågan om du vill stänga av den sortens förslag helt. Tackar du ja slutar sajn föreslå just den saken i hela arbetsytan.
+
+    <Frame>
+      <img src="/images/guider/atgarder/05-oppna-menyn.png" alt="Menyn på ett kort med valen Imorgon, Om 3 dagar, Om en vecka och Avfärda" />
+    </Frame>
+  </Step>
+
+  <Step title="Slå av eller på flödet per arbetsyta">
+    Under [Inställningar, Preferenser](https://app.sajn.se/~/settings/workspace/preferences), fliken **Allmänt**, styr **Föreslagna åtgärder** hela flödet. Av betyder inga kort, ingen räknare och inga utskick.
+
+    **Avtalsbevakning** styr de avtalsrelaterade förslagen, och de två fälten under bestämmer hur många dagar i förväg förslaget dyker upp inför sista uppsägningsdag respektive slutdatum. Standard är 90 respektive 30 dagar.
+
+    <Frame>
+      <img src="/images/guider/atgarder/13-installningar.png" alt="Inställningssidan Preferenser med strömbrytarna Föreslagna åtgärder och Avtalsbevakning påslagna" />
+    </Frame>
+  </Step>
+
+  <Step title="Styr vilka AI-förslag som får dyka upp">
+    Under [Inställningar, AI & Sökning](https://app.sajn.se/~/settings/workspace/ai), fliken **AI**, ligger rubriken **Förslag och styrning**.
+
+    **Taggförslag** föreslår taggar utifrån innehållet i färdigsignerade dokument, och kan begränsas till taggar som redan finns i arbetsytan. **Påminnelseförslag** läser färdiga avtal och föreslår påminnelser framåt i tiden, till exempel inför en prishöjning eller ett uppsägningsfönster.
+
+    <Frame>
+      <img src="/images/guider/atgarder/17-ai-forslag.png" alt="AI-inställningarna med rubriken Förslag och styrning och valen Taggförslag, Endast befintliga taggar och Påminnelseförslag" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Historik och bevakningar
+
+Under förslagen finns två sektioner till. De visas bara när de innehåller något.
+
+**Historik** listar de förslag som redan är avklarade, avfärdade eller inaktuella, med datum och vem som utförde dem. Klicka på raden för att öppna dokumentet. **Visa fler** hämtar 20 rader till.
+
+**Bevakningar** listar de stående bevakningar du har lagt upp, till exempel att du vill bli påmind 60 dagar före slutdatum på alla avtal med en viss motpart. En bevakning skapar ett nytt kort i flödet varje gång villkoret slår till. Papperskorgen på raden tar bort bevakningen. Bevakningar skapar du enklast genom att be [Bob](/guider/bob) om det, och de kräver en betald plan.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Bob, din AI-assistent" icon="sparkles" href="/guider/bob">
+    Ställ frågor om arbetsytan och skapa påminnelser och bevakningar.
+  </Card>
+  <Card title="Startsidans widgets" icon="table-cells" href="/guider/startsidan-widgets">
+    Samma flöde som widget på startsidan.
+  </Card>
+  <Card title="Skicka en påminnelse" icon="bell" href="/guider/skicka-paminnelse">
+    Påminn en part manuellt, utan att vänta på ett förslag.
+  </Card>
+  <Card title="Förläng utgångsdatum" icon="calendar" href="/guider/forlang-utgangsdatum">
+    Ändra signeringstiden direkt på dokumentet.
+  </Card>
+</CardGroup>

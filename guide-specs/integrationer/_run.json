@@ -1,0 +1,203 @@
+{
+  "ranAt": "2026-09-13T15:58:46.104Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "hem",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 3,
+      "name": "oppna-sok",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 4,
+      "name": "skriv-sok",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 5,
+      "name": "wait-sok",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 6,
+      "name": "hitta-sidan",
+      "action": "screenshot",
+      "screenshotFile": "06-hitta-sidan.png",
+      "caption": "Hitta Integrationer via sökrutan",
+      "notes": "Integrationer har ingen egen rad i sidomenyn. Klicka på förstoringsglaset bredvid arbetsytans namn, eller tryck Cmd+K, och skriv integration. Sidan ligger under Sidor i träfflistan.",
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 7,
+      "name": "katalogen",
+      "action": "goto",
+      "screenshotFile": "07-katalogen.png",
+      "caption": "Katalogen visar allt du kan koppla på",
+      "notes": "Rutan högst upp är dina anslutna tjänster. Är den tom står det i stället hur många tjänster som är redo att kopplas. Under den ligger Tillägg och appar, som är sajn inuti andra program, och därefter katalogen sorterad i kategorier.",
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 8,
+      "name": "personlig-eller-delad",
+      "action": "scrollIntoView",
+      "screenshotFile": "08-personlig-eller-delad.png",
+      "caption": "Ikonen bakom namnet säger vem kopplingen gäller",
+      "notes": "En liten figur betyder personlig anslutning: varje medlem kopplar sitt eget konto och ser bara sina egna filer. En byggnad betyder att kopplingen delas av hela organisationen, och då räcker det att någon med behörigheten Hantera integrationer kopplar den en gång. Molntjänsterna är personliga, CRM-systemen och ekonomisystemen är gemensamma.\n\nRader märkta Kommer snart är inte byggda än, och Öppna betyder att tjänsten kopplas från sin egen sida i stället för härifrån.",
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 9,
+      "name": "scrolla-till-hr",
+      "action": "scrollIntoView",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 10,
+      "name": "oppna-begaran",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 11,
+      "name": "wait-begaran",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 12,
+      "name": "begaran",
+      "action": "screenshot",
+      "screenshotFile": "12-begaran.png",
+      "caption": "Saknas tjänsten kan du begära den",
+      "notes": "För muspekaren över en rad märkt Kommer snart så byts märkningen mot Begär. Tjänsten är redan ifylld i rutan. Skriv vad du vill använda den till och klicka Skicka förfrågan. Längst ner på katalogsidan finns Låt oss veta för tjänster som inte står i listan alls.",
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 13,
+      "name": "stang-begaran",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 14,
+      "name": "wait-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 15,
+      "name": "oppna-mcp",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 16,
+      "name": "wait-mcp",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 17,
+      "name": "mcp",
+      "action": "screenshot",
+      "screenshotFile": "17-mcp.png",
+      "caption": "MCP-servern kopplas med en adress, inte via katalogen",
+      "notes": "Kopiera serveradressen och klistra in den i din AI-klient. Du loggar in med ditt sajn-konto och väljer vilken arbetsyta och vilka behörigheter assistenten får. Assistenten kan aldrig göra mer än du själv får göra.",
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 18,
+      "name": "stang-mcp",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 19,
+      "name": "wait-mcp-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/integrations"
+    },
+    {
+      "index": 20,
+      "name": "arkivering",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/retention"
+    },
+    {
+      "index": 21,
+      "name": "wait-arkivering",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/retention"
+    },
+    {
+      "index": 22,
+      "name": "extern-arkivering",
+      "action": "screenshot",
+      "screenshotFile": "22-extern-arkivering.png",
+      "caption": "Molnlagring kan också ta emot färdiga dokument",
+      "notes": "Har du kopplat en molnlagring kan varje dokument som förseglas i arbetsytan sparas som en kopia där. Det ställs in under Inställningar, Arbetsyta, Preferenser, fliken Lagring. Det gäller framåt: inget arkiveras i efterhand.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/retention"
+    }
+  ]
+}

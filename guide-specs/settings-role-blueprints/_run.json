@@ -1,0 +1,86 @@
+{
+  "ranAt": "2026-09-13T16:03:26.308Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "roller",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/roles"
+    },
+    {
+      "index": 3,
+      "name": "rollmallar",
+      "action": "scrollIntoView",
+      "screenshotFile": "03-rollmallar.png",
+      "caption": "Rollmallarna ligger längst ner på fliken Roller",
+      "notes": "Ovanför står organisationsrollerna, som styr vad någon får göra med själva organisationen. Rollmallarna under dem är arbetsyteroller. Avsnittet är tomt tills den första mallen finns. Varje mall får sedan en rad med namn, hur många behörigheter den ger och i hur många arbetsytor den används. Färdiga mallar som följer med organisationen är märkta Inbyggd och går bara att läsa.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/roles"
+    },
+    {
+      "index": 4,
+      "name": "ny-rollmall",
+      "action": "clickText",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/roles"
+    },
+    {
+      "index": 5,
+      "name": "vanta-formular",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/blueprints/new"
+    },
+    {
+      "index": 6,
+      "name": "formularet",
+      "action": "screenshot",
+      "screenshotFile": "06-formularet.png",
+      "caption": "Ge mallen ett namn och välj behörigheter",
+      "notes": "Namnet är det arbetsytorna kommer att se rollen som. Reglaget Använd direkt i alla arbetsytor lägger till rollen i varje arbetsyta så fort du sparar; slår du av det skapas bara mallen, och du väljer arbetsytor senare.\n\nBehörigheterna ligger i grupper: Dokument, Dokumentflöde, Mallar, Kontakter, Rapporter och så vidare. Reglaget på gruppraden slår på hela gruppen. Räknaren nere till höger visar hur många av alla behörigheter mallen ger.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/blueprints/new"
+    },
+    {
+      "index": 7,
+      "name": "gruppen",
+      "action": "click",
+      "screenshotFile": "07-gruppen.png",
+      "caption": "Fäll ut en grupp för enskilda behörigheter",
+      "notes": "Varje behörighet har ett eget reglage och en förklaring. I gruppen Dokumentflöde ligger bland annat Skicka dokument, Godkänna dokument och Skicka utan godkännande, som avgör vem som får vara godkännare i ett attestflöde. Sökrutan högst upp hittar en enskild behörighet utan att du behöver leta i grupperna.",
+      "url": "https://app.sajn.se/arlbn/settings/organization/blueprints/new"
+    },
+    {
+      "index": 8,
+      "name": "avbryt",
+      "action": "clickText",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/blueprints/new"
+    },
+    {
+      "index": 9,
+      "name": "vanta-tillbaka",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/organization/roles"
+    }
+  ]
+}

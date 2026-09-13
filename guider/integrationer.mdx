@@ -1,0 +1,117 @@
+---
+title: "Anslut en integration"
+description: "Koppla sajn till ditt CRM, din molnlagring, ditt bokföringsprogram eller Slack"
+---
+
+En integration kopplar ihop sajn med en tjänst du redan använder. När kopplingen finns hämtar du kontakter och filer därifrån i stället för att ladda upp dem manuellt, och signeringsstatus följer med tillbaka till systemet där affären ligger.
+
+Allt sitter på en enda sida: **Integrationer**. Där ser du vad som går att koppla, vad som redan är kopplat och vad du kan önska.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Integrationer kräver Solo eller högre.
+- För att koppla en tjänst som delas av hela organisationen behöver du behörigheten **Hantera integrationer**. För en personlig koppling räcker det att du är medlem i arbetsytan.
+- Du behöver ett konto hos tjänsten du ska koppla, och rätt att godkänna åtkomst där.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Hitta Integrationer via sökrutan">
+    [Integrationer](https://app.sajn.se/~/integrations) har ingen egen rad i sidomenyn. Klicka på förstoringsglaset bredvid arbetsytans namn, eller tryck Cmd+K (Ctrl+K på Windows), och skriv *integration*. Sidan ligger under **Sidor** i träfflistan.
+
+    <Frame>
+      <img src="/images/guider/integrationer/06-hitta-sidan.png" alt="Sökrutan öppen med sökordet integration och träffen Integrationer" />
+    </Frame>
+  </Step>
+
+  <Step title="Katalogen visar allt du kan koppla på">
+    Rutan högst upp är dina anslutna tjänster. Är den tom står det i stället hur många tjänster som är redo att kopplas.
+
+    Under den ligger **Tillägg och appar**, och därefter katalogen sorterad i kategorier: CRM och försäljning, produktivitet och molntjänster, automation och notifieringar, ekonomi och administration, HR och rekrytering samt e-handel och webb.
+
+    <Frame>
+      <img src="/images/guider/integrationer/07-katalogen.png" alt="Sidan Integrationer med en tom ruta för anslutna tjänster och katalogen under" />
+    </Frame>
+  </Step>
+
+  <Step title="Se om kopplingen är personlig eller gemensam">
+    Ikonen bakom tjänstens namn säger vem kopplingen gäller.
+
+    En liten figur betyder **personlig anslutning**: varje medlem kopplar sitt eget konto och ser bara sina egna filer. Molntjänsterna fungerar så, eftersom det är ditt eget konto hos tjänsten som öppnas.
+
+    En byggnad betyder att kopplingen **delas av hela organisationen**. Då räcker det att någon med behörigheten Hantera integrationer kopplar tjänsten en gång, och alla i organisationen kan använda den. CRM-systemen, ekonomisystemen och Slack fungerar så.
+
+    Rader märkta *Kommer snart* är inte byggda än. Står det **Öppna** i stället för **Anslut** kopplas tjänsten från sin egen sida, som Zapier och Make.
+
+    <Frame>
+      <img src="/images/guider/integrationer/08-personlig-eller-delad.png" alt="Katalogens kategorier med personliga och organisationsgemensamma tjänster" />
+    </Frame>
+  </Step>
+
+  <Step title="Klicka Anslut och godkänn åtkomsten">
+    Klicka **Anslut** på raden. sajn skickar dig vidare till tjänstens egen inloggning, där du loggar in och godkänner vad sajn får göra. Behörigheterna du godkänner är de sajn behöver för det som står i raden, inget mer.
+
+    När du godkänt kommer du tillbaka till Integrationer. Tjänsten flyttar upp till rutan högst upp och raden visar vilket konto den är ansluten som.
+
+    Avbryter du på tjänstens sida händer ingenting, och du kan börja om.
+
+    <Note>
+      Kopplingen ger sajn rätt att hämta data, men ingenting hämtas i förväg. Data läses först när du själv använder integrationen, till exempel när du öppnar fillistan eller importerar kontakter.
+    </Note>
+  </Step>
+
+  <Step title="Saknas tjänsten kan du begära den">
+    För muspekaren över en rad märkt *Kommer snart* så byts märkningen mot **Begär**. Tjänsten är redan ifylld i rutan som öppnas. Skriv vad du vill använda den till och klicka **Skicka förfrågan**.
+
+    Står tjänsten inte i listan alls finns **Låt oss veta** längst ner på sidan, som öppnar samma ruta.
+
+    <Frame>
+      <img src="/images/guider/integrationer/12-begaran.png" alt="Rutan Integrationsbegäran med tjänsten ifylld och ett fält för beskrivning" />
+    </Frame>
+  </Step>
+
+  <Step title="Koppla en AI-assistent via MCP-servern">
+    Under **Tillägg och appar** går det åt andra hållet: där lägger du sajn i ett program du redan arbetar i. Word-tillägget, mobilapparna och MCP-servern ligger här.
+
+    MCP-servern kopplas med en adress i stället för via katalogen. Klicka **Anslut** på raden, kopiera serveradressen och klistra in den i din AI-klient. Du loggar in med ditt sajn-konto och väljer vilken arbetsyta och vilka behörigheter assistenten får. Assistenten kan aldrig göra mer än du själv får göra.
+
+    <Frame>
+      <img src="/images/guider/integrationer/17-mcp.png" alt="Rutan Anslut sajn till din AI-klient med serveradress och tre steg" />
+    </Frame>
+  </Step>
+
+  <Step title="Låt molnlagringen ta emot färdiga dokument">
+    Har du kopplat en molnlagring kan varje dokument som förseglas i arbetsytan sparas som en kopia där. Det ställs in under **Inställningar**, **Arbetsyta**, [Preferenser](https://app.sajn.se/~/settings/workspace/preferences/retention), fliken **Lagring**.
+
+    Inställningen gäller framåt. Dokument som redan är förseglade arkiveras inte i efterhand.
+
+    <Frame>
+      <img src="/images/guider/integrationer/22-extern-arkivering.png" alt="Avsnittet Extern arkivering under Preferenser, fliken Lagring" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Vad kopplingen ger dig
+
+Var integrationen dyker upp i sajn beror på vad tjänsten kan.
+
+**Molnlagring** (Google Workspace, Dropbox, Box, Microsoft 365). När du skapar ett dokument får uppladdningssteget en flik per kopplad tjänst vid sidan av **Från datorn**. Du bläddrar i dina mappar, väljer filer och skapar dokumentet direkt av dem.
+
+**CRM** (HubSpot, Pipedrive, SuperOffice). Du hämtar mottagare från systemets kontakter i stället för att skriva in dem, och skickar avtal för signering från en affär. Signeringsstatus följer med tillbaka till affären.
+
+**Ekonomi** (Fortnox, Bokio, Spiris). Du importerar kunder som kontakter, och hämtar offerter, ordrar och fakturor som signerbara dokument.
+
+**Slack**. Du får notiser om signeringar och ID-verifieringar. Vilken kanal de hamnar i väljer du i Slack, när du godkänner kopplingen.
+
+Kontakter från en kopplad tjänst hämtar du under [Kontakter](https://app.sajn.se/~/contacts). Klicka på nedåtpilen bredvid **Skapa kontakt** och välj **Importera från** följt av tjänstens namn.
+
+## Ändra eller koppla från
+
+En ansluten rad har **Inställningar** i stället för **Anslut**. Menyn innehåller det som gäller just den tjänsten:
+
+- **Arkivering** för tjänster som kan ta emot förseglade dokument.
+- **Fältmappning** för HubSpot, där du väljer vilken data som hämtas från affären när ett dokument skapas, och vad som skickas tillbaka när det signerats.
+- **Koppla från**.
+
+När du kopplar från behålls det som redan är importerat. sajn slutar bara hämta ny data från tjänsten, och du kan ansluta igen när som helst. Att koppla från en organisationsgemensam tjänst påverkar alla i organisationen, så det kräver behörigheten Hantera integrationer.

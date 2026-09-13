@@ -1,0 +1,356 @@
+{
+  "ranAt": "2026-09-13T15:57:01.966Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-rapporter",
+      "action": "goto",
+      "screenshotFile": "02-oppna-rapporter.png",
+      "caption": "Öppna Rapporter under Statistik",
+      "notes": "Rapporter ligger som en undersida till Statistik i sidomenyn. Listan visar namn, beskrivning och när rapporten senast ändrades. Rapporterna tillhör arbetsytan, så alla som får läsa rapporter ser samma lista.",
+      "url": "https://app.sajn.se/arlbn/reports"
+    },
+    {
+      "index": 3,
+      "name": "skapa-rapport",
+      "action": "clickText",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports"
+    },
+    {
+      "index": 4,
+      "name": "vanta-rapporten",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 5,
+      "name": "vanta-data",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 6,
+      "name": "ny-rapport",
+      "action": "screenshot",
+      "screenshotFile": "06-ny-rapport.png",
+      "caption": "En ny rapport börjar med tre färdiga sektioner",
+      "notes": "Rapporten heter Ny rapport och innehåller en nyckeltalsrad, ett linjediagram över skapade dokument och en tabell per status. Varje ruta är en sektion med sin egen fråga mot databasen. Raden under rubriken styr perioden för hela rapporten.",
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 7,
+      "name": "oppna-installningar",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 8,
+      "name": "vanta-installningar",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 9,
+      "name": "namnge",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 10,
+      "name": "beskrivning",
+      "action": "fill",
+      "screenshotFile": "10-beskrivning.png",
+      "caption": "Ge rapporten ett namn och en beskrivning",
+      "notes": "Kugghjulet uppe till höger öppnar rapportens inställningar. Namnet är det som står i listan, och beskrivningen hjälper dina kollegor att förstå vad rapporten svarar på.",
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 11,
+      "name": "spara-namn",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 12,
+      "name": "vanta-stangt",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 13,
+      "name": "byt-period",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 14,
+      "name": "vanta-period",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 15,
+      "name": "perioden",
+      "action": "screenshot",
+      "screenshotFile": "15-perioden.png",
+      "caption": "Perioden och jämförelsen gäller hela rapporten",
+      "notes": "Knapparna 7D, 1M, 3M, 6M och 12M byter period för alla sektioner samtidigt. Menyn bredvid väljer vad siffrorna jämförs mot: ingen jämförelse, föregående period eller föregående år. Valet sparas i rapporten, så nästa person som öppnar den ser samma period.",
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 16,
+      "name": "ny-sektion",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 17,
+      "name": "vanta-redigeraren",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 18,
+      "name": "namnge-sektion",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 19,
+      "name": "vanta-forhandsvisning",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 20,
+      "name": "sektionsredigeraren",
+      "action": "screenshot",
+      "screenshotFile": "20-sektionsredigeraren.png",
+      "caption": "Sektionsredigeraren visar resultatet medan du bygger",
+      "notes": "Till vänster ligger förhandsvisningen, till höger frågan. Panelen läses uppifrån och ner: Datakälla är vad du mäter på, Mätvärden är talen, Gruppera efter delar upp dem och Visualisering avgör hur de ritas. Varje ändring syns direkt i förhandsvisningen.",
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 21,
+      "name": "oppna-datakalla",
+      "action": "click",
+      "screenshotFile": "21-oppna-datakalla.png",
+      "caption": "Sex datakällor att välja mellan",
+      "notes": "Dokument räknar dokumenten själva. Mottagare räknar per part, med leverans, öppningar och signeringar. Mallar räknar mallarna i arbetsytan. AI-granskning räknar anmärkningar från AI-granskningen. Engagemang och Sidengagemang mäter hur mottagaren beter sig på signeringssidan. Byter du källa börjar sektionen om, eftersom mätvärden och grupperingar hör till en källa.",
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 22,
+      "name": "stang-datakalla",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 23,
+      "name": "oppna-gruppering",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 24,
+      "name": "valj-status",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 25,
+      "name": "vanta-diagram",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 26,
+      "name": "gruppering",
+      "action": "screenshot",
+      "screenshotFile": "26-gruppering.png",
+      "caption": "En gruppering gör talet till ett diagram",
+      "notes": "Utan gruppering är sektionen ett enda tal. Grupperar du på Status delas talet upp per status och sektionen byter automatiskt från nyckeltal till stapeldiagram. Grupperar du på ett datum får du i stället en tidslinje, och då dyker en meny upp för dagligen, veckovis, månadsvis, kvartalsvis eller årsvis.",
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 27,
+      "name": "oppna-visualisering",
+      "action": "click",
+      "screenshotFile": "27-oppna-visualisering.png",
+      "caption": "Diagramtyper som inte passar frågan står kvar men är släckta",
+      "notes": "Listan visar alla typer: nyckeltal, linje, stapel, staplat stapeldiagram, cirkel, munk, yta och tabell. En typ som inte går att rita med den aktuella frågan är släckt och skriver ut vad som saknas, till exempel Kräver en tidsgruppering. Tabell fungerar alltid.",
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 28,
+      "name": "stang-visualisering",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 29,
+      "name": "spara-sektion",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 30,
+      "name": "vanta-tillbaka",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 31,
+      "name": "vanta-omrakning",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 32,
+      "name": "fardig-rapport",
+      "action": "screenshot",
+      "screenshotFile": "32-fardig-rapport.png",
+      "caption": "Sektionen läggs till sist i rapporten",
+      "notes": "Rapporten sparas automatiskt. Menyn med tre punkter på varje sektion har Ladda ner CSV, Redigera, Duplicera och Ta bort. Pilen uppe till höger laddar ner hela rapporten som CSV, och uppdateringsknappen bredvid hämtar färska siffror i stället för de cachade.",
+      "url": "https://app.sajn.se/arlbn/reports/cmtzzy0gj000b02kzrfy1l953"
+    },
+    {
+      "index": 33,
+      "name": "tillbaka-till-listan",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports"
+    },
+    {
+      "index": 34,
+      "name": "vanta-listan",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports"
+    },
+    {
+      "index": 35,
+      "name": "listan",
+      "action": "screenshot",
+      "screenshotFile": "35-listan.png",
+      "caption": "Rapporten finns kvar i listan",
+      "notes": "Klicka på en rad för att öppna rapporten igen. Papperskorgen längst till höger tar bort rapporten permanent.",
+      "url": "https://app.sajn.se/arlbn/reports"
+    },
+    {
+      "index": 36,
+      "name": "ta-bort",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports"
+    },
+    {
+      "index": 37,
+      "name": "bekrafta-ta-bort",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports"
+    },
+    {
+      "index": 38,
+      "name": "vanta-borttagen",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports"
+    },
+    {
+      "index": 39,
+      "name": "efter-rensning",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/reports"
+    }
+  ]
+}

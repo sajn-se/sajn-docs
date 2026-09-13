@@ -1,0 +1,68 @@
+{
+    "slug": "settings-role-blueprints",
+    "title": "Rollmallar för arbetsytor",
+    "intro": "En rollmall är en arbetsyteroll som du beskriver en gång på organisationsnivå och sedan använder i alla arbetsytor. Ändrar du mallen ändras rollen överallt den används. Rollmallar är alltså inte organisationsroller, utan ett sätt att slippa bygga om samma arbetsyteroll i varje arbetsyta.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Du är inloggad som kontoinnehavare eller administratör för organisationen.",
+        "Rollmallar ligger under Team & säkerhet, som kräver Team eller Enterprise.",
+        "Du har behörigheten Hantera roller i organisationen."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": ["[data-guide-mask]"],
+    "hide": [".group\\/promo"],
+    "imageDir": "../../images/guider/settings-role-blueprints",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "roller",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/roles",
+            "screenshot": false
+        },
+        {
+            "name": "rollmallar",
+            "action": "scrollIntoView",
+            "selector": "h2:has-text('Rollmallar för arbetsytor')",
+            "align": "center",
+            "screenshot": true,
+            "caption": "Rollmallarna ligger längst ner på fliken Roller",
+            "notes": "Ovanför står organisationsrollerna, som styr vad någon får göra med själva organisationen. Rollmallarna under dem är arbetsyteroller. Avsnittet är tomt tills den första mallen finns. Varje mall får sedan en rad med namn, hur många behörigheter den ger och i hur många arbetsytor den används. Färdiga mallar som följer med organisationen är märkta Inbyggd och går bara att läsa."
+        },
+        {
+            "name": "ny-rollmall",
+            "action": "clickText",
+            "text": "Skapa rollmall",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-formular",
+            "action": "waitForSelector",
+            "selector": "input#role-name"
+        },
+        {
+            "name": "formularet",
+            "action": "screenshot",
+            "caption": "Ge mallen ett namn och välj behörigheter",
+            "notes": "Namnet är det arbetsytorna kommer att se rollen som. Reglaget Använd direkt i alla arbetsytor lägger till rollen i varje arbetsyta så fort du sparar; slår du av det skapas bara mallen, och du väljer arbetsytor senare.\n\nBehörigheterna ligger i grupper: Dokument, Dokumentflöde, Mallar, Kontakter, Rapporter och så vidare. Reglaget på gruppraden slår på hela gruppen. Räknaren nere till höger visar hur många av alla behörigheter mallen ger."
+        },
+        {
+            "name": "gruppen",
+            "action": "click",
+            "selector": "button[aria-expanded]:has-text('Dokumentflöde')",
+            "caption": "Fäll ut en grupp för enskilda behörigheter",
+            "notes": "Varje behörighet har ett eget reglage och en förklaring. I gruppen Dokumentflöde ligger bland annat Skicka dokument, Godkänna dokument och Skicka utan godkännande, som avgör vem som får vara godkännare i ett attestflöde. Sökrutan högst upp hittar en enskild behörighet utan att du behöver leta i grupperna."
+        },
+        {
+            "name": "avbryt",
+            "action": "clickText",
+            "text": "Avbryt",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-tillbaka",
+            "action": "waitForSelector",
+            "selector": "h2:has-text('Organisationsroller')"
+        }
+    ]
+}

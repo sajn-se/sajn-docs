@@ -1,0 +1,52 @@
+{
+    "slug": "settings-workspace-members-roles",
+    "title": "Medlemmar och roller i en arbetsyta",
+    "intro": "Varje arbetsyta har sin egen medlemslista och sina egna roller. Under Team väljer du vilka i organisationen som kommer åt arbetsytan och vilken roll de får, och på fliken Roller bestämmer du vad rollerna ger för behörigheter. Guiden bjuder inte in någon och ändrar ingen roll.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Sidan Team för arbetsytan kräver Team eller Enterprise.",
+        "Du har behörigheterna Hantera medlemmar och Hantera roller i arbetsytan.",
+        "Nya arbetsytemedlemmar måste redan finnas i organisationen."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": [
+        "[data-guide-mask]",
+        "tbody td p.truncate.text-xs.text-muted-foreground",
+        "tbody td p.truncate.text-sm.font-medium.text-foreground"
+    ],
+    "hide": [".group\\/promo"],
+    "imageDir": "../../images/guider/settings-workspace-members-roles",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "medlemmar",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/members",
+            "caption": "Öppna Team för arbetsytan",
+            "notes": "Sidan heter Team och har tre flikar: Medlemmar, Inbjudningar och Roller. Namnet på arbetsytan står i brödsmulan högst upp, och byter du arbetsyta får du en helt egen lista.\n\nKolumnerna är Medlem med namn och e-postadress, Roll som är arbetsyterollen, 2FA, Status och Senast aktiv. Knapparna Alla, Aktiva och Inaktiva filtrerar listan och sökrutan söker på namn eller e-postadress."
+        },
+        {
+            "name": "lagg-till",
+            "action": "click",
+            "selector": "button:has-text('Lägg till')",
+            "match": "first",
+            "caption": "Panelen Lägg till medlemmar i arbetsytan",
+            "notes": "Bara personer som redan finns i organisationen kan läggas till här. För varje rad väljer du organisationsmedlem och roll, och Lägg till fler ger en rad till, upp till tio åt gången. Är listan tom är alla i organisationen redan med i arbetsytan; bjud i så fall in nya personer under Inställningar, Team & säkerhet, Inbjudningar. Inget händer förrän du klickar Lägg till längst ner."
+        },
+        { "name": "stang-panelen", "action": "press", "key": "Escape" },
+        {
+            "name": "inbjudningar",
+            "action": "click",
+            "selector": "[role='tab']:has-text('Inbjudningar')",
+            "caption": "Inbjudningar till arbetsytan",
+            "notes": "Här ligger personer som har bjudits in till arbetsytan men ännu inte gått med, med kolumnerna E-postadress, Roll, Inbjuden av och Giltighet."
+        },
+        {
+            "name": "roller",
+            "action": "click",
+            "selector": "[role='tab']:has-text('Roller')",
+            "caption": "Roller bestämmer vad medlemmarna får göra",
+            "notes": "Medlemmar-fliken bestämmer vem som har vilken roll. Här bestämmer du vad en roll får göra. Namn visar rollens namn, Behörigheter antalet rättigheter med en info-ikon som listar dem, och Antal medlemmar hur många som har rollen.\n\nInbyggda roller är märkta Inbyggd och går bara att läsa. Trepunktsmenyn innehåller Redigera eller Visa behörigheter, Gör en kopia och Ta bort. Kopian heter Namn (Kopia) och är en bra utgångspunkt för en egen roll. Uppe till höger finns Skapa roll."
+        }
+    ]
+}

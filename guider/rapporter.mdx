@@ -1,0 +1,150 @@
+---
+title: "Bygg en rapport"
+description: "Välj datakälla, mätvärde och diagramtyp och spara resultatet som en egen rapport"
+---
+
+[Statistik](/guider/statistics) är den färdiga översikten över dokumentflödet, lika för alla. **Rapporter** är den du bygger själv: du väljer vad som ska mätas, hur det ska delas upp och hur det ska ritas, och sparar resultatet som en egen sida i arbetsytan.
+
+En rapport består av sektioner. Varje sektion är en fråga: en datakälla, ett eller flera mätvärden, en gruppering och en diagramtyp. Den här guiden går igenom kedjan från tom rapport till sparad sektion.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Du har behörighet att läsa och skapa rapporter i arbetsytan.
+- Rapporter kräver Solo eller högre. Statistik finns på alla paket.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Rapporter under Statistik">
+    [Rapporter](https://app.sajn.se/~/reports) ligger som en undersida till **Statistik** i sidomenyn. Listan visar namn, beskrivning och när rapporten senast ändrades.
+
+    Rapporterna tillhör arbetsytan, inte dig. Alla som får läsa rapporter ser samma lista, och siffrorna gäller bara den arbetsyta du står i.
+
+    <Frame>
+      <img src="/images/guider/rapporter/02-oppna-rapporter.png" alt="Sidan Rapporter med tom lista och knappen Skapa rapport" />
+    </Frame>
+  </Step>
+
+  <Step title="Skapa rapport ger dig tre färdiga sektioner">
+    Den nya rapporten heter *Ny rapport* och innehåller en nyckeltalsrad, ett linjediagram över skapade dokument och en tabell per status. Det är en startpunkt, inte en mall: ändra, ta bort och lägg till som du vill.
+
+    Rapporten sparas automatiskt vid varje ändring.
+
+    <Frame>
+      <img src="/images/guider/rapporter/06-ny-rapport.png" alt="En ny rapport med nyckeltal, linjediagram och statustabell" />
+    </Frame>
+  </Step>
+
+  <Step title="Ge rapporten ett namn och en beskrivning">
+    Klicka på kugghjulet uppe till höger. Namnet är det som står i listan, och beskrivningen talar om för dina kollegor vad rapporten svarar på.
+
+    <Frame>
+      <img src="/images/guider/rapporter/10-beskrivning.png" alt="Rutan Rapportinställningar med fälten Namn och Beskrivning" />
+    </Frame>
+  </Step>
+
+  <Step title="Perioden och jämförelsen gäller hela rapporten">
+    Knapparna **7D**, **1M**, **3M**, **6M** och **12M** byter period för alla sektioner samtidigt. Menyn bredvid väljer vad siffrorna jämförs mot: ingen jämförelse, föregående period eller föregående år.
+
+    Valet sparas i rapporten, så nästa person som öppnar den ser samma period.
+
+    <Frame>
+      <img src="/images/guider/rapporter/15-perioden.png" alt="Rapporten med perioden satt till 3M och jämförelsen Föregående period" />
+    </Frame>
+  </Step>
+
+  <Step title="Ny sektion öppnar redigeraren med förhandsvisning">
+    Till vänster ligger resultatet, till höger frågan. Panelen läses uppifrån och ner: **Datakälla** är vad du mäter på, **Mätvärden** är talen, **Gruppera efter** delar upp dem och **Visualisering** avgör hur de ritas.
+
+    Varje ändring syns direkt i förhandsvisningen, så du ser om frågan blev den du tänkte innan du sparar.
+
+    <Frame>
+      <img src="/images/guider/rapporter/20-sektionsredigeraren.png" alt="Sektionsredigeraren med förhandsvisning till vänster och inställningar till höger" />
+    </Frame>
+  </Step>
+
+  <Step title="Välj datakälla först">
+    Datakällan avgör vilka mätvärden och grupperingar som finns att välja på. Byter du källa börjar sektionen om, eftersom mätvärdena hör till källan.
+
+    <Frame>
+      <img src="/images/guider/rapporter/21-oppna-datakalla.png" alt="Menyn Datakälla med Dokument, Mottagare, Mallar, AI-granskning, Engagemang och Sidengagemang" />
+    </Frame>
+  </Step>
+
+  <Step title="En gruppering gör talet till ett diagram">
+    Utan gruppering är sektionen ett enda tal. Grupperar du på **Status** delas talet upp per status, och sektionen byter automatiskt från nyckeltal till stapeldiagram.
+
+    Grupperar du på ett datum får du en tidslinje i stället, och då dyker en meny upp för *Dagligen*, *Veckovis*, *Månadsvis*, *Kvartalsvis* eller *Årsvis*. När en gruppering finns tillkommer även **Dela upp efter**, som delar varje stapel på en andra dimension.
+
+    <Frame>
+      <img src="/images/guider/rapporter/26-gruppering.png" alt="Sektionen grupperad på Status, ritad som stapeldiagram" />
+    </Frame>
+  </Step>
+
+  <Step title="Diagramtyper som inte passar frågan är släckta">
+    Listan visar alla typer: nyckeltal, linjediagram, stapeldiagram, staplat stapeldiagram, cirkeldiagram, munkdiagram, ytdiagram och tabell. En typ som inte går att rita med den aktuella frågan står kvar men är släckt, och skriver ut vad som saknas, till exempel *Kräver en tidsgruppering*.
+
+    Tabell fungerar alltid. Namnge sektionen uppe till vänster och klicka **Klar**.
+
+    <Frame>
+      <img src="/images/guider/rapporter/27-oppna-visualisering.png" alt="Menyn Visualisering där otillåtna diagramtyper är släckta med skälet utskrivet" />
+    </Frame>
+  </Step>
+
+  <Step title="Sektionen läggs till sist i rapporten">
+    Menyn med tre punkter på varje sektion har **Ladda ner CSV**, **Redigera**, **Duplicera** och **Ta bort**. Nedladdningsikonen uppe till höger tar hela rapporten som CSV, och uppdateringsknappen bredvid hämtar färska siffror i stället för de sparade.
+
+    <Frame>
+      <img src="/images/guider/rapporter/32-fardig-rapport.png" alt="Den färdiga rapporten med fyra sektioner" />
+    </Frame>
+  </Step>
+</Steps>
+
+## De sex datakällorna
+
+<AccordionGroup>
+  <Accordion title="Dokument">
+    Räknar dokumenten själva: antal, värde, snittvärde, signerade, väntande, skickade, avvisade, utkast, utgångna, avbrutna, arkiverade, signeringsgrad och snittid till signering. Går att gruppera på status, typ, mall, dokumenttyp, skapad av, ansvarig och på sex olika datum.
+
+    **Värde** kommer från fältet *Värde* i dokumentets inställningar. Har ingen fyllt i det står summan kvar på 0 kr.
+  </Accordion>
+  <Accordion title="Mottagare">
+    Räknar per part i stället för per dokument, och visar därför leveranskedjan: skickade, levererade, öppnade, lästa, signerade, avvisade och studsade, plus signeringsgrad, öppningsgrad och snittid till signering. Går att gruppera på signeringsstatus, leveransstatus, lässtatus, leveranssätt, roll och mottagartyp.
+  </Accordion>
+  <Accordion title="Mallar">
+    Räknar mallarna i arbetsytan: antal, publicerade och privata, grupperat på kategori, språk eller datum.
+  </Accordion>
+  <Accordion title="AI-granskning">
+    Räknar anmärkningar från AI-granskningen: antal, öppna, öppna med hög allvarlighetsgrad, åtgärdade, åtgärdsgrad och antal berörda dokument och mallar.
+  </Accordion>
+  <Accordion title="Engagemang">
+    Mäter besöken på signeringssidan: antal besök, avslutade besök, snittlängd och total tid, grupperat på plattform eller tidszon.
+  </Accordion>
+  <Accordion title="Sidengagemang">
+    Mäter beteendet per sida i dokumentet: sidvisningar, snittid per sida, genomsnittligt scrolldjup och antal klick. Använd den för att se var i ett långt dokument läsaren fastnar.
+  </Accordion>
+</AccordionGroup>
+
+## Filter, mål och egen period per sektion
+
+Tre inställningar i sektionsredigeraren är lätta att missa:
+
+- **Lägg till filter** under datakällan begränsar sektionen, till exempel till en enda mall eller en enda dokumenttyp. Lägger du till ett andra filter byts rutan mot **Avancerat filter**, där du bygger villkoren fritt.
+- **Visa målvärde** ritar in ett mål som sektionen mäts mot.
+- Raden ovanför förhandsvisningen styr sektionens egen period. Knappen **Rapportens** betyder att sektionen följer rapportens period. Väljer du 7D, 1M, 3M, 6M eller 12M i stället bryter sektionen ut sig och behåller sin period även när du byter period på rapporten. Där väljer du också vilket datum som ska räknas, till exempel *Skapad* eller *Signerad*.
+
+<Note>
+  Rapporten cachar sina siffror. Klockslaget bredvid rubriken visar hur färska de är, och uppdateringsknappen hämtar om dem direkt.
+</Note>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Statistik och nyckeltal" icon="chart-line" href="/guider/statistics">
+    Den färdiga översikten över volym, signeringsgrad och tid till signering.
+  </Card>
+  <Card title="Anpassa startsidan med widgets" icon="grid-2" href="/guider/startsidan-widgets">
+    Widgeten Nyckeltal bygger på samma data och samma sektionsredigerare.
+  </Card>
+</CardGroup>
