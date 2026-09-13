@@ -323,7 +323,12 @@
               "POST /api/v1/documents/{id}/extend-expiration",
               "GET /api/v1/documents/{id}/delegations",
               "GET /api/v1/documents/{id}/reminders",
-              "POST /api/v1/documents/{id}/reminders"
+              "POST /api/v1/documents/{id}/reminders",
+              "GET /api/v1/documents/{id}/signatures",
+              "GET /api/v1/documents/{id}/links",
+              "POST /api/v1/documents/{id}/links",
+              "DELETE /api/v1/documents/{id}/links/{linkId}",
+              "POST /api/v1/documents/{id}/purge"
             ]
           },
           {
@@ -538,7 +543,9 @@
               "GET /api/v1/helpers/countries",
               "GET /api/v1/helpers/currencies",
               "GET /api/v1/helpers/languages",
-              "GET /api/v1/helpers/timezones"
+              "GET /api/v1/helpers/timezones",
+              "GET /api/v1/helpers/signature-methods",
+              "GET /api/v1/helpers/two-step-verifications"
             ]
           }
         ]
