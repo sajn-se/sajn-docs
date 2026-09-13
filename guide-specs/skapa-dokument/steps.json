@@ -1,0 +1,150 @@
+{
+    "slug": "skapa-dokument",
+    "title": "Skapa ett dokument",
+    "intro": "Ett dokument börjar antingen från en mall, från en fil du laddar upp eller från ett tomt papper. Alla tre vägarna ligger bakom Skapa nytt i dokumentlistan, och alla tre slutar på samma ställe: redigeraren.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du har behörighet att skapa dokument i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/skapa-dokument",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Öppna Dokument i sidomenyn",
+            "notes": "Listan visar arbetsytans dokument med status, parter och datum. Knappen Skapa nytt uppe till höger är delad: texten öppnar sidan Nytt dokument, och pilen bredvid är en genväg till ett tomt dokument eller en filuppladdning."
+        },
+        {
+            "name": "oppna-skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skapa-sidan",
+            "action": "waitForSelector",
+            "selector": "text=Börja från en mall"
+        },
+        {
+            "name": "nytt-dokument",
+            "action": "screenshot",
+            "caption": "Välj var dokumentet ska börja",
+            "notes": "Sidan Nytt dokument har två halvor. Överst laddar du upp en fil från datorn — PDF, Word, Excel, PowerPoint, CSV eller TXT, max 25 MB. Har arbetsytan en ansluten tjänst kan du hämta filen därifrån i stället. Under Börja från en mall ligger arbetsytans mallar som kort, uppdelade på Mina mallar, Delade med mig och sajn collection. Första kortet är Tomt dokument."
+        },
+        {
+            "name": "valj-tomt",
+            "action": "click",
+            "selector": "div:has(> p:text-is('Tomt dokument')) > button",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "redigeraren",
+            "action": "screenshot",
+            "caption": "Dokumentet öppnas som utkast i redigeraren",
+            "notes": "Ett tomt dokument heter Nytt dokument och har statusen Utkast. Pappret i mitten är det mottagaren får, och panelen till höger öppnas på Parter. Du kan också släppa en fil direkt på det tomma pappret. Allt du ändrar sparas automatiskt."
+        },
+        {
+            "name": "klicka-titeln",
+            "action": "click",
+            "selector": "header h3[role='button']",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "fill",
+            "selector": "input[aria-label='Titel']",
+            "value": "Batch A: konsultavtal",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namnet",
+            "action": "press",
+            "key": "Enter",
+            "caption": "Ge dokumentet ett namn du hittar tillbaka till",
+            "notes": "Klicka på titeln högst upp till vänster, skriv det nya namnet och tryck Enter. Namnet är det parterna ser i mejlet och det du söker på i listan."
+        },
+        {
+            "name": "sektionsmenyn",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "caption": "Bygg innehållet av sektioner",
+            "notes": "Ett dokument består av sektioner, och den streckade linjen öppnar menyn. Text & bild är brödtext, PDF-dokument lägger in en färdig fil, Formulär är en ruta med ifyllbara fält och Produkttabell räknar ihop rader och summa. Tabell, Mellanrum, Sidbrytning och Varaktighet formar sidan. Skapa med AI skriver en sektion åt dig, och Sektionsbibliotek hämtar en du sparat tidigare."
+        },
+        {
+            "name": "valj-text-bild",
+            "action": "click",
+            "selector": "[cmdk-item][data-value='Text & bild']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-textsektion",
+            "action": "waitForSelector",
+            "selector": "div[contenteditable='true']",
+            "match": "first"
+        },
+        {
+            "name": "skriv-text",
+            "action": "type",
+            "selector": "div[contenteditable='true']",
+            "text": "Detta avtal har träffats mellan Nordvik Consulting AB och Batch A Demo AB.",
+            "delay": 12,
+            "screenshot": false
+        },
+        {
+            "name": "innehallet",
+            "action": "screenshot",
+            "caption": "Skriv innehållet i sektionen",
+            "notes": "En Text & bild-sektion är fri brödtext. När du står i sektionen byts raden överst mot formateringen — rubriker, typsnitt, listor, länkar, bilder och tabeller. Skriv { där en part ska fylla i något, så infogas ett fält mitt i texten."
+        },
+        {
+            "name": "oppna-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-slang",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa nytt')"
+        },
+        {
+            "name": "efter-rensning",
+            "action": "wait",
+            "ms": 2000
+        }
+    ]
+}

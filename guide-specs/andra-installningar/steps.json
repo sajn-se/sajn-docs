@@ -1,0 +1,183 @@
+{
+    "slug": "andra-installningar",
+    "title": "Ändra inställningar på ett dokument",
+    "intro": "Panelen Inställningar samlar villkoren för dokumentet: titel och ansvarig, hur signeringen ska gå till, vad som skickas till parterna och vem i arbetsytan som får se dokumentet. Allt sparas automatiskt.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Dokumentet är i status Utkast — efter utskicket låses de flesta inställningarna."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/andra-installningar",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mallar",
+            "action": "waitForSelector",
+            "selector": "button[title='Konsultavtal']"
+        },
+        {
+            "name": "valj-mall",
+            "action": "click",
+            "selector": "button[title='Konsultavtal']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "[data-guide='document-add-signer']"
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "screenshot": false
+        },
+        {
+            "name": "satt-titel",
+            "action": "fill",
+            "selector": "input[placeholder='Dokumenttitel']",
+            "value": "Batch B: inställningar",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-panel",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "panelen",
+            "action": "screenshot",
+            "caption": "Fyra sektioner, allt sparas automatiskt",
+            "notes": "Panelen öppnas med Dokument och Signering utfällda; Kommunikation och Internt är hopfällda. Det finns ingen spara-knapp — varje ändring sparas direkt. Under Dokument sätter du titel, ansvarig, ett eget referens-ID, dokumentets värde och utgångsdatum."
+        },
+        {
+            "name": "oppna-utgangsdatum",
+            "action": "click",
+            "selector": "div.cursor-pointer.block.w-full button:has-text('Välj datum')",
+            "caption": "Utgångsdatum är fristen för signering",
+            "notes": "Efter det här datumet går dokumentet inte längre att signera och signeringslänkarna slutar fungera. Ett utgångsdatum krävs innan dokumentet kan skickas. Lämnar du det tomt får du en påminnelse i knappen Skicka dokument."
+        },
+        {
+            "name": "stang-kalendern",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "signering",
+            "action": "scrollIntoView",
+            "selector": "text=Tillåt delegering",
+            "align": "end",
+            "padBottom": 40,
+            "screenshot": false
+        },
+        {
+            "name": "signering-sektionen",
+            "action": "screenshot",
+            "caption": "Signering styr hur parterna signerar",
+            "notes": "Ordning avgör om alla parter signerar samtidigt eller i turordning. Verifiering för att öppna kräver att parten legitimerar sig innan dokumentet visas. Kräv fullständig genomläsning tvingar parten att bläddra igenom hela dokumentet, och Tillåt delegering låter en part lämna över signeringen till någon annan."
+        },
+        {
+            "name": "oppna-kommunikation",
+            "action": "click",
+            "selector": "button:has-text('Kommunikation')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-kommunikation",
+            "action": "wait",
+            "ms": 1200
+        },
+        {
+            "name": "scrolla-kommunikation",
+            "action": "scrollIntoView",
+            "selector": "input[placeholder='Lägg till e-postadress']",
+            "align": "end",
+            "padBottom": 80,
+            "screenshot": false
+        },
+        {
+            "name": "kommunikation",
+            "action": "screenshot",
+            "caption": "Kommunikation styr vad parterna får",
+            "notes": "Föredraget språk avgör vilket språk e-post och signeringssida visas på. Automatiska påminnelser skickar en påfyllnad till dem som inte signerat — välj Av, Varje dag, Varannan dag, Var 3:e dag eller Var 5:e dag. Här slår du också på chatten för parterna och anger vilka som ska få dokumentet automatiskt när det är signerat."
+        },
+        {
+            "name": "oppna-internt",
+            "action": "click",
+            "selector": "button:has-text('Internt')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-internt",
+            "action": "wait",
+            "ms": 1200
+        },
+        {
+            "name": "scrolla-internt",
+            "action": "scrollIntoView",
+            "selector": "text=Synlighet",
+            "align": "end",
+            "padBottom": 80,
+            "screenshot": false
+        },
+        {
+            "name": "internt",
+            "action": "screenshot",
+            "caption": "Internt styr vem i arbetsytan som ser dokumentet",
+            "notes": "Synlighet avgör om alla i arbetsytan, bara skaparen och ansvarig, eller en utvald lista med användare kan öppna dokumentet. Inställningen påverkar bara vyn inne i sajn — parterna får sin signeringslänk oavsett."
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Flytta till papperskorg'), [role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

@@ -1,9 +1,9 @@
 ---
 title: "Sekventiell signering – låt parter signera i steg"
-description: "Bestäm i vilken ordning parterna signerar genom att gruppera dem i steg med signeringsflöden"
+description: "Bestäm i vilken ordning parterna signerar genom att gruppera dem i steg"
 ---
 
-Med signeringsflöden bestämmer du i vilken ordning parterna signerar. Du grupperar parterna i steg: alla i samma steg signerar samtidigt (parallellt), och stegen körs ett i taget. Efter att ett steg är klart får nästa steg dokumentet. Så kan du t.ex. låta tre parter signera samtidigt och en sista part signera efter dem – eller tvärtom, en först och sedan två parallellt.
+Med signeringsordning bestämmer du i vilken ordning parterna signerar. Du grupperar parterna i steg: alla i samma steg signerar samtidigt (parallellt), och stegen körs ett i taget. Efter att ett steg är klart får nästa steg dokumentet. Så kan du t.ex. låta tre parter signera samtidigt och en sista part signera efter dem – eller tvärtom, en först och sedan två parallellt.
 
 ## Innan du börjar
 
@@ -13,53 +13,53 @@ Med signeringsflöden bestämmer du i vilken ordning parterna signerar. Du grupp
 ## Steg
 
 <Steps>
-  <Step title="Skapa ett nytt dokument">
-    Gå till **Dokument** och klicka på **Skapa nytt**. Du kan lika gärna ladda upp en PDF – stegen för signeringsordning är desamma.
-
-    <Frame>
-      <img src="/images/guider/sekventiell-signering/02-documents-list.png" alt="Dokumentlistan med knappen Skapa nytt" />
-    </Frame>
-  </Step>
   <Step title="Lägg till parterna">
-    Klicka på **Sök eller lägg till parter…**, fyll i namn och e-post och klicka på **Lägg till**. Upprepa tills alla som ska signera är med.
+    Öppna dokumentet och klicka på **Sök eller lägg till parter…** i panelen **Parter**. Fyll i namn och e-postadress och klicka på **Lägg till**. Upprepa tills alla som ska signera är med.
 
     <Frame>
-      <img src="/images/guider/sekventiell-signering/08-party1-dialog.png" alt="Dialogen för att lägga till en part med namn och e-postadress" />
+      <img src="/images/guider/sekventiell-signering/20-epost-1.png" alt="Dialogen Lägg till part med namn och e-postadress ifyllda" />
     </Frame>
   </Step>
   <Step title="Som standard signerar alla parter samtidigt">
     Utan signeringsordning får alla parter dokumentet på en gång och kan signera i valfri ordning.
 
     <Frame>
-      <img src="/images/guider/sekventiell-signering/29-all-parties-parallel.png" alt="Alla parter listade utan signeringsordning, redo att signera parallellt" />
+      <img src="/images/guider/sekventiell-signering/39-alla-samtidigt.png" alt="Panelen Parter med fyra parter utan signeringsordning" />
     </Frame>
   </Step>
-  <Step title="Öppna Inställningar">
-    Under **Signeringsinställningar** hittar du reglaget **Aktivera signeringsflöden**.
+  <Step title="Öppna Inställningar och ändra Ordning">
+    Ordningen sätts i panelen **Inställningar**, under rubriken **Signering**. Inställningen heter **Ordning** och har två värden: **Alla samtidigt** och **I turordning**.
 
     <Frame>
-      <img src="/images/guider/sekventiell-signering/30-open-settings.png" alt="Fliken Inställningar med signeringsinställningar" />
+      <img src="/images/guider/sekventiell-signering/41-oppna-ordning.png" alt="Inställningen Ordning öppen med valen Alla samtidigt och I turordning" />
     </Frame>
   </Step>
-  <Step title="Slå på signeringsflöden">
-    Nu sker signeringen steg för steg i en bestämd ordning. Efter att ett steg är klart skickas dokumentet vidare till nästa steg.
+  <Step title="Välj I turordning">
+    Valet sparas direkt. Nu sker signeringen steg för steg: nästa part får dokumentet först när den föregående har signerat.
 
     <Frame>
-      <img src="/images/guider/sekventiell-signering/31-enable-signing-order.png" alt="Reglaget Aktivera signeringsflöden påslaget" />
+      <img src="/images/guider/sekventiell-signering/44-turordning-vald.png" alt="Inställningen Ordning satt till I turordning" />
+    </Frame>
+  </Step>
+  <Step title="Varje part hamnar i ett eget steg">
+    Gå tillbaka till panelen **Parter**. Parterna är nu numrerade – steg 1 först, sedan steg 2, och så vidare.
+
+    <Frame>
+      <img src="/images/guider/sekventiell-signering/47-parter-i-steg.png" alt="Panelen Parter med numrerade parter" />
     </Frame>
   </Step>
   <Step title="Öppna ordningsvyn">
-    Klicka på ikonen för att ändra ordning. Varje part hamnar i ett eget steg och signerar i tur och ordning – steg 1 först, sedan steg 2, och så vidare.
+    Ikonen till höger i sökfältet växlar till ordningsvyn. Där ligger varje part i sin egen ruta, och rutan **Nytt steg** längst ner skapar ett steg till.
 
     <Frame>
-      <img src="/images/guider/sekventiell-signering/33-open-reorder.png" alt="Ordningsvyn där varje part ligger i ett eget steg" />
+      <img src="/images/guider/sekventiell-signering/48-oppna-ordningsvyn.png" alt="Ordningsvyn där varje part ligger i ett eget steg" />
     </Frame>
   </Step>
   <Step title="Låt flera signera samtidigt i samma steg">
-    Dra en part till ett annat steg. Parter i samma steg signerar parallellt. Här signerar tre parter samtidigt i steg 1, och den sista parten signerar i steg 2. Vill du ha motsatsen – en part först och sedan två parallellt – lägg en part ensam i steg 1 och dra de andra till steg 2.
+    Dra en part till ett annat steg. Parter i samma steg signerar parallellt, och rutan märks då **signerar parallellt**. Vill du ha motsatsen – en part först och sedan flera parallellt – lägger du en part ensam i steg 1 och drar de andra till steg 2.
 
     <Frame>
-      <img src="/images/guider/sekventiell-signering/35-parallel-then-last.png" alt="Tre parter i steg 1 som signerar parallellt och en sista part i steg 2" />
+      <img src="/images/guider/sekventiell-signering/51-parallellt-i-steg.png" alt="Två parter i steg 1 märkt signerar parallellt, och en part vardera i steg 2 och 3" />
     </Frame>
   </Step>
 </Steps>
@@ -68,7 +68,7 @@ Med signeringsflöden bestämmer du i vilken ordning parterna signerar. Du grupp
 
 Varje part får sin inbjudan (mejl eller SMS) **först när det blir deras tur** – inte när du skickar dokumentet. Det betyder att parter i senare steg inte får något mejl direkt vid utskick; deras inbjudan skickas automatiskt så snart steget före är klart. Parter i samma steg får sina inbjudningar samtidigt.
 
-Tills en parts tur kommer visas den i översikten som **"Väntar på tur"** – det är alltså inte ett fel eller en utebliven leverans, utan betyder att inbjudan skickas när det blir partens tur.
+Tills en parts tur kommer visas den som **"Väntar på tur"** – det är alltså inte ett fel eller en utebliven leverans, utan betyder att inbjudan skickas när det blir partens tur.
 
 <Note>
   Signeringsordningen sätts innan du skickar dokumentet. När ett steg är klart får nästa steg automatiskt sin signeringslänk – varje part kontaktas först när det är deras tur.

@@ -1,0 +1,167 @@
+{
+  "ranAt": "2026-09-13T10:08:04.632Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-dokument",
+      "action": "goto",
+      "screenshotFile": "02-oppna-dokument.png",
+      "caption": "Öppna Dokument i sidomenyn",
+      "notes": "Knappen Skapa nytt högst upp till höger är delad. Texten öppnar sidan Nytt dokument med en uppladdningsruta; pilen bredvid har genvägen Ladda upp fil som hoppar direkt till datorns filväljare.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 3,
+      "name": "oppna-skapa-nytt",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 4,
+      "name": "vanta-sidan",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 5,
+      "name": "uppladdningsrutan",
+      "action": "screenshot",
+      "screenshotFile": "05-uppladdningsrutan.png",
+      "caption": "Släpp filen i rutan högst upp",
+      "notes": "Dra och släpp filen i rutan, eller klicka för att välja den från datorn. PDF, Word, Excel, PowerPoint, CSV och TXT går bra, upp till 25 MB per fil. Du kan ladda upp flera filer samtidigt — de blir sidor i samma dokument.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 6,
+      "name": "ladda-upp",
+      "action": "uploadFile",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 7,
+      "name": "vanta-filen",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 8,
+      "name": "fyll-namn",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 9,
+      "name": "filen-vald",
+      "action": "screenshot",
+      "screenshotFile": "09-filen-vald.png",
+      "caption": "Namnge dokumentet innan du skapar det",
+      "notes": "Den valda filen listas med sin storlek. Lämnar du Dokumentnamn tomt får dokumentet filens namn utan filändelse. Utgångsdatum är valfritt och sätter en sista dag för signering. Klicka Skapa dokument nere till höger.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 10,
+      "name": "skapa",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 11,
+      "name": "vanta-redigeraren",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznhpuq002r02jv88hhzvw3"
+    },
+    {
+      "index": 12,
+      "name": "vanta-pdf",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznhpuq002r02jv88hhzvw3"
+    },
+    {
+      "index": 13,
+      "name": "dokumentet-klart",
+      "action": "screenshot",
+      "screenshotFile": "13-dokumentet-klart.png",
+      "caption": "PDF:en blir innehållet i ett nytt utkast",
+      "notes": "Dokumentet får statusen Utkast och PDF:en visas som en egen sektion i redigeraren. Härifrån lägger du till parter i panelen till höger och placerar signatur- och textfält ovanpå sidorna från panelen Innehåll.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtznhpuq002r02jv88hhzvw3"
+    },
+    {
+      "index": 14,
+      "name": "oppna-arkiv",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznhpuq002r02jv88hhzvw3"
+    },
+    {
+      "index": 15,
+      "name": "slang",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznhpuq002r02jv88hhzvw3"
+    },
+    {
+      "index": 16,
+      "name": "bekrafta-slang",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznhpuq002r02jv88hhzvw3"
+    },
+    {
+      "index": 17,
+      "name": "vanta-listan",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 18,
+      "name": "efter-rensning",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    }
+  ]
+}

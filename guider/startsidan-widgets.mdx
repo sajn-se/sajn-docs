@@ -1,0 +1,105 @@
+---
+title: "Anpassa startsidan med widgets"
+description: "Bygg din egen översikt av widgets som du lägger till, flyttar och tar bort"
+---
+
+Startsidan är din egen. Den byggs av widgets, och du bestämmer vilka som ska finnas där och i vilken ordning. Varje arbetsyta har sin egen uppsättning, så du kan ha en översikt för säljavtalen och en annan för HR.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Ändringarna gäller bara dig. Dina kollegor har sina egna översikter.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Startsidan är din översikt">
+    Hälsningen överst visar vem du är inloggad som och vilken dag det är. Allt under den är widgets.
+
+    Det finns ingen knapp som heter *Anpassa*. Varje widget bär sin egen meny i stället.
+
+    <Frame>
+      <img src="/images/guider/startsidan-widgets/02-startsidan.png" alt="Startsidan med hälsning, statuskort och senaste ändringar" />
+    </Frame>
+  </Step>
+
+  <Step title="För muspekaren över en widget och klicka på de tre punkterna">
+    Menyn styr både den enskilda widgeten och hela sidan. Innehållet varierar med widgeten. Statusöversikt har ett eget val för att visa belopp, widgets som går att ställa in får **Anpassa widget**, och de du kan ha flera av får **Duplicera**.
+
+    Du når samma meny genom att högerklicka på widgeten.
+
+    <Frame>
+      <img src="/images/guider/startsidan-widgets/04-widgetmeny.png" alt="Widgetmenyn öppen med val för widgeten och för hela översikten" />
+    </Frame>
+  </Step>
+
+  <Step title="Välj Redigera översikten">
+    Nu får varje widget en ram med egna knappar: flytta upp, flytta ner, byt storlek, duplicera och ta bort. Du kan också dra en widget dit du vill ha den.
+
+    Knappen **Klar** uppe till höger sparar och lämnar läget. Esc gör samma sak.
+
+    <Frame>
+      <img src="/images/guider/startsidan-widgets/07-redigeringslage.png" alt="Redigeringsläget med ramar och knappen Klar" />
+    </Frame>
+  </Step>
+
+  <Step title="Lägg till en widget">
+    Klicka på den streckade rutan **Lägg till widget** sist på sidan. Panelen som öppnas har tre grupper. **Dokument** innehåller listor och det som väntar på dig, **Analys och aktivitet** innehåller nyckeltal och kommentarer, och **Verktyg** innehåller snabbval, mallgenvägar, Fråga Bob och anteckningar.
+
+    Sökfältet filtrerar listan. En widget märkt *Tillagd* finns redan på sidan och går bara att ha en gång.
+
+    <Frame>
+      <img src="/images/guider/startsidan-widgets/10-widgetpanelen.png" alt="Panelen Lägg till widget med grupperna Dokument, Analys och aktivitet samt Verktyg" />
+    </Frame>
+  </Step>
+
+  <Step title="Widgeten läggs till sist på sidan">
+    Den nya widgeten hamnar längst ner. Dra den dit du vill ha den, eller använd pilarna i ramen. Bokstäverna **S**, **M** och **L** i ramen byter storlek. Klicka sedan **Klar** för att spara.
+
+    <Frame>
+      <img src="/images/guider/startsidan-widgets/13-widget-tillagd.png" alt="En anteckningswidget tillagd sist på översikten" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Widgetarna
+
+<AccordionGroup>
+  <Accordion title="Dokument">
+    - **Dokumentlista** är en tabell med dokument som matchar dina filter. Du kan namnge den och lägga till flera med olika filter.
+    - **Väntar på dig** visar dokument där du själv står på tur att signera.
+    - **Kommentarer** visar olösta trådar där du är omnämnd eller själv deltar.
+    - **Mina bokmärken** ger dig dina sparade vyer ett klick från översikten.
+    - **Åtgärder** visar förslag som sajn förberett åt dig, att utföra eller avfärda med ett klick.
+  </Accordion>
+  <Accordion title="Analys och aktivitet">
+    - **Nyckeltal** är ett tal eller diagram byggt på samma data som rapporterna. Kräver Solo eller högre.
+    - **Statusöversikt** visar antal och värde per dokumentstatus de senaste 30 dagarna.
+  </Accordion>
+  <Accordion title="Verktyg">
+    - **Snabbval** skapar dokument, utgår från en mall eller laddar upp en fil.
+    - **Mina mallar** är genvägar till de mallar du använder oftast.
+    - **Fråga Bob** låter dig ställa en fråga direkt från översikten.
+    - **Anteckning** är en egen ruta för det du behöver ha framför ögonen.
+    - **Kom igång** är introduktionen till sajn. Ta bort den när du är igång.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  Några widgets kräver behörighet eller ett visst paket, och de visas bara för dig om du har det. Nyckeltal kräver till exempel Solo eller högre, eftersom det bygger på samma data som rapporterna.
+</Note>
+
+<Warning>
+  **Återställ hela översikten** i widgetmenyn går inte att ångra. Den tar bort alla widgets du lagt till och alla inställningar du gjort på dem, och sätter tillbaka standarduppsättningen.
+</Warning>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Statistik och rapporter" icon="chart-line" href="/guider/statistics">
+    Nyckeltalswidgeten bygger på samma data som rapporterna.
+  </Card>
+  <Card title="Bokmärken" icon="bookmark" href="/guider/document-bookmarks">
+    Spara en vy och nå den från översikten.
+  </Card>
+</CardGroup>

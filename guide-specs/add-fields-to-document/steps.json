@@ -1,0 +1,278 @@
+{
+    "slug": "add-fields-to-document",
+    "title": "Lägg till sektioner och fält i ett dokument",
+    "intro": "Ett dokument byggs av sektioner, och en av sektionstyperna — Formulär — rymmer de fält parterna fyller i. Guiden går igenom sektionsmenyn och hur ett formulärfält ställs in.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du har behörighet att skapa dokument."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/add-fields-to-document",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "goto-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler alternativ']",
+            "caption": "Börja från ett tomt dokument",
+            "notes": "Knappen Skapa nytt är delad. Texten öppnar sidan Nytt dokument med filuppladdning och mallar; pilen bredvid är genvägen med Tomt dokument och Ladda upp fil."
+        },
+        {
+            "name": "valj-tomt",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "klicka-titeln",
+            "action": "click",
+            "selector": "header h3[role='button']",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "fill",
+            "selector": "input[aria-label='Titel']",
+            "value": "Batch A: sektioner och fält",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namnet",
+            "action": "press",
+            "key": "Enter",
+            "screenshot": false
+        },
+        {
+            "name": "tom-redigerare",
+            "action": "screenshot",
+            "caption": "Ett tomt dokument öppnas i redigeraren",
+            "notes": "Pappret startar tomt — innehållet byggs upp som sektioner. Den streckade linjen Lägg till sektion är ingången."
+        },
+        {
+            "name": "sektionsmenyn",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "caption": "Välj sektionstyp i sektionsmenyn",
+            "notes": "Under Fält ligger sektionstyperna: Text & bild, PDF-dokument, Formulär, Produkttabell, Tabell, Mellanrum, Sidbrytning och Varaktighet. Under Verktyg skriver Skapa med AI en sektion åt dig, och Sektionsbibliotek hämtar en sektion du sparat tidigare."
+        },
+        {
+            "name": "valj-text-bild",
+            "action": "click",
+            "selector": "[cmdk-item][data-value='Text & bild']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-text",
+            "action": "waitForSelector",
+            "selector": "div[contenteditable='true']",
+            "match": "first"
+        },
+        {
+            "name": "skriv-text",
+            "action": "type",
+            "selector": "div[contenteditable='true']",
+            "text": "Detta avtal har träffats mellan Nordvik Consulting AB och Batch A Demo AB.",
+            "delay": 12,
+            "screenshot": false
+        },
+        {
+            "name": "text-bild",
+            "action": "screenshot",
+            "caption": "Text & bild är fri brödtext",
+            "notes": "Sektionen läggs till som en tom textyta. När du står i den byts raden överst mot formateringen — rubriker, typsnitt, listor, länkar, bilder och tabeller."
+        },
+        {
+            "name": "oppna-sektionsmenyn-igen",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-formular",
+            "action": "click",
+            "selector": "[cmdk-item][data-value='Formulär']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-formular",
+            "action": "waitForSelector",
+            "selector": "text=Klicka för att lägga till fält"
+        },
+        {
+            "name": "formularsektion",
+            "action": "screenshot",
+            "caption": "Formulär är rutan som rymmer fälten",
+            "notes": "Formulärsektionen är en behållare med ett rutnät på 1–4 kolumner. Klicka på Klicka för att lägga till fält för att skapa det första fältet."
+        },
+        {
+            "name": "skapa-falt",
+            "action": "click",
+            "selector": "text=Klicka för att lägga till fält",
+            "caption": "Nya fält startar som textfält",
+            "notes": "Fältet heter Namnlöst fält tills du döper om det. Klicka på fältet för att öppna inställningarna."
+        },
+        {
+            "name": "oppna-faltet",
+            "action": "click",
+            "selector": "text=Namnlöst fält",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigera-falt",
+            "action": "waitForSelector",
+            "selector": "text=Redigera fält"
+        },
+        {
+            "name": "redigera-falt",
+            "action": "screenshot",
+            "caption": "Redigera fält styr allt om fältet",
+            "notes": "Etikett är vad läsaren ser, Typ avgör vad som går att fylla i, och Beskrivning och Placeholder är hjälptext. Fylls i av avgör vem som fyller i värdet — en part, eller Fast värde om du fyller i det själv redan nu. Väljer du en part dyker Obligatoriskt upp under."
+        },
+        {
+            "name": "oppna-avancerat",
+            "action": "click",
+            "selector": "button:has-text('Avancerat')",
+            "caption": "Avancerat rymmer nyckeln",
+            "notes": "Nyckeln är fältets unika identifierare för API-anrop, massutskick och formulär. Vid massutskick matchas CSV-kolumnen mot nyckeln. Använd gemener, siffror, bindestreck och understreck."
+        },
+        {
+            "name": "oppna-typ",
+            "action": "click",
+            "selector": "[role='dialog'] button[role='combobox'], [data-radix-popper-content-wrapper] button[role='combobox']",
+            "match": "first",
+            "caption": "Åtta fälttyper att välja mellan",
+            "notes": "Textfält, Flerradigt textfält, Nummerfält, Datumväljare, Rullgardin, Radioknappar, Kryssrutor och Bilaga. Rullgardin, Radioknappar och Kryssrutor får en extra ruta Val där du fyller i alternativen. Bilaga måste tilldelas en part, eftersom det är parten som laddar upp filen."
+        },
+        {
+            "name": "stang-typ",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "stang-faltet",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangt",
+            "action": "waitForSelector",
+            "selector": "text=Redigera fält",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-sektionsmenyn-pdf",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-pdf",
+            "action": "click",
+            "selector": "[cmdk-item][data-value='PDF-dokument']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-pdf",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "pdf-sektion",
+            "action": "screenshot",
+            "caption": "PDF-dokument bäddar in en färdig fil",
+            "notes": "Dra och släpp en PDF i rutan, eller klicka för att välja från datorn. Word, Excel, PowerPoint, CSV och text konverteras automatiskt till PDF. Har du redan laddat upp filen i sajn hämtar du den via välj från Filer."
+        },
+        {
+            "name": "oppna-sektionsmenyn-produkt",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-produkttabell",
+            "action": "click",
+            "selector": "[cmdk-item][data-value='Produkttabell']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-produkt",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "lagg-till-produkt",
+            "action": "click",
+            "selector": "text=Klicka för att lägga till första produkten",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-rad",
+            "action": "wait",
+            "ms": 1200
+        },
+        {
+            "name": "produkttabell",
+            "action": "screenshot",
+            "caption": "Produkttabell räknar ihop raderna",
+            "notes": "Tabellen visar varor och tjänster med namn, beskrivning, pris, antal, rabatt och moms, och summerar längst ner. Lägg till rader för hand eller hämta dem från Produkter. Vilka kolumner som visas, valutan och utseendet ändrar du i sektionens kugghjul."
+        },
+        {
+            "name": "oppna-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-slang",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa nytt')"
+        },
+        {
+            "name": "efter-rensning",
+            "action": "wait",
+            "ms": 2000
+        }
+    ]
+}

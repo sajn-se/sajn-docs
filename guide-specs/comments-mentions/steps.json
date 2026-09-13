@@ -1,0 +1,177 @@
+{
+    "slug": "comments-mentions",
+    "title": "Använd kommentarer och @-omnämnanden i ett dokument",
+    "intro": "Markera en passage i dokumentet, skriv en kommentar och tagga en kollega med @. Tråden hänger kvar vid texten och kollegan får en notis.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du har ett dokument som är ett utkast eller väntar på signering.",
+        "Dokumentet har minst en Text & bild-sektion att markera i.",
+        "Den du vill tagga är medlem i samma arbetsyta."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/comments-mentions",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-skapa",
+            "action": "click",
+            "selector": "button[data-testid='document-creation-options-dropdown-trigger']",
+            "screenshot": false
+        },
+        {
+            "name": "tomt-dokument",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-redigera",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-namn",
+            "action": "fill",
+            "selector": "#name",
+            "value": "Batch C: kommentarer",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "lagg-till-text",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-text",
+            "action": "click",
+            "selector": "[role='option']:has-text('Text & bild')",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-text",
+            "action": "type",
+            "selector": ".ProseMirror",
+            "text": "Ersättning utgår per påbörjad timme enligt det arvode som anges nedan. Fakturering sker månadsvis i efterskott med 30 dagars betalningsvillkor.",
+            "delay": 8
+        },
+        {
+            "name": "markera-text",
+            "action": "selectText",
+            "selector": ".ProseMirror p"
+        },
+        {
+            "name": "markeringen",
+            "action": "screenshot",
+            "caption": "Markera den text du vill kommentera",
+            "notes": "Verktygsraden dyker upp ovanför sektionen så snart du står i en textsektion. Markeringen blir trådens förankring i dokumentet, så att den som svarar ser exakt vilket avsnitt diskussionen gäller."
+        },
+        {
+            "name": "kommentera",
+            "action": "click",
+            "selector": "button[aria-label='Kommentera']",
+            "caption": "Klicka på kommentarsikonen i verktygsraden",
+            "notes": "En ruta öppnas där du skriver kommentaren. Den markerade texten följer med som citat högst upp, så sammanhanget finns kvar även om dokumentet ändras senare."
+        },
+        {
+            "name": "skriv-kommentar",
+            "action": "type",
+            "selector": "[placeholder='Kommentera eller lägg till @omnämnande']",
+            "text": "Batch C: ska betalningsvillkoren vara 30 dagar här? @",
+            "delay": 20
+        },
+        {
+            "name": "vanta-forslag",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "omnamnanden",
+            "action": "screenshot",
+            "caption": "Skriv @ för att tagga någon",
+            "notes": "Listan visar arbetsytans medlemmar och filtreras medan du skriver. Bläddra med piltangenterna och välj med Tab eller Enter, eller klicka på rätt person. Bob (AI) ligger överst om du hellre vill be AI-assistenten titta på avsnittet."
+        },
+        {
+            "name": "valj-bob",
+            "action": "press",
+            "key": "Enter"
+        },
+        {
+            "name": "kommentarsrutan",
+            "action": "screenshot",
+            "caption": "Välj personen och publicera med Kommentera",
+            "notes": "Omnämnandet skrivs in i texten och kollegan får en notis när kommentaren skickas. Du kan tagga flera i samma kommentar genom att skriva @ igen. Knappen Kommentera längst ner till höger publicerar, och Enter gör samma sak; Avbryt slänger utkastet. Ikonerna till vänster infogar en emoji respektive startar ett @-omnämnande. När kommentaren skickats öppnas tråden, där du kan svara, trycka Lös för att markera den som avklarad, och under Fler alternativ kopiera urvalet eller ta bort tråden."
+        },
+        {
+            "name": "stadning-avbryt",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

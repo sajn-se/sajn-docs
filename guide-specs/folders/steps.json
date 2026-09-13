@@ -1,0 +1,154 @@
+{
+    "slug": "folders",
+    "title": "Organisera dokument och filer i mappar",
+    "intro": "Mappar håller ihop Dokument- och Mallar-listorna när antalet objekt växer. En mapp lever i en arbetsyta och fungerar ungefär som en mapp på datorn.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta som har minst ett dokument i listan.",
+        "Du har behörighet att skapa dokument i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/folders",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Mappar bor inuti Dokument-listan",
+            "notes": "Det finns ingen egen Mappar-vy i sidomenyn. Mallar har en parallell mapphierarki på sin egen sida."
+        },
+        {
+            "name": "skapa-mapp",
+            "action": "click",
+            "selector": "button:has(svg.lucide-folder-plus)",
+            "caption": "Mapp-plus-ikonen skapar en ny mapp",
+            "notes": "Ikonknappen ligger strax till vänster om Skapa nytt. Mappen hamnar på den nivå du står på — är du redan inne i en mapp blir den nya en undermapp."
+        },
+        {
+            "name": "namnge",
+            "action": "fill",
+            "selector": "#folder-name",
+            "value": "Batch C mapp",
+            "caption": "Ge mappen ett namn",
+            "notes": "Namn är det enda fältet. Mappnamn får innehålla bokstäver, siffror, mellanslag, punkt, bindestreck och understreck, upp till 120 tecken. Mappar bär inga taggar eller behörigheter — de är rent organisatoriska, och åtkomsten styrs av arbetsytan och av varje enskilt dokument."
+        },
+        {
+            "name": "bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skapa mapp')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mapp",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch C mapp')"
+        },
+        {
+            "name": "mappraden",
+            "action": "screenshot",
+            "caption": "Mappar ligger alltid högst upp i tabellen",
+            "notes": "Klicka på raden för att gå in i mappen — rubriken blir då en brödsmula och tabellen visar bara mappens innehåll. För muspekaren över mappikonen längst till vänster för att få fram kryssrutan, så kan du markera flera mappar samtidigt."
+        },
+        {
+            "name": "mappmenyn",
+            "action": "click",
+            "selector": "tr:has(td:has-text('Batch C mapp')) button:has(span:text-is('Åtgärder'))",
+            "caption": "Menyn på mappraden",
+            "notes": "Byt namn, Flytta (öppnar samma väljare som för dokument), Ladda ner (zippar mappen och mailar dig en länk), Granska dokument med AI och Ta bort. En mapp måste vara tom för att kunna tas bort — flytta ut undermappar, dokument och mallar först."
+        },
+        {
+            "name": "stang-mappmenyn",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "markera-dokument",
+            "action": "click",
+            "selector": "button[aria-label='Select row']",
+            "match": "first",
+            "caption": "Markera dokumenten du vill flytta",
+            "notes": "När minst en rad är markerad dyker knappen Åtgärder upp uppe till höger."
+        },
+        {
+            "name": "oppna-atgarder",
+            "action": "click",
+            "selector": "button:has-text('Åtgärder')",
+            "caption": "Åtgärder samlar allt som går att göra på flera rader",
+            "notes": "Flytta till mapp, Exportera, Arkivera, Hantera taggar, Skicka utkast, Återkalla och Flytta till papperskorg. Ska du flytta ett enda dokument finns samma val i trepunktsmenyn ute till höger på dokumentraden."
+        },
+        {
+            "name": "flytta-till-mapp",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till mapp')",
+            "caption": "Välj målmappen i listan",
+            "notes": "Sökfältet högst upp filtrerar mappträdet. Alla dokument överst flyttar tillbaka till rotnivån, och varje mapp visar sin sökväg till höger. Du bekräftar inte separat — klicket flyttar. Skriver du ett namn som inte finns kan du skapa mappen och flytta dit i samma klick."
+        },
+        {
+            "name": "stang-valjaren",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "vanta-valjare-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "ladda-om",
+            "action": "reload"
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch C mapp')"
+        },
+        {
+            "name": "stadning-meny",
+            "action": "click",
+            "selector": "tr:has(td:has-text('Batch C mapp')) button:has(span:text-is('Åtgärder'))",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-ta-bort",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ta bort')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Ta bort')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "ladda-om-igen",
+            "action": "reload"
+        },
+        {
+            "name": "vanta-borttagen",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch C mapp')",
+            "state": "hidden"
+        }
+    ]
+}

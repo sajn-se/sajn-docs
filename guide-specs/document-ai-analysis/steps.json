@@ -1,0 +1,212 @@
+{
+    "slug": "document-ai-analysis",
+    "title": "Analysera en PDF-bilaga med AI",
+    "intro": "Bob läser igenom en PDF i dokumentet och föreslår parter, titel och inställningar. Du väljer själv vad du tar emot.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta på en betald plan.",
+        "Dokumentet innehåller en PDF-sektion med en uppladdad fil.",
+        "AI är påslaget för arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/document-ai-analysis",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-skapa",
+            "action": "click",
+            "selector": "button[data-testid='document-creation-options-dropdown-trigger']",
+            "screenshot": false
+        },
+        {
+            "name": "tomt-dokument",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-redigera",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-namn",
+            "action": "fill",
+            "selector": "#name",
+            "value": "Batch C: AI-analys",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "lagg-till-pdf",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-pdf",
+            "action": "click",
+            "selector": "[role='option']:has-text('PDF-dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-filvaljaren",
+            "action": "click",
+            "selector": "button:has-text('välj från Filer')",
+            "screenshot": false
+        },
+        {
+            "name": "sok-fil",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Sök filer...']",
+            "value": "Document 1.pdf",
+            "screenshot": false
+        },
+        {
+            "name": "valj-fil",
+            "action": "click",
+            "selector": "[role='dialog'] [role='button']:has-text('Document 1.pdf')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-pdf",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-rendering",
+            "action": "wait",
+            "ms": 12000
+        },
+        {
+            "name": "dokumentet",
+            "action": "screenshot",
+            "caption": "PDF:en ligger som en egen sektion",
+            "notes": "Analysen körs på en PDF-sektion. Du kan lika gärna lägga till PDF:en i ett befintligt utkast — se guiden Lägg till en bilaga."
+        },
+        {
+            "name": "sektionsmenyn",
+            "action": "click",
+            "selector": "button[aria-label='Sektionsinställningar']",
+            "match": "first",
+            "caption": "Starta analysen från kugghjulet på sektionen",
+            "notes": "Kommentar lämnar en instruktion till AI:n inför analysen. Analysera med AI startar den. På en gratisplan finns valet inte i menyn alls."
+        },
+        {
+            "name": "kor-analys",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Analysera med AI')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-analys",
+            "action": "wait",
+            "ms": 60000
+        },
+        {
+            "name": "ladda-om",
+            "action": "reload"
+        },
+        {
+            "name": "vanta-efter-omladdning",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Förslag']"
+        },
+        {
+            "name": "vanta-forslag",
+            "action": "wait",
+            "ms": 6000
+        },
+        {
+            "name": "forslagsknappen",
+            "action": "click",
+            "selector": "button[aria-label='Förslag']",
+            "caption": "Glödlampan uppe till höger samlar förslagen",
+            "notes": "Siffran på ikonen räknar hur många förslag som väntar. Varje rad visar vad AI:n föreslår — titel, språk, signeringsordning, avtalsvärde, utgångsdatum eller dokumenttyp — med nuvarande värde till vänster om pilen. Använd tar emot förslaget, krysset avfärdar det. Ingenting ändras förrän du klickar Använd."
+        },
+        {
+            "name": "hoppa-till-parter",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button:has-text('Föreslagna parter')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-parter",
+            "action": "wait",
+            "ms": 2500
+        },
+        {
+            "name": "parter",
+            "action": "screenshot",
+            "caption": "Partsförslagen ligger i panelen Parter",
+            "notes": "Raden Föreslagna parter hoppar hit. Under rubriken Förslag listas varje part AI:n hittat, med roll, e-post och organisation. Lägg till lägger in parten i dokumentet, krysset avfärdar förslaget. Hittar AI:n flera kontaktuppgifter för samma person dyker knappen Alternativ upp. Är det minst tre förslag finns Lägg till alla längst ner."
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

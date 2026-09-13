@@ -1,0 +1,99 @@
+{
+    "slug": "samma-falt-olika-mottagare",
+    "title": "Samma fält till olika mottagare varje gång",
+    "intro": "Skärmdumpar till guiden Samma fält till olika mottagare varje gång. Visar parten som rollplats i mallen, kopplingen Fylls i av på ett fält, och menyvalet som skapar ett dokument från mallen. Utgår från mallen Konsultavtal och ändrar ingenting i den.",
+    "audience": "Alla som bygger mallar",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får skapa mallar.",
+        "Arbetsytan har en mall med en Formulär-sektion, här Konsultavtal."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1250
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/samma-falt-olika-mottagare",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "mallar",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-mall",
+            "action": "click",
+            "selector": "table a[href*='/templates/']",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mall",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Parter']"
+        },
+        {
+            "name": "parten-ar-en-rollplats",
+            "action": "click",
+            "selector": "button[aria-label='Parter']",
+            "caption": "Parten i mallen är en rollplats, inte en person",
+            "notes": "Panelen Parter visar parten med sitt rollnamn, här Konsulten, och texten Tilldelas vid utskick. Mallen behöver alltså ingen e-postadress. Den fyller du i per dokument."
+        },
+        {
+            "name": "oppna-falt",
+            "action": "click",
+            "selector": ":text('Organisationsnummer')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-popover",
+            "action": "waitForSelector",
+            "selector": "text=Redigera fält"
+        },
+        {
+            "name": "fylls-i-av",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button[role='combobox']",
+            "match": "last",
+            "caption": "Fältet kopplas till parten, inte till en e-postadress",
+            "notes": "Klicka på ett fält för att öppna Redigera fält. Menyn Fylls i av avgör vem som ska fylla i fältet. Välj parten, här Konsulten, så följer fältet med till varje nytt dokument. Fast värde gör fältet statiskt."
+        },
+        {
+            "name": "stang-menyn",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "tillbaka-till-mallar",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-lista",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Edit item']"
+        },
+        {
+            "name": "skapa-dokument",
+            "action": "click",
+            "selector": "tr:has-text('Konsultavtal') button[aria-label='Edit item']",
+            "match": "first",
+            "caption": "Skapa ett dokument när du ska skicka",
+            "notes": "Skapa dokument i radens meny ger ett nytt dokument med mallens innehåll, parter och fältkopplingar redan på plats. Det enda som återstår är att fylla i den verkliga mottagaren."
+        },
+        {
+            "name": "stang-radmeny",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        }
+    ]
+}

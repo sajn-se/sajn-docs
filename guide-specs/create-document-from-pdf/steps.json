@@ -1,0 +1,128 @@
+{
+    "slug": "create-document-from-pdf",
+    "title": "Skapa ett dokument från en uppladdad PDF",
+    "intro": "Har du redan ett färdigt avtal som PDF? Ladda upp filen från dokumentlistan, så blir den innehållet i ett nytt sajn-dokument — redo att förses med parter, fält och signering.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du har en PDF-fil sparad lokalt.",
+        "Du har behörighet att skapa dokument i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/create-document-from-pdf",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Öppna Dokument i sidomenyn",
+            "notes": "Knappen Skapa nytt högst upp till höger är delad. Texten öppnar sidan Nytt dokument med en uppladdningsruta; pilen bredvid har genvägen Ladda upp fil som hoppar direkt till datorns filväljare."
+        },
+        {
+            "name": "oppna-skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sidan",
+            "action": "waitForSelector",
+            "selector": "text=Välj filer att ladda upp"
+        },
+        {
+            "name": "uppladdningsrutan",
+            "action": "screenshot",
+            "caption": "Släpp filen i rutan högst upp",
+            "notes": "Dra och släpp filen i rutan, eller klicka för att välja den från datorn. PDF, Word, Excel, PowerPoint, CSV och TXT går bra, upp till 25 MB per fil. Du kan ladda upp flera filer samtidigt — de blir sidor i samma dokument."
+        },
+        {
+            "name": "ladda-upp",
+            "action": "uploadFile",
+            "selector": "[role='dialog'] input[type='file']",
+            "filePath": "/private/tmp/claude-501/-Users-andreasenemyr-Developer-sajn-sajn-app/da8da584-4866-421f-a09f-5007b580e0c4/scratchpad/fixtures/konsultavtal.pdf",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-filen",
+            "action": "waitForSelector",
+            "selector": "text=Dokumentnamn"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "#document-name",
+            "value": "Batch A: konsultavtal från PDF",
+            "screenshot": false
+        },
+        {
+            "name": "filen-vald",
+            "action": "screenshot",
+            "caption": "Namnge dokumentet innan du skapar det",
+            "notes": "Den valda filen listas med sin storlek. Lämnar du Dokumentnamn tomt får dokumentet filens namn utan filändelse. Utgångsdatum är valfritt och sätter en sista dag för signering. Klicka Skapa dokument nere till höger."
+        },
+        {
+            "name": "skapa",
+            "action": "click",
+            "selector": "button:has-text('Skapa dokument')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "vanta-pdf",
+            "action": "wait",
+            "ms": 6000
+        },
+        {
+            "name": "dokumentet-klart",
+            "action": "screenshot",
+            "caption": "PDF:en blir innehållet i ett nytt utkast",
+            "notes": "Dokumentet får statusen Utkast och PDF:en visas som en egen sektion i redigeraren. Härifrån lägger du till parter i panelen till höger och placerar signatur- och textfält ovanpå sidorna från panelen Innehåll."
+        },
+        {
+            "name": "oppna-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-slang",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa nytt')"
+        },
+        {
+            "name": "efter-rensning",
+            "action": "wait",
+            "ms": 2500
+        }
+    ]
+}

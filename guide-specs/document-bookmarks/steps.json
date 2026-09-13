@@ -1,0 +1,107 @@
+{
+    "slug": "document-bookmarks",
+    "title": "Bokmärk dokument du återkommer till",
+    "intro": "Ett bokmärke sparar filterurvalet i dokumentlistan, inte enskilda dokument. Nästa gång tar du dig tillbaka till samma vy med ett klick.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Arbetsytan har minst ett dokument att filtrera fram."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/document-bookmarks",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Öppna Dokument i sidomenyn",
+            "notes": "Filterraden överst har Status, Taggar, datumfiltret och Fler filter."
+        },
+        {
+            "name": "oppna-status",
+            "action": "click",
+            "selector": "button:has-text('Status')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-vantande",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] label:text-is('Väntande')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-status",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "filter-valt",
+            "action": "screenshot",
+            "caption": "Ställ in filtret du vill kunna återkomma till",
+            "notes": "Här är listan filtrerad på status Väntande. Så fort minst ett filter är aktivt dyker en bokmärkesikon upp i filterraden."
+        },
+        {
+            "name": "oppna-bokmarke",
+            "action": "click",
+            "selector": "button:has(svg.lucide-bookmark)",
+            "caption": "Klicka på bokmärkesikonen i filterraden",
+            "notes": "Rutan Skapa bokmärke öppnas. Namnet är det enda du fyller i — filtren sparas med automatiskt."
+        },
+        {
+            "name": "namnge",
+            "action": "fill",
+            "selector": "#bookmark-name",
+            "value": "Batch C – väntande",
+            "screenshot": false
+        },
+        {
+            "name": "spara",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button:has-text('Skapa')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-bokmarke",
+            "action": "waitForSelector",
+            "selector": "span:text-is('Batch C – väntande')"
+        },
+        {
+            "name": "bokmarke-sparat",
+            "action": "screenshot",
+            "caption": "Bokmärket hamnar ovanför filterraden",
+            "notes": "Ett klick på etiketten återställer hela filterurvalet. Bokmärken är personliga och gäller den arbetsyta du står i."
+        },
+        {
+            "name": "oppna-hantera",
+            "action": "click",
+            "selector": "div:has(> div > span:has-text('Batch C')) > button",
+            "caption": "Kugghjulet öppnar Hantera bokmärken",
+            "notes": "Dra i handtaget till vänster för att ändra ordningen — samma ordning gäller ovanför listan. Papperskorgen längst till höger raderar ett bokmärke direkt, utan bekräftelse."
+        },
+        {
+            "name": "ta-bort",
+            "action": "click",
+            "selector": "[role='dialog'] div.rounded-sm:has(div.font-medium:has-text('Batch C')) > button",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] :text('Batch C – väntande')",
+            "state": "hidden"
+        }
+    ]
+}

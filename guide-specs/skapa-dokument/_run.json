@@ -1,0 +1,194 @@
+{
+  "ranAt": "2026-09-13T09:56:57.501Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "dokumentlistan",
+      "action": "goto",
+      "screenshotFile": "02-dokumentlistan.png",
+      "caption": "Öppna Dokument i sidomenyn",
+      "notes": "Listan visar arbetsytans dokument med status, parter och datum. Knappen Skapa nytt uppe till höger är delad: texten öppnar sidan Nytt dokument, och pilen bredvid är en genväg till ett tomt dokument eller en filuppladdning.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 3,
+      "name": "oppna-skapa-nytt",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 4,
+      "name": "vanta-skapa-sidan",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 5,
+      "name": "nytt-dokument",
+      "action": "screenshot",
+      "screenshotFile": "05-nytt-dokument.png",
+      "caption": "Välj var dokumentet ska börja",
+      "notes": "Sidan Nytt dokument har två halvor. Överst laddar du upp en fil från datorn — PDF, Word, Excel, PowerPoint, CSV eller TXT, max 25 MB. Har arbetsytan en ansluten tjänst kan du hämta filen därifrån i stället. Under Börja från en mall ligger arbetsytans mallar som kort, uppdelade på Mina mallar, Delade med mig och sajn collection. Första kortet är Tomt dokument.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 6,
+      "name": "valj-tomt",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 7,
+      "name": "vanta-redigeraren",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 8,
+      "name": "redigeraren",
+      "action": "screenshot",
+      "screenshotFile": "08-redigeraren.png",
+      "caption": "Dokumentet öppnas som utkast i redigeraren",
+      "notes": "Ett tomt dokument heter Nytt dokument och har statusen Utkast. Pappret i mitten är det mottagaren får, och panelen till höger öppnas på Parter. Du kan också släppa en fil direkt på det tomma pappret. Allt du ändrar sparas automatiskt.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 9,
+      "name": "klicka-titeln",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 10,
+      "name": "byt-namn",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 11,
+      "name": "spara-namnet",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": "Ge dokumentet ett namn du hittar tillbaka till",
+      "notes": "Klicka på titeln högst upp till vänster, skriv det nya namnet och tryck Enter. Namnet är det parterna ser i mejlet och det du söker på i listan.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 12,
+      "name": "sektionsmenyn",
+      "action": "click",
+      "screenshotFile": "12-sektionsmenyn.png",
+      "caption": "Bygg innehållet av sektioner",
+      "notes": "Ett dokument består av sektioner, och den streckade linjen öppnar menyn. Text & bild är brödtext, PDF-dokument lägger in en färdig fil, Formulär är en ruta med ifyllbara fält och Produkttabell räknar ihop rader och summa. Tabell, Mellanrum, Sidbrytning och Varaktighet formar sidan. Skapa med AI skriver en sektion åt dig, och Sektionsbibliotek hämtar en du sparat tidigare.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 13,
+      "name": "valj-text-bild",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 14,
+      "name": "vanta-textsektion",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 15,
+      "name": "skriv-text",
+      "action": "type",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 16,
+      "name": "innehallet",
+      "action": "screenshot",
+      "screenshotFile": "16-innehallet.png",
+      "caption": "Skriv innehållet i sektionen",
+      "notes": "En Text & bild-sektion är fri brödtext. När du står i sektionen byts raden överst mot formateringen — rubriker, typsnitt, listor, länkar, bilder och tabeller. Skriv { där en part ska fylla i något, så infogas ett fält mitt i texten.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 17,
+      "name": "oppna-arkiv",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 18,
+      "name": "slang",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 19,
+      "name": "bekrafta-slang",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzn3i7r000f02jxkoeu8azl"
+    },
+    {
+      "index": 20,
+      "name": "vanta-listan",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 21,
+      "name": "efter-rensning",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    }
+  ]
+}

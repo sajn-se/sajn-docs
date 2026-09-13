@@ -1,0 +1,192 @@
+{
+    "slug": "add-attachments",
+    "title": "Lägg till en bilaga i ett dokument",
+    "intro": "En bilaga är en egen PDF-sektion i dokumentet. Den följer med när dokumentet skickas för signering.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har ett dokument i status Utkast.",
+        "Du har en PDF på datorn, eller en fil som redan ligger under Filer."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/add-attachments",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-status",
+            "action": "click",
+            "selector": "button:has-text('Status')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-utkast",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] label:text-is('Utkast')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-status",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "utkasten",
+            "action": "screenshot",
+            "caption": "Öppna Dokument och filtrera på Utkast",
+            "notes": "Bilagor lägger du till medan dokumentet fortfarande är ett utkast. Klicka på det utkast du vill bifoga en PDF till."
+        },
+        {
+            "name": "oppna-skapa",
+            "action": "click",
+            "selector": "button[data-testid='document-creation-options-dropdown-trigger']",
+            "screenshot": false
+        },
+        {
+            "name": "tomt-dokument",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-redigera",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-namn",
+            "action": "fill",
+            "selector": "#name",
+            "value": "Batch C: bilaga",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "redigeraren",
+            "action": "screenshot",
+            "caption": "Lägg till sektion bygger upp dokumentet",
+            "notes": "Den streckade linjen med texten Lägg till sektion är där du bygger upp innehållet. I ett tomt dokument finns en enda sådan; i ett dokument med innehåll ligger en mellan varje sektion och en i botten. Bilagor är bara en sektionstyp bland flera."
+        },
+        {
+            "name": "oppna-sektionsmenyn",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "caption": "Välj PDF-dokument i menyn",
+            "notes": "Under Fält ligger Text & bild, PDF-dokument, Formulär, Produkttabell, Tabell, Mellanrum, Sidbrytning och Varaktighet. Under Verktyg ligger Skapa med AI och Sektionsbibliotek. En bilaga är en PDF-dokument-sektion."
+        },
+        {
+            "name": "valj-pdf",
+            "action": "click",
+            "selector": "[role='option']:has-text('PDF-dokument')",
+            "caption": "Sektionen börjar som en tom uppladdningsruta",
+            "notes": "Dra in filen eller klicka för att välja. PDF, Word, Excel, PowerPoint, CSV och text går bra — Word, Excel och PowerPoint konverteras automatiskt till PDF. Vill du återanvända något du redan laddat upp klickar du på välj från Filer."
+        },
+        {
+            "name": "oppna-filvaljaren",
+            "action": "click",
+            "selector": "button:has-text('välj från Filer')",
+            "caption": "Filväljaren visar arbetsytans uppladdade filer",
+            "notes": "Bara PDF-filer går att välja här. Andra filtyper syns i listan men är inaktiverade."
+        },
+        {
+            "name": "sok-fil",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Sök filer...']",
+            "value": "Document 1.pdf",
+            "screenshot": false
+        },
+        {
+            "name": "valj-fil",
+            "action": "click",
+            "selector": "[role='dialog'] [role='button']:has-text('Document 1.pdf')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-bilaga",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-rendering",
+            "action": "wait",
+            "ms": 6000
+        },
+        {
+            "name": "bilagan",
+            "action": "screenshot",
+            "caption": "Bilagan renderas som en egen sektion",
+            "notes": "Sidorna visas i full bredd längst ner i dokumentet och sparas automatiskt. Vill du ta bort eller flytta bilagan använder du kugghjulet till höger om sektionen, precis som för övriga sektioner."
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-klart",
+            "action": "wait",
+            "ms": 4000
+        }
+    ]
+}

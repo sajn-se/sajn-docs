@@ -3,40 +3,44 @@ title: "Skicka en manuell påminnelse till en mottagare"
 description: "Knuffa på en mottagare som inte signerat genom att skicka en ny e-postpåminnelse"
 ---
 
-Behöver du knuffa på en mottagare som inte har signerat ännu? Du kan när som helst skicka en ny e-postpåminnelse med signeringslänken direkt från dokumentets sida — utan att skicka om hela dokumentet eller påverka övriga mottagare.
+Behöver du knuffa på en mottagare som inte har signerat ännu? Du kan när som helst skicka en ny påminnelse med signeringslänken direkt från dokumentet — utan att skicka om hela dokumentet eller påverka övriga mottagare.
 
 ## Innan du börjar
 
-- Dokumentet är i status **Väntande** (utskickat men inte färdigsignerat).
-- Mottagaren har en e-postadress och tar emot dokumentet via e-post (alltså inte via manuell länkdelning).
+- Dokumentet är i status **Väntande** (utskickat men inte färdigsignerat) och har inte gått ut.
+- Mottagaren får dokumentet via e-post eller SMS — alltså inte via manuell länkdelning.
 - Mottagaren har inte redan signerat eller avböjt dokumentet.
 
 ## Skicka påminnelsen
 
 <Steps>
   <Step title="Öppna dokumentet">
-    Klicka in på det dokument du vill skicka en påminnelse för. I höger sidopanel ser du fliken **Parter** med alla mottagare och deras signeringsstatus — den fliken är förvald när du öppnar ett dokument.
+    Klicka in på det dokument du vill skicka en påminnelse för. Panelen **Parter** är förvald när du öppnar ett dokument, och visar varje part med e-postadress, roll och signeringsstatus.
 
     <Frame>
-      <img src="/images/guider/skicka-paminnelse-dokument.png" alt="Dokumentvyn med fliken Parter öppen i höger sidopanel" />
+      <img src="/images/guider/skicka-paminnelse/26-dokumentet.png" alt="Ett utskickat dokument med panelen Parter öppen och parten märkt Skickat" />
     </Frame>
   </Step>
-  <Step title="Öppna trepunktsmenyn på mottagaren">
-    Klicka på trepunktsmenyn (⋯) bredvid mottagaren och välj **Skicka påminnelse** i menyn **Hantera part**.
+  <Step title="Öppna partens meny">
+    Klicka på de tre prickarna till höger på partens rad och välj **Skicka påminnelse**.
 
     <Frame>
-      <img src="/images/guider/skicka-paminnelse-meny.png" alt="Trepunktsmenyn öppen bredvid en mottagare med valet Skicka påminnelse" />
+      <img src="/images/guider/skicka-paminnelse/27-oppna-menyn.png" alt="Partens meny öppen med valet Skicka påminnelse" />
     </Frame>
 
     <Note>
-      Trepunktsmenyn visas när du för muspekaren över raden — på touch-enheter visas den alltid. I samma meny hittar du också *Kopiera signeringslänk* om du hellre vill skicka länken via en annan kanal.
+      Menyn visas när du för muspekaren över raden — på pekskärm syns den alltid. I samma meny hittar du *Kopiera signeringslänk* om du hellre vill skicka länken via en annan kanal.
     </Note>
   </Step>
   <Step title="Påminnelsen skickas direkt">
-    Påminnelsen skickas omedelbart — ingen bekräftelse krävs. Mottagaren får ett nytt e-postmeddelande med signeringslänken. Inga andra mottagare påverkas och dokumentets utgångsdatum ändras inte.
+    Påminnelsen skickas omedelbart — ingen bekräftelse krävs. Mottagaren får ett nytt e-postmeddelande med signeringslänken, och utskicket loggas under **Aktivitet** i panelen **Detaljer**.
+
+    <Frame>
+      <img src="/images/guider/skicka-paminnelse/30-detaljer.png" alt="Panelen Detaljer med aktivitetsloggen där påminnelsen syns som ett skickat e-postmeddelande" />
+    </Frame>
 
     <Warning>
-      Av spam-skäl kan du som regel skicka högst en påminnelse per mottagare och 24-timmarsperiod. Om du får ett felmeddelande, försök igen senare.
+      Av spam-skäl kan du skicka högst en påminnelse per mottagare och 24-timmarsperiod. Försöker du oftare får du ett felmeddelande som säger hur länge sedan den förra påminnelsen gick ut.
     </Warning>
   </Step>
 </Steps>

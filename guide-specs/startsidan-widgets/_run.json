@@ -1,0 +1,140 @@
+{
+  "ranAt": "2026-09-13T09:37:27.290Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "startsidan",
+      "action": "goto",
+      "screenshotFile": "02-startsidan.png",
+      "caption": "Startsidan är din översikt",
+      "notes": "Hälsningen överst visar vem du är inloggad som och vilken dag det är. Allt under den är widgets. Det finns ingen knapp som heter Anpassa, för varje widget bär sin egen meny.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 3,
+      "name": "vanta-widgetmeny",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 4,
+      "name": "widgetmeny",
+      "action": "click",
+      "screenshotFile": "04-widgetmeny.png",
+      "caption": "För muspekaren över en widget och klicka på de tre punkterna",
+      "notes": "Menyn styr både den enskilda widgeten och hela sidan. Innehållet varierar med widgeten: Statusöversikt har ett eget val för att visa belopp, widgets som går att ställa in får Anpassa widget, och de du kan ha flera av får Duplicera. Du når samma meny genom att högerklicka på widgeten.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 5,
+      "name": "redigera-oversikten",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 6,
+      "name": "vanta-klar",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 7,
+      "name": "redigeringslage",
+      "action": "screenshot",
+      "screenshotFile": "07-redigeringslage.png",
+      "caption": "I redigeringsläget kan du flytta och ändra storlek",
+      "notes": "Varje widget får en ram med egna knappar: flytta upp, flytta ner, ändra storlek, duplicera och ta bort. Du kan också dra en widget dit du vill ha den. Knappen Klar uppe till höger sparar och lämnar läget, och Esc gör samma sak.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 8,
+      "name": "oppna-widgetpanel",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 9,
+      "name": "vanta-panel",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 10,
+      "name": "widgetpanelen",
+      "action": "screenshot",
+      "screenshotFile": "10-widgetpanelen.png",
+      "caption": "Välj bland widgetarna i panelen",
+      "notes": "Widgetarna ligger i tre grupper. Dokument innehåller listor och statusvyer, Analys och aktivitet innehåller nyckeltal, kommentarer och det som väntar på dig, och Verktyg innehåller snabbval, mallgenvägar, Fråga Bob och anteckningar. Sökfältet filtrerar listan. En widget som är gråad finns redan på sidan och går bara att ha en gång.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 11,
+      "name": "valj-anteckning",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 12,
+      "name": "vanta-tillagd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 13,
+      "name": "widget-tillagd",
+      "action": "screenshot",
+      "screenshotFile": "13-widget-tillagd.png",
+      "caption": "Widgeten läggs till sist på sidan",
+      "notes": "Den nya widgeten hamnar längst ner. Dra den dit du vill ha den, eller använd pilarna i ramen. Klicka sedan Klar för att spara. Ångrar du dig tar du bort widgeten med papperskorgen i dess ram.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 14,
+      "name": "ta-bort-tillagd",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 15,
+      "name": "avsluta-redigering",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    }
+  ]
+}

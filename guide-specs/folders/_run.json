@@ -1,0 +1,203 @@
+{
+  "ranAt": "2026-09-13T10:05:35.993Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-dokument",
+      "action": "goto",
+      "screenshotFile": "02-oppna-dokument.png",
+      "caption": "Mappar bor inuti Dokument-listan",
+      "notes": "Det finns ingen egen Mappar-vy i sidomenyn. Mallar har en parallell mapphierarki på sin egen sida.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 3,
+      "name": "skapa-mapp",
+      "action": "click",
+      "screenshotFile": "03-skapa-mapp.png",
+      "caption": "Mapp-plus-ikonen skapar en ny mapp",
+      "notes": "Ikonknappen ligger strax till vänster om Skapa nytt. Mappen hamnar på den nivå du står på — är du redan inne i en mapp blir den nya en undermapp.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 4,
+      "name": "namnge",
+      "action": "fill",
+      "screenshotFile": "04-namnge.png",
+      "caption": "Ge mappen ett namn",
+      "notes": "Namn är det enda fältet. Mappnamn får innehålla bokstäver, siffror, mellanslag, punkt, bindestreck och understreck, upp till 120 tecken. Mappar bär inga taggar eller behörigheter — de är rent organisatoriska, och åtkomsten styrs av arbetsytan och av varje enskilt dokument.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 5,
+      "name": "bekrafta",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 6,
+      "name": "vanta-mapp",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 7,
+      "name": "mappraden",
+      "action": "screenshot",
+      "screenshotFile": "07-mappraden.png",
+      "caption": "Mappar ligger alltid högst upp i tabellen",
+      "notes": "Klicka på raden för att gå in i mappen — rubriken blir då en brödsmula och tabellen visar bara mappens innehåll. För muspekaren över mappikonen längst till vänster för att få fram kryssrutan, så kan du markera flera mappar samtidigt.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 8,
+      "name": "mappmenyn",
+      "action": "click",
+      "screenshotFile": "08-mappmenyn.png",
+      "caption": "Menyn på mappraden",
+      "notes": "Byt namn, Flytta (öppnar samma väljare som för dokument), Ladda ner (zippar mappen och mailar dig en länk), Granska dokument med AI och Ta bort. En mapp måste vara tom för att kunna tas bort — flytta ut undermappar, dokument och mallar först.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 9,
+      "name": "stang-mappmenyn",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 10,
+      "name": "markera-dokument",
+      "action": "click",
+      "screenshotFile": "10-markera-dokument.png",
+      "caption": "Markera dokumenten du vill flytta",
+      "notes": "När minst en rad är markerad dyker knappen Åtgärder upp uppe till höger.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 11,
+      "name": "oppna-atgarder",
+      "action": "click",
+      "screenshotFile": "11-oppna-atgarder.png",
+      "caption": "Åtgärder samlar allt som går att göra på flera rader",
+      "notes": "Flytta till mapp, Exportera, Arkivera, Hantera taggar, Skicka utkast, Återkalla och Flytta till papperskorg. Ska du flytta ett enda dokument finns samma val i trepunktsmenyn ute till höger på dokumentraden.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 12,
+      "name": "flytta-till-mapp",
+      "action": "click",
+      "screenshotFile": "12-flytta-till-mapp.png",
+      "caption": "Välj målmappen i listan",
+      "notes": "Sökfältet högst upp filtrerar mappträdet. Alla dokument överst flyttar tillbaka till rotnivån, och varje mapp visar sin sökväg till höger. Du bekräftar inte separat — klicket flyttar. Skriver du ett namn som inte finns kan du skapa mappen och flytta dit i samma klick.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 13,
+      "name": "stang-valjaren",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 14,
+      "name": "vanta-valjare-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 15,
+      "name": "ladda-om",
+      "action": "reload",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 16,
+      "name": "vanta-listan",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 17,
+      "name": "stadning-meny",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 18,
+      "name": "stadning-ta-bort",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 19,
+      "name": "stadning-bekrafta",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 20,
+      "name": "vanta-dialog-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 21,
+      "name": "ladda-om-igen",
+      "action": "reload",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 22,
+      "name": "vanta-borttagen",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+    "slug": "document-version-history",
+    "title": "Se versionshistorik för ett dokument",
+    "intro": "Varje gång ett dokument redigeras sparar sajn en ny version. Versionshistoriken visar hur dokumentet såg ut tidigare, och om något blivit fel kan du återställa en tidigare version.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du har ett dokument som redigerats minst en gång."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/document-version-history",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Öppna dokumentet från listan",
+            "notes": "Versionshistoriken finns för alla dokument, oavsett status."
+        },
+        {
+            "name": "klicka-dokument",
+            "action": "click",
+            "selector": "td:has-text('Redigerarguide: konsultavtal')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "visa-menyn",
+            "action": "click",
+            "selector": "button:text-is('Visa')",
+            "caption": "Öppna Visa-menyn i redigeraren",
+            "notes": "Versionshistorik ligger under Visa, tillsammans med Förhandsgranska och Information."
+        },
+        {
+            "name": "oppna-historiken",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Versionshistorik')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-overlay",
+            "action": "waitForSelector",
+            "selector": "aside h2:text-is('Versionshistorik')"
+        },
+        {
+            "name": "historiken",
+            "action": "screenshot",
+            "caption": "Versionerna listas till höger",
+            "notes": "Listan grupperas på Idag, Igår, Tidigare denna månad och Äldre."
+        },
+        {
+            "name": "valj-version",
+            "action": "click",
+            "selector": "aside div[role='button']:not(:has-text('Aktuell version'))",
+            "match": "first",
+            "caption": "Klicka på en version för att se hur dokumentet såg ut då",
+            "notes": "Den valda raden markeras och innehållet visas till vänster. Överst sammanfattas vad som skiljer versionen från den aktuella — parter och inställningar, med det gamla värdet överstruket. Återställningspilen dyker upp längst till höger på raden."
+        },
+        {
+            "name": "aterstall",
+            "action": "click",
+            "selector": "button[aria-label='Återställ den här versionen']",
+            "caption": "Återställ ersätter dokumentet med den valda versionen",
+            "notes": "Du får bekräfta först. Återställning fungerar bara på utkast och importerade dokument — är dokumentet utskickat måste du återkalla det först, och signerade dokument kan inte återställas. En ny version sparas när du återställer, så du kan alltid gå tillbaka."
+        },
+        {
+            "name": "stang-bekraftelsen",
+            "action": "press",
+            "key": "Escape"
+        }
+    ]
+}

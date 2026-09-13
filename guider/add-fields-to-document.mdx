@@ -3,7 +3,7 @@ title: "Lägg till sektioner och fält i ett dokument"
 description: "Bygg upp ett dokument med sektioner och fyllbara formulärfält"
 ---
 
-Ett dokument byggs upp av **sektioner**. Det finns fyra sektionstyper: Text & bild, PDF-dokument, Formulär och Produkttabell. Den här guiden går igenom hur du lägger till var och en, samt hur du byter typ på de fyra olika **formulärfälten** (Textfält, Flerradigt textfält, Datumväljare och Rullgardin).
+Ett dokument byggs upp av **sektioner**. En av sektionstyperna – **Formulär** – rymmer de **fält** som fylls i, och varje fält har en typ och en part som fyller i det. Den här guiden går igenom sektionsmenyn och hur ett formulärfält ställs in.
 
 <Tip>
   Vill du istället göra samma sak på mallnivå – med roller och variabler som fylls i av signerare? Se [Lägg till sektioner och fält i en mall](/guider/add-fields-to-template).
@@ -16,71 +16,95 @@ Ett dokument byggs upp av **sektioner**. Det finns fyra sektionstyper: Text & bi
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Dokument och hitta Skapa nytt-knappen">
-    ![Dokumentlistan med Skapa nytt-knappen](/images/guider/add-fields-to-document/03-documents-list.png)
+  <Step title="Öppna Dokument och börja från ett tomt dokument">
+    ![Dokumentlistan med menyn vid Skapa nytt öppen](/images/guider/add-fields-to-document/03-skapa-nytt-menyn.png)
 
-    Den primära **Skapa nytt**-knappen längst upp till höger skapar direkt ett tomt dokument med titeln *Nytt dokument*. Nedåtpilen bredvid har även alternativ för att ladda upp en fil eller börja från en sparad mall.
+    Knappen **Skapa nytt** längst upp till höger är delad. Texten öppnar sidan *Nytt dokument*, där du laddar upp en fil eller väljer en mall. Pilen bredvid är genvägen med två val: **Tomt dokument** och **Ladda upp fil**. Vi väljer **Tomt dokument**.
   </Step>
-  <Step title="Ett tomt dokument öppnas i editorn">
-    ![Tom dokument-editor](/images/guider/add-fields-to-document/05-empty-editor.png)
+  <Step title="Ett tomt dokument öppnas i redigeraren">
+    ![Tom dokumentredigerare](/images/guider/add-fields-to-document/09-tom-redigerare.png)
 
-    Editorn startar tomt — innehållet byggs upp som sektioner. Klicka på **Lägg till sektion** för att börja.
+    Pappret startar tomt – innehållet byggs upp som sektioner. Den streckade linjen **Lägg till sektion** är ingången.
   </Step>
   <Step title="Välj sektionstyp i sektionsmenyn">
-    ![Sektionsmenyn med de fyra sektionstyperna](/images/guider/add-fields-to-document/06-open-section-menu.png)
+    ![Sektionsmenyn med alla sektionstyper](/images/guider/add-fields-to-document/10-sektionsmenyn.png)
+
+    Under **Fält** ligger sektionstyperna:
 
     - **Text & bild** – fritext med formatering och bilder.
-    - **PDF-dokument** – bädda in ett uppladdat PDF-dokument.
-    - **Formulär** – fält som fylls i per dokument (textfält, datumväljare, rullgardin osv).
+    - **PDF-dokument** – bädda in en färdig fil.
+    - **Formulär** – rutan som rymmer de ifyllbara fälten.
     - **Produkttabell** – rader med pris, antal, rabatt och moms.
+    - **Tabell** – enkel tabell med rader och kolumner.
+    - **Mellanrum**, **Sidbrytning** och **Varaktighet** – formar sidan respektive skriver avtalets löptid som färdig text.
 
-    Under Verktyg finns även **Skapa med AI** (beskriv vad sektionen ska innehålla) och **Sektionsbiblioteket** (återanvänd sparade sektioner).
+    Under **Verktyg** finns **Skapa med AI** (beskriv vad sektionen ska innehålla) och **Sektionsbibliotek** (återanvänd sparade sektioner).
   </Step>
   <Step title="Text & bild – fritext med formatering och bilder">
-    ![Text & bild-sektion](/images/guider/add-fields-to-document/07-add-text-image.png)
+    ![Text & bild-sektion med formateringsraden överst](/images/guider/add-fields-to-document/14-text-bild.png)
 
-    Sektionen läggs till med en tom textyta. Markera text för att se formateringsverktygen i topp-baren – rubriker, listor, länkar, bilder och tabeller. Det här är samma yta där du senare kan infoga *signerar-variabler* (men då i en mall — se [mallguiden](/guider/add-fields-to-template)).
+    Sektionen läggs till som en tom textyta. När du står i den byts raden överst mot formateringen – rubriker, typsnitt, listor, länkar, bilder och tabeller.
+
+    Skriv **{** där ett värde ska fyllas i, så infogas ett fält mitt i texten. Samma princip gäller i en mall – se [mallguiden](/guider/add-fields-to-template).
   </Step>
-  <Step title="Formulär – fyllbara fält">
-    ![Formulärsektion med dropzone](/images/guider/add-fields-to-document/09-add-formular.png)
+  <Step title="Formulär – rutan som rymmer fälten">
+    ![Tom formulärsektion](/images/guider/add-fields-to-document/18-formularsektion.png)
 
-    Formulärsektionen är en behållare som rymmer flera fyllbara fält i ett rutnät (1–4 kolumner). Klicka på dropzonen *Klicka för att lägga till fält* för att skapa första fältet.
+    Formulärsektionen är en behållare med ett rutnät på 1–4 kolumner. Klicka på **Klicka för att lägga till fält** för att skapa det första fältet.
   </Step>
-  <Step title="Första fältet skapas som ett Textfält">
-    ![Nyskapat textfält](/images/guider/add-fields-to-document/10-create-first-form-field.png)
+  <Step title="Första fältet skapas som ett textfält">
+    ![Nyskapat fält med namnet Namnlöst fält](/images/guider/add-fields-to-document/19-skapa-falt.png)
 
-    Nya fält startar som **Textfält** med etiketten *Namnlöst fält*. För att byta etikett, typ eller placeholder klickar du på fältet.
+    Nya fält startar som **Textfält** med etiketten *Namnlöst fält*. **Lägg till rad** lägger till en rad till i rutnätet. Klicka på fältet för att öppna dess inställningar.
   </Step>
-  <Step title="Ändra etikett, typ, beskrivning och placeholder">
-    ![Fältredigeraren](/images/guider/add-fields-to-document/12-field-edit-popover.png)
+  <Step title="Ställ in etikett, typ och vem som fyller i">
+    ![Rutan Redigera fält](/images/guider/add-fields-to-document/22-redigera-falt.png)
 
-    Här bestämmer du hur fältet ska bete sig. *Typ*-väljaren erbjuder fyra alternativ:
+    I rutan **Redigera fält** bestämmer du hur fältet ska bete sig:
+
+    - **Etikett** – det läsaren ser ovanför fältet.
+    - **Typ** – vad som går att fylla i.
+    - **Beskrivning** och **Placeholder** – hjälptext.
+    - **Fylls i av** – vem som fyller i värdet. **Fast värde** betyder att du fyller i det här och nu; väljer du en part i stället fylls det i vid signeringen, och då dyker **Obligatoriskt** upp under.
+
+    Listan **Fylls i av** är tom tills dokumentet har minst en part. Se [Tilldela fält till rätt part](/guider/tilldela-falt-till-part).
+  </Step>
+  <Step title="De åtta fälttyperna">
+    ![Typlistan med åtta fälttyper](/images/guider/add-fields-to-document/24-oppna-typ.png)
 
     - **Textfält** – enkelradig text
-    - **Flerradigt textfält** – textarea för längre svar
+    - **Flerradigt textfält** – yta för längre svar
+    - **Nummerfält** – bara siffror
     - **Datumväljare** – kalender för att välja ett datum
-    - **Rullgardin** – välj ett av flera fördefinierade alternativ (lägg till alternativen under *Val*)
+    - **Rullgardin** – välj ett av flera alternativ
+    - **Radioknappar** – ett val, alla alternativ synliga
+    - **Kryssrutor** – flera val samtidigt
+    - **Bilaga** – parten laddar upp en fil
 
-    Under **Avancerat** kan du sätta en *Nyckel* (för API-anrop) och, om dokumentet har signerare, koppla fältet till en specifik signerare via *Tilldelad part*.
+    För Rullgardin, Radioknappar och Kryssrutor dyker en extra ruta **Val** upp där du fyller i alternativen. **Bilaga** måste tilldelas en part, eftersom det är parten som laddar upp filen.
   </Step>
-  <Step title="De fyra fälttyperna i ett formulär">
-    ![De fyra fälttyperna](/images/guider/add-fields-to-document/14-type-options.png)
+  <Step title="Avancerat rymmer nyckeln">
+    ![Avancerat utfällt med fältet Nyckel](/images/guider/add-fields-to-document/23-oppna-avancerat.png)
 
-    Textfält, Flerradigt textfält, Datumväljare och Rullgardin. För Rullgardin dyker en extra *Val*-sektion upp där du fyller i alternativen.
+    Under **Avancerat** ligger fältets **Nyckel** – dess unika identifierare för API-anrop, massutskick och formulär. Vid massutskick matchas CSV-kolumnen mot nyckeln. Använd gemener, siffror, bindestreck och understreck, till exempel `mottagare-namn`.
   </Step>
-  <Step title="PDF-dokument – bädda in en uppladdad PDF">
-    ![PDF-uppladdningszon](/images/guider/add-fields-to-document/18-add-pdf.png)
+  <Step title="PDF-dokument – bädda in en färdig fil">
+    ![PDF-sektionens uppladdningsruta](/images/guider/add-fields-to-document/31-pdf-sektion.png)
 
-    Dra och släpp en PDF (eller Word, Excel, PowerPoint, CSV eller text) i zonen, eller klicka för att välja från din dator. Du kan också hämta filen från **Filer**-fliken via länken *välj från Filer*. PDF:er som innehåller formulärfält kan signerare fylla i direkt på sidan.
+    Dra och släpp en fil i rutan, eller klicka för att välja från din dator. PDF, Word, Excel, PowerPoint, CSV och text går bra – allt utom PDF konverteras automatiskt. Har du redan laddat upp filen i sajn hämtar du den via **välj från Filer**.
+
+    När en PDF ligger i dokumentet kan du placera fält ovanpå sidorna från panelen **Innehåll** – textfält, datum, kryssruta, listruta, signatur och initialer.
   </Step>
   <Step title="Produkttabell – rader med pris och summering">
-    ![Produkttabell](/images/guider/add-fields-to-document/20-add-product-table.png)
+    ![Produkttabell med en rad och summering](/images/guider/add-fields-to-document/37-produkttabell.png)
 
-    Produkttabellen visar dina varor/tjänster med kolumner för namn, beskrivning, pris, antal, rabatt och moms. Lägg till rader för hand eller importera från ett bibliotek (om du har produkter sparade). Summan räknas automatiskt längst ner.
+    Produkttabellen visar dina varor och tjänster med kolumnerna Produkt, Beskrivning, Pris, Moms och Antal, och summerar längst ner. Lägg till rader med **Lägg till produkt** eller hämta dem från **Produkter**. **Mottagarval** låter mottagaren själv välja bland raderna.
+
+    Vilka kolumner som visas, valutan och utseendet ändrar du i sektionens kugghjul.
   </Step>
 </Steps>
 
 ## Nästa steg
 
-- Vill du återanvända samma struktur i flera dokument? [Skapa en mall](/guider/skapa-mall) och koppla fält till parter — se [Lägg till sektioner och fält i en mall](/guider/add-fields-to-template).
-- När innehållet är klart: [lägg till parter](/guider/lagg-till-part) och [skicka dokumentet för signering](/guider/skicka-dokument).
+- Vill du återanvända samma struktur i flera dokument? [Skapa en mall](/guider/skapa-mall) och koppla fält till parter – se [Lägg till sektioner och fält i en mall](/guider/add-fields-to-template).
+- När innehållet är klart: [lägg till parter](/guider/lagg-till-part), [koppla fälten till rätt part](/guider/tilldela-falt-till-part) och [skicka dokumentet för signering](/guider/skicka-dokument).

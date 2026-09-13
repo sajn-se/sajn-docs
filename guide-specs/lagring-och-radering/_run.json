@@ -1,0 +1,77 @@
+{
+  "ranAt": "2026-09-13T09:40:20.728Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-lagring",
+      "action": "goto",
+      "screenshotFile": "02-oppna-lagring.png",
+      "caption": "Fliken Lagring under Preferenser",
+      "notes": "Lagringspolicyn ligger under Inställningar, Preferenser och fliken Lagring. Sidan har två tider: hur länge slutförda dokument sparas, och hur länge de ligger kvar i papperskorgen efteråt.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/retention"
+    },
+    {
+      "index": 3,
+      "name": "valj-lagringstid",
+      "action": "click",
+      "screenshotFile": "03-valj-lagringstid.png",
+      "caption": "Välj hur länge slutförda dokument ska sparas",
+      "notes": "Spara tills vidare är standard. De övriga tiderna räknas från att dokumentet slutfördes, och flyttar dokumentet till papperskorgen när tiden gått ut.",
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/retention"
+    },
+    {
+      "index": 4,
+      "name": "stang-menyn",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/settings/workspace/preferences/retention"
+    },
+    {
+      "index": 5,
+      "name": "oppna-dokument",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 6,
+      "name": "vanta-lista",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 7,
+      "name": "undanta-dokument",
+      "action": "click",
+      "screenshotFile": "07-undanta-dokument.png",
+      "caption": "Undanta ett enskilt dokument från policyn",
+      "notes": "Radens meny i dokumentlistan har Undanta från lagringspolicy på slutförda dokument. Ett undantaget dokument sparas tills vidare, oavsett vad policyn säger.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 8,
+      "name": "stang-radmeny",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    }
+  ]
+}

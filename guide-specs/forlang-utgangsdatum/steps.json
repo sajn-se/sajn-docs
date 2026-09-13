@@ -1,0 +1,320 @@
+{
+    "slug": "forlang-utgangsdatum",
+    "title": "Förläng utgångsdatum för ett dokument",
+    "intro": "Ett utskickat dokument som är på väg att gå ut kan få en ny frist utan att skickas om. Guiden utgår från ett dokument i status Väntande.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du har minst ett dokument i status Väntande eller Utgången.",
+        "Dokumentet är inte arkiverat.",
+        "Du har behörighet att redigera dokument i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/forlang-utgangsdatum",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mallar",
+            "action": "waitForSelector",
+            "selector": "button[title='Konsultavtal']"
+        },
+        {
+            "name": "valj-mall",
+            "action": "click",
+            "selector": "button[title='Konsultavtal']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "[data-guide='document-add-signer']"
+        },
+        {
+            "name": "oppna-partatgarder",
+            "action": "click",
+            "selector": "button[aria-label='Partåtgärder']",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "redigera-part",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Redigera')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-partdialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange e-postadress']"
+        },
+        {
+            "name": "fyll-epost",
+            "action": "fill",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "value": "ai@sajn.se",
+            "screenshot": false
+        },
+        {
+            "name": "ingen-kontakt-mall",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "spara-part",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Uppdatera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-dialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "screenshot": false
+        },
+        {
+            "name": "satt-titel",
+            "action": "fill",
+            "selector": "input[placeholder='Dokumenttitel']",
+            "value": "Batch B: utgångsdatum",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-utgangsdatum",
+            "action": "click",
+            "selector": "button:has-text('Sätt utgångsdatum')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-frist",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button:has-text('Om en vecka')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-datumvaljaren",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "skicka",
+            "action": "click",
+            "selector": "button[aria-label='Skicka dokument']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickadialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Välj hur dokumentet ska skickas')"
+        },
+        {
+            "name": "bekrafta-utskick",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skicka dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Välj hur dokumentet ska skickas')",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-status",
+            "action": "wait",
+            "ms": 10000
+        },
+        {
+            "name": "till-listan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-statusfilter",
+            "action": "click",
+            "selector": "button:has-text('Status')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-filter",
+            "action": "waitForSelector",
+            "selector": "[data-radix-popper-content-wrapper]:has-text('Filtrera efter status')"
+        },
+        {
+            "name": "statusfiltret",
+            "action": "screenshot",
+            "caption": "Filtrera listan på Väntande",
+            "notes": "Knappen Status högst upp i listan öppnar filtret. Bara dokument i status Väntande eller Utgången går att förlänga — för utkast, signerade, avbrutna och avböjta dokument visas inte alternativet."
+        },
+        {
+            "name": "valj-vantande",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] label:has-text('Väntande')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-filter",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "filtrerad-lista",
+            "action": "screenshot",
+            "caption": "Listan visar bara väntande dokument",
+            "notes": "Kolumnen Utgångsdatum visar fristen för varje dokument. Ett datum som redan passerat visas i rött."
+        },
+        {
+            "name": "oppna-radmenyn",
+            "action": "click",
+            "selector": "tr:has-text('Batch B: utgångsdatum') button[aria-label='Edit item']",
+            "caption": "Öppna åtgärdsmenyn på dokumentraden",
+            "notes": "Trepunktsmenyn längst till höger på raden samlar dokumentets åtgärder. För ett väntande dokument finns Förläng utgångsdatum och Återkalla dokument här."
+        },
+        {
+            "name": "valj-forlang",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Förläng utgångsdatum')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Förläng utgångsdatum')"
+        },
+        {
+            "name": "dialogen",
+            "action": "screenshot",
+            "caption": "Dialogen visar nuvarande frist",
+            "notes": "Raden Nuvarande visar det utgångsdatum som gäller i dag. Knappen Förläng är släckt tills du har valt ett datum som ligger senare än det."
+        },
+        {
+            "name": "oppna-kalendern",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Välj nytt datum')",
+            "caption": "Välj ett nytt datum i kalendern",
+            "notes": "Datum som redan har passerat är släckta. Ett datum som ligger före den nuvarande fristen går däremot att klicka på — då säger dialogen till att datumet måste vara senare än det nuvarande. Tiden sätts till kl. 12:00 om du inte ändrar den i fältet Tid."
+        },
+        {
+            "name": "valj-datum",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button:text-is('28')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-kalendern",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta",
+            "action": "screenshot",
+            "caption": "Bekräfta med Förläng",
+            "notes": "Klicka på Förläng för att spara den nya fristen. Samtliga mottagare får ett e-postmeddelande om det nya datumet, även de som redan har signerat."
+        },
+        {
+            "name": "klicka-forlang",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Förläng')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sparat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Förläng utgångsdatum')",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-lista",
+            "action": "wait",
+            "ms": 4000
+        },
+        {
+            "name": "ladda-om",
+            "action": "reload",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-lista-igen",
+            "action": "waitForSelector",
+            "selector": "td:has-text('Batch B: utgångsdatum')"
+        },
+        {
+            "name": "efter",
+            "action": "screenshot",
+            "caption": "Det nya datumet syns i listan",
+            "notes": "Dokumentet behåller status Väntande och de signaturer som redan finns. Ett dokument som hunnit gå ut går tillbaka till Väntande när du förlänger det."
+        },
+        {
+            "name": "stadning-oppna",
+            "action": "click",
+            "selector": "td:has-text('Batch B: utgångsdatum')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare-igen",
+            "action": "waitForSelector",
+            "selector": "button:text-is('Arkiv')"
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Flytta till papperskorg'), [role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

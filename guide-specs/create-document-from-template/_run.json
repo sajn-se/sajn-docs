@@ -1,0 +1,212 @@
+{
+  "ranAt": "2026-09-13T10:07:09.090Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-dokument",
+      "action": "goto",
+      "screenshotFile": "02-oppna-dokument.png",
+      "caption": "Öppna Dokument i sidomenyn",
+      "notes": "Knappen Skapa nytt uppe till höger är delad. Texten öppnar sidan Nytt dokument, där mallarna ligger. Pilen bredvid är bara en genväg till ett tomt dokument eller en filuppladdning — den har inget mallval.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 3,
+      "name": "oppna-skapa-nytt",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 4,
+      "name": "vanta-sidan",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 5,
+      "name": "mallarna",
+      "action": "screenshot",
+      "screenshotFile": "05-mallarna.png",
+      "caption": "Mallarna ligger under Börja från en mall",
+      "notes": "Varje mall är ett kort med en miniatyr av första sidan, mallens namn och vem som skapade den. Flikarna delar upp dem: Mina mallar är dina egna, Delade med mig är kollegornas, och sajn collection är färdiga mallar från sajn. Sökfältet filtrerar korten medan du skriver, och har arbetsytan många mallar ligger resten bakom Visa fler längst ner. Första kortet, Tomt dokument, startar från ett blankt papper.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 6,
+      "name": "sok-mall",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 7,
+      "name": "vanta-traff",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 8,
+      "name": "hovra-kortet",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 9,
+      "name": "oppna-forhandsgranskning",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 10,
+      "name": "vanta-forhandsgranskning",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 11,
+      "name": "forhandsgranskning",
+      "action": "screenshot",
+      "screenshotFile": "11-forhandsgranskning.png",
+      "caption": "Förhandsgranska mallen innan du skapar dokumentet",
+      "notes": "För muspekaren över ett kort så dyker Förhandsgranska upp. Du ser hela mallen som den kommer att se ut. Klicka Skapa dokument när det är rätt mall — eller klicka bara på kortet direkt om du redan vet.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 12,
+      "name": "skapa-dokumentet",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 13,
+      "name": "vanta-redigeraren",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 14,
+      "name": "vanta-innehall",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 15,
+      "name": "dokumentet-skapat",
+      "action": "screenshot",
+      "screenshotFile": "15-dokumentet-skapat.png",
+      "caption": "Dokumentet öppnas direkt i redigeraren",
+      "notes": "Det nya dokumentet ärver mallens namn och får statusen Utkast. Innehåll, fält och parter är redan på plats. Märket DOKUMENT bredvid titeln visar att du redigerar ett dokument och inte mallen — det du ändrar här påverkar inte originalet.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 16,
+      "name": "klicka-titeln",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 17,
+      "name": "byt-namn",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 18,
+      "name": "namnet-sparat",
+      "action": "press",
+      "screenshotFile": "18-namnet-sparat.png",
+      "caption": "Döp om dokumentet så du hittar tillbaka",
+      "notes": "Eftersom dokumentet ärver mallens namn är det första du vill göra oftast att byta titel till något som beskriver ärendet — motpartens namn, eller avtalstyp och datum. Klicka på titeln längst upp till vänster, skriv det nya namnet och tryck Enter. Samma sak går att göra via Redigera och Byt namn.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 19,
+      "name": "oppna-arkiv",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 20,
+      "name": "slang",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 21,
+      "name": "bekrafta-slang",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtznglj9001h02l6td0n9rb2"
+    },
+    {
+      "index": 22,
+      "name": "vanta-listan",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 23,
+      "name": "efter-rensning",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    }
+  ]
+}

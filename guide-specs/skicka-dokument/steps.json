@@ -1,0 +1,258 @@
+{
+    "slug": "skicka-dokument",
+    "title": "Skicka ett dokument för signering",
+    "intro": "När innehållet, parterna och inställningarna är klara skickar du dokumentet. Guiden följer ett utkast hela vägen från granskning till utskickat, och visar vad sajn kontrollerar innan knappen släpper igenom dig.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du har ett dokument i status Utkast.",
+        "Du har behörighet att skicka dokument i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/skicka-dokument",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mallar",
+            "action": "waitForSelector",
+            "selector": "button[title='Konsultavtal']"
+        },
+        {
+            "name": "valj-mall",
+            "action": "click",
+            "selector": "button[title='Konsultavtal']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "[data-guide='document-add-signer']"
+        },
+        {
+            "name": "oppna-partatgarder",
+            "action": "click",
+            "selector": "button[aria-label='Partåtgärder']",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "redigera-part",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Redigera')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-partdialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange e-postadress']"
+        },
+        {
+            "name": "fyll-epost",
+            "action": "fill",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "value": "ai@sajn.se",
+            "screenshot": false
+        },
+        {
+            "name": "ingen-kontakt-mall",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "spara-part",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Uppdatera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-dialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "screenshot": false
+        },
+        {
+            "name": "satt-titel",
+            "action": "fill",
+            "selector": "input[placeholder='Dokumenttitel']",
+            "value": "Batch B: konsultavtal",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-utgangsdatum",
+            "action": "click",
+            "selector": "button:has-text('Sätt utgångsdatum')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-frist",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button:has-text('Om 20 dagar')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-datumvaljaren",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "fokus-parter",
+            "action": "click",
+            "selector": "button[aria-label='Parter']",
+            "screenshot": false
+        },
+        {
+            "name": "granska",
+            "action": "screenshot",
+            "caption": "Granska dokumentet innan du skickar",
+            "notes": "Gå igenom innehållet, parterna i panelen Parter och inställningarna. Knappen Skicka dokument uppe till höger släpper bara igenom dig när allt som krävs finns på plats: minst en part, kontaktuppgifter som matchar vald leveransmetod och ett utgångsdatum. Saknas något står det i knappen hur många saker som är kvar, och du ser listan om du klickar på den."
+        },
+        {
+            "name": "arbetsflode",
+            "action": "click",
+            "selector": "button[aria-label='Arbetsflöde']",
+            "caption": "Arbetsflöde visar vad som händer efter utskicket",
+            "notes": "Kedjan går från Utkast till Slutfört. Här ser du om dokumentet ska godkännas internt först, hur ofta påminnelser skickas, när fristen går ut och om parterna signerar samtidigt eller i tur och ordning."
+        },
+        {
+            "name": "oppna-skicka",
+            "action": "click",
+            "selector": "button[aria-label='Skicka dokument']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickadialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Välj hur dokumentet ska skickas')"
+        },
+        {
+            "name": "skickadialogen",
+            "action": "screenshot",
+            "caption": "Skriv ett meddelande och kontrollera sammanfattningen",
+            "notes": "Till vänster ser du hur e-posten eller SMS:et kommer att se ut för den mottagare du väljer i listan. Till höger väljer du en meddelandemall eller skriver ett eget meddelande på upp till 500 tecken. Rutan längst ner sammanfattar när dokumentet utgår och hur många mottagare som får det. Valet gäller alla mottagare."
+        },
+        {
+            "name": "skriv-meddelande",
+            "action": "fill",
+            "selector": "[role='dialog'] textarea[placeholder='Skriv ett meddelande...']",
+            "value": "Hej! Här kommer konsultavtalet för signering. Hör av dig om något är oklart.",
+            "caption": "Meddelandet följer med i utskicket",
+            "notes": "Texten hamnar i e-postmeddelandet till samtliga mottagare. Med en meddelandemall kan du återanvända en text du redan skrivit, och variabler som mottagarens namn fylls i automatiskt."
+        },
+        {
+            "name": "bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skicka dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Välj hur dokumentet ska skickas')",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-status",
+            "action": "wait",
+            "ms": 8000
+        },
+        {
+            "name": "ladda-om",
+            "action": "reload",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-omladdad",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Arbetsflöde']"
+        },
+        {
+            "name": "oppna-arbetsflode-igen",
+            "action": "click",
+            "selector": "button[aria-label='Arbetsflöde']",
+            "screenshot": false
+        },
+        {
+            "name": "efter-utskick",
+            "action": "screenshot",
+            "caption": "Dokumentet är skickat och har status Väntande",
+            "notes": "Parterna har fått sin länk och du följer läget i panelen Arbetsflöde: vem som har öppnat, vem som har signerat och vem som fortfarande väntar. Statusen står kvar på Väntande tills alla har signerat."
+        },
+        {
+            "name": "till-listan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Listan visar samma status",
+            "notes": "I Dokument ser du status, parter och utgångsdatum för varje dokument. Trepunktsmenyn längst till höger på raden innehåller åtgärderna för ett skickat dokument, bland annat Förläng utgångsdatum och Återkalla dokument."
+        },
+        {
+            "name": "stadning-oppna",
+            "action": "click",
+            "selector": "td:has-text('Batch B: konsultavtal')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare-igen",
+            "action": "waitForSelector",
+            "selector": "button:text-is('Arkiv')"
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Flytta till papperskorg'), [role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 4000
+        }
+    ]
+}

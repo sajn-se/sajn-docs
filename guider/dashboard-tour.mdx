@@ -1,65 +1,121 @@
 ---
-title: "Översikt över startsidan i sajn"
-description: "Lär dig hitta rätt på sajns startsida — sidomeny, sökfält, statuskort och senaste ändringar"
+title: "Hitta rätt i sajn"
+description: "Var sidomenyn, sökningen, aviseringarna och plusknappen ligger, och vad som finns bakom dem"
 ---
 
-Första gången du loggar in i sajn möts du av startsidan – en samlad översikt över din arbetsyta. Här hittar du sidomenyn, sökfältet, statuskort för dina dokument och de senaste ändringarna. Den här guiden tar dig igenom de viktigaste delarna så att du snabbt hittar rätt.
+sajn är uppbyggt av tre ytor: sidomenyn, verktygsraden och vyn du arbetar i. Den här guiden visar var de ligger och vad som finns bakom ikonerna. Vill du i stället ändra vad som visas på startsidan finns det i guiden om widgets.
 
 ## Innan du börjar
 
-- Du är inloggad med ett sajn-konto.
-- Du har minst en arbetsyta kopplad till ditt konto.
+- Du är inloggad i sajn och har valt en arbetsyta.
 
 ## Steg för steg
 
 <Steps>
-  <Step title="Startsidan är hemmavyn för din arbetsyta">
-    När du loggar in landar du här – på `/{workspace}`. Överst möts du av en personlig hälsning, dagens datum och en frågan *Vad vill du göra idag?* Resten av sidan är uppdelad i tydliga sektioner som vi går igenom nedan.
+  <Step title="Så är sajn uppbyggt">
+    Sidomenyn till vänster tar dig mellan vyerna. Verktygsraden överst till höger samlar ikonerna. Ytan i mitten är den vy du arbetar i, och när du loggar in är det startsidan.
+
+    Väntar något på dig syns det som en siffra i verktygsraden: åtgärder som sajn förberett åt dig, och dokument som väntar på din signatur eller ditt godkännande. Klicka på siffran för att gå dit.
 
     <Frame>
-      <img src="/images/guider/dashboard-tour/02-open-dashboard.png" alt="Startsidan i sajn med personlig hälsning och sektioner" />
+      <img src="/images/guider/dashboard-tour/02-startsidan.png" alt="Startsidan med sidomenyn till vänster och verktygsraden överst till höger" />
     </Frame>
   </Step>
-  <Step title="Sidomenyn till vänster tar dig till alla huvudvyer">
-    I sidomenyn hittar du **Hem**, **Dokument**, **Mallar**, **Kontakter** och (om din plan har det) **sajn ID**. Längre ner under *Övrigt* ligger **Arkiv**, **Statistik**, **Inställningar** och **Hjälpcenter**. Längst upp kan du byta arbetsyta och längst ner hittar du din profilmeny.
+
+  <Step title="Sidomenyn tar dig till huvudvyerna">
+    Överst ligger **Hem**, **Dokument**, **Mallar** och **Kontakter**. Under rubriken *Övrigt* ligger **Arkiv**, **Filer**, **Produkter**, **Statistik** och **Inställningar**.
+
+    Den vy du står i fäller ut sina undersidor. Dokument visar **Kalender**, **Massutskick** och **Papperskorg**. Under *Senaste* ligger det du öppnade sist, så du hittar tillbaka utan att söka.
 
     <Frame>
-      <img src="/images/guider/dashboard-tour/04-sidebar.png" alt="Sidomenyn med Hem, Dokument, Mallar, Kontakter och fler val" />
+      <img src="/images/guider/dashboard-tour/03-sidomenyn.png" alt="Sidomenyn med Dokument utfällt och undersidorna Kalender, Massutskick och Papperskorg" />
     </Frame>
   </Step>
-  <Step title="Sökfältet i toppen söker över alla dokument i arbetsytan">
-    Klicka i sökfältet **Sök dokument…** eller använd tangentbordsgenvägen för att öppna den globala sökningen. Du kan söka på dokumentets namn, motpart eller status – resultaten visas direkt under sökfältet medan du skriver.
+
+  <Step title="Sök i hela arbetsytan">
+    Klicka på förstoringsglaset bredvid arbetsytans namn. Sökningen öppnas i en panel till höger. Tangentbordsgenvägen ⌘K gör samma sak var du än står i appen.
+
+    Innan du skrivit något visar panelen snabbval, det du besökte senast och genvägar till inställningarna.
 
     <Frame>
-      <img src="/images/guider/dashboard-tour/05-search-field.png" alt="Globala sökfältet i toppen av startsidan" />
+      <img src="/images/guider/dashboard-tour/07-sok.png" alt="Sökpanelen öppen med snabbval, senast besökta och genvägar till inställningar" />
     </Frame>
   </Step>
-  <Step title="Den lila plusknappen uppe till höger skapar nytt">
-    Plusknappen är genvägen till **Ladda upp fil**, **Skapa blankt dokument** eller **Från mall** – samt motsvarande val för mallar. Bredvid hittar du också snabbåtkomst till notiser, hjälp och inställningar.
+
+  <Step title="Träffarna kommer medan du skriver">
+    Skriv en del av ett namn. Träffarna grupperas efter dokument, mallar, sidor i appen och inställningar, och sista raden skickar frågan vidare till assistenten Bob.
+
+    Klicka på en träff för att öppna den. Esc tömmer sökrutan, och en gång till stänger panelen.
 
     <Frame>
-      <img src="/images/guider/dashboard-tour/06-create-button.png" alt="Lila plusknapp uppe till höger med snabbval för att skapa nytt" />
+      <img src="/images/guider/dashboard-tour/10-sokresultat.png" alt="Sökträffar grupperade under rubrikerna Dokument och Mallar" />
     </Frame>
   </Step>
-  <Step title="Statuskorten visar läget för dina dokument senaste 30 dagarna">
-    De fyra korten **Väntar på signering**, **Signerade dokument**, **Avböjda dokument** och **Förfallna dokument** ger en snabb pulskontroll av arbetsytan. Varje kort är klickbart och tar dig vidare till dokumentlistan filtrerad på just den statusen.
+
+  <Step title="Plusknappen skapar ett nytt dokument">
+    Plusknappen längst till höger i verktygsraden öppnar **Nytt dokument**. Härifrån laddar du upp en fil eller börjar från en mall. **Tillbaka** stänger vyn utan att skapa något.
 
     <Frame>
-      <img src="/images/guider/dashboard-tour/07-status-cards.png" alt="Fyra statuskort för väntande, signerade, avböjda och förfallna dokument" />
+      <img src="/images/guider/dashboard-tour/15-skapa.png" alt="Vyn Nytt dokument med en ruta för att ladda upp fil och mallar att utgå från" />
     </Frame>
   </Step>
-  <Step title="Senaste ändringar listar de fem dokument som senast uppdaterats">
-    Här ser du namn, status, parter, när dokumentet uppdaterades och relevant datum (signerat eller utgångsdatum). Klicka på en rad för att öppna dokumentet, eller välj **Visa alla** uppe till höger för att hoppa direkt till hela dokumentlistan sorterad på senast uppdaterad.
+
+  <Step title="Klockan visar dina aviseringar">
+    Här samlas det som hänt i dina dokument: signeringar, påminnelser och förslag. **Oläst** visar det du inte har öppnat, **Alla** visar hela listan. Klicka på en rad för att gå till dokumentet den gäller.
 
     <Frame>
-      <img src="/images/guider/dashboard-tour/08-recent-changes.png" alt="Tabellen Senaste ändringar med de fem senast uppdaterade dokumenten" />
+      <img src="/images/guider/dashboard-tour/21-aviseringar.png" alt="Aviseringar med flikarna Oläst och Alla och en lista med händelser" />
     </Frame>
   </Step>
-  <Step title="Utgår snart påminner dig om dokument som löper ut inom sju dagar">
-    Den här tabellen hjälper dig att fånga upp dokument som riskerar att förfalla utan signering. Är listan tom är allt under kontroll – annars är det här en bra plats att starta dagen för att skicka påminnelser eller förlänga utgångsdatum.
+
+  <Step title="Frågetecknet leder till hjälpen">
+    Härifrån når du guiderna, kontaktar supporten och delar feedback när något saknas eller inte fungerar.
 
     <Frame>
-      <img src="/images/guider/dashboard-tour/09-expiring-soon.png" alt="Tabellen Utgår snart med dokument som löper ut inom sju dagar" />
+      <img src="/images/guider/dashboard-tour/26-hjalp.png" alt="Hjälpmenyn med valen Dela feedback, Support och Guider" />
+    </Frame>
+  </Step>
+
+  <Step title="Ditt konto ligger längst ner i sidomenyn">
+    Klicka på ditt namn längst ner. Kugghjulet i rutan tar dig till dina kontoinställningar, och längst ner loggar du ut.
+
+    Tillhör du flera organisationer byter du mellan dem här, och inbjudningar du inte har svarat på dyker upp i samma ruta.
+
+    <Frame>
+      <img src="/images/guider/dashboard-tour/31-konto.png" alt="Kontomenyn med kontoinställningar, feedback, ändringslogg, dokumentation och Logga ut" />
     </Frame>
   </Step>
 </Steps>
+
+## Ikonerna i verktygsraden
+
+Verktygsraden ser likadan ut oavsett vilken vy du står i.
+
+- **Blixten med en siffra** visar åtgärder som sajn förberett åt dig. Den syns när det finns några.
+- **Dokumentikonen med en siffra** visar dokument som väntar på din signatur eller ditt godkännande. Den syns när det finns några.
+- **Frågetecknet** öppnar hjälpen.
+- **Klockan** öppnar dina aviseringar.
+- **Kugghjulet** tar dig till inställningarna.
+- **Bob** öppnar assistenten. Tangentbordsgenvägen ⌘. gör samma sak.
+- **Plusknappen** skapar ett nytt dokument.
+
+<Note>
+  Har din organisation flera arbetsytor står namnet högst upp i sidomenyn och öppnar en meny där du byter. Läs mer i [Växla mellan arbetsytor](/guider/workspace-switching).
+</Note>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Anpassa startsidan" icon="table-layout" href="/guider/startsidan-widgets">
+    Bestäm själv vilka widgets som ska visas och i vilken ordning.
+  </Card>
+  <Card title="Skapa ett dokument" icon="file-plus" href="/guider/skapa-dokument">
+    Gå från plusknappen till ett dokument som är klart att skicka.
+  </Card>
+  <Card title="Växla mellan arbetsytor" icon="arrows-left-right" href="/guider/workspace-switching">
+    Hoppa mellan organisationens arbetsytor från sidomenyn.
+  </Card>
+  <Card title="Håll koll på notiser" icon="bell" href="/guider/notifications">
+    Filtrera aviseringar och styr vilka händelser du får.
+  </Card>
+</CardGroup>

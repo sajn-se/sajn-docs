@@ -7,53 +7,68 @@ Om ett utskickat dokument är på väg att gå ut innan alla har hunnit signera 
 
 ## Innan du börjar
 
-- Du har minst ett dokument i status **Väntande** (utskickat men inte färdigsignerat).
+- Du har minst ett dokument i status **Väntande** (utskickat men inte färdigsignerat) eller **Utgången**.
 - Dokumentet är inte arkiverat.
+- Du har behörighet att redigera dokument i arbetsytan.
 
 ## Förläng utgångsdatumet
 
 <Steps>
   <Step title="Öppna Dokument och filtrera på Väntande">
-    Gå till **Dokument** i sidomenyn och använd statusfiltret högst upp i listan för att visa dokument i status **Väntande**.
+    Gå till **Dokument** i sidomenyn och klicka på **Status** i filterraden ovanför listan. Kryssa i **Väntande**.
 
     <Frame>
-      <img src="/images/guider/forlang-utgangsdatum-dokumentlista.png" alt="Dokumentlistan filtrerad på status Väntande" />
+      <img src="/images/guider/forlang-utgangsdatum/27-statusfiltret.png" alt="Statusfiltret öppet med alternativen för dokumentstatus" />
     </Frame>
 
     <Note>
-      Endast dokument i status *Väntande* går att förlänga — för utkast, signerade, utgångna eller återkallade dokument visas inte alternativet.
+      Bara dokument i status *Väntande* eller *Utgången* går att förlänga — för utkast, signerade, avbrutna och avböjda dokument visas inte alternativet.
     </Note>
   </Step>
-  <Step title="Öppna åtgärdsmenyn på dokumentet">
-    Klicka på trepunktsmenyn (⋯) på det dokument du vill förlänga. Åtgärdsmenyn öppnas till höger om dokumentraden och visar alla tillgängliga alternativ för dokumentet.
+  <Step title="Hitta dokumentet i den filtrerade listan">
+    Kolumnen **Utgångsdatum** visar fristen för varje dokument. Ett datum som redan har passerat visas i rött.
 
     <Frame>
-      <img src="/images/guider/forlang-utgangsdatum-radmeny.png" alt="Åtgärdsmenyn öppen på en dokumentrad" />
+      <img src="/images/guider/forlang-utgangsdatum/30-filtrerad-lista.png" alt="Dokumentlistan filtrerad på status Väntande" />
+    </Frame>
+  </Step>
+  <Step title="Öppna åtgärdsmenyn på dokumentet">
+    Klicka på trepunktsmenyn längst till höger på raden. Menyn samlar dokumentets åtgärder, och för ett väntande dokument finns **Förläng utgångsdatum** och **Återkalla dokument** här.
+
+    <Frame>
+      <img src="/images/guider/forlang-utgangsdatum/31-oppna-radmenyn.png" alt="Åtgärdsmenyn öppen på en dokumentrad med valet Förläng utgångsdatum" />
     </Frame>
   </Step>
   <Step title="Välj Förläng utgångsdatum">
-    Klicka på **Förläng utgångsdatum** i menyn. Dialogen öppnas och visar nuvarande utgångsdatum tillsammans med en datumväljare för det nya datumet.
+    Dialogen öppnas och raden **Nuvarande** visar det utgångsdatum som gäller i dag. Knappen **Förläng** är släckt tills du har valt ett datum som ligger senare än det.
 
     <Frame>
-      <img src="/images/guider/forlang-utgangsdatum-dialog.png" alt="Dialogen Förläng utgångsdatum med nuvarande datum och datumväljare" />
+      <img src="/images/guider/forlang-utgangsdatum/34-dialogen.png" alt="Dialogen Förläng utgångsdatum med nuvarande datum och fältet Nytt utgångsdatum" />
     </Frame>
   </Step>
   <Step title="Välj ett nytt datum">
-    Öppna datumväljaren och välj ett nytt datum i kalendern. Datum som ligger före dagens datum eller före nuvarande utgångsdatum är inaktiva.
+    Klicka på **Välj nytt datum** och peka ut dagen i kalendern. Datum som redan har passerat är släckta.
 
     <Frame>
-      <img src="/images/guider/forlang-utgangsdatum-kalender.png" alt="Kalendern öppen i dialogen för att välja nytt utgångsdatum" />
+      <img src="/images/guider/forlang-utgangsdatum/35-oppna-kalendern.png" alt="Kalendern öppen i dialogen med fältet Tid inställt på 12:00" />
     </Frame>
 
     <Tip>
-      Tiden sätts automatiskt till kl. 12:00 om du inte ändrar den.
+      Tiden sätts till kl. 12:00 om du inte ändrar den i fältet **Tid**. Ett datum som ligger före den nuvarande fristen går att klicka på, men dialogen säger då till att datumet måste vara senare än det nuvarande.
     </Tip>
   </Step>
   <Step title="Bekräfta med Förläng">
-    Klicka på **Förläng** för att spara det nya utgångsdatumet. Alla mottagare får automatiskt ett e-postmeddelande om den nya fristen.
+    Klicka på **Förläng** för att spara den nya fristen. Alla mottagare får automatiskt ett e-postmeddelande om det nya datumet, även de som redan har signerat.
 
     <Frame>
-      <img src="/images/guider/forlang-utgangsdatum-bekrafta.png" alt="Dialogen med nytt datum valt och knappen Förläng redo att klickas" />
+      <img src="/images/guider/forlang-utgangsdatum/38-bekrafta.png" alt="Dialogen med nytt datum valt och knappen Förläng redo att klickas" />
+    </Frame>
+  </Step>
+  <Step title="Det nya datumet syns i listan">
+    Kolumnen **Utgångsdatum** uppdateras direkt.
+
+    <Frame>
+      <img src="/images/guider/forlang-utgangsdatum/44-efter.png" alt="Dokumentlistan med det förlängda utgångsdatumet" />
     </Frame>
   </Step>
 </Steps>
@@ -64,7 +79,11 @@ När utgångsdatumet är förlängt:
 
 - **Mottagare som redan signerat behåller sina signaturer** — signeringsförloppet startas inte om.
 - **Samtliga mottagare aviseras** automatiskt om det nya datumet via e-post.
-- **Dokumentet behåller status Väntande** tills alla mottagare har signerat eller det nya datumet passeras.
+- **Dokumentet behåller status Väntande** tills alla mottagare har signerat eller det nya datumet passeras. Ett dokument som redan hunnit gå ut går tillbaka från **Utgången** till **Väntande**.
+
+<Note>
+  Du når samma dialog inifrån dokumentet, under menyn **Redigera → Förläng utgångsdatum**, och via länken *förläng datumet* vid inställningen **Utgångsdatum** i panelen Inställningar.
+</Note>
 
 ## Behöver du hjälp?
 

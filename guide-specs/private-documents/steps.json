@@ -1,0 +1,42 @@
+{
+    "slug": "private-documents",
+    "title": "Skapa ett privat dokument",
+    "intro": "Synligheten styr vilka medlemmar i arbetsytan som kan öppna ett dokument inifrån sajn. Guiden visar var inställningen ligger, vilka lägen som finns och hur dokumentet ser ut för dig som ägare efteråt.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du är skapare, ansvarig eller administratör på dokumentet."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": ["[data-guide-mask]"],
+    "hide": ["[data-radix-popper-content-wrapper]:has([role='tooltip'])"],
+    "imageDir": "../../images/guider/private-documents",
+    "steps": [
+        { "name": "login", "action": "login" },
+        { "name": "dokumentlistan", "action": "goto", "url": "/{workspace}/documents", "caption": "Utgå från dokumentlistan", "notes": "Här ligger arbetsytans dokument. Klicka på Skapa nytt uppe till höger för att starta dokumentet vi ska göra privat, eller öppna ett befintligt utkast." },
+        { "name": "skapa-nytt", "action": "click", "selector": "button:has-text('Skapa nytt')", "match": "first", "screenshot": false },
+        { "name": "vanta-mallar", "action": "waitForSelector", "selector": "button[title='Konsultavtal']" },
+        { "name": "valj-mall", "action": "click", "selector": "button[title='Konsultavtal']", "screenshot": false },
+        { "name": "vanta-redigerare", "action": "waitForSelector", "selector": "button[aria-label='Inställningar']" },
+        { "name": "oppna-installningar", "action": "click", "selector": "button[aria-label='Inställningar']", "screenshot": false },
+        { "name": "satt-titel", "action": "fill", "selector": "input[placeholder='Dokumenttitel']", "value": "Batch B: privat avtal", "screenshot": false },
+        { "name": "vanta-panel", "action": "wait", "ms": 1500 },
+        { "name": "panelen", "action": "screenshot", "caption": "Synligheten ligger i panelen Inställningar", "notes": "Öppna panelen med kugghjulet längst ner i ikonraden. Sektionen Internt är hopfälld från start och ligger sist i panelen — klicka på rubriken för att fälla ut den." },
+        { "name": "oppna-internt", "action": "click", "selector": "button:has-text('Internt')", "match": "last", "screenshot": false },
+        { "name": "vanta-internt", "action": "wait", "ms": 1200 },
+        { "name": "scrolla", "action": "scrollIntoView", "selector": "text=Synlighet", "align": "end", "padBottom": 80, "screenshot": false },
+        { "name": "synlighet", "action": "screenshot", "caption": "Standardvärdet är Alla i arbetsytan", "notes": "Inställningen Synlighet styr vilka medlemmar i arbetsytan som kan öppna dokumentet inifrån sajn. Den påverkar inte parterna — de får sin signeringslänk oavsett vad du väljer här." },
+        { "name": "oppna-alternativ", "action": "click", "selector": "button[aria-labelledby]:has-text('Alla i arbetsytan')", "match": "last", "caption": "Välj hur privat dokumentet ska vara", "notes": "Alla i arbetsytan är standard och betyder att varje medlem ser dokumentet. Endast ansvariga begränsar till skaparen och den ansvariga användaren. Specifika användare låter dig peka ut en exakt lista." },
+        { "name": "valj-endast-ansvariga", "action": "click", "selector": "[role='option']:has-text('Endast ansvariga')", "screenshot": false },
+        { "name": "vanta-sparat", "action": "wait", "ms": 2500 },
+        { "name": "scrolla-igen", "action": "scrollIntoView", "selector": "text=Synlighet", "align": "end", "padBottom": 80, "screenshot": false },
+        { "name": "vald", "action": "screenshot", "caption": "Dokumentet är nu satt till Endast ansvariga", "notes": "Valet sparas automatiskt — ingen extra spara-knapp behövs. Från och med nu syns dokumentet bara för dig som skapare och för den ansvariga personen." },
+        { "name": "tillbaka-listan", "action": "goto", "url": "/{workspace}/documents", "caption": "Du ser dokumentet som vanligt", "notes": "Som ägare har du kvar full åtkomst och dokumentet ligger kvar i listan. För övriga medlemmar i arbetsytan finns det varken i listan eller i sökresultaten. Behöver en kollega ändå läsa dokumentet möts hen av en låst vy med knappen Begär åtkomst." },
+        { "name": "stadning-oppna", "action": "click", "selector": "td:has-text('Batch B: privat avtal')", "match": "first", "screenshot": false },
+        { "name": "vanta-redigerare-igen", "action": "waitForSelector", "selector": "button:text-is('Arkiv')" },
+        { "name": "stadning-arkiv", "action": "click", "selector": "button:text-is('Arkiv')", "screenshot": false },
+        { "name": "stadning-papperskorg", "action": "click", "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Flytta till papperskorg')", "screenshot": false },
+        { "name": "stadning-bekrafta", "action": "click", "selector": "[role='alertdialog'] button:has-text('Flytta till papperskorg'), [role='dialog'] button:has-text('Flytta till papperskorg')", "match": "last", "screenshot": false },
+        { "name": "vanta-borttaget", "action": "wait", "ms": 5000 }
+    ]
+}

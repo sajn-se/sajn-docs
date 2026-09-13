@@ -1,0 +1,107 @@
+{
+    "slug": "startsidan-widgets",
+    "title": "Anpassa startsidan med widgets",
+    "intro": "Startsidan är din egen. Den byggs av widgets som du lägger till, flyttar och tar bort, och varje arbetsyta har sin egen uppsättning.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/startsidan-widgets",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "startsidan",
+            "action": "goto",
+            "url": "/{workspace}",
+            "caption": "Startsidan är din översikt",
+            "notes": "Hälsningen överst visar vem du är inloggad som och vilken dag det är. Allt under den är widgets. Det finns ingen knapp som heter Anpassa, för varje widget bär sin egen meny."
+        },
+        {
+            "name": "vanta-widgetmeny",
+            "action": "waitForSelector",
+            "selector": "button[aria-label$='widgetåtgärder']"
+        },
+        {
+            "name": "widgetmeny",
+            "action": "click",
+            "selector": "button[aria-label$='widgetåtgärder']",
+            "caption": "För muspekaren över en widget och klicka på de tre punkterna",
+            "notes": "Menyn styr både den enskilda widgeten och hela sidan. Innehållet varierar med widgeten: Statusöversikt har ett eget val för att visa belopp, widgets som går att ställa in får Anpassa widget, och de du kan ha flera av får Duplicera. Du når samma meny genom att högerklicka på widgeten."
+        },
+        {
+            "name": "redigera-oversikten",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Redigera översikten')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-klar",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Klar')"
+        },
+        {
+            "name": "redigeringslage",
+            "action": "screenshot",
+            "caption": "I redigeringsläget kan du flytta och ändra storlek",
+            "notes": "Varje widget får en ram med egna knappar: flytta upp, flytta ner, ändra storlek, duplicera och ta bort. Du kan också dra en widget dit du vill ha den. Knappen Klar uppe till höger sparar och lämnar läget, och Esc gör samma sak."
+        },
+        {
+            "name": "oppna-widgetpanel",
+            "action": "click",
+            "selector": "button:has-text('Lägg till widget')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-panel",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Sök widget...']"
+        },
+        {
+            "name": "widgetpanelen",
+            "action": "screenshot",
+            "caption": "Välj bland widgetarna i panelen",
+            "notes": "Widgetarna ligger i tre grupper. Dokument innehåller listor och statusvyer, Analys och aktivitet innehåller nyckeltal, kommentarer och det som väntar på dig, och Verktyg innehåller snabbval, mallgenvägar, Fråga Bob och anteckningar. Sökfältet filtrerar listan. En widget som är gråad finns redan på sidan och går bara att ha en gång."
+        },
+        {
+            "name": "valj-anteckning",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Anteckning')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-tillagd",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Sök widget...']",
+            "state": "hidden"
+        },
+        {
+            "name": "widget-tillagd",
+            "action": "screenshot",
+            "caption": "Widgeten läggs till sist på sidan",
+            "notes": "Den nya widgeten hamnar längst ner. Dra den dit du vill ha den, eller använd pilarna i ramen. Klicka sedan Klar för att spara. Ångrar du dig tar du bort widgeten med papperskorgen i dess ram."
+        },
+        {
+            "name": "ta-bort-tillagd",
+            "action": "click",
+            "selector": "button[aria-label='Ta bort widget']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "avsluta-redigering",
+            "action": "click",
+            "selector": "button:has-text('Klar')",
+            "screenshot": false
+        }
+    ]
+}

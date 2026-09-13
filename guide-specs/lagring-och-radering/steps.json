@@ -1,0 +1,68 @@
+{
+    "slug": "lagring-och-radering",
+    "title": "Lagring och radering av dokument",
+    "intro": "Skärmdumpar till guiden Lagring och radering av dokument: fliken Lagring under Preferenser, valen av lagringstid, och undantaget som skyddar ett enskilt dokument från policyn. Körningen sparar ingenting.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får hantera arbetsytans inställningar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/lagring-och-radering",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-lagring",
+            "action": "goto",
+            "url": "/{workspace}/settings/workspace/preferences/retention",
+            "caption": "Fliken Lagring under Preferenser",
+            "notes": "Lagringspolicyn ligger under Inställningar, Preferenser och fliken Lagring. Sidan har två tider: hur länge slutförda dokument sparas, och hur länge de ligger kvar i papperskorgen efteråt."
+        },
+        {
+            "name": "valj-lagringstid",
+            "action": "click",
+            "selector": "div:has(> label:text-is('Radera slutförda dokument')) button[role='combobox']",
+            "caption": "Välj hur länge slutförda dokument ska sparas",
+            "notes": "Spara tills vidare är standard. De övriga tiderna räknas från att dokumentet slutfördes, och flyttar dokumentet till papperskorgen när tiden gått ut."
+        },
+        {
+            "name": "stang-menyn",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-lista",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Edit item']"
+        },
+        {
+            "name": "undanta-dokument",
+            "action": "click",
+            "selector": "tr:has-text('Guideexempel') button[aria-label='Edit item']",
+            "match": "first",
+            "caption": "Undanta ett enskilt dokument från policyn",
+            "notes": "Radens meny i dokumentlistan har Undanta från lagringspolicy på slutförda dokument. Ett undantaget dokument sparas tills vidare, oavsett vad policyn säger."
+        },
+        {
+            "name": "stang-radmeny",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        }
+    ]
+}

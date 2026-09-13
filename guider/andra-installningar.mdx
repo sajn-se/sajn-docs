@@ -3,38 +3,70 @@ title: "Ändra inställningar på ett dokument"
 description: "Konfigurera påminnelser, utgångsdatum och andra inställningar för ditt dokument"
 ---
 
-Innan du skickar ett dokument för signering kan du konfigurera inställningar som utgångsdatum, automatiska påminnelser och vad som ska hända efter signering. I den här guiden visar vi hur du anpassar dessa inställningar.
+Innan du skickar ett dokument för signering bestämmer du villkoren i panelen **Inställningar**: utgångsdatum, hur parterna signerar, vilka påminnelser som går ut och vem i arbetsytan som får se dokumentet. I den här guiden går vi igenom panelens fyra sektioner.
 
-## Videogenomgång
+## Innan du börjar
 
-<video
-  controls
-  width="100%"
-  style={{ borderRadius: "8px", marginTop: "16px" }}
-  src="https://r2-storage.sajn.se/web/assets/dokument-installningar.mp4"
->
-  Din webbläsare stödjer inte videouppspelning.
-</video>
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Dokumentet är i status **Utkast** - efter utskicket låses de flesta inställningarna.
 
 ## Steg för steg
 
 <Steps>
   <Step title="Öppna dokumentinställningar">
-    Navigera till dokumentet och klicka på **Inställningar**. Dokumentet måste vara i utkaststatus för att du ska kunna ändra inställningarna.
+    Klicka på kugghjulet längst ner i ikonraden till höger i redigeraren. Panelen öppnas med **Dokument** och **Signering** utfällda; **Kommunikation** och **Internt** är hopfällda och öppnas med ett klick på rubriken.
+
+    Under **Dokument** sätter du titel, ansvarig, ett eget referens-ID, dokumentets värde och utgångsdatum.
+
+    <Frame>
+      <img src="/images/guider/andra-installningar/10-panelen.png" alt="Panelen Inställningar med sektionerna Dokument, Signering, Kommunikation och Internt" />
+    </Frame>
+
+    <Note>
+      Det finns ingen spara-knapp. Varje ändring sparas automatiskt så fort du gjort den.
+    </Note>
   </Step>
   <Step title="Ställ in utgångsdatum">
-    Välj ett datum då dokumentet ska sluta vara giltigt för signering. Om en part inte har signerat före utgångsdatumet markeras dokumentet som utgånget och signeringslänkarna slutar fungera.
+    Klicka på **Välj datum** under **Utgångsdatum** och peka ut dagen i kalendern. Tiden sätts till kl. 12:00 om du inte ändrar den i fältet **Tid**.
+
+    Efter det här datumet går dokumentet inte längre att signera och signeringslänkarna slutar fungera. Ett utgångsdatum krävs innan dokumentet kan skickas.
+
+    <Frame>
+      <img src="/images/guider/andra-installningar/11-oppna-utgangsdatum.png" alt="Kalendern öppen under inställningen Utgångsdatum" />
+    </Frame>
   </Step>
-  <Step title="Konfigurera påminnelser">
-    Aktivera automatiska påminnelser för att skicka påminnelsemail till parter som inte har signerat. Du kan välja:
-    - **Intervall** - hur ofta påminnelser skickas (t.ex. var tredje dag)
-    - **Antal** - max antal påminnelser som skickas per part
+  <Step title="Bestäm hur signeringen ska gå till">
+    Sektionen **Signering** innehåller fyra inställningar:
+    - **Ordning** - om alla parter signerar samtidigt eller [i turordning](/guider/sekventiell-signering)
+    - **Verifiering för att öppna** - om parten måste legitimera sig innan dokumentet visas
+    - **Kräv fullständig genomläsning** - tvingar parten att bläddra igenom hela dokumentet innan signering
+    - **Tillåt delegering** - låter en part lämna över signeringen till någon annan
+
+    <Frame>
+      <img src="/images/guider/andra-installningar/14-signering-sektionen.png" alt="Sektionen Signering med inställningarna Ordning, Verifiering för att öppna, Kräv fullständig genomläsning och Tillåt delegering" />
+    </Frame>
   </Step>
-  <Step title="Ange redirect-URL">
-    Om du vill att parten ska skickas vidare till en specifik webbsida efter signering kan du ange en redirect-URL. Det är användbart om du vill visa ett tack-meddelande eller leda parten tillbaka till din tjänst.
+  <Step title="Konfigurera påminnelser och kommunikation">
+    Fäll ut **Kommunikation**. Här styr du vad parterna får:
+    - **Föredraget språk** - språket i e-post och på signeringssidan
+    - **Automatiska påminnelser** - hur ofta en påminnelse går ut till dem som inte signerat: **Av**, **Varje dag**, **Varannan dag**, **Var 3:e dag** eller **Var 5:e dag**
+    - **Visa chatt för parter** och **AI-chatt för parter** - om parterna kan ställa frågor på signeringssidan
+    - **Skickas efteråt till** - [interna mottagare](/guider/internal-recipients) som får det färdigsignerade dokumentet
+
+    <Frame>
+      <img src="/images/guider/andra-installningar/18-kommunikation.png" alt="Sektionen Kommunikation med språk, automatiska påminnelser, chattinställningar och interna mottagare" />
+    </Frame>
+
+    <Note>
+      Behöver du knuffa på någon utanför det automatiska intervallet går det bra att [skicka en manuell påminnelse](/guider/skicka-paminnelse) till en enskild part.
+    </Note>
   </Step>
-  <Step title="Spara ändringar">
-    Klicka på **Spara** för att tillämpa dina inställningar. Du kan ändra inställningarna fram tills du skickar dokumentet.
+  <Step title="Välj vem i arbetsytan som ser dokumentet">
+    Fäll ut **Internt**. Inställningen **Synlighet** avgör om alla i arbetsytan, bara skaparen och ansvarig, eller en utvald lista med användare kan öppna dokumentet. Den påverkar bara vyn inne i sajn - parterna får sin signeringslänk oavsett. Se [Skapa ett privat dokument](/guider/private-documents).
+
+    <Frame>
+      <img src="/images/guider/andra-installningar/22-internt.png" alt="Sektionen Internt med inställningen Synlighet satt till Alla i arbetsytan" />
+    </Frame>
   </Step>
 </Steps>
 

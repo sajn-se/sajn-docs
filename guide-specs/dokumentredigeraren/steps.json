@@ -1,0 +1,137 @@
+{
+    "slug": "dokumentredigeraren",
+    "title": "Rundtur i dokumentredigeraren",
+    "intro": "Redigeraren är där dokumentet blir till. Pappret i mitten är det mottagaren får, och panelerna till höger styr allt runt omkring: vilka som ska signera, vad som står i dokumentet och vad som händer när det skickas. Guiden utgår från utkastet Redigerarguide: konsultavtal.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du har ett dokument i status Utkast, eller skapar ett nytt från Dokument."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/dokumentredigeraren",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Öppna dokumentet från listan",
+            "notes": "Listan visar arbetsytans dokument med status, parter och datum. Klicka på raden för att öppna dokumentet i redigeraren. Exemplet här heter Redigerarguide: konsultavtal och ligger kvar som utkast."
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "click",
+            "selector": "td:has-text('Redigerarguide: konsultavtal')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "redigeraren",
+            "action": "screenshot",
+            "caption": "Så är redigeraren uppbyggd",
+            "notes": "Pappret i mitten är det mottagaren ser. Ikonraden längst till höger växlar panel och panelen bredvid visar den du valt. Överst står namn, status och knappen Skicka dokument. Redigeraren öppnas med Parter, där du lägger till dem som ska signera, godkänna eller få en kopia. Varje part har en roll och en signeringsmetod, och det är här du bestämmer om de ska signera samtidigt eller i tur och ordning. Allt du ändrar sparas automatiskt."
+        },
+        {
+            "name": "arkivmenyn",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "caption": "Menyerna överst gäller hela dokumentet",
+            "notes": "Under Arkiv gör du en kopia, sparar dokumentet som mall, laddar ner, skriver ut, delar, flyttar till en mapp, arkiverar eller slänger det. Redigera innehåller Byt namn och Exkludera från sök. Visa öppnar Förhandsgranska, Versionshistorik och Information."
+        },
+        {
+            "name": "stang-arkivmenyn",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "lagg-till-sektion",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "caption": "Lägg till sektion bygger upp pappret",
+            "notes": "Sektionerna ligger på rad i dokumentet, och den streckade linjen mellan dem öppnar den här menyn. Text & bild är vanlig brödtext, PDF-dokument lägger in en färdig fil, Formulär är en ruta med ifyllbara fält och Produkttabell räknar ihop rader och summa. Skapa med AI skriver en sektion åt dig utifrån en beskrivning, och Sektionsbibliotek hämtar en sektion du sparat tidigare."
+        },
+        {
+            "name": "stang-sektionsmenyn",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "innehall",
+            "action": "click",
+            "selector": "button[aria-label='Innehåll']",
+            "caption": "Innehåll: sektioner och fält på PDF",
+            "notes": "Samma sektioner som i menyn, men här drar du in dem i pappret där du vill ha dem. Under PDF-fält placerar du textfält, datum, kryssrutor, signatur och initialer ovanpå en inlagd PDF. De fälten är släckta tills dokumentet innehåller en PDF."
+        },
+        {
+            "name": "variabler",
+            "action": "click",
+            "selector": "button[aria-label='Variabler']",
+            "caption": "Variabler är uppgifterna som fylls i",
+            "notes": "Skriv { i en textsektion för att infoga en variabel. Under Parter och Dokument finns uppgifter som hämtas automatiskt, som partens namn och dokumentets titel. Under Fylls i av part samlas de fält som mottagaren fyller i vid signeringen, till exempel fältet Uppdragsgivare i formulärsektionen."
+        },
+        {
+            "name": "datafalt",
+            "action": "click",
+            "selector": "button[aria-label='Datafält']",
+            "caption": "Datafält är arbetsytans egna uppgifter",
+            "notes": "Datafält är de fält din arbetsyta har lagt upp för alla dokument, till exempel giltighetsperiod eller avtalsnummer. Du fyller i värdet här och kan sedan skriva in det i texten på samma sätt som en variabel. Panelen visas bara om arbetsytan har några datafält."
+        },
+        {
+            "name": "arbetsflode",
+            "action": "click",
+            "selector": "button[aria-label='Arbetsflöde']",
+            "caption": "Arbetsflöde visar vad som händer efter Skicka",
+            "notes": "Kedjan går från Utkast till Slutfört och visar var dokumentet befinner sig. Här slår du på internt godkännande om någon i organisationen ska godkänna innan utskick, ser hur ofta påminnelser går ut och vilka parter som ska signera."
+        },
+        {
+            "name": "detaljer",
+            "action": "click",
+            "selector": "button[aria-label='Detaljer']",
+            "caption": "Detaljer samlar historiken",
+            "notes": "Här ser du vem som är ansvarig, när dokumentet skapades och vad som hänt sedan dess. Du sätter också taggar och länkar ihop dokumentet med andra dokument i samma ärende."
+        },
+        {
+            "name": "installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "caption": "Inställningar styr villkoren för signeringen",
+            "notes": "Under Dokument sätter du titel, ansvarig, värde och utgångsdatum. Under Signering väljer du om parterna signerar samtidigt eller i tur och ordning, om de måste verifiera sig för att öppna dokumentet, om hela texten måste läsas igenom och om en part får lämna över till någon annan. Kommunikation och Internt fäller ut meddelandetexter och interna noteringar."
+        },
+        {
+            "name": "zoom",
+            "action": "click",
+            "selector": "button[aria-label='Zoomnivå']",
+            "caption": "Zooma för att se hela sidan",
+            "notes": "Plus och minus ändrar zoomen ett steg i taget. Klickar du på procenttalet väljer du en nivå direkt eller återställer till 100 procent. Zoomen påverkar bara din vy, inte dokumentet."
+        },
+        {
+            "name": "stang-zoom",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "chatt",
+            "action": "click",
+            "selector": "button[aria-label='Öppna chatt']",
+            "caption": "Chatt är samtalet med mottagaren",
+            "notes": "Chatten öppnas från pratbubblan uppe till höger och följer med dokumentet. Hänglåset vid skrivfältet avgör vem som ser inlägget. Med Intern påslaget stannar meddelandet hos dina kollegor, och slår du av det ser mottagaren inlägget på signeringssidan. I ett utkast är Intern förvalt."
+        }
+    ]
+}

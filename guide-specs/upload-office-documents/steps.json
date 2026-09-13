@@ -1,0 +1,128 @@
+{
+    "slug": "upload-office-documents",
+    "title": "Ladda upp Word-, Excel-, PowerPoint- och CSV-filer som dokument",
+    "intro": "Office-filer, CSV och vanlig text konverteras automatiskt till PDF och blir innehållet i ett nytt sajn-dokument. Du använder samma uppladdning som för PDF.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du har en fil i något av formaten DOCX, DOC, XLSX, XLS, PPT, PPTX, CSV eller TXT, max 25 MB.",
+        "Du har behörighet att skapa dokument i arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/upload-office-documents",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Öppna Dokument i sidomenyn",
+            "notes": "Samma väg som för en PDF. Knappen Skapa nytt högst upp till höger öppnar sidan Nytt dokument; pilen bredvid har genvägen Ladda upp fil."
+        },
+        {
+            "name": "oppna-skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sidan",
+            "action": "waitForSelector",
+            "selector": "text=Välj filer att ladda upp"
+        },
+        {
+            "name": "uppladdningsrutan",
+            "action": "screenshot",
+            "caption": "Samma uppladdning för alla filtyper",
+            "notes": "Rutan tar emot PDF, Word, Excel, PowerPoint, CSV och TXT, max 25 MB per fil. sajn känner igen filtypen på filändelsen och MIME-typen — du behöver inte välja format någonstans."
+        },
+        {
+            "name": "ladda-upp",
+            "action": "uploadFile",
+            "selector": "[role='dialog'] input[type='file']",
+            "filePath": "/private/tmp/claude-501/-Users-andreasenemyr-Developer-sajn-sajn-app/da8da584-4866-421f-a09f-5007b580e0c4/scratchpad/fixtures/konsultavtal.docx",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-filen",
+            "action": "waitForSelector",
+            "selector": "text=Dokumentnamn"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "#document-name",
+            "value": "Batch A: konsultavtal från Word",
+            "screenshot": false
+        },
+        {
+            "name": "filen-vald",
+            "action": "screenshot",
+            "caption": "Namnge dokumentet och skapa det",
+            "notes": "Word-filen listas med sin storlek. Lämnar du Dokumentnamn tomt får dokumentet filens namn utan filändelse. Klicka Skapa dokument nere till höger — konverteringen till PDF sker i bakgrunden."
+        },
+        {
+            "name": "skapa",
+            "action": "click",
+            "selector": "button:has-text('Skapa dokument')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "vanta-konvertering",
+            "action": "wait",
+            "ms": 12000
+        },
+        {
+            "name": "dokumentet-klart",
+            "action": "screenshot",
+            "caption": "Den konverterade filen blir dokumentets innehåll",
+            "notes": "Dokumentet får statusen Utkast och den konverterade PDF:en visas som en egen sektion. Originalfilen sparas inte separat — det är den konverterade PDF:en som blir dokumentets innehåll, så formateringen kan skilja sig något från originalet."
+        },
+        {
+            "name": "oppna-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-slang",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa nytt')"
+        },
+        {
+            "name": "efter-rensning",
+            "action": "wait",
+            "ms": 2500
+        }
+    ]
+}

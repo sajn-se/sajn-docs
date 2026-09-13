@@ -3,7 +3,7 @@ title: "Lägg till en part"
 description: "Lär dig hur du lägger till parter som ska signera ett dokument"
 ---
 
-En part är en person eller organisation som ska signera dokumentet. Du kan lägga till en eller flera parter, och varje part kan ha sin egen signeringsmetod. I den här guiden visar vi hur du lägger till parter på ett dokument.
+En part är en person som ska signera, godkänna, granska eller bara få en kopia av dokumentet. Varje part har en roll, en signaturtyp och ett sätt att få länken på. I den här guiden visar vi hur du lägger till parter på ett dokument.
 
 ## Videogenomgång
 
@@ -19,30 +19,72 @@ En part är en person eller organisation som ska signera dokumentet. Du kan läg
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna dokumentet">
-    Navigera till dokumentet du vill lägga till parter på. Dokumentet måste vara i utkaststatus för att du ska kunna redigera parterna.
-  </Step>
-  <Step title="Lägg till part">
-    Klicka på **Lägg till part** och fyll i partens uppgifter:
-    - **Namn** - partens för- och efternamn
-    - **E-postadress** - dit signeringslänken skickas
-    - **Telefonnummer** - valfritt, används för SMS-notiser
-    - **Företag** - valfritt, om parten representerar ett företag
+  <Step title="Öppna dokumentet och gå till Parter">
+    ![Redigeraren med panelen Parter öppen](/images/guider/lagg-till-part/09-panelen-parter.png)
 
-    Om parten redan finns bland dina kontakter kan du söka fram och välja dem direkt.
-  </Step>
-  <Step title="Välj signeringsmetod">
-    Välj hur parten ska verifiera sin identitet och signera dokumentet. De tillgängliga metoderna beror på din plan:
+    Öppna dokumentet du vill lägga till parter på. Redigeraren öppnas på panelen **Parter** till höger. Dokumentet måste vara ett **Utkast** för att du ska kunna ändra parterna.
 
-    - **BankID** - stark identifiering via svenskt BankID
-    - **E-postsignering** - parten signerar via en länk skickad till sin e-post
-    - **SMS-signering** - parten signerar via en kod skickad till sin telefon
+    Klicka på **Sök eller lägg till parter…** för att komma igång, eller på **här** för att lägga till dig själv.
   </Step>
-  <Step title="Ange signeringsordning">
-    Om dokumentet har flera parter kan du välja om de ska signera i en bestämd ordning (sekventiellt) eller om alla ska kunna signera samtidigt (parallellt). Vid sekventiell signering får nästa part sin signeringslänk först när föregående part har signerat.
+  <Step title="Fyll i partens uppgifter">
+    ![Dialogen Lägg till part](/images/guider/lagg-till-part/13-partdialogen.png)
+
+    Bara **Namn** och **E-post** krävs. Sökfältet högst upp hämtar en befintlig kontakt, ett företag eller en hel tagg.
+
+    Under **Personuppgifter** finns också:
+
+    - **Land** – påverkar vilka e-legitimationer som går att välja.
+    - **Telefonnummer** – krävs om länken ska skickas som SMS.
+    - **Personnummer** – behövs inte för att parten ska kunna signera med e-legitimation.
+    - **Externt ID** – partens id i ditt eget system.
+
+    **Företagsinformation** är valfritt. Där fyller du i företagsnamn, organisationsnummer och partens roll i företaget, eller hämtar uppgifterna automatiskt med **Sök företag**.
+
+    Kryssrutan **Spara även som kontakt** lägger parten bland arbetsytans kontakter så att du hittar den nästa gång.
   </Step>
-  <Step title="Upprepa vid behov">
-    Lägg till fler parter om dokumentet kräver flera signaturer. Det finns ingen begränsning på antalet parter.
+  <Step title="Välj roll">
+    Under **Signering och leverans** sätter du partens **Roll**:
+
+    - **Undertecknare** – den enda rollen som faktiskt signerar dokumentet.
+    - **Organisatör** – organiserar och hanterar dokumentet.
+    - **Granskare** – läser och granskar, men signerar inte.
+  </Step>
+  <Step title="Signaturtyp avgör hur parten skriver under">
+    ![Menyn Signaturtyp med e-legitimationer](/images/guider/lagg-till-part/14-oppna-signaturtyp.png)
+
+    Listan är uppdelad i två grupper:
+
+    - **E-legitimation** – **BankID** för Sverige, **MitID** för Danmark, **FTN** för Finland och motsvarigheterna i övriga länder. Parten identifierar sig med sin e-legitimation, vilket ger starkast bevisvärde.
+    - **Enkel signatur** – **Klicksignering** och **Ritad signatur**. Snabbare, men ger en enklare signatur (SES).
+
+    Vilka val som finns beror på arbetsytans regler och din plan.
+  </Step>
+  <Step title="Leveransmetod styr hur länken når parten">
+    ![Menyn Leveransmetod med E-post, SMS och Ingen](/images/guider/lagg-till-part/16-oppna-leveransmetod.png)
+
+    - **E-post** – länken skickas till adressen du fyllt i.
+    - **SMS** – länken skickas till telefonnumret.
+    - **Ingen** – ingen automatisk leverans; du delar länken själv.
+
+    Leveransmetod och signaturtyp är två olika saker: en part kan få länken via SMS och ändå signera med BankID.
+
+    **Verifiering vid signering** är ett tredje, fristående val – en extra identitetskontroll i signeringsögonblicket, till exempel en SMS-kod eller en PIN-kod som du delar med parten.
+  </Step>
+  <Step title="Parten visas med roll och signaturtyp">
+    ![Parten Anna Andersson tillagd i panelen Parter](/images/guider/lagg-till-part/20-parten-tillagd.png)
+
+    Klicka **Lägg till**. Raden i panelen visar namn, e-post, roll och vald signaturtyp. Klicka på parten för att ändra uppgifterna, eller lägg till fler på samma sätt.
+
+    <Note>
+      Hur många parter du får bjuda in per dokument beror på din plan. Når du taket står det i panelen.
+    </Note>
+  </Step>
+  <Step title="Signeringsordningen sätts på dokumentet">
+    ![Panelen Inställningar med Ordning under Signering](/images/guider/lagg-till-part/21-oppna-installningar.png)
+
+    Ordningen är inte en partsinställning utan en dokumentinställning. Öppna **Inställningar** och välj under **Signering** om alla ska kunna signera samtidigt eller i tur och ordning. Med ordning påslagen får nästa part sin länk först när föregående har signerat, och du kan dra parterna i rätt ordning i panelen **Parter**.
+
+    Här ligger också **Verifiering för att öppna**, **Kräv fullständig genomläsning** och **Tillåt delegering**, som gäller hela dokumentet.
   </Step>
 </Steps>
 
@@ -52,4 +94,6 @@ En part är en person eller organisation som ska signera dokumentet. Du kan läg
 
 ## Nästa steg
 
-När parterna är tillagda kan du [ändra dokumentinställningar](/guider/andra-installningar) eller [skicka dokumentet för signering](/guider/skicka-dokument) direkt.
+- Ska parterna fylla i uppgifter i dokumentet? [Tilldela fält till rätt part](/guider/tilldela-falt-till-part).
+- Behöver de signera i en bestämd ordning? Se [sekventiell signering](/guider/sekventiell-signering).
+- När parterna är tillagda kan du [ändra dokumentinställningar](/guider/andra-installningar) eller [skicka dokumentet för signering](/guider/skicka-dokument).

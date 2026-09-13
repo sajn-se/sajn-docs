@@ -1,0 +1,178 @@
+---
+title: "Rundtur i dokumentredigeraren"
+description: "Lär känna pappret, panelerna till höger och menyerna överst innan du skickar ditt första dokument"
+---
+
+Redigeraren är där dokumentet blir till. Pappret i mitten är det mottagaren får. Panelerna till höger styr allt runt omkring: vilka som ska signera, vad som står i dokumentet och vad som händer när du skickar.
+
+Den här rundturen går igenom ytan en gång, panel för panel, så att du vet var saker finns. Exemplet är ett utkast som heter *Redigerarguide: konsultavtal*. Ingenting du klickar på här skickar dokumentet.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Du har ett dokument med statusen **Utkast**, eller skapar ett nytt från **Dokument**.
+- Du har behörighet att redigera dokument i arbetsytan.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna dokumentet från listan">
+    Listan under **Dokument** visar arbetsytans dokument med status, parter och datum. Klicka på raden för att öppna dokumentet i redigeraren.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/02-dokumentlistan.png" alt="Dokumentlistan med utkastet Redigerarguide: konsultavtal överst" />
+    </Frame>
+  </Step>
+
+  <Step title="Så är redigeraren uppbyggd">
+    Tre ytor: pappret i mitten, ikonraden längst till höger och panelen mellan dem. Ikonraden växlar panel, och klickar du på samma ikon igen fäller du ihop panelen och får mer plats åt pappret. Överst står dokumentets namn, statusen **Utkast** och knappen **Skicka dokument**.
+
+    Redigeraren öppnas med **Parter**. Här lägger du till dem som ska signera, godkänna eller bara få en kopia. Varje part har en roll och en signeringsmetod, och det är i den här panelen du bestämmer om parterna signerar samtidigt eller i tur och ordning.
+
+    Allt du ändrar sparas automatiskt. Det finns ingen spara-knapp.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/05-redigeraren.png" alt="Redigeraren med pappret i mitten och panelen Parter till höger" />
+    </Frame>
+  </Step>
+
+  <Step title="Menyerna överst gäller hela dokumentet">
+    Under **Arkiv** gör du en kopia, sparar dokumentet som mall, laddar ner, skriver ut, delar, flyttar till en mapp, arkiverar eller slänger det. **Redigera** innehåller **Byt namn** och **Exkludera från sök**. **Visa** öppnar **Förhandsgranska**, **Versionshistorik** och **Information**.
+
+    Vill du byta namn går det också att klicka direkt på titeln.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/06-arkivmenyn.png" alt="Menyn Arkiv utfälld med alternativ för kopia, mall, nedladdning och papperskorg" />
+    </Frame>
+  </Step>
+
+  <Step title="Lägg till sektion bygger upp pappret">
+    Dokumentet är uppbyggt av sektioner som ligger på rad. Den streckade linjen mellan två sektioner är knappen **Lägg till sektion**, och den öppnar den här menyn.
+
+    Det finns åtta sektionstyper. **Text & bild** är vanlig brödtext. **PDF-dokument** lägger in en färdig fil. **Formulär** är en ruta med ifyllbara fält. **Produkttabell** räknar ihop rader och summa. **Tabell** är en vanlig tabell, **Mellanrum** och **Sidbrytning** styr layouten, och **Varaktighet** anger en avtalsperiod. Dessutom skriver **Skapa med AI** en sektion åt dig utifrån en beskrivning, och **Sektionsbibliotek** hämtar en sektion du sparat tidigare.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/08-lagg-till-sektion.png" alt="Menyn Lägg till sektion med sektionstyperna" />
+    </Frame>
+  </Step>
+
+  <Step title="Innehåll: sektioner och fält på PDF">
+    Panelen **Innehåll** har samma sektioner som menyn, men här drar du in dem i pappret där du vill ha dem.
+
+    Under **PDF-fält** placerar du textfält, datum, kryssrutor, listrutor, signatur och initialer ovanpå en inlagd PDF. Fälten är släckta tills dokumentet innehåller en PDF. Signatur och initialer ritas av parten vid signeringen och sätts in i det förseglade dokumentet.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/10-innehall.png" alt="Panelen Innehåll med sektionstyper överst och PDF-fält under" />
+    </Frame>
+  </Step>
+
+  <Step title="Variabler är uppgifterna som fylls i">
+    Skriv `{` i en textsektion för att infoga en variabel.
+
+    Under **Parter** och **Dokument** ligger uppgifter som hämtas automatiskt, till exempel partens namn eller dokumentets titel. Under **Fylls i av part** samlas de fält som mottagaren fyller i vid signeringen. I exemplet står fältet *Uppdragsgivare* under Johan Pettersson, eftersom det fältet har tilldelats honom i formulärsektionen.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/11-variabler.png" alt="Panelen Variabler med grupperna Parter, Dokument och Fylls i av part" />
+    </Frame>
+  </Step>
+
+  <Step title="Datafält är arbetsytans egna uppgifter">
+    Datafält är de fält din arbetsyta har lagt upp för alla dokument, till exempel giltighetsperiod eller avtalsnummer. Du fyller i värdet i panelen och kan sedan skriva in det i texten på samma sätt som en variabel.
+
+    Panelen visas bara om arbetsytan har några datafält.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/12-datafalt.png" alt="Panelen Datafält med giltighetsperiod från och till" />
+    </Frame>
+  </Step>
+
+  <Step title="Arbetsflöde visar vad som händer efter Skicka">
+    Kedjan går från **Utkast** till **Slutfört** och markerar var dokumentet befinner sig. Här slår du på internt godkännande om någon i organisationen ska godkänna innan utskick, ser hur ofta påminnelser går ut och vilka parter som ska signera.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/13-arbetsflode.png" alt="Panelen Arbetsflöde med stegen Utkast, Internt godkännande, Skickat, Signering och Slutfört" />
+    </Frame>
+  </Step>
+
+  <Step title="Detaljer samlar historiken">
+    Här ser du vem som är ansvarig, när dokumentet skapades och vad som hänt sedan dess. Du sätter också taggar och länkar ihop dokumentet med andra dokument i samma ärende.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/14-detaljer.png" alt="Panelen Detaljer med ansvarig, taggar, länkade dokument och aktivitet" />
+    </Frame>
+  </Step>
+
+  <Step title="Inställningar styr villkoren för signeringen">
+    Under **Dokument** sätter du titel, ansvarig, värde och utgångsdatum. Under **Signering** väljer du om parterna signerar samtidigt eller i tur och ordning, om de måste verifiera sig för att öppna dokumentet, om hela texten måste läsas igenom och om en part får lämna över till någon annan. **Kommunikation** och **Internt** fäller ut meddelandetexter och interna noteringar.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/15-installningar.png" alt="Panelen Inställningar med avsnitten Dokument och Signering" />
+    </Frame>
+  </Step>
+
+  <Step title="Zooma för att se hela sidan">
+    Plus och minus i verktygsraden ändrar zoomen ett steg i taget. Klickar du på procenttalet väljer du en nivå direkt eller återställer till 100 procent. Zoomen påverkar bara din vy, inte dokumentet.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/16-zoom.png" alt="Zoommenyn utfälld med nivåerna 50 till 200 procent och Återställ" />
+    </Frame>
+  </Step>
+
+  <Step title="Chatt är samtalet om dokumentet">
+    Chatten öppnas från pratbubblan uppe till höger och följer med dokumentet. Hänglåset vid skrivfältet avgör vem som ser inlägget. Med **Intern** påslaget stannar meddelandet hos dina kollegor. Slår du av det ser mottagaren inlägget på signeringssidan. I ett utkast är **Intern** förvalt.
+
+    <Frame>
+      <img src="/images/guider/dokumentredigeraren/18-chatt.png" alt="Panelen Chatt med skrivfältet och knappen Intern" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Vad varje panel är till för
+
+<AccordionGroup>
+  <Accordion title="Parter">
+    Vem som ska göra något med dokumentet. Du lägger till undertecknare, godkännare och personer som bara ska ha en kopia, och väljer roll och signeringsmetod per part. Ordningen mellan parterna sätter du här eller under Inställningar.
+  </Accordion>
+  <Accordion title="Innehåll">
+    Sektionerna du bygger dokumentet av, och fälten du placerar ovanpå en inlagd PDF. Dra en sektion från panelen till pappret, eller använd **Lägg till sektion** direkt i dokumentet.
+  </Accordion>
+  <Accordion title="Variabler">
+    Platshållare i texten. Parter och Dokument fylls i automatiskt från dokumentets egna uppgifter. Fält under **Fylls i av part** fyller mottagaren i vid signeringen.
+  </Accordion>
+  <Accordion title="Datafält">
+    Arbetsytans egna uppgifter om dokumentet, till exempel avtalsnummer eller giltighetsperiod. Värdena går att använda i texten och följer med till rapporter och statistik. Panelen finns bara om arbetsytan har lagt upp datafält.
+  </Accordion>
+  <Accordion title="Arbetsflöde">
+    Vägen från utkast till färdigsignerat. Här slår du på internt godkännande, ser påminnelserna och kontrollerar turordningen innan du skickar.
+  </Accordion>
+  <Accordion title="Detaljer">
+    Dokumentets historik och sammanhang: ansvarig, skapandedatum, aktivitet, taggar och länkade dokument.
+  </Accordion>
+  <Accordion title="Inställningar">
+    Villkoren för dokumentet och signeringen: titel, ansvarig, värde, utgångsdatum, signeringsordning, verifiering, krav på genomläsning och delegering.
+  </Accordion>
+  <Accordion title="Chatt">
+    Samtalet om dokumentet. Interna inlägg syns bara för kollegor, övriga syns för mottagaren på signeringssidan.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  Behöver du mer plats åt pappret? Klicka på ikonen för den panel som är öppen så fälls panelen ihop, och bara ikonraden blir kvar.
+</Tip>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Lägg till en part" icon="users" href="/guider/lagg-till-part">
+    Bjud in undertecknare och välj roll och signeringsmetod.
+  </Card>
+  <Card title="Lägg till fält i ett dokument" icon="input-text" href="/guider/add-fields-to-document">
+    Fälten som mottagaren fyller i vid signeringen.
+  </Card>
+  <Card title="Sekventiell signering" icon="list-ol" href="/guider/sekventiell-signering">
+    Låt parterna signera i tur och ordning i stället för samtidigt.
+  </Card>
+  <Card title="Skicka dokumentet" icon="paper-plane" href="/guider/skicka-dokument">
+    När innehåll och parter är på plats är det dags att skicka.
+  </Card>
+</CardGroup>

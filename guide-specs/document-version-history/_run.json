@@ -1,0 +1,104 @@
+{
+  "ranAt": "2026-09-13T09:57:18.256Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-dokument",
+      "action": "goto",
+      "screenshotFile": "02-oppna-dokument.png",
+      "caption": "Öppna dokumentet från listan",
+      "notes": "Versionshistoriken finns för alla dokument, oavsett status.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 3,
+      "name": "klicka-dokument",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 4,
+      "name": "vanta-redigerare",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl"
+    },
+    {
+      "index": 5,
+      "name": "visa-menyn",
+      "action": "click",
+      "screenshotFile": "05-visa-menyn.png",
+      "caption": "Öppna Visa-menyn i redigeraren",
+      "notes": "Versionshistorik ligger under Visa, tillsammans med Förhandsgranska och Information.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl"
+    },
+    {
+      "index": 6,
+      "name": "oppna-historiken",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl"
+    },
+    {
+      "index": 7,
+      "name": "vanta-overlay",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl"
+    },
+    {
+      "index": 8,
+      "name": "historiken",
+      "action": "screenshot",
+      "screenshotFile": "08-historiken.png",
+      "caption": "Versionerna listas till höger",
+      "notes": "Listan grupperas på Idag, Igår, Tidigare denna månad och Äldre.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl"
+    },
+    {
+      "index": 9,
+      "name": "valj-version",
+      "action": "click",
+      "screenshotFile": "09-valj-version.png",
+      "caption": "Klicka på en version för att se hur dokumentet såg ut då",
+      "notes": "Den valda raden markeras och innehållet visas till vänster. Överst sammanfattas vad som skiljer versionen från den aktuella — parter och inställningar, med det gamla värdet överstruket. Återställningspilen dyker upp längst till höger på raden.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl"
+    },
+    {
+      "index": 10,
+      "name": "aterstall",
+      "action": "click",
+      "screenshotFile": "10-aterstall.png",
+      "caption": "Återställ ersätter dokumentet med den valda versionen",
+      "notes": "Du får bekräfta först. Återställning fungerar bara på utkast och importerade dokument — är dokumentet utskickat måste du återkalla det först, och signerade dokument kan inte återställas. En ny version sparas när du återställer, så du kan alltid gå tillbaka.",
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl"
+    },
+    {
+      "index": 11,
+      "name": "stang-bekraftelsen",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents/cmtzkuzxs000602l26yaet8gl"
+    }
+  ]
+}

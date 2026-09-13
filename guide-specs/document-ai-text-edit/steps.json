@@ -1,0 +1,160 @@
+{
+    "slug": "document-ai-text-edit",
+    "title": "Förbättra text i ett dokument med AI",
+    "intro": "Markera en mening i dokumentet och låt AI-verktyget skriva om, förkorta eller rätta texten direkt i redigeraren.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du har ett dokument som är ett utkast.",
+        "Dokumentet har minst en Text & bild-sektion.",
+        "AI är påslaget för arbetsytan."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/document-ai-text-edit",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-skapa",
+            "action": "click",
+            "selector": "button[data-testid='document-creation-options-dropdown-trigger']",
+            "screenshot": false
+        },
+        {
+            "name": "tomt-dokument",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "oppna-redigera",
+            "action": "click",
+            "selector": "button:text-is('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-namn",
+            "action": "fill",
+            "selector": "#name",
+            "value": "Batch C: AI-text",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namn",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-namn",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "lagg-till-text",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-text",
+            "action": "click",
+            "selector": "[role='option']:has-text('Text & bild')",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-text",
+            "action": "type",
+            "selector": ".ProseMirror",
+            "text": "Konsulten utför rådgivning inom verksamhetsutveckling enligt den beskrivning som parterna kommit överens om, och arbetet utförs på distans om inget annat avtalas mellan parterna.",
+            "delay": 8
+        },
+        {
+            "name": "markera-text",
+            "action": "selectText",
+            "selector": ".ProseMirror p"
+        },
+        {
+            "name": "markeringen",
+            "action": "screenshot",
+            "caption": "Markera den text du vill bearbeta",
+            "notes": "Trippelklicka på ett stycke för att markera hela meningen, eller dra över texten. Förbättra ligger längst till vänster i verktygsraden."
+        },
+        {
+            "name": "forbattra",
+            "action": "click",
+            "selector": "button[aria-label='Förbättra']",
+            "caption": "Klicka på Förbättra och välj en åtgärd",
+            "notes": "Justera ton fäller ut ett tjugotal tonlägen, från Formell till Avslappnad. Översätt fäller ut svenska, engelska, norska, danska, finska, tyska, franska och spanska. Resten arbetar direkt på markeringen. Har du ingen markering säger sajn till."
+        },
+        {
+            "name": "kor-atgard",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Förkorta text')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-ai",
+            "action": "wait",
+            "ms": 25000
+        },
+        {
+            "name": "resultatet",
+            "action": "screenshot",
+            "caption": "Texten byts ut mot AI-versionen",
+            "notes": "Den markerade texten ersätts på plats. Blir resultatet inte som du tänkt ångrar du med Cmd/Ctrl + Z. Markeringen får vara högst 3 000 tecken."
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

@@ -3,7 +3,7 @@ title: "Tilldela fält till rätt part"
 description: "Koppla formulärfält och variabler till den part som ska fylla i dem vid signering"
 ---
 
-Fält gör ett dokument ifyllbart. Du kan lägga fält i en **formulärsektion** eller infoga dem som **variabler i löpande text** – och i båda fallen väljer du i menyn **Tilldelad part** vem som ska fylla i fältet vid signering. Lämnar du fältet utan part blir det statiskt, alltså samma text för alla.
+Fält gör ett dokument ifyllbart. Du kan lägga fält i en **formulärsektion** eller infoga dem som **variabler i löpande text**. I båda fallen är det en enda inställning som avgör vem som fyller i värdet: **Fylls i av** på ett formulärfält, **Tilldelad part** på en variabel. Lämnar du ett formulärfält på **Fast värde** blir det fast text som du själv skriver in.
 
 <Tip>
   Behöver du först en genomgång av sektioner och fälttyper? Se [Lägg till sektioner och fält i ett dokument](/guider/add-fields-to-document). Vill du göra samma sak på mallnivå? Se [Lägg till sektioner och fält i en mall](/guider/add-fields-to-template).
@@ -17,83 +17,73 @@ Fält gör ett dokument ifyllbart. Du kan lägga fält i en **formulärsektion**
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Dokument och skapa ett nytt dokument">
-    ![Dokumentlistan med Skapa nytt-knappen](/images/guider/tilldela-falt-till-part/02-documents.png)
+  <Step title="Börja med parterna">
+    ![Ett nytt dokument med panelen Parter till höger](/images/guider/tilldela-falt-till-part/09-nytt-dokument.png)
 
-    Öppna **Dokument** i sidomenyn. Skapa ett nytt dokument med knappen **Skapa nytt** uppe till höger.
-  </Step>
-  <Step title="Ett tomt dokument öppnas i redigeraren">
-    ![Tomt dokument med panelen Parter till höger](/images/guider/tilldela-falt-till-part/05-new-document.png)
-
-    Till höger ligger panelen **Parter** – det är härifrån du lägger till dem som ska fylla i och signera.
+    Skapa ett dokument och låt panelen **Parter** stå öppen till höger. Utan parter finns det ingen att koppla fälten till, så det är här du börjar.
   </Step>
   <Step title="Lägg till minst en part">
-    ![Dialog för att lägga till en part](/images/guider/tilldela-falt-till-part/10-add-party.png)
+    ![Dialogen Lägg till part](/images/guider/tilldela-falt-till-part/13-fyll-epost.png)
 
-    Lägg till minst en part först. Fyll i **Namn** och **E-post** och klicka **Lägg till**. Det är dessa parter du sedan kan koppla fält till.
+    Klicka på **Sök eller lägg till parter…**. Fyll i **Namn** och **E-post** och klicka **Lägg till**. Finns personen redan bland kontakterna söker du fram den i fältet högst upp.
+
+    Under **Signering och leverans** väljer du partens roll, signaturtyp, hur dokumentet levereras och om parten ska verifiera sig vid signeringen. Det påverkar inte fälten – bara rollen **Undertecknare** signerar, men vilka fält parten fyller i bestämmer du fält för fält.
 
     <Note>
-      Du behöver minst en part för att menyn **Tilldelad part** ska ha något att välja bland. Utan parter blir alla fält statiska.
+      Du behöver minst en part för att kunna koppla ett fält till någon. Utan parter kan fälten bara ha ett fast värde.
     </Note>
   </Step>
   <Step title="Parten får en egen färg">
-    ![Parten Anna Andersson tillagd i dokumentet](/images/guider/tilldela-falt-till-part/13-party-added.png)
+    ![Parten Anna Andersson tillagd i dokumentet](/images/guider/tilldela-falt-till-part/16-parten-tillagd.png)
 
-    Parten **Anna Andersson** ligger nu i dokumentet och får en egen färg. Samma färg används överallt där ett fält kopplas till parten.
+    Parten **Anna Andersson** ligger nu i dokumentet. Färgen framför namnet följer med överallt där ett fält kopplas till parten, så du ser direkt vem som ska fylla i vad.
   </Step>
-  <Step title="Lägg till en formulärsektion">
-    ![Sektionsmenyn med valet Formulär](/images/guider/tilldela-falt-till-part/16-section-menu.png)
+  <Step title="Skapa ett fält i en formulärsektion">
+    ![Ett nyskapat fält i formulärsektionen](/images/guider/tilldela-falt-till-part/20-skapa-falt.png)
 
-    Klicka på **Lägg till sektion** och välj **Formulär**. Ett formulär samlar fält som parterna fyller i.
+    Klicka på **Lägg till sektion** och välj **Formulär**, och sedan på **Klicka för att lägga till fält**. Fältet heter *Namnlöst fält* tills du döper om det. Klicka på fältet för att öppna dess inställningar.
   </Step>
-  <Step title="Skapa ditt första fält">
-    ![Tom formulärsektion med dropzone](/images/guider/tilldela-falt-till-part/19-empty-form.png)
+  <Step title="Fylls i av sitter direkt i Redigera fält">
+    ![Rutan Redigera fält med inställningen Fylls i av](/images/guider/tilldela-falt-till-part/24-redigera-falt.png)
 
-    Formulärsektionen läggs in. Klicka på **Klicka för att lägga till fält** för att skapa ditt första fält.
+    I rutan **Redigera fält** sätter du etikett och typ. **Fylls i av** ligger under *Placeholder*, mellan fältets utseende och **Avancerat** – du behöver alltså inte fälla ut Avancerat. Avancerat rymmer bara fältets nyckel.
   </Step>
-  <Step title="Öppna fältets inställningar">
-    ![Nyskapat fält med namnet Namnlöst fält](/images/guider/tilldela-falt-till-part/22-field-added.png)
+  <Step title="Välj vem som fyller i fältet">
+    ![Öppen meny med Fast värde och parterna](/images/guider/tilldela-falt-till-part/25-oppna-fylls-i-av.png)
 
-    Ett fält skapas och heter till en början *Namnlöst fält*. Klicka på fältet för att öppna dess inställningar.
-  </Step>
-  <Step title="Öppna Avancerat i fältredigeraren">
-    ![Rutan Redigera fält](/images/guider/tilldela-falt-till-part/25-field-settings.png)
-
-    I rutan **Redigera fält** sätter du etikett och typ. Klicka på **Avancerat** längst ner för att kunna koppla fältet till en part.
-  </Step>
-  <Step title="Hitta menyn Tilldelad part">
-    ![Avancerat-sektionen med menyn Tilldelad part](/images/guider/tilldela-falt-till-part/28-advanced.png)
-
-    Under **Avancerat** finns menyn **Tilldelad part**. Här bestämmer du vem som ska fylla i fältet.
-  </Step>
-  <Step title="Välj parten i menyn">
-    ![Öppen meny med parter att välja mellan](/images/guider/tilldela-falt-till-part/31-party-dropdown.png)
-
-    Öppna menyn **Tilldelad part** och välj parten – t.ex. **Anna Andersson**. Behåll **Ingen (statiskt fält)** om fältet i stället ska vara fast text som inte fylls i.
+    Öppna **Fylls i av** och välj parten – här **Anna Andersson**. Behåll **Fast värde** om fältet i stället ska vara fast text som du fyller i här och nu.
 
     <Note>
       Färgpricken framför varje namn matchar partens färg i panelen Parter, så att du snabbt ser vilket fält som hör till vem.
     </Note>
   </Step>
   <Step title="Markera som obligatoriskt och spara">
-    ![Fältet kopplat till Anna Andersson](/images/guider/tilldela-falt-till-part/34-party-assigned.png)
+    ![Fältet kopplat till Anna Andersson med Obligatoriskt påslaget](/images/guider/tilldela-falt-till-part/27-obligatoriskt.png)
 
-    Fältet är nu kopplat till **Anna Andersson**. Slå på **Obligatoriskt** om parten måste fylla i fältet innan signering, och klicka **Spara**.
+    Så fort fältet har en part dyker **Obligatoriskt** upp under menyn. Slå på det om parten måste fylla i fältet innan den kan signera, och klicka **Spara**.
   </Step>
-  <Step title="Infoga ett fält i löpande text med Variabel">
-    ![Variabel-popover med etikett och tilldelad part](/images/guider/tilldela-falt-till-part/46-variable-popover.png)
+  <Step title="Fältet visar vem som ska fylla i det">
+    ![Fältet med texten Fylls i av Anna Andersson vid signering](/images/guider/tilldela-falt-till-part/30-faltet-kopplat.png)
 
-    Vill du i stället ha ett fält mitt i löpande text? Klicka på **Variabel** i verktygsfältet, ge fältet en **Etikett** och välj **Tilldelad part** – samma princip som i formuläret.
+    Under fältet står nu *Fylls i av Anna Andersson vid signering*, och ramen blir streckad för att visa att värdet fylls i senare. Fält med **Fast värde** står kvar som vanlig text.
+  </Step>
+  <Step title="Infoga ett fält i löpande text med {">
+    ![Variabelmenyn öppen i en textsektion](/images/guider/tilldela-falt-till-part/37-variabelmenyn.png)
+
+    Vill du i stället ha ett fält mitt i en mening? Skriv **{** i en textsektion. Menyn som öppnas filtrerar medan du skriver:
+
+    - **Datafält** – arbetsytans egna uppgifter.
+    - **Parter** och **Dokument** – uppgifter som hämtas automatiskt, som partens namn eller dokumentets titel.
+    - **Fylls i av part** – fält som redan finns i dokumentet.
+
+    Längst ner i listan skapar **Ny variabel** ett nytt fält på plats.
   </Step>
   <Step title="Välj part för variabeln">
-    ![Menyn Tilldelad part för en variabel](/images/guider/tilldela-falt-till-part/49-variable-party-dropdown.png)
+    ![Variabelns ruta med Tilldelad part satt till Anna Andersson](/images/guider/tilldela-falt-till-part/44-variabel-ruta.png)
 
-    Välj parten i menyn **Tilldelad part**. Varje part har sin egen färg, så variabeln blir lätt att känna igen i texten.
-  </Step>
-  <Step title="Variabeln infogas i texten">
-    ![Variabeln infogad som en färgad etikett i texten](/images/guider/tilldela-falt-till-part/53-variable-inserted.png)
+    Variabeln infogas direkt i texten som en färgad etikett, och dess ruta öppnas. Ge den en **Etikett**, välj **Tilldelad part** och sätt **Fälttyp** – Text, Datum eller Flerval. **Obligatoriskt** längst ner styr om parten måste fylla i den.
 
-    Variabeln infogas direkt i texten som en färgad etikett. När dokumentet skickas fyller den tilldelade parten i sitt värde – statiska fält och variabler utan part lämnas orörda.
+    En variabel i löpande text har ingen motsvarighet till Fast värde: den fylls alltid i av den tilldelade parten vid signeringen.
   </Step>
 </Steps>
 

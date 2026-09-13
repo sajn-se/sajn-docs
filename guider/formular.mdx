@@ -1,0 +1,135 @@
+---
+title: "Skapa ett formulär"
+description: "Låt besökare fylla i sina uppgifter och signera direkt via en länk du delar"
+---
+
+Ett formulär är en länk du delar. Besökaren fyller i sina uppgifter, svaren skrivs in i dokumentet, och besökaren signerar direkt. Varje svar blir ett eget dokument i arbetsytan.
+
+Formuläret är två delar som hänger ihop. Dokumentet är det som signeras. Formulärsidan är det besökaren fyller i. Det som binder ihop dem är **nyckeln** på ett fält: ett fält i dokumentet som har en nyckel går att fråga efter i formuläret, ett fält utan nyckel gör det inte.
+
+Den här guiden utgår från mallen *Konsultavtal*, som redan har en Formulär-sektion med fält och nycklar. Det är den vanligaste vägen: mallen finns, och formuläret hämtar frågorna från den.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Du har behörighet att hantera formulär i arbetsytan.
+- Du har en mall att utgå från. Mallen behöver en Formulär-sektion där fälten har nycklar. Har du ingen sådan mall än, se [Lägg till fält i en mall](/guider/add-fields-to-template).
+- Formulär kräver Solo eller högre.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Formulär under Mallar">
+    **Formulär** ligger som en undersida till **Mallar** i sidomenyn. Listan visar varje formulär med om länken är öppen eller lösenordsskyddad, hur många som svarat och när det senast ändrades. Ikonen längst till höger kopierar länken.
+
+    <Frame>
+      <img src="/images/guider/formular/02-oppna-formular.png" alt="Sidan Formulär öppen från sidomenyn" />
+    </Frame>
+  </Step>
+
+  <Step title="Välj mallen du vill utgå från">
+    Klicka på **Nytt formulär** och välj mallen i listan, här *Konsultavtal*. Formuläret får en egen kopia av mallen, så mallen påverkas inte av det du ändrar härifrån.
+
+    Längst ner finns **Börja från tomt**, om du hellre bygger dokumentet från grunden.
+
+    <Frame>
+      <img src="/images/guider/formular/03-nytt-formular.png" alt="Dialogen Nytt formulär med mallen Konsultavtal i listan" />
+    </Frame>
+  </Step>
+
+  <Step title="Översikten är formulärets hem">
+    De två korten är formulärets två halvor: dokumentet som signeras och formuläret som fylls i. Siffrorna räknar svaren, och raden under korten sammanfattar åtkomst och tider. Saknas något innan du kan publicera listas det i en ruta här.
+
+    <Frame>
+      <img src="/images/guider/formular/06-oversikt.png" alt="Formulärets översikt med statistik och de två korten" />
+    </Frame>
+  </Step>
+
+  <Step title="Dokumentet är en kopia av mallen">
+    Klicka på **Redigera dokument**. Texten är fast innehåll och följer med oförändrad till varje svar. Rutan med ifyllbara fält är en **Formulär-sektion**, och bara fält i en sådan sektion går att fråga efter i formuläret.
+
+    Här väljer du också vilka parter som ska signera och hur de ska verifiera sig.
+
+    <Frame>
+      <img src="/images/guider/formular/09-dokumentet.png" alt="Formulärets dokument med kontraktstext och en formulärsektion med sex fält" />
+    </Frame>
+  </Step>
+
+  <Step title="Nyckeln sitter under Avancerat på fältet">
+    Klicka på ett fält för att se dess inställningar. Etiketten är vad läsaren ser. Nyckeln är vad systemet går på: utan nyckel syns fältet inte för formulärbyggaren och går alltså inte att fråga efter.
+
+    Fälten i mallen har redan nycklar. Här heter fältet *Organisationsnummer* och nyckeln `orgnummer`. Nyckeln får innehålla gemener, siffror, bindestreck och understreck.
+
+    <Frame>
+      <img src="/images/guider/formular/12-nyckeln.png" alt="Fältets inställningar med etiketten Organisationsnummer och nyckeln orgnummer under Avancerat" />
+    </Frame>
+  </Step>
+
+  <Step title="Mallens fält listas i formulärbyggaren">
+    Gå tillbaka till översikten och klicka på **Redigera formulär**. Under **Fält i dokumentet** står varje fält i mallen som har en nyckel, med sin typ: *Kort svar*, *Datum* eller *Tal*.
+
+    Blocken under **Besökaren** beskriver den som fyller i snarare än dokumentet. Namnet därifrån blir partens namn på dokumentet. Mitten är sidan besökaren möter, och du redigerar rubrik och beskrivning direkt i den.
+
+    <Frame>
+      <img src="/images/guider/formular/20-byggaren.png" alt="Formulärbyggaren med mallens sex fält under Fält i dokumentet" />
+    </Frame>
+  </Step>
+
+  <Step title="Klicka på fältet för att lägga till frågan">
+    Klicka på ett block för att lägga till det sist, eller dra det dit du vill ha det. Panelen till höger märker den nya frågan **Kort svar · Fält i dokumentet**. Det är kopplingen: det besökaren skriver här skrivs in i dokumentets fält *Organisationsnummer* vid signering.
+
+    Panelen styr etikett, platshållare, hjälptext, om svaret är obligatoriskt och om blocket ska ta halva raden. Klicka **Spara** uppe till höger.
+
+    <Frame>
+      <img src="/images/guider/formular/23-kopplat-block.png" alt="Frågan Organisationsnummer tillagd i formuläret med kopplingen till dokumentets fält" />
+    </Frame>
+
+    <Note>
+      *Namn* och *E-post* står två gånger i listan, och det är två olika saker. Blocken under **Besökaren** blir partens namn och e-post på dokumentet. Fälten under **Fält i dokumentet** är mallens egna fält med nycklarna `namn` och `e-post`. Lägger du till båda får besökaren samma fråga två gånger. Välj det ena, eller byt etikett på det andra.
+    </Note>
+  </Step>
+
+  <Step title="Bestäm åtkomst, tider och kvittens">
+    Under fliken **Inställningar** väljer du om länken ska vara öppen för alla eller skyddad med ett lösenord. Här sätter du också hur många dagar besökaren har på sig att signera, ett sista svarsdatum, ett maxantal svar, vart besökaren skickas efter signeringen och vilken text som visas när det är klart.
+
+    <Frame>
+      <img src="/images/guider/formular/26-installningar.png" alt="Fliken Inställningar med åtkomst, tider och kvittens" />
+    </Frame>
+  </Step>
+
+  <Step title="Publicera och följ svaren">
+    Klicka **Publicera** överst och dela länken. Under fliken **Svar** blir varje svar en rad med sitt dokument. *Påbörjad* betyder att besökaren fyllt i formuläret, *Väntar på signering* att dokumentet skapats, och *Klar* att det är signerat. Klicka på en rad för att öppna dokumentet.
+
+    <Frame>
+      <img src="/images/guider/formular/27-svar.png" alt="Fliken Svar där varje svar blir en rad med sitt dokument" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Om statusen ändras av sig själv
+
+Ett publicerat formulär kan stänga sig självt, och listan visar varför.
+
+- **Fullt** betyder att maxantalet svar är nått. Höj gränsen och publicera igen.
+- **Utgånget** betyder att sista svarsdatum har passerat. Sätt ett nytt datum och publicera igen.
+- **Saknar avsändare** betyder att avsändaren inte längre kan skicka dokument från arbetsytan. Publicera igen så blir du ny avsändare.
+- **Tillfälligt stängt** betyder att något i dokumentet saknas. Översikten räknar upp vad.
+
+<Tip>
+  Behöver du dra tillbaka en länk som spridits för brett, välj **Ny länk** under menyn med tre punkter. Den gamla länken slutar fungera direkt. Svar som redan kommit in påverkas inte.
+</Tip>
+
+## Identitet och åtkomst
+
+Lösenordet på länken styr vem som kommer in på sidan. Det avgör inte vem personen är. Identiteten säkras av signeringen, där du väljer metod per part i dokumentet. Ett formulär som är öppet för alla kan alltså ändå kräva BankID för att signera.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Lägg till fält i en mall" icon="input-text" href="/guider/add-fields-to-template">
+    Fälten i mallen är de du kan fråga efter i formuläret.
+  </Card>
+  <Card title="Signeringsmetoder" icon="signature" href="/guider/signing-methods">
+    Välj hur besökaren ska verifiera sig när dokumentet signeras.
+  </Card>
+</CardGroup>

@@ -1,0 +1,180 @@
+{
+    "slug": "lagg-till-part",
+    "title": "Lägg till en part",
+    "intro": "En part är någon som ska signera, godkänna, granska eller bara få en kopia av dokumentet. Parterna lägger du till i panelen Parter medan dokumentet är ett utkast.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du har ett dokument i status Utkast."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/lagg-till-part",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "goto-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler alternativ']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-tomt",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "klicka-titeln",
+            "action": "click",
+            "selector": "header h3[role='button']",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "fill",
+            "selector": "input[aria-label='Titel']",
+            "value": "Batch A: parter",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namnet",
+            "action": "press",
+            "key": "Enter",
+            "screenshot": false
+        },
+        {
+            "name": "panelen-parter",
+            "action": "screenshot",
+            "caption": "Parter ligger i panelen till höger",
+            "notes": "Redigeraren öppnas på Parter. Parterna går bara att ändra så länge dokumentet är ett utkast. Klicka på Sök eller lägg till parter… för att komma igång, eller på här för att lägga till dig själv."
+        },
+        {
+            "name": "oppna-partdialogen",
+            "action": "click",
+            "selector": "[data-guide='document-add-signer']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialogen",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Lägg till part')"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Ange namn']",
+            "value": "Anna Andersson",
+            "screenshot": false
+        },
+        {
+            "name": "partdialogen",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Ange e-postadress']",
+            "value": "anna.andersson@example.se",
+            "caption": "Fyll i partens uppgifter",
+            "notes": "Namn och e-post är det enda som krävs. Sökfältet högst upp hämtar en befintlig kontakt, ett företag eller en hel tagg. Under Personuppgifter finns också land, telefonnummer, personnummer och ett externt ID för egna system. Företagsinformation är valfritt — där kan du hämta uppgifterna via Sök företag på organisationsnummer."
+        },
+        {
+            "name": "oppna-signaturtyp",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Ritad signatur')",
+            "caption": "Signaturtyp avgör hur parten skriver under",
+            "notes": "Listan är uppdelad i två grupper. Under E-legitimation ligger BankID för Sverige, MitID för Danmark, FTN för Finland och motsvarigheterna i övriga länder — signeraren identifierar sig med sin e-legitimation. Längre ner i listan ligger Enkel signatur med Klicksignering och Ritad signatur, som är snabbare men ger en enklare signatur. Vilka val som finns beror på arbetsytans regler och din plan."
+        },
+        {
+            "name": "stang-signaturtyp",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-leveransmetod",
+            "action": "click",
+            "selector": "[role='dialog'] button[role='combobox']:has-text('E-post')",
+            "match": "first",
+            "caption": "Leveransmetod styr hur länken når parten",
+            "notes": "E-post skickar signeringslänken till adressen du fyllt i, SMS skickar den till telefonnumret, och Ingen betyder att du själv delar länken. Leveransmetod och signaturtyp är två olika saker: en part kan få länken via SMS och ändå signera med BankID."
+        },
+        {
+            "name": "stang-leveransmetod",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "lagg-till-parten",
+            "action": "click",
+            "selector": "[role='dialog'] button[type='submit']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-parten",
+            "action": "waitForSelector",
+            "selector": "text=Anna Andersson"
+        },
+        {
+            "name": "parten-tillagd",
+            "action": "screenshot",
+            "caption": "Parten visas med roll och signaturtyp",
+            "notes": "Raden visar namn, e-post, roll och vald signaturtyp. Klicka på parten för att ändra uppgifterna, eller lägg till fler på samma sätt. Hur många parter du får bjuda in per dokument beror på din plan."
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "caption": "Signeringsordningen sätts på dokumentet",
+            "notes": "Ordningen är inte en partsinställning utan en dokumentinställning. Under Signering väljer du om alla parter ska kunna signera samtidigt eller i tur och ordning. Med ordning påslagen får nästa part sin länk först när föregående har signerat, och då kan du dra parterna i rätt ordning i panelen Parter."
+        },
+        {
+            "name": "oppna-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-slang",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa nytt')"
+        },
+        {
+            "name": "efter-rensning",
+            "action": "wait",
+            "ms": 2500
+        }
+    ]
+}

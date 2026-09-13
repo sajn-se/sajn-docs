@@ -1,0 +1,484 @@
+{
+    "slug": "signeringsupplevelsen",
+    "title": "Så signerar du ett dokument",
+    "intro": "Den här guiden visar vad mottagaren ser. Du får en länk, öppnar dokumentet, fyller i det som saknas, signerar och får ett kvitto.\n\nStegen före signeringen skapar exempeldokumentet: ett konsultavtal med ett fält som mottagaren ska fylla i, en part som är kontot självt och signeringsmetoden Klicksignering. De stegen har inga bilder.",
+    "audience": "Mottagare som ska signera",
+    "prerequisites": [
+        "Du har fått en signeringslänk, oftast i ett mejl från avsändaren.",
+        "Du behöver inget konto i sajn för att signera."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]",
+        "p.break-all",
+        "span.font-mono"
+    ],
+    "imageDir": "../../images/guider/signeringsupplevelsen",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-skapa-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler alternativ']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-tomt-dokument",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": ":text('Lägg till sektion')"
+        },
+        {
+            "name": "vanta-redigeraren-klar",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "oppna-titeln",
+            "action": "click",
+            "selector": "h3[role='button']",
+            "screenshot": false
+        },
+        {
+            "name": "namnge-dokumentet",
+            "action": "fill",
+            "selector": "input[aria-label='Titel']",
+            "value": "Guideexempel: konsultavtal",
+            "screenshot": false
+        },
+        {
+            "name": "spara-titeln",
+            "action": "press",
+            "key": "Enter"
+        },
+        {
+            "name": "vanta-titel",
+            "action": "wait",
+            "ms": 2000
+        },
+        {
+            "name": "lagg-till-dig-sjalv",
+            "action": "click",
+            "selector": "a[href='#']:has-text('här')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-parten",
+            "action": "waitForSelector",
+            "selector": ":text('Ritad signatur')"
+        },
+        {
+            "name": "vanta-parten-klar",
+            "action": "wait",
+            "ms": 2500
+        },
+        {
+            "name": "oppna-partmenyn",
+            "action": "click",
+            "selector": "button[aria-label='Partåtgärder']",
+            "screenshot": false
+        },
+        {
+            "name": "redigera-parten",
+            "action": "click",
+            "selector": "[role='menu'] [role='menuitem']:has-text('Redigera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-partdialogen",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Ritad signatur')"
+        },
+        {
+            "name": "oppna-signaturtyp",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Ritad signatur')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-klicksignering",
+            "action": "click",
+            "selector": "[cmdk-item]:has-text('Klicksignering')",
+            "screenshot": false
+        },
+        {
+            "name": "spara-parten",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Uppdatera')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sparad-part",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-efter-part",
+            "action": "wait",
+            "ms": 2500
+        },
+        {
+            "name": "oppna-sektionsval",
+            "action": "click",
+            "selector": ":text('Lägg till sektion')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-textsektion",
+            "action": "click",
+            "selector": "[role='option']:has-text('Text & bild')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-textsektion",
+            "action": "waitForSelector",
+            "selector": "[contenteditable='true']"
+        },
+        {
+            "name": "vanta-textsektion-klar",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "skriv-avtalstexten",
+            "action": "type",
+            "selector": "[contenteditable='true']",
+            "text": "# Konsultavtal\nDetta avtal tecknas mellan Nordvik Bygg AB och konsulten. Avtalet reglerar uppdraget, ersättningen och uppsägningstiden.\n## Uppdraget\nKonsulten utför projektledning för ombyggnaden av Kvarteret Almen. Uppdraget omfattar cirka 20 timmar per vecka och löper fram till slutbesiktning.\n## Ersättning\nErsättning utgår med 950 kronor per timme exklusive moms. Fakturering sker månadsvis med 30 dagars betalningsvillkor.\n## Uppsägning\nAvtalet kan sägas upp av båda parter med en månads uppsägningstid. Uppsägningen ska vara skriftlig.\n## Kontaktuppgifter\nKonsultens telefonnummer under uppdraget: {Telefonnummer",
+            "delay": 6
+        },
+        {
+            "name": "vanta-text",
+            "action": "wait",
+            "ms": 2000
+        },
+        {
+            "name": "vanta-forslaget",
+            "action": "waitForSelector",
+            "selector": ":text('Skapa variabel')"
+        },
+        {
+            "name": "skapa-faltet",
+            "action": "press",
+            "key": "Enter"
+        },
+        {
+            "name": "vanta-faltrutan",
+            "action": "waitForSelector",
+            "selector": "[data-radix-popper-content-wrapper] button:has-text('Valj part')"
+        },
+        {
+            "name": "oppna-partvalet",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button:has-text('Valj part')",
+            "screenshot": false
+        },
+        {
+            "name": "tilldela-faltet",
+            "action": "click",
+            "selector": "[role='option']:has-text('DEMO Account')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-faltrutan",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "vanta-autospar",
+            "action": "wait",
+            "ms": 9000
+        },
+        {
+            "name": "oppna-utgangsdatum",
+            "action": "click",
+            "selector": "button:has-text('Sätt utgångsdatum')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-utgangsdatum",
+            "action": "click",
+            "selector": "button:has-text('Om 20 dagar')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-datumrutan",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "vanta-datum",
+            "action": "wait",
+            "ms": 2500
+        },
+        {
+            "name": "oppna-utskicket",
+            "action": "click",
+            "selector": "button[aria-label='Skicka dokument']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-utskicksrutan",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Skicka dokument')"
+        },
+        {
+            "name": "skicka",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skicka dokument')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-utskick",
+            "action": "wait",
+            "ms": 15000
+        },
+        {
+            "name": "till-oversikten",
+            "action": "goto",
+            "url": "/{workspace}",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-oversikten",
+            "action": "waitForSelector",
+            "selector": "button[aria-label$='widgetåtgärder']"
+        },
+        {
+            "name": "oppna-widgetmenyn",
+            "action": "click",
+            "selector": "button[aria-label$='widgetåtgärder']",
+            "screenshot": false
+        },
+        {
+            "name": "lagg-till-widget",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Lägg till widget')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-vantar-pa-dig",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Väntar på dig')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-lanken",
+            "action": "waitForSelector",
+            "selector": "a[href*='/sign/']:has-text('Guideexempel: konsultavtal')"
+        },
+        {
+            "name": "oppna-lanken",
+            "action": "gotoLink",
+            "selector": "a[href*='/sign/']:has-text('Guideexempel: konsultavtal')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-signeringssidan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Fyll i uppgifter')",
+            "match": "last"
+        },
+        {
+            "name": "vanta-signeringssidan-klar",
+            "action": "wait",
+            "ms": 4000
+        },
+        {
+            "name": "oppna-dokumentet",
+            "action": "screenshot",
+            "caption": "Länken öppnar dokumentet direkt",
+            "notes": "Överst står vem som skickat dokumentet och från vilken arbetsyta, och när det förfaller. Du behöver varken konto eller lösenord. Raden längst ner följer med när du läser och visar alltid nästa steg. Här står Fyll i uppgifter med en etta, för dokumentet har ett fält som du ska fylla i innan du kan signera."
+        },
+        {
+            "name": "oppna-fler-atgarder",
+            "action": "click",
+            "selector": "button:has-text('Fler åtgärder')",
+            "caption": "Under Fler åtgärder finns allt annat du kan göra",
+            "notes": "Dokumentinformation och Historik visar vad som hänt med dokumentet. Lägg till deadline i kalender lägger sista dagen i din kalender. Kontakta avsändare öppnar ett mejl till den som skickade dokumentet. Avböj dokument stänger dokumentet och avsändaren får besked. När dokumentet är färdigt ligger nedladdningarna i samma meny."
+        },
+        {
+            "name": "stang-fler-atgarder",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "hoppa-till-faltet",
+            "action": "click",
+            "selector": "button:has-text('Fyll i uppgifter')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-i-faltet",
+            "action": "fill",
+            "selector": "input[placeholder^='Telefonnummer']",
+            "value": "070 123 45 67",
+            "screenshot": false,
+            "match": "last"
+        },
+        {
+            "name": "vanta-ifyllt",
+            "action": "wait",
+            "ms": 2000
+        },
+        {
+            "name": "allt-ifyllt",
+            "action": "screenshot",
+            "caption": "Fyll i fälten och klicka Fortsätt",
+            "notes": "Knappen längst ner hoppar till nästa tomma fält, så du slipper leta i dokumentet. Fält märkta med en stjärna är obligatoriska. Det du skriver hamnar direkt i dokumentets text. När allt är ifyllt byter knappen till Fortsätt, och svaren sparas när du klickar."
+        },
+        {
+            "name": "skicka-svaren",
+            "action": "click",
+            "selector": "button:has-text('Fortsätt')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-forberedelse",
+            "action": "wait",
+            "ms": 20000
+        },
+        {
+            "name": "ladda-om-signeringssidan",
+            "action": "reload"
+        },
+        {
+            "name": "vanta-signeraknappen",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Signera dokument')",
+            "match": "last"
+        },
+        {
+            "name": "vanta-signeraknappen-klar",
+            "action": "wait",
+            "ms": 4000
+        },
+        {
+            "name": "redo-att-signera",
+            "action": "screenshot",
+            "caption": "Läs igenom dokumentet och signera",
+            "notes": "Ringen till vänster fylls medan du scrollar och slår om till Genomläst när du gått igenom hela dokumentet. Avsändaren kan kräva att dokumentet är läst innan du får signera."
+        },
+        {
+            "name": "oppna-signeringen",
+            "action": "click",
+            "selector": "button:has-text('Signera dokument')",
+            "match": "last",
+            "caption": "Bekräfta vem du är och vad du signerar",
+            "notes": "Rutan sammanfattar vad du intygar: att du är den du säger, att du får underteckna för din organisation och att du tagit del av innehållet. Nedanför visas den signeringsmetod avsändaren valt för dig. Här är det Klicksignering, där du håller in knappen några sekunder. Är metoden BankID eller en annan e-legitimation identifierar du dig i stället i den appen."
+        },
+        {
+            "name": "signera",
+            "action": "click",
+            "selector": "button:has-text('Håll för att signera')",
+            "match": "last",
+            "delay": 2200,
+            "screenshot": false
+        },
+        {
+            "name": "vanta-kvittot",
+            "action": "waitForSelector",
+            "selector": ":text('Du har signerat dokumentet')",
+            "match": "last"
+        },
+        {
+            "name": "vanta-kvittot-klart",
+            "action": "wait",
+            "ms": 4000
+        },
+        {
+            "name": "kvitto",
+            "action": "screenshot",
+            "caption": "Kvittot visar vad som registrerades",
+            "notes": "Signerat av, metod, referens och tidpunkt. Samma uppgifter hamnar i dokumentets journal. En bekräftelse skickas också till din e-postadress."
+        },
+        {
+            "name": "stang-kvittot",
+            "action": "click",
+            "selector": "button:has-text('Stäng')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-forsegling",
+            "action": "wait",
+            "ms": 25000
+        },
+        {
+            "name": "ladda-om-efter-signering",
+            "action": "reload"
+        },
+        {
+            "name": "vanta-klart",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Ladda ner')",
+            "match": "last"
+        },
+        {
+            "name": "vanta-klart-klart",
+            "action": "wait",
+            "ms": 4000
+        },
+        {
+            "name": "klart",
+            "action": "screenshot",
+            "caption": "När alla parter signerat kan du ladda ner dokumentet",
+            "notes": "Dokumentet försluts och förses med en försegling som gör varje senare ändring synlig. Länken fortsätter att fungera, så du kan hämta den signerade filen här när du vill."
+        },
+        {
+            "name": "tillbaka-till-oversikten",
+            "action": "goto",
+            "url": "/{workspace}",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-widgeten",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Väntar på dig — widgetåtgärder']"
+        },
+        {
+            "name": "oppna-widgetmenyn-igen",
+            "action": "click",
+            "selector": "button[aria-label='Väntar på dig — widgetåtgärder']",
+            "screenshot": false
+        },
+        {
+            "name": "ta-bort-widgeten",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ta bort widget')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagen-widget",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Väntar på dig — widgetåtgärder']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-sparad-oversikt",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

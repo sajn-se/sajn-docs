@@ -3,7 +3,7 @@ title: "Skapa ett dokument"
 description: "Lär dig hur du skapar ett nytt dokument i sajn steg för steg"
 ---
 
-I den här guiden visar vi hur du skapar ett nytt dokument i sajn. Ett dokument kan innehålla fritext, bilagor och fält som parterna ska fylla i innan de signerar.
+I den här guiden visar vi hur du skapar ett nytt dokument i sajn. Ett dokument kan börja från en mall, från en fil du laddar upp eller från ett tomt papper – alla tre vägarna ligger bakom **Skapa nytt** i dokumentlistan och slutar på samma ställe: redigeraren.
 
 ## Videogenomgång
 
@@ -20,21 +20,48 @@ I den här guiden visar vi hur du skapar ett nytt dokument i sajn. Ett dokument 
 
 <Steps>
   <Step title="Navigera till Dokument">
-    Klicka på **Dokument** i sidomenyn för att komma till dokumentöversikten. Här ser du alla dina befintliga dokument och kan filtrera på status.
-  </Step>
-  <Step title="Skapa nytt dokument">
-    Klicka på **Skapa dokument** uppe till höger. Du kan välja att skapa ett tomt dokument eller utgå från en befintlig mall.
-  </Step>
-  <Step title="Fyll i dokumentinnehåll">
-    Ange en titel för dokumentet och lägg till innehållet. Du kan skriva fritext direkt i editorn, använda HTML-fält för mer avancerad formatering, eller bifoga PDF-filer som dokumentets innehåll.
+    ![Dokumentlistan med knappen Skapa nytt uppe till höger](/images/guider/skapa-dokument/02-dokumentlistan.png)
 
-    Du kan också lägga till fält som parterna ska fylla i, exempelvis textfält, kryssrutor eller datumväljare.
+    Klicka på **Dokument** i sidomenyn. Här ser du alla dina befintliga dokument med status, parter och datum, och kan söka och filtrera. Knappen **Skapa nytt** uppe till höger är delad: texten öppnar sidan Nytt dokument, och pilen bredvid är en genväg rakt till ett tomt dokument eller en filuppladdning.
   </Step>
-  <Step title="Bifoga filer">
-    Om du vill bifoga filer till dokumentet klickar du på **Lägg till fil**. Du kan ladda upp PDF:er, bilder och andra filer som bilagor. Bilagorna skickas med till parterna tillsammans med dokumentet.
+  <Step title="Välj var dokumentet ska börja">
+    ![Sidan Nytt dokument med filuppladdning och mallar](/images/guider/skapa-dokument/05-nytt-dokument.png)
+
+    Klicka på **Skapa nytt**. Sidan som öppnas har två halvor. Överst laddar du upp en fil från datorn – PDF, Word, Excel, PowerPoint, CSV eller TXT, max 25 MB. Har arbetsytan en ansluten tjänst kan du hämta filen därifrån i stället.
+
+    Under **Börja från en mall** ligger arbetsytans mallar som kort, uppdelade på **Mina mallar**, **Delade med mig** och **sajn collection**. För muspekaren över ett kort för att förhandsgranska mallen. Första kortet är **Tomt dokument** – det vi väljer här.
   </Step>
-  <Step title="Granska och spara">
-    Granska dokumentet och spara det som utkast. Härifrån kan du fortsätta till att lägga till parter, ändra inställningar, eller komma tillbaka och redigera innehållet senare.
+  <Step title="Dokumentet öppnas som utkast i redigeraren">
+    ![Ett tomt dokument öppet i redigeraren](/images/guider/skapa-dokument/08-redigeraren.png)
+
+    Ett tomt dokument heter *Nytt dokument* och har statusen **Utkast**. Pappret i mitten är det mottagaren får, och panelen till höger öppnas på **Parter**. Allt du ändrar sparas automatiskt.
+
+    Vill du komma igång snabbare kan du släppa en fil direkt på det tomma pappret.
+  </Step>
+  <Step title="Bygg innehållet av sektioner">
+    ![Sektionsmenyn öppen med alla sektionstyper](/images/guider/skapa-dokument/12-sektionsmenyn.png)
+
+    Ge först dokumentet ett namn du hittar tillbaka till: klicka på titeln högst upp till vänster, skriv namnet och tryck **Enter**. Namnet är det parterna ser i mejlet.
+
+    Innehållet byggs av sektioner, och den streckade linjen **Lägg till sektion** öppnar menyn:
+
+    - **Text & bild** – fri brödtext med formatering och bilder.
+    - **PDF-dokument** – lägger in en färdig fil, till exempel en bilaga.
+    - **Formulär** – en ruta med ifyllbara fält.
+    - **Produkttabell** – rader med pris och antal som summeras.
+    - **Tabell**, **Mellanrum**, **Sidbrytning** och **Varaktighet** formar sidan.
+
+    Under **Verktyg** skriver **Skapa med AI** en sektion åt dig utifrån en beskrivning, och **Sektionsbibliotek** hämtar en sektion du sparat tidigare.
+  </Step>
+  <Step title="Skriv innehållet">
+    ![En textsektion med innehåll och formateringsraden överst](/images/guider/skapa-dokument/16-innehallet.png)
+
+    När du står i en textsektion byts raden överst mot formateringen – rubriker, typsnitt, listor, länkar, bilder och tabeller.
+
+    Skriv **{** där en part ska fylla i något, så infogas ett fält mitt i texten. Fält som hör ihop i en egen ruta lägger du i stället i en formulärsektion.
+  </Step>
+  <Step title="Granska och fortsätt">
+    Dokumentet sparas automatiskt som utkast. Härifrån fortsätter du med att lägga till parter, koppla fälten till rätt part och ändra inställningarna för signeringen – eller kommer tillbaka och redigerar innehållet senare.
   </Step>
 </Steps>
 
@@ -48,4 +75,5 @@ I den här guiden visar vi hur du skapar ett nytt dokument i sajn. Ett dokument 
 
 ## Nästa steg
 
-När dokumentet är skapat behöver du lägga till de parter som ska signera. Läs mer i guiden [Lägg till en part](/guider/lagg-till-part).
+- Behöver du bifoga en fil? Lägg till en PDF-sektion – se [Lägg till en bilaga i ett dokument](/guider/add-attachments).
+- När dokumentet är skapat behöver du lägga till de parter som ska signera. Läs mer i guiden [Lägg till en part](/guider/lagg-till-part).

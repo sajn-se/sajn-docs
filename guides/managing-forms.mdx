@@ -1,0 +1,98 @@
+---
+title: Managing Forms via API
+description: 'Create public forms, configure questions and documents, publish links, and synchronize responses'
+---
+
+Forms let visitors create and sign a document through a hosted public link. Each form owns an independent document base; every submission creates an ordinary sajn document.
+
+## Prerequisites
+
+You need public API access and a bearer token for the workspace. Your workspace role needs `MANAGE_FORM` to create, edit and publish forms, `DELETE_FORM` to delete them, and `READ_FORM_SUBMISSIONS` to read responses. Form lists and details accept either `MANAGE_FORM` or `READ_FORM_SUBMISSIONS`; the backing document requires `MANAGE_FORM`. Publishing requires permission to create and send documents without approval, and a workspace that does not require approval before sending.
+
+OAuth integrations request these scopes:
+
+| Scope | Access |
+| --- | --- |
+| `forms:read` | Form configuration, document base and aggregate statistics |
+| `forms:write` | Create and manage forms and their public links |
+| `forms:delete` | Permanently delete forms and their submission records |
+| `forms:submissions:read` | Respondent contact details and submitted answers |
+| `documents:write` | Required together with `forms:write` for editing and publishing |
+| `templates:read` | Additionally required when creating a form from a template |
+
+Editing requires `documents:write` even for drafts. Personal API keys use their issuing user's workspace permissions instead of OAuth scopes.
+
+## Create a draft
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/forms \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: create-registration-form-1" \
+  -d '{"templateId":"SOURCE_TEMPLATE_ID"}'
+```
+
+Send `{}` to start with a blank document and one respondent party. The response contains `id`, `templateId`, `respondentSignerId`, `url`, settings and `publishIssues`. Creation returns HTTP 201. A copied form has new field and party IDs; later source-template changes do not affect it.
+
+## Configure questions and settings
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/forms/FORM_ID \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title":"Registration",
+    "documentExpiresInDays":30,
+    "maxSubmissions":500,
+    "questions":[
+      {"id":"name","kind":"name","required":true},
+      {"id":"email","kind":"email","required":true},
+      {"id":"notes","kind":"text","label":"Additional information","required":false,"multiline":true}
+    ]
+  }'
+```
+
+Omitted settings stay unchanged. Send `null` to clear a nullable setting. For `password`, omission keeps the current password, `null` removes it, and a string replaces it. Responses expose `hasPassword`, never its hash. Redirect URLs must use HTTP or HTTPS.
+
+Questions replace the whole ordered question list. Supported kinds are `name`, `email`, `phone`, `field`, `text`, `heading` and `paragraph`. The name question is always required. A `field` question uses a `key` from the form's `slots` response to write an answer into the document; a `text` answer is stored on the submission.
+
+Saving settings does not publish, reopen a closed form, or change its sender.
+
+## Edit the document and parties
+
+Read `GET /api/v1/forms/FORM_ID/document` to get the document defaults, content blocks and parties. Use the form endpoints to edit its owned document:
+
+- `PATCH /api/v1/forms/FORM_ID/document`: change `name` and `templateMeta`, such as `signingOrder`.
+- `PUT /api/v1/forms/FORM_ID/document/fields`: replace `fields` with the complete ordered list of content blocks. Include existing IDs to retain fields; omit IDs for new fields. Missing fields are deleted. Existing fields cannot change type.
+- `PUT /api/v1/forms/FORM_ID/document/parties`: replace `parties`. Include existing IDs to retain parties; omit IDs for new parties. Omitted properties on retained parties, including contact links and write-only PINs, stay unchanged. Missing parties are deleted. Send only writable properties from the endpoint's request schema.
+- `PUT /api/v1/forms/FORM_ID/respondent` with `{"signerId":"PARTY_ID"}`: choose which SIGNER the visitor becomes.
+
+Existing submissions are unchanged. Editing a published form can close it when readiness checks find a blocker. Read `GET /api/v1/forms/FORM_ID` again to inspect the latest `publishIssues` and bindable `slots`.
+
+## Publish and share
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/forms/FORM_ID/publish \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Publishing validates document readiness, expiry, capacity, sender permissions, workspace policy and signing-method access. The authenticated user becomes the sender of future documents. Fix any reported blockers before retrying, then share the returned `url` with visitors. Visitors use the hosted form and existing signing flow; this API does not submit or sign on their behalf.
+
+`POST /forms/FORM_ID/unpublish` stops new submissions and preserves the URL for republishing. `POST /forms/FORM_ID/rotate-token` returns a replacement URL and invalidates the old public link, including printed QR codes. Existing signing links remain valid. These paths are relative to `/api/v1`.
+
+## Synchronize responses
+
+```bash
+curl 'https://app.sajn.se/api/v1/forms/FORM_ID/submissions?perPage=100&updatedAfter=2026-09-01T00%3A00%3A00Z' \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+The response contains `submissions`, `hasNextPage` and `nextCursor`. Pass `nextCursor` as `cursor` on the next request with the same filters. Rows are ordered by `updatedAt` and ID ascending. Upsert by submission ID because a response may change during pagination.
+
+Use `updatedAfter` to synchronize status changes and `submittedAfter` to filter by submission time. Optional `status` accepts `STARTED`, `SUBMITTED`, `COMPLETED` or `EXPIRED`. A dedicated form-submission webhook is not currently available.
+
+Each submission includes its contact details, answers, timestamps and `documentId`. Read one with `GET /api/v1/forms/FORM_ID/submissions/SUBMISSION_ID`. Retrieve document content or signing progress through the ordinary document endpoints, which separately enforce document scopes and visibility. Submission responses do not include IP addresses, user agents or signing tokens.
+
+## Delete a form
+
+`DELETE /api/v1/forms/FORM_ID` permanently removes the form, its owned document base and submission records. Export any needed responses first. Documents already created by the form remain ordinary documents.

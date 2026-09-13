@@ -3,51 +3,53 @@ title: "Se versionshistorik för ett dokument"
 description: "Granska tidigare versioner av ett dokument och återställ vid behov till en tidigare version"
 ---
 
-Varje gång ett dokument redigeras sparar sajn automatiskt en ny version. Versionshistoriken låter dig se hur dokumentet har sett ut tidigare, jämföra ändringar – och om något blivit fel kan du återställa en tidigare version direkt från översikten.
+Varje gång ett dokument redigeras sparar sajn automatiskt en ny version. Versionshistoriken låter dig se hur dokumentet har sett ut tidigare, jämföra ändringar – och om något blivit fel kan du återställa en tidigare version.
 
 ## Innan du börjar
 
 - Du har minst ett dokument i arbetsytan som har redigerats minst en gång (annars finns inga versioner att jämföra).
-- Du har behörighet att öppna dokumentet i editorn.
+- Du har behörighet att öppna dokumentet i redigeraren.
 
 ## Steg för steg
 
 <Steps>
   <Step title="Öppna Dokument från sidomenyn för att hitta dokumentet du vill granska">
-    Versionshistoriken är tillgänglig för alla dokument du har skapat – oavsett om de fortfarande är utkast, väntar på signering eller redan är signerade. Däremot kan du bara *återställa* en tidigare version så länge dokumentet är ett utkast eller har återkallats.
+    Versionshistoriken är tillgänglig för alla dokument du har skapat – oavsett om de fortfarande är utkast, väntar på signering eller redan är signerade. Däremot kan du bara *återställa* en tidigare version så länge dokumentet är ett utkast eller har importerats.
 
     <Frame>
-      <img src="/images/guider/document-version-history/02-open-documents.png" alt="Dokumentlistan öppen från sidomenyn" />
+      <img src="/images/guider/document-version-history/02-oppna-dokument.png" alt="Dokumentlistan öppen från sidomenyn" />
     </Frame>
   </Step>
-  <Step title="Klicka på dokumentet i listan för att öppna det i editorn">
-    Högst upp i editorn visas dokumentets namn tillsammans med status och mapp. Klicka på dokumentnamnet för att öppna versionshistoriken.
+  <Step title="Öppna dokumentet och välj Visa › Versionshistorik">
+    Klicka på dokumentet i listan för att öppna det i redigeraren. Menyraden överst har tre menyer – **Arkiv**, **Redigera** och **Visa**. Versionshistoriken ligger under **Visa**, tillsammans med Förhandsgranska och Information.
+
+    Du kommer också åt den genom att klicka på molnikonen bredvid dokumentnamnet, den som visar om ändringarna är sparade.
 
     <Frame>
-      <img src="/images/guider/document-version-history/03-open-document.png" alt="Dokumentet öppet i editorn med titel och status" />
+      <img src="/images/guider/document-version-history/05-visa-menyn.png" alt="Visa-menyn öppen i redigeraren med valet Versionshistorik" />
     </Frame>
   </Step>
-  <Step title="I sidopanelen till höger ser du alla sparade versioner – grupperade på Idag, Igår, Tidigare denna månad och Äldre">
-    Varje rad visar datum och tid för versionen, vem som gjorde ändringen samt en kort etikett som *Aktuell version*, *Skapad*, *Skickad* eller *Återställd*. Versionerna sparas automatiskt medan du arbetar – du behöver inte göra något för att de ska dyka upp här.
+  <Step title="Versionshistoriken öppnas i helskärm med versionerna till höger – grupperade på Idag, Igår, Tidigare denna månad och Äldre">
+    Varje rad visar datum och tid, vem som gjorde ändringen och en kort sammanfattning av vad som ändrades – till exempel *1 fält ändrat*, *Bytte namn* eller *+ Johan Pettersson som undertecknare*. Milstolpar märks dessutom med *Skapad*, *Skickad*, *Återskapad*, *Återställd* eller *Importerad*, och den senaste raden med *Aktuell version*. Versionerna sparas automatiskt medan du arbetar.
 
     <Frame>
-      <img src="/images/guider/document-version-history/10-overlay-open.png" alt="Versionshistorikens sidopanel öppen med versioner grupperade per tidsperiod" />
+      <img src="/images/guider/document-version-history/08-historiken.png" alt="Versionshistoriken öppen med versioner grupperade per tidsperiod" />
     </Frame>
   </Step>
-  <Step title="Klicka på en rad för att förhandsgranska hur dokumentet såg ut just då – innehållet renderas i huvudytan till vänster">
-    Den valda raden markeras i listan. Du kan klicka dig fritt mellan versionerna utan att något ändras i själva dokumentet – du bara tittar.
+  <Step title="Klicka på en rad för att se hur dokumentet såg ut just då – innehållet visas i ytan till vänster">
+    Den valda raden markeras. Överst i förhandsvisningen sammanfattas skillnaden mot den aktuella versionen: vilka parter som fanns och vilka inställningar som skiljer sig, med det gamla värdet överstruket. Du kan klicka dig fritt mellan versionerna utan att något ändras i dokumentet – du bara tittar.
 
     <Frame>
-      <img src="/images/guider/document-version-history/13-version-selected.png" alt="En version vald i sidopanelen och förhandsgranskad i huvudytan" />
+      <img src="/images/guider/document-version-history/09-valj-version.png" alt="En version vald i listan och förhandsvisad till vänster" />
     </Frame>
   </Step>
-  <Step title="På den valda raden dyker en Återställ-knapp upp uppe till höger (den lilla pilen ↺). Klicka på den om du vill ersätta dokumentet med innehållet från just den här versionen">
-    Återställning är bara möjlig på utkast eller återkallade dokument – för utskickade eller signerade dokument är knappen inaktiverad och förklaringen visas när du för muspekaren över den. När du återställer skapas automatiskt en ny version, så du kan alltid ångra åtgärden genom att återställa till föregående version igen.
+  <Step title="På den valda raden dyker återställningspilen (↺) upp längst till höger – klicka på den för att ersätta dokumentet med innehållet från just den versionen">
+    Du får bekräfta innan något ändras. Återställning fungerar på utkast och importerade dokument. Är dokumentet utskickat måste du återkalla det först, och signerade dokument kan inte återställas alls – då är knappen inaktiverad och förklaringen visas när du för muspekaren över den. När du återställer sparas en ny version, så du kan alltid gå tillbaka igen.
 
     För att stänga versionshistoriken klickar du på **Tillbaka** uppe till vänster eller trycker på Esc – dokumentet öppnas då igen exakt som det var.
 
     <Frame>
-      <img src="/images/guider/document-version-history/15-restore-available.png" alt="Återställ-knappen synlig på den valda versionsraden" />
+      <img src="/images/guider/document-version-history/10-aterstall.png" alt="Bekräftelserutan för att återställa till en tidigare version" />
     </Frame>
   </Step>
 </Steps>

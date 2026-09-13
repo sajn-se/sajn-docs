@@ -1,0 +1,359 @@
+{
+    "slug": "sekventiell-signering",
+    "title": "Sekventiell signering — låt parter signera i steg",
+    "intro": "Signeringsordningen bestämmer om alla parter får dokumentet på en gång eller om de tas ett steg i taget. Guiden bygger upp ett utkast med fyra parter och ställer om ordningen.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får skapa dokument.",
+        "Dokumentet är fortfarande ett utkast — signeringsordningen sätts innan du skickar."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/sekventiell-signering",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mallar",
+            "action": "waitForSelector",
+            "selector": "button[title='Konsultavtal']"
+        },
+        {
+            "name": "valj-mall",
+            "action": "click",
+            "selector": "button[title='Konsultavtal']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "[data-guide='document-add-signer']"
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "screenshot": false
+        },
+        {
+            "name": "satt-titel",
+            "action": "fill",
+            "selector": "input[placeholder='Dokumenttitel']",
+            "value": "Batch B: signeringsordning",
+            "screenshot": false
+        },
+        {
+            "name": "tillbaka-parter",
+            "action": "click",
+            "selector": "button[aria-label='Parter']",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-partatgarder",
+            "action": "click",
+            "selector": "button[aria-label='Partåtgärder']",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "redigera-part",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Redigera')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-partdialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange e-postadress']"
+        },
+        {
+            "name": "fyll-epost-mall",
+            "action": "fill",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "value": "erik.sandell@example.se",
+            "screenshot": false
+        },
+        {
+            "name": "ingen-kontakt-mall",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "spara-part-mall",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Uppdatera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-mall",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-lagg-till-1",
+            "action": "click",
+            "selector": "[data-guide='document-add-signer']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog-1",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange namn']"
+        },
+        {
+            "name": "namn-1",
+            "action": "fill",
+            "selector": "input[placeholder='Ange namn']",
+            "value": "Anna Lindqvist",
+            "screenshot": false
+        },
+        {
+            "name": "epost-1",
+            "action": "fill",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "value": "anna.lindqvist@example.se",
+            "caption": "Lägg till parterna",
+            "notes": "Klicka på Sök eller lägg till parter, fyll i namn och e-postadress och klicka på Lägg till. Upprepa tills alla som ska signera finns med. Här lägger vi till tre parter utöver den som följde med mallen."
+        },
+        {
+            "name": "ingen-kontakt-1",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "spara-1",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Lägg till')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-1",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange namn']",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-lagg-till-2",
+            "action": "click",
+            "selector": "[data-guide='document-add-signer']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog-2",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange namn']"
+        },
+        {
+            "name": "namn-2",
+            "action": "fill",
+            "selector": "input[placeholder='Ange namn']",
+            "value": "Johan Berg",
+            "screenshot": false
+        },
+        {
+            "name": "epost-2",
+            "action": "fill",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "value": "johan.berg@example.se",
+            "screenshot": false
+        },
+        {
+            "name": "ingen-kontakt-2",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "spara-2",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Lägg till')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-2",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange namn']",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-lagg-till-3",
+            "action": "click",
+            "selector": "[data-guide='document-add-signer']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialog-3",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange namn']"
+        },
+        {
+            "name": "namn-3",
+            "action": "fill",
+            "selector": "input[placeholder='Ange namn']",
+            "value": "Maria Ek",
+            "screenshot": false
+        },
+        {
+            "name": "epost-3",
+            "action": "fill",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "value": "maria.ek@example.se",
+            "screenshot": false
+        },
+        {
+            "name": "ingen-kontakt-3",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "spara-3",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Lägg till')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-3",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange namn']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-parter",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "alla-samtidigt",
+            "action": "screenshot",
+            "caption": "Som standard signerar alla parter samtidigt",
+            "notes": "Utan signeringsordning får alla parter dokumentet på en gång och kan signera i valfri ordning. Parterna visas grupperade efter företag, eller under Privatpersoner om de inte hör till något."
+        },
+        {
+            "name": "oppna-installningar-igen",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-ordning",
+            "action": "click",
+            "selector": "button[aria-labelledby]:has-text('Alla samtidigt')",
+            "caption": "Ordningen sätts i panelen Inställningar",
+            "notes": "Under rubriken Signering finns inställningen Ordning med två val: Alla samtidigt och I turordning. Det här är hela reglaget — det finns ingen separat switch att slå på."
+        },
+        {
+            "name": "valj-turordning",
+            "action": "click",
+            "selector": "[role='option']:has-text('I turordning')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sparat",
+            "action": "wait",
+            "ms": 2000
+        },
+        {
+            "name": "turordning-vald",
+            "action": "screenshot",
+            "caption": "I turordning delar upp parterna i steg",
+            "notes": "Valet sparas direkt. Informationsikonen bredvid Ordning förklarar principen: nästa part får dokumentet först när den föregående har signerat. Själva ordningen ändrar du i panelen Parter."
+        },
+        {
+            "name": "tillbaka-parter-igen",
+            "action": "click",
+            "selector": "button[aria-label='Parter']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-parter-igen",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "parter-i-steg",
+            "action": "screenshot",
+            "caption": "Varje part hamnar i ett eget steg",
+            "notes": "Panelen Parter visar nu stegen. Steg 1 signerar först, sedan steg 2, och så vidare. Ikonen vid sökfältet växlar mellan den vanliga vyn och ordningsvyn där du flyttar parterna."
+        },
+        {
+            "name": "oppna-ordningsvyn",
+            "action": "click",
+            "selector": "button:has(.lucide-arrow-up-down)",
+            "caption": "Ordningsvyn visar stegen",
+            "notes": "Ikonen till höger i sökfältet växlar till ordningsvyn. Här ligger varje part i sin egen ruta: Steg 1 signerar först, sedan Steg 2, och så vidare. Rutan Nytt steg längst ner skapar ett steg till."
+        },
+        {
+            "name": "dra-till-steg-1",
+            "action": "drag",
+            "selector": "div:has(> div > span:text-is('Steg 4')) >> text=Maria Ek",
+            "target": "div.rounded-md:has(> div > span:text-is('Steg 1'))",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-drag",
+            "action": "wait",
+            "ms": 2500
+        },
+        {
+            "name": "parallellt-i-steg",
+            "action": "screenshot",
+            "caption": "Flera parter i samma steg signerar samtidigt",
+            "notes": "Dra en part till ett annat steg för att slå ihop dem. Parter i samma steg får dokumentet samtidigt och rutan märks signerar parallellt. Vill du ha motsatsen — en part först och sedan flera parallellt — lägger du en part ensam i Steg 1 och drar de andra till Steg 2."
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Flytta till papperskorg'), [role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

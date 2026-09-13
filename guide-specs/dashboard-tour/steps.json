@@ -1,0 +1,201 @@
+{
+    "slug": "dashboard-tour",
+    "title": "Hitta rätt i sajn",
+    "intro": "Den här guiden visar var saker ligger: sidomenyn till vänster, verktygsraden överst och menyerna bakom ikonerna. Vill du i stället ändra vad som visas på startsidan finns det i guiden om widgets.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]",
+        "[data-radix-popper-content-wrapper] p.text-xs.text-muted-foreground.truncate"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has(.bg-gray-800)"
+    ],
+    "imageDir": "../../images/guider/dashboard-tour",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "startsidan",
+            "action": "goto",
+            "url": "/{workspace}",
+            "caption": "Så är sajn uppbyggt",
+            "notes": "Tre ytor: sidomenyn till vänster tar dig mellan vyerna, verktygsraden överst till höger samlar ikonerna, och mitten är startsidan. Väntar något på dig syns det som en siffra i verktygsraden, till exempel åtgärder eller dokument som väntar på din signatur. Klicka på siffran för att gå dit."
+        },
+        {
+            "name": "sidomenyn",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "caption": "Sidomenyn tar dig till huvudvyerna",
+            "notes": "Överst ligger Hem, Dokument, Mallar och Kontakter. Under Övrigt ligger Arkiv, Filer, Produkter, Statistik och Inställningar. Den vy du står i fäller ut sina undersidor, så Dokument visar Kalender, Massutskick och Papperskorg. Under Senaste ligger det du öppnade sist."
+        },
+        {
+            "name": "tillbaka-hem",
+            "action": "goto",
+            "url": "/{workspace}",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-sok",
+            "action": "click",
+            "selector": "[data-sidebar='header'] button[aria-label='Sök']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sok",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Sök...']"
+        },
+        {
+            "name": "sok",
+            "action": "screenshot",
+            "caption": "Sök i hela arbetsytan",
+            "notes": "Förstoringsglaset bredvid arbetsytans namn öppnar sökningen i en panel till höger. Tangentbordsgenvägen ⌘K gör samma sak var du än står i appen. Innan du skrivit något visar panelen snabbval, det du besökte senast och genvägar till inställningarna."
+        },
+        {
+            "name": "skriv-sok",
+            "action": "type",
+            "selector": "input[placeholder='Sök...']",
+            "text": "konsultavtal"
+        },
+        {
+            "name": "vanta-traffar",
+            "action": "wait",
+            "ms": 2000
+        },
+        {
+            "name": "sokresultat",
+            "action": "screenshot",
+            "caption": "Träffarna kommer medan du skriver",
+            "notes": "Sökningen tittar på dokument, mallar, sidor i appen och inställningar, och erbjuder att skicka frågan vidare till Bob. Klicka på en träff för att öppna den. Esc tömmer sökrutan, och en gång till stänger panelen."
+        },
+        {
+            "name": "stang-sok",
+            "action": "click",
+            "selector": "button[aria-label='Stäng']",
+            "screenshot": false
+        },
+        {
+            "name": "paus-sok",
+            "action": "wait",
+            "ms": 600
+        },
+        {
+            "name": "oppna-skapa",
+            "action": "click",
+            "selector": "[data-guide='header-create']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skapa",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Nytt dokument')"
+        },
+        {
+            "name": "skapa",
+            "action": "screenshot",
+            "caption": "Plusknappen skapar ett nytt dokument",
+            "notes": "Plusknappen längst till höger öppnar Nytt dokument. Härifrån laddar du upp en fil eller börjar från en mall. Tillbaka uppe till vänster stänger vyn utan att skapa något."
+        },
+        {
+            "name": "stang-skapa",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "vanta-skapa-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Nytt dokument')",
+            "state": "hidden"
+        },
+        {
+            "name": "paus-skapa",
+            "action": "wait",
+            "ms": 800
+        },
+        {
+            "name": "oppna-aviseringar",
+            "action": "click",
+            "selector": "button:has(svg.lucide-bell)",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-aviseringar",
+            "action": "waitForSelector",
+            "selector": "h2:has-text('Aviseringar')"
+        },
+        {
+            "name": "aviseringar",
+            "action": "screenshot",
+            "caption": "Klockan visar dina aviseringar",
+            "notes": "Här samlas det som hänt i dina dokument: signeringar, påminnelser och förslag. Oläst visar det du inte har öppnat, Alla visar hela listan. Klicka på en rad för att gå till dokumentet."
+        },
+        {
+            "name": "stang-aviseringar",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "paus-aviseringar",
+            "action": "wait",
+            "ms": 800
+        },
+        {
+            "name": "oppna-hjalp",
+            "action": "click",
+            "selector": "button:has(svg.lucide-circle-question-mark)",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-hjalp",
+            "action": "waitForSelector",
+            "selector": "[role='menu']:has-text('Behöver du hjälp?')"
+        },
+        {
+            "name": "hjalp",
+            "action": "screenshot",
+            "caption": "Frågetecknet leder till hjälpen",
+            "notes": "Härifrån når du guiderna, kontaktar supporten och delar feedback när något saknas eller inte fungerar."
+        },
+        {
+            "name": "stang-hjalp",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "paus-hjalp",
+            "action": "wait",
+            "ms": 800
+        },
+        {
+            "name": "oppna-konto",
+            "action": "click",
+            "selector": "[data-testid='user-menu-trigger']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-konto",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Ge feedback')"
+        },
+        {
+            "name": "konto",
+            "action": "screenshot",
+            "caption": "Ditt konto ligger längst ner i sidomenyn",
+            "notes": "Namnet längst ner öppnar kontomenyn. Kugghjulet uppe till höger i rutan tar dig till dina kontoinställningar. Tillhör du flera organisationer byter du mellan dem här, och väntande inbjudningar dyker upp i samma ruta."
+        },
+        {
+            "name": "stang-konto",
+            "action": "press",
+            "key": "Escape"
+        }
+    ]
+}

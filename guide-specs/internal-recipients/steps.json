@@ -1,0 +1,171 @@
+{
+    "slug": "internal-recipients",
+    "title": "Lägg till interna mottagare som behöver granska men inte signera",
+    "intro": "Interna mottagare får det färdigsignerade dokumentet automatiskt, utan att själva signera. Inställningen heter Skickas efteråt till och ligger i panelen Inställningar.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Du har behörighet att redigera dokument i arbetsytan.",
+        "Dokumentet är i status Utkast."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/internal-recipients",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mallar",
+            "action": "waitForSelector",
+            "selector": "button[title='Konsultavtal']"
+        },
+        {
+            "name": "valj-mall",
+            "action": "click",
+            "selector": "button[title='Konsultavtal']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "[data-guide='document-add-signer']"
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "screenshot": false
+        },
+        {
+            "name": "satt-titel",
+            "action": "fill",
+            "selector": "input[placeholder='Dokumenttitel']",
+            "value": "Batch B: interna mottagare",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-kommunikation",
+            "action": "click",
+            "selector": "button:has-text('Kommunikation')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-faltet",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Lägg till e-postadress']"
+        },
+        {
+            "name": "vanta-utfalld",
+            "action": "wait",
+            "ms": 1200
+        },
+        {
+            "name": "scrolla",
+            "action": "scrollIntoView",
+            "selector": "input[placeholder='Lägg till e-postadress']",
+            "align": "end",
+            "screenshot": false,
+            "padBottom": 80
+        },
+        {
+            "name": "faltet",
+            "action": "screenshot",
+            "caption": "Skickas efteråt till ligger under Kommunikation",
+            "notes": "Sektionen Kommunikation i panelen Inställningar är hopfälld från start. Fältet Skickas efteråt till är sist i sektionen, under språk, påminnelser och chattinställningar."
+        },
+        {
+            "name": "skriv-1",
+            "action": "type",
+            "selector": "input[placeholder='Lägg till e-postadress']",
+            "text": "arkiv@example.se",
+            "screenshot": false
+        },
+        {
+            "name": "enter-1",
+            "action": "press",
+            "key": "Enter",
+            "selector": "input[placeholder='Lägg till e-postadress']",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-2",
+            "action": "type",
+            "selector": "input[placeholder='Lägg till e-postadress']",
+            "text": "ekonomi@example.se",
+            "screenshot": false
+        },
+        {
+            "name": "enter-2",
+            "action": "press",
+            "key": "Enter",
+            "selector": "input[placeholder='Lägg till e-postadress']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sparat",
+            "action": "wait",
+            "ms": 2500
+        },
+        {
+            "name": "scrolla-igen",
+            "action": "scrollIntoView",
+            "selector": "input[placeholder='Lägg till e-postadress']",
+            "align": "center",
+            "screenshot": false
+        },
+        {
+            "name": "tillagda",
+            "action": "screenshot",
+            "caption": "Varje adress blir en egen etikett",
+            "notes": "Skriv en e-postadress och tryck Enter. Adressen läggs till som en etikett i fältet och sparas automatiskt. Krysset på etiketten tar bort adressen igen. Du kan ha högst fem interna mottagare per dokument."
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Flytta till papperskorg'), [role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

@@ -5,16 +5,11 @@ description: "Lär dig hur du skickar ett dokument till parterna för signering"
 
 När dokumentet är klart med innehåll, parter och inställningar är det dags att skicka det för signering. I den här guiden visar vi hur du gör det och vad som händer efteråt.
 
-## Videogenomgång
+## Innan du börjar
 
-<video
-  controls
-  width="100%"
-  style={{ borderRadius: "8px", marginTop: "16px" }}
-  src="https://r2-storage.sajn.se/web/assets/skicka-dokument.mp4"
->
-  Din webbläsare stödjer inte videouppspelning.
-</video>
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Dokumentet är i status **Utkast**.
+- Du har behörighet att skicka dokument i arbetsytan.
 
 ## Steg för steg
 
@@ -22,30 +17,69 @@ När dokumentet är klart med innehåll, parter och inställningar är det dags 
   <Step title="Granska dokumentet">
     Innan du skickar, kontrollera att allt stämmer:
     - Dokumentets innehåll och eventuella bilagor
-    - Att rätt parter är tillagda med korrekta uppgifter
+    - Att rätt parter är tillagda med korrekta uppgifter i panelen **Parter**
     - Att inställningar som utgångsdatum och påminnelser ser bra ut
+
+    Knappen **Skicka dokument** uppe till höger släpper bara igenom dig när allt som krävs finns på plats: minst en part, kontaktuppgifter som matchar vald leveransmetod och ett utgångsdatum. Saknas något står det i knappen hur många saker som är kvar, och klickar du på den listas de.
+
+    <Frame>
+      <img src="/images/guider/skicka-dokument/20-granska.png" alt="Ett utkast i redigeraren med panelen Parter öppen och knappen Skicka dokument aktiv" />
+    </Frame>
   </Step>
-  <Step title="Klicka på Skicka">
-    Klicka på **Skicka för signering**. En bekräftelsedialog visas där du kan se en sammanfattning av dokumentet och parterna.
+  <Step title="Se vad som händer efter utskicket">
+    Panelen **Arbetsflöde** visar kedjan från Utkast till Slutfört. Här ser du om dokumentet ska godkännas internt först, hur ofta påminnelser skickas, när fristen går ut och om parterna signerar samtidigt eller i tur och ordning.
+
+    <Frame>
+      <img src="/images/guider/skicka-dokument/21-arbetsflode.png" alt="Panelen Arbetsflöde med stegen Utkast, Internt godkännande, Skickat, Signering och Slutfört" />
+    </Frame>
   </Step>
-  <Step title="Bekräfta utskick">
-    Bekräfta att du vill skicka dokumentet. När du bekräftar händer följande:
-    - Dokumentet låses och kan inte längre redigeras
-    - Alla parter får en notis via e-post (och SMS om det är konfigurerat) med en länk för att granska och signera
-    - Dokumentets status ändras till **Skickat**
+  <Step title="Klicka på Skicka dokument">
+    Dialogen **Skicka dokument** öppnas. Till vänster ser du hur e-posten eller SMS:et kommer att se ut för den mottagare du väljer i listan längst ner. Rutan nere till höger sammanfattar när dokumentet utgår och hur många mottagare som får det.
+
+    <Frame>
+      <img src="/images/guider/skicka-dokument/24-skickadialogen.png" alt="Dialogen Skicka dokument med förhandsgranskning av e-posten till vänster och meddelandefält till höger" />
+    </Frame>
+  </Step>
+  <Step title="Skriv ett meddelande och bekräfta">
+    Välj en meddelandemall eller skriv ett eget meddelande på upp till 500 tecken. Texten följer med till samtliga mottagare - valet gäller alla, inte en i taget. Klicka sedan på **Skicka dokument** i dialogen.
+
+    När du bekräftar händer följande:
+    - Alla parter får en notis via e-post eller SMS med en länk för att granska och signera
+    - Dokumentets status ändras till **Väntande**
+    - Inställningar som utgångsdatum låses, och parterna kan inte längre redigeras fritt
+
+    <Frame>
+      <img src="/images/guider/skicka-dokument/25-skriv-meddelande.png" alt="Meddelandefältet ifyllt i dialogen Skicka dokument" />
+    </Frame>
   </Step>
   <Step title="Följ upp signeringsstatus">
-    I dokumentöversikten kan du följa signeringsstatusen i realtid. Du ser vilka parter som har signerat, vilka som inte har öppnat dokumentet, och om det finns parter som har avböjt att signera.
+    I panelen **Arbetsflöde** följer du läget i realtid: vem som har öppnat dokumentet, vem som har signerat och vem som fortfarande väntar. Statusen står kvar på **Väntande** tills alla har signerat.
+
+    <Frame>
+      <img src="/images/guider/skicka-dokument/32-efter-utskick.png" alt="Det skickade dokumentet med status Väntande och arbetsflödet som visar Skickat och Signering" />
+    </Frame>
+  </Step>
+  <Step title="Samma status syns i listan">
+    I **Dokument** ser du status, parter och utgångsdatum för varje dokument. Trepunktsmenyn längst till höger på raden innehåller åtgärderna för ett skickat dokument, bland annat **Förläng utgångsdatum** och **Återkalla dokument**.
+
+    <Frame>
+      <img src="/images/guider/skicka-dokument/33-till-listan.png" alt="Dokumentlistan med det utskickade dokumentet i status Väntande" />
+    </Frame>
   </Step>
 </Steps>
 
-<Warning>
-  När ett dokument har skickats kan det inte ångras eller redigeras. Om du behöver göra ändringar måste du avbryta det skickade dokumentet och skapa ett nytt.
-</Warning>
+<Note>
+  Behöver du ändra något efter utskicket väljer du **Återkalla dokument**. Dokumentet går tillbaka till **Utkast**, signeringslänkarna slutar fungera och parterna meddelas. Du gör din ändring och skickar om dokumentet - du behöver alltså inte skapa ett nytt.
+</Note>
 
 ## Vad händer efter signering?
 
 När alla parter har signerat:
-- Dokumentet markeras som **Signerat**
-- Alla parter och du som avsändare får en kopia av det signerade dokumentet via e-post
-- Dokumentet arkiveras automatiskt och finns tillgängligt i [arkivet](/guider/arkivet)
+- Dokumentet markeras som **Signerat** och förseglas med ett signeringsintyg
+- Parterna får det färdiga dokumentet via e-post, med den signerade PDF:en som bilaga om arbetsytan tillåter det
+- Dokumentet ligger kvar bland dina dokument. Först 60 dagar efter signeringen flyttas det automatiskt till [arkivet](/guider/arkivet), men du kan arkivera det tidigare via **Arkiv → Arkivera**
+
+## Nästa steg
+
+- Behöver du knuffa på någon som inte signerat? Se [Skicka en manuell påminnelse](/guider/skicka-paminnelse).
+- Är fristen på väg att ta slut? Se [Förläng utgångsdatum](/guider/forlang-utgangsdatum).

@@ -1,0 +1,204 @@
+{
+    "slug": "formular",
+    "title": "Så använder du Formulär",
+    "intro": "Ett formulär är en länk du delar. Besökaren fyller i sina uppgifter, svaren skrivs in i dokumentet, och besökaren signerar direkt. Varje svar blir ett eget dokument i arbetsytan.\n\nEtt formulär är två saker som hänger ihop: dokumentet som signeras, och sidan besökaren fyller i. Det som binder ihop dem är nyckeln på ett fält. Här utgår vi från mallen Konsultavtal, som redan har fält med nycklar, och följer kedjan från ett fält i dokumentet till en fråga i formuläret.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får hantera formulär.",
+        "Du har en mall att utgå från. Mallen behöver en Formulär-sektion med fält som har nycklar.",
+        "Formulär kräver Solo eller högre."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/formular",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-formular",
+            "action": "goto",
+            "url": "/{workspace}/templates/forms",
+            "caption": "Öppna Formulär under Mallar",
+            "notes": "Listan visar varje formulär, om länken är öppen eller lösenordsskyddad, hur många som svarat och när det senast ändrades. Ikonen längst till höger kopierar länken."
+        },
+        {
+            "name": "nytt-formular",
+            "action": "clickText",
+            "text": "Nytt formulär",
+            "caption": "Välj mallen du vill utgå från",
+            "notes": "Formuläret får en egen kopia av mallen, så mallen påverkas inte av det du ändrar här. Vi väljer Konsultavtal, som redan har en Formulär-sektion med fält. Börja från tomt finns längst ner om du hellre bygger dokumentet själv."
+        },
+        {
+            "name": "valj-mall",
+            "action": "click",
+            "selector": "[role='dialog'] .max-h-64 button:has-text('Konsultavtal')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-oversikt",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Redigera dokument')"
+        },
+        {
+            "name": "oversikt",
+            "action": "screenshot",
+            "caption": "Översikten är formulärets hem",
+            "notes": "De två korten är de två halvorna: dokumentet som signeras och formuläret som fylls i. Siffrorna ovanför räknar svaren, och raden under korten sammanfattar åtkomst och tider. Saknas något innan du kan publicera listas det i en ruta här. Börja med dokumentet, för det är där fälten föds."
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "clickText",
+            "text": "Redigera dokument",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dokument",
+            "action": "waitForSelector",
+            "selector": "text=Ändringar sparas automatiskt"
+        },
+        {
+            "name": "dokumentet",
+            "action": "screenshot",
+            "caption": "Dokumentet är en kopia av mallen",
+            "notes": "Texten är fast innehåll och följer med oförändrad till varje svar. Rutan med ifyllbara fält är en Formulär-sektion, och det är bara fält i en sådan sektion som går att fråga efter i formuläret. Här väljer du också vilka parter som ska signera och hur de ska verifiera sig."
+        },
+        {
+            "name": "oppna-faltet",
+            "action": "click",
+            "selector": ":text('Organisationsnummer')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigera-falt",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='t.ex. mottagare-namn']"
+        },
+        {
+            "name": "nyckeln",
+            "action": "screenshot",
+            "caption": "Nyckeln sitter under Avancerat på fältet",
+            "notes": "Klicka på ett fält i dokumentet för att se dess inställningar. Etiketten är vad läsaren ser; nyckeln är vad systemet går på. Ett fält utan nyckel går inte att fråga efter i formuläret. Mallens fält har redan nycklar, här orgnummer. Nyckeln får innehålla gemener, siffror, bindestreck och understreck."
+        },
+        {
+            "name": "stang-faltet",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "tillbaka-fran-dokument",
+            "action": "clickText",
+            "text": "Tillbaka till översikten",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-oversikt-igen",
+            "action": "waitForSelector",
+            "selector": "text=Ändringar sparas automatiskt",
+            "state": "hidden"
+        },
+        {
+            "name": "ladda-om",
+            "action": "reload"
+        },
+        {
+            "name": "vanta-efter-omladdning",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Redigera dokument')"
+        },
+        {
+            "name": "oppna-byggaren",
+            "action": "click",
+            "screenshot": false,
+            "selector": "button:has-text('Redigera formulär')"
+        },
+        {
+            "name": "vanta-byggare",
+            "action": "waitForSelector",
+            "selector": "aside button:has-text('Organisationsnummer')"
+        },
+        {
+            "name": "byggaren",
+            "action": "screenshot",
+            "caption": "Mallens fält listas under Fält i dokumentet",
+            "notes": "Till vänster ligger blocken du kan lägga till. Under Fält i dokumentet står varje fält i mallen som har en nyckel, med sin typ: Kort svar, Datum eller Tal. Under Besökaren ligger namn, e-post och mobilnummer, som beskriver den som fyller i snarare än dokumentet. Mitten är sidan som besökaren möter, redigerbar direkt."
+        },
+        {
+            "name": "lagg-till-slot",
+            "action": "click",
+            "selector": "aside button:has-text('Organisationsnummer')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-inspektor",
+            "action": "waitForSelector",
+            "selector": "aside:has-text('Obligatorisk')"
+        },
+        {
+            "name": "kopplat-block",
+            "action": "screenshot",
+            "caption": "Klicka på fältet för att lägga till frågan",
+            "notes": "Frågan ligger nu i formuläret, och panelen till höger märker den Kort svar · Fält i dokumentet. Det är kopplingen: det besökaren skriver här skrivs in i dokumentets fält Organisationsnummer vid signering.\n\nNamn och E-post står två gånger i listan till vänster, och det är två olika saker. Blocken under Besökaren blir partens namn och e-post på dokumentet. Fälten under Fält i dokumentet är mallens egna fält med nycklarna namn och e-post. Lägger du till båda får besökaren samma fråga två gånger.\n\nPanelen styr etikett, platshållare, hjälptext, om svaret är obligatoriskt och om blocket ska ta halva raden. Klicka Spara uppe till höger."
+        },
+        {
+            "name": "tillbaka-fran-byggare",
+            "action": "clickText",
+            "text": "Tillbaka till översikten",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-flikar-igen",
+            "action": "waitForSelector",
+            "selector": "button[role='tab']:has-text('Inställningar')"
+        },
+        {
+            "name": "installningar",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('Inställningar')",
+            "caption": "Bestäm åtkomst, tider och kvittens",
+            "notes": "Länken kan vara öppen för alla eller skyddad med ett lösenord. Här sätter du också hur många dagar besökaren har på sig att signera, ett sista svarsdatum, ett maxantal svar, vart besökaren skickas efter signeringen och vilken text som visas när det är klart."
+        },
+        {
+            "name": "svar",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('Svar')",
+            "caption": "Följ svaren allteftersom de kommer in",
+            "notes": "Varje rad är ett svar med sitt dokument. Påbörjad betyder att besökaren fyllt i formuläret, Väntar på signering att dokumentet skapats, och Klar att det är signerat. Klicka på en rad för att öppna dokumentet. När allt är klart trycker du Publicera överst och delar länken."
+        },
+        {
+            "name": "tillbaka-oversikt",
+            "action": "click",
+            "selector": "button[role='tab']:has-text('Översikt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-atgarder",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Fler åtgärder']"
+        },
+        {
+            "name": "oppna-atgarder",
+            "action": "click",
+            "selector": "button[aria-label='Fler åtgärder']",
+            "screenshot": false
+        },
+        {
+            "name": "ta-bort",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ta bort formuläret')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Nytt formulär')"
+        }
+    ]
+}

@@ -1,0 +1,330 @@
+{
+    "slug": "tilldela-falt-till-part",
+    "title": "Tilldela fält till rätt part",
+    "intro": "Ett fält kan antingen fyllas i av dig nu eller av en part vid signeringen. Det avgörs av en enda inställning: Fylls i av i formulärsektionen, Tilldelad part för en variabel i löpande text.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i sajn.",
+        "Du har behörighet att skapa dokument i din arbetsyta."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "imageDir": "../../images/guider/tilldela-falt-till-part",
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "goto-dokument",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Fler alternativ']",
+            "screenshot": false
+        },
+        {
+            "name": "valj-tomt",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Tomt dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigeraren",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Variabler']"
+        },
+        {
+            "name": "klicka-titeln",
+            "action": "click",
+            "selector": "header h3[role='button']",
+            "screenshot": false
+        },
+        {
+            "name": "byt-namn",
+            "action": "fill",
+            "selector": "input[aria-label='Titel']",
+            "value": "Batch A: tilldela fält",
+            "screenshot": false
+        },
+        {
+            "name": "spara-namnet",
+            "action": "press",
+            "key": "Enter",
+            "screenshot": false
+        },
+        {
+            "name": "nytt-dokument",
+            "action": "screenshot",
+            "caption": "Börja med parterna",
+            "notes": "Redigeraren öppnas med panelen Parter till höger. Utan parter finns det ingen att koppla fälten till, så börja här."
+        },
+        {
+            "name": "oppna-partdialogen",
+            "action": "click",
+            "selector": "[data-guide='document-add-signer']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dialogen",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Lägg till part')"
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Ange namn']",
+            "value": "Anna Andersson",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-epost",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Ange e-postadress']",
+            "value": "anna.andersson@example.se",
+            "caption": "Lägg till minst en part",
+            "notes": "Fyll i Namn och E-post och klicka Lägg till. Finns personen redan bland kontakterna söker du fram den i fältet högst upp. Under Signering och leverans väljer du signaturtyp, hur dokumentet skickas och om parten ska verifiera sig vid signeringen."
+        },
+        {
+            "name": "lagg-till-parten",
+            "action": "click",
+            "selector": "[role='dialog'] button[type='submit']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-parten",
+            "action": "waitForSelector",
+            "selector": "text=Anna Andersson"
+        },
+        {
+            "name": "parten-tillagd",
+            "action": "screenshot",
+            "caption": "Parten får en egen färg",
+            "notes": "Anna Andersson ligger nu i dokumentet. Färgen framför namnet följer med överallt där ett fält kopplas till parten, så du ser direkt vem som ska fylla i vad."
+        },
+        {
+            "name": "sektionsmenyn",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-formular",
+            "action": "click",
+            "selector": "[cmdk-item][data-value='Formulär']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-formular",
+            "action": "waitForSelector",
+            "selector": "text=Klicka för att lägga till fält"
+        },
+        {
+            "name": "skapa-falt",
+            "action": "click",
+            "selector": "text=Klicka för att lägga till fält",
+            "caption": "Skapa ett fält i formulärsektionen",
+            "notes": "Fältet heter Namnlöst fält tills du döper om det. Klicka på fältet för att öppna inställningarna."
+        },
+        {
+            "name": "oppna-faltet",
+            "action": "click",
+            "selector": "text=Namnlöst fält",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigera-falt",
+            "action": "waitForSelector",
+            "selector": "text=Redigera fält"
+        },
+        {
+            "name": "fyll-etikett",
+            "action": "fill",
+            "selector": "input[placeholder='Ange etikett']",
+            "value": "Kontaktperson",
+            "screenshot": false
+        },
+        {
+            "name": "redigera-falt",
+            "action": "screenshot",
+            "caption": "Fylls i av sitter direkt i Redigera fält",
+            "notes": "Du behöver inte fälla ut Avancerat. Fylls i av ligger under Placeholder, mellan fältets utseende och Avancerat. Avancerat rymmer bara fältets nyckel."
+        },
+        {
+            "name": "oppna-fylls-i-av",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button[role='combobox']",
+            "match": "last",
+            "caption": "Välj vem som fyller i fältet",
+            "notes": "Fast värde betyder att fältet är fast text som du fyller i här och nu — det är förvalt. Väljer du en part i listan fylls fältet i av den parten vid signeringen. Färgpricken framför namnet är samma färg som i panelen Parter."
+        },
+        {
+            "name": "valj-parten",
+            "action": "click",
+            "selector": "[role='option']:has-text('Anna Andersson')",
+            "screenshot": false
+        },
+        {
+            "name": "obligatoriskt",
+            "action": "wait",
+            "ms": 600,
+            "screenshot": true,
+            "caption": "Obligatoriskt dyker upp när fältet har en part",
+            "notes": "Slå på Obligatoriskt om parten måste fylla i fältet innan den kan signera. Klicka Spara."
+        },
+        {
+            "name": "spara-faltet",
+            "action": "click",
+            "selector": "button[type='submit']:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sparat",
+            "action": "waitForSelector",
+            "selector": "text=Redigera fält",
+            "state": "hidden"
+        },
+        {
+            "name": "faltet-kopplat",
+            "action": "screenshot",
+            "caption": "Fältet är kopplat till parten",
+            "notes": "Under fältet står nu Fylls i av Anna Andersson vid signering, och ramen blir streckad för att visa att värdet fylls i senare. Fält med Fast värde står kvar som fast text."
+        },
+        {
+            "name": "sektionsmenyn-text",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-text",
+            "action": "click",
+            "selector": "[cmdk-item][data-value='Text & bild']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-text",
+            "action": "waitForSelector",
+            "selector": "div[contenteditable='true']",
+            "match": "last"
+        },
+        {
+            "name": "skriv-inledning",
+            "action": "type",
+            "selector": "div[contenteditable='true']",
+            "text": "Uppdraget utförs av ",
+            "delay": 20,
+            "screenshot": false
+        },
+        {
+            "name": "oppna-variabelmenyn",
+            "action": "type",
+            "selector": "div[contenteditable='true']",
+            "text": "{",
+            "delay": 60,
+            "screenshot": false
+        },
+        {
+            "name": "vanta-variabelmenyn",
+            "action": "waitForSelector",
+            "selector": "text=Fylls i vid signering"
+        },
+        {
+            "name": "variabelmenyn",
+            "action": "screenshot",
+            "caption": "Skriv { för att infoga ett fält i löpande text",
+            "notes": "Menyn listar allt som går att infoga, och den filtrerar medan du skriver. Under Datafält ligger arbetsytans egna uppgifter, under Parter och Dokument uppgifter som hämtas automatiskt — som partens namn och dokumentets titel — och under Fylls i av part de fält som redan finns i dokumentet. Längst ner i listan skapar Ny variabel ett nytt fält på plats."
+        },
+        {
+            "name": "skapa-variabel",
+            "action": "click",
+            "selector": "button:has-text('Ny variabel')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-variabelruta",
+            "action": "waitForSelector",
+            "selector": "text=Tilldelad part"
+        },
+        {
+            "name": "namnge-variabeln",
+            "action": "fill",
+            "selector": "input[placeholder='t.ex. Fornamn']",
+            "value": "Uppdragstagare",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-tilldelad-part",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button[role='combobox']",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "valj-part-variabel",
+            "action": "click",
+            "selector": "[role='option']:has-text('Anna Andersson')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-vald",
+            "action": "wait",
+            "ms": 800
+        },
+        {
+            "name": "variabel-ruta",
+            "action": "screenshot",
+            "caption": "Variabeln har sin egen ruta",
+            "notes": "Ge variabeln en Etikett, välj Tilldelad part och sätt Fälttyp — Text, Datum eller Flerval. Obligatoriskt längst ner styr om parten måste fylla i den. En variabel i löpande text måste ha en part; det är parten som fyller i värdet vid signeringen."
+        },
+        {
+            "name": "stang-variabelrutan",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "slang",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "bekrafta-slang",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa nytt')"
+        },
+        {
+            "name": "efter-rensning",
+            "action": "wait",
+            "ms": 2500
+        }
+    ]
+}

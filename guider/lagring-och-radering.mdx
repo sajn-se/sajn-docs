@@ -20,17 +20,25 @@ Databasen ligger i Stockholm och är krypterad i vila. Automatiska säkerhetskop
 Lagringspolicyn sätts per arbetsyta.
 
 <Steps>
-  <Step title="Öppna Inställningar → Preferenser">
-    Sidan ligger under *Arbetsyteinställningar*. Policyn gäller bara den aktuella arbetsytan – andra arbetsytor har sina egna inställningar.
+  <Step title="Öppna Inställningar → Preferenser → Lagring">
+    Sidan ligger under *Arbetsyteinställningar*, på fliken **Lagring**. Policyn gäller bara den aktuella arbetsytan – andra arbetsytor har sina egna inställningar.
+
+    <Frame>
+      <img src="/images/guider/lagring-och-radering/02-oppna-lagring.png" alt="Fliken Lagring under Preferenser med lagringstid och tid i papperskorgen" />
+    </Frame>
   </Step>
   <Step title="Välj lagringstid">
-    Välj hur länge slutförda dokument ska sparas innan de flyttas till papperskorgen:
+    Menyn **Radera slutförda dokument** styr hur länge slutförda dokument sparas innan de flyttas till papperskorgen:
 
-    - **Spara tills vidare** (standard) – ingen automatisk flytt
-    - **30, 90 eller 180 dagar**
-    - **1, 3 eller 7 år**
+    - **Spara tills vidare (standard)** – ingen automatisk flytt
+    - **30 dagar**, **90 dagar** eller **6 månader** efter slutförande
+    - **1 år**, **3 år** eller **7 år** efter slutförande
 
     Tiden räknas från att dokumentet slutförts.
+
+    <Frame>
+      <img src="/images/guider/lagring-och-radering/03-valj-lagringstid.png" alt="Menyn Radera slutförda dokument öppen med alla lagringstider" />
+    </Frame>
   </Step>
   <Step title="Granska hur många dokument som berörs">
     Innan policyn sparas visas hur många befintliga slutförda dokument den berör, så att du vet vad som kommer att flyttas.
@@ -42,11 +50,17 @@ Lagringspolicyn sätts per arbetsyta.
 
 ### Papperskorgens längd
 
-Hur länge dokument ligger i papperskorgen innan de raderas permanent ställs in separat för arbetsytan – mellan **7 och 365 dagar**, med **90 dagar** som standard. Först när den tiden löpt ut raderas dokumentet permanent.
+Hur länge dokument ligger i papperskorgen innan de raderas permanent ställs in separat, i menyn **Behåll i papperskorgen** på samma flik – mellan **7 och 365 dagar**, med **90 dagar** som standard. Först när den tiden löpt ut raderas dokumentet permanent.
 
 ### Undanta enskilda dokument – lagringsspärr
 
 Enskilda dokument kan undantas från lagringspolicyn med en **lagringsspärr**. Ett spärrat dokument påverkas inte av policyn utan sparas tills vidare.
+
+Du sätter spärren i dokumentlistan: öppna radens meny på ett slutfört dokument och välj **Undanta från lagringspolicy**. Samma menyval tar bort undantaget igen.
+
+<Frame>
+  <img src="/images/guider/lagring-och-radering/07-undanta-dokument.png" alt="Radmenyn i dokumentlistan med valet Undanta från lagringspolicy på ett signerat dokument" />
+</Frame>
 
 - Kräver behörighet att hantera arbetsytans inställningar.
 - Åtgärden loggas i organisationens händelselogg.

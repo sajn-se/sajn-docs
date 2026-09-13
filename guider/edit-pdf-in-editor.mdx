@@ -1,53 +1,57 @@
 ---
-title: "Redigera en PDF i editorn"
-description: "Se vad du kan och inte kan göra med en PDF-sektion i sajn-editorn – från formulärfält till sektionsmenyn"
+title: "Redigera en PDF i redigeraren"
+description: "Se vad du kan och inte kan göra med en PDF-sektion i sajn-redigeraren – från placerade fält till sektionsmenyn"
 ---
 
-I sajn-editorn fungerar en PDF som en egen sektion i dokumentet – inte som en yta du ritar fritt på. Du kan inte själv lägga till text, anteckningar eller markeringar ovanpå PDF-sidorna. Däremot kan du fylla i interaktiva formulärfält som redan finns i PDF:en, lägga till en kommentar som visas innan filen laddats upp, låta Bob (AI:n) analysera innehållet, samt hantera PDF-sektionen som vilken annan sektion som helst (spara, duplicera, ta bort). Den här guiden visar vad du faktiskt kan göra med en PDF inifrån editorn.
+I sajn-redigeraren ligger en PDF som en egen sektion i dokumentet. Texten i filen går inte att ändra – men du kan placera fält ovanpå sidorna, fylla i de formulärfält PDF:en redan har, låta Bob analysera innehållet och hantera sektionen som vilken annan sektion som helst. Den här guiden visar vad du faktiskt kan göra med en PDF inifrån redigeraren.
 
 ## Innan du börjar
 
 - Du är inloggad i sajn och har valt en arbetsyta.
-- Du har minst ett utkast som innehåller en PDF-sektion (annars: lägg först till en bilaga med guiden *Lägg till en bilaga i ett dokument*).
+- Du har ett utkast som innehåller en PDF-sektion (annars: lägg först till en, med guiden [Lägg till en bilaga i ett dokument](/guider/add-attachments)).
 - Du har behörighet att redigera dokumentet (skapare, ansvarig eller admin).
 
 ## Steg
 
 <Steps>
-  <Step title="Öppna ett utkast med en PDF-sektion">
-    Öppna **Dokument** i sidomenyn och filtrera på status **Utkast**. PDF-sektioner går bara att redigera så länge dokumentet är ett utkast – när det är utskickat för signering låses innehållet. Klicka på det utkast som innehåller PDF-sektionen du vill jobba med.
+  <Step title="PDF:en ligger som en egen sektion">
+    ![Redigeraren med PDF:en som en egen sektion](/images/guider/edit-pdf-in-editor/20-pdf-sektionen.png)
 
-    <Frame>
-      <img src="/images/guider/edit-pdf-in-editor/02-open-drafts.png" alt="Dokumentlistan filtrerad på utkast" />
-    </Frame>
+    Sidorna renderas i full bredd som en egen sektion och följer med dokumentet när det skickas för signering. Själva texten i filen går inte att ändra – vill du byta ut innehållet tar du bort sektionen och lägger in en ny PDF.
+
+    PDF-sektioner går bara att ändra så länge dokumentet är ett **Utkast**; när det är utskickat för signering låses innehållet.
   </Step>
-  <Step title="Dokumentet öppnas med PDF:en som en egen sektion">
-    Dokumentet öppnas i editorn med PDF:en renderad som en egen sektion. Sidorna i PDF-sektionen visas i full bredd med grå bakgrund så att de skiljer sig från övrigt innehåll i dokumentet. Observera att editorn inte erbjuder något ritverktyg eller textverktyg ovanpå sidorna – du kan inte själv lägga till markeringar, signaturer eller fält *på* PDF-bilden. PDF-sektionen är en helhet som följer med dokumentet när det skickas för signering.
+  <Step title="Kugghjulet samlar sektionens åtgärder">
+    ![Sektionsmenyn öppen för en PDF-sektion](/images/guider/edit-pdf-in-editor/21-oppna-sektionsmenyn.png)
 
-    <Frame>
-      <img src="/images/guider/edit-pdf-in-editor/09-editor-with-pdf.png" alt="Editorn med PDF:en renderad som en egen sektion" />
-    </Frame>
-  </Step>
-  <Step title="Öppna sektionsmenyn för PDF-sektionen">
-    Håll musen över PDF-sektionen och klicka på kugghjulet till höger för att öppna sektionsmenyn. Här samlas alla åtgärder som finns för en PDF-sektion i editorn:
+    För muspekaren över sektionen så dyker kugghjulet upp till vänster. Här samlas allt du kan göra med sektionen:
 
-    - **Kommentar** – sätt en instruktionstext som visas i sektionens uppladdningsruta. Användbart i mallar där du vill vägleda nästa person (t.ex. *"Ladda upp köpeavtal här"*). Texten visas bara så länge sektionen är tom.
-    - **Analysera med AI** – Bob läser igenom PDF:en och tar fram förslag på t.ex. parter, viktiga datum och nyckelvärden. Kräver en betald plan.
+    - **Kommentar** – en instruktionstext som visas i sektionens uppladdningsruta så länge sektionen är tom. Användbart i mallar där du vill vägleda nästa person, t.ex. *"Ladda upp köpeavtal här"*.
+    - **Analysera med AI** – Bob läser igenom PDF:en och tar fram förslag på parter, viktiga datum och nyckelvärden. Kräver en betald plan.
+    - **Visningsregel…** – styr när sektionen ska visas.
+    - **Lås sektion** – hindrar andra från att ändra sektionen.
     - **Spara sektion** – sparar PDF:en som ett återanvändbart block i sektionsbiblioteket.
-    - **Duplicera sektion** – skapar en kopia av PDF-sektionen i samma dokument.
-    - **Ta bort sektion** – tar bort hela PDF-sektionen (för att byta ut filen tar du bort sektionen och lägger till en ny PDF-sektion).
-
-    <Frame>
-      <img src="/images/guider/edit-pdf-in-editor/12-section-menu-open.png" alt="Sektionsmenyn öppen för en PDF-sektion" />
-    </Frame>
+    - **Duplicera sektion** – skapar en kopia i samma dokument.
+    - **Ta bort sektion** – tar bort hela sektionen.
   </Step>
-  <Step title="Fyll i interaktiva formulärfält i PDF:en">
-    Om PDF:en innehåller interaktiva formulärfält visas de som gula, ifyllbara rutor ovanpå sidorna. När du laddar upp en PDF läser sajn automatiskt ut eventuella AcroForm-fält (text, kryssrutor, rullgardinsmenyer och radioknappar). Dessa renderas som gula överlägg direkt ovanpå sidan och kan fyllas i precis som ett vanligt formulär. Värdena sparas tillsammans med dokumentet och följer med när det skickas för signering.
+  <Step title="PDF-fält placerar fält ovanpå sidorna">
+    ![Panelen Innehåll med PDF-fält](/images/guider/edit-pdf-in-editor/25-pdf-falt.png)
 
-    Observera: detta gäller **endast** PDF:er som från början är gjorda som ifyllbara formulär. För vanliga "platta" PDF:er (t.ex. exporterade rapporter, scannade dokument eller PDF:er utan formulärfält) finns inga sådana rutor – då är PDF-sektionen rent visningsbar och redigeringen sker i stället via sektionsmenyn ovan.
+    Öppna panelen **Innehåll**. Under **PDF-fält** ligger sex fälttyper: **Textfält**, **Datum**, **Kryssruta**, **Listruta**, **Signatur** och **Initialer**.
 
-    <Frame>
-      <img src="/images/guider/edit-pdf-in-editor/15-form-fields-info.png" alt="PDF-sidan med gula, ifyllbara formulärfält ovanpå" />
-    </Frame>
+    Välj först i menyn ovanför vem fältet ska tillhöra – **Fast värde** om du fyller i det själv, annars en part. Dra sedan fälttypen till den plats på sidan där den ska ligga. **Signatur** och **Initialer** är släckta tills du valt en part som ska signera; de ritas av parten vid signeringen och sätts in i det förseglade dokumentet.
+
+    Fälten är också släckta tills dokumentet faktiskt innehåller en PDF.
+  </Step>
+  <Step title="Fält som redan finns i PDF:en går att fylla i">
+    ![PDF-sidan med gultonade, ifyllbara formulärfält](/images/guider/edit-pdf-in-editor/28-acroform.png)
+
+    Är PDF:en gjord som ett ifyllbart formulär läser sajn ut fälten automatiskt – text, kryssrutor, rullgardiner och radioknappar. De blir ifyllbara rutor direkt ovanpå sidan, svagt gultonade och tydligare när du för muspekaren över. Värdena sparas med dokumentet och följer med när det skickas för signering.
+
+    Detta gäller **endast** PDF:er som från början är gjorda som ifyllbara formulär. För vanliga platta PDF:er – exporterade rapporter, skannade dokument – finns inga sådana rutor; där placerar du i stället fälten själv från **PDF-fält**.
+
+    <Note>
+      Fälten läses ut när PDF:en läggs in som en sektion i redigeraren, eller när du använder genvägen **Ladda upp fil** vid **Skapa nytt**. Laddar du upp filen via uppladdningsrutan på sidan *Nytt dokument* kommer PDF:en in utan sina formulärfält.
+    </Note>
   </Step>
 </Steps>

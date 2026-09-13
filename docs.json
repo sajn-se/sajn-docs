@@ -35,10 +35,12 @@
             "pages": [
               "guider/index",
               "guider/dashboard-tour",
+              "guider/startsidan-widgets",
               "guider/workspace-switching",
               "guider/notifications",
               "guider/setup-2fa-passkey",
               "guider/signing-methods",
+              "guider/signeringsupplevelsen",
               "guider/ai"
             ]
           },
@@ -46,6 +48,7 @@
             "group": "Dokument",
             "pages": [
               "guider/skapa-dokument",
+              "guider/dokumentredigeraren",
               "guider/add-fields-to-document",
               "guider/tilldela-falt-till-part",
               "guider/create-document-from-template",
@@ -79,6 +82,7 @@
               "guider/add-fields-to-template",
               "guider/create-template-from-pdf",
               "guider/use-template",
+              "guider/formular",
               "guider/samma-falt-olika-mottagare",
               "guider/ai-generate-template-section",
               "guider/sajn-collection",
@@ -438,6 +442,27 @@
               "POST /api/v1/templates/{id}/tags",
               "DELETE /api/v1/templates/{id}/tags/{tagId}",
               "GET /api/v1/templates/{id}/documents"
+            ]
+          },
+          {
+            "group": "Forms",
+            "pages": [
+              "guides/managing-forms",
+              "GET /api/v1/forms",
+              "POST /api/v1/forms",
+              "GET /api/v1/forms/{id}",
+              "PATCH /api/v1/forms/{id}",
+              "DELETE /api/v1/forms/{id}",
+              "POST /api/v1/forms/{id}/publish",
+              "POST /api/v1/forms/{id}/unpublish",
+              "POST /api/v1/forms/{id}/rotate-token",
+              "PUT /api/v1/forms/{id}/respondent",
+              "GET /api/v1/forms/{id}/document",
+              "PATCH /api/v1/forms/{id}/document",
+              "PUT /api/v1/forms/{id}/document/fields",
+              "PUT /api/v1/forms/{id}/document/parties",
+              "GET /api/v1/forms/{id}/submissions",
+              "GET /api/v1/forms/{id}/submissions/{submissionId}"
             ]
           },
           {

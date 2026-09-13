@@ -25,7 +25,13 @@ En part i en mall är en rollplats – t.ex. *Mottagare* eller *Kund*. Du behöv
     Öppna **Mallar** i sidomenyn och klicka **Skapa ny mall**. Ge mallen ett tydligt namn, t.ex. *Inhämtning av uppgifter*.
   </Step>
   <Step title="Lägg till en part och döp den efter rollen">
-    Gå till fliken **Parter** och lägg till en part. Döp den efter rollen i stället för en person – t.ex. **Mottagare**. Du kan lämna **E-post** tom; den fyller du i per dokument.
+    Öppna panelen **Parter** och lägg till en part med **Lägg till part eller roll...**. Döp den efter rollen i stället för en person – t.ex. **Mottagare** eller *Konsulten*. Du kan lämna **E-post** tom; den fyller du i per dokument.
+
+    I panelen står parten sedan med sitt rollnamn och texten *Tilldelas vid utskick*. Det är hela poängen: mallen vet vilken roll som ska fylla i, men inte vem.
+
+    <Frame>
+      <img src="/images/guider/samma-falt-olika-mottagare/05-parten-ar-en-rollplats.png" alt="Panelen Parter i mallen med parten Konsulten märkt Tilldelas vid utskick" />
+    </Frame>
 
     <Note>
       E-post är valfri i mallen. Den röda asterisken vid E-post dyker bara upp om du väljer **E-post** som leveransmetod – då anger du adressen när du skickar dokumentet.
@@ -35,10 +41,24 @@ En part i en mall är en rollplats – t.ex. *Mottagare* eller *Kund*. Du behöv
     Klicka **Lägg till sektion** och välj **Formulär**. Lägg till de fält mottagaren ska fylla i, t.ex. *Namn*, *Personnummer* och *Adress*.
   </Step>
   <Step title="Tilldela fälten till parten">
-    Öppna varje fält, gå till **Avancerat** och välj **Mottagare** i menyn **Tilldelad part**. Slå på **Obligatoriskt** för de uppgifter som måste fyllas i före signering. Spara mallen.
+    Klicka på ett fält så öppnas rutan **Redigera fält**. I menyn **Fylls i av** väljer du parten, t.ex. *Mottagare*. Behåll **Fast värde** om fältet i stället ska vara fast text som ingen fyller i.
+
+    Slå på **Obligatoriskt** för de uppgifter som måste fyllas i före signering, och klicka **Spara**.
+
+    <Frame>
+      <img src="/images/guider/samma-falt-olika-mottagare/08-fylls-i-av.png" alt="Rutan Redigera fält med menyn Fylls i av öppen och parten Konsulten valbar" />
+    </Frame>
+
+    <Note>
+      Kopplingen går till parten, inte till en e-postadress. Byter du person på parten i ett dokument följer alla fält med av sig själv.
+    </Note>
   </Step>
   <Step title="Skapa ett dokument när du ska skicka">
-    Öppna mallen och välj **Skapa dokument** i trepunktsmenyn (⋯). Dokumentet ärver formuläret och parten *Mottagare* – fälten är redan på plats.
+    Öppna radens meny (⋯) i mallistan och välj **Skapa dokument**. Dokumentet ärver formuläret och parten *Mottagare* – fälten är redan på plats.
+
+    <Frame>
+      <img src="/images/guider/samma-falt-olika-mottagare/12-skapa-dokument.png" alt="Radmenyn på mallen Konsultavtal med valet Skapa dokument överst" />
+    </Frame>
   </Step>
   <Step title="Fyll i den verkliga mottagaren och skicka">
     I sidopanelen **Parter** klickar du på parten *Mottagare* och fyller i personens **Namn** och **E-post**. Skicka dokumentet för signering. Mottagaren öppnar länken och fyller i fälten.

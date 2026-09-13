@@ -1,0 +1,72 @@
+{
+    "slug": "files-overview",
+    "title": "Hantera filer på sidan Filer",
+    "intro": "Sidan Filer samlar arbetsytans fristående filuppladdningar — separat från dokumenten i Dokument-listan.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får se filer.",
+        "Arbetsytan har Solo eller högre. Filer saknas på Basic."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": ["[data-guide-mask]"],
+    "imageDir": "../../images/guider/files-overview",
+    "hide": ["[data-radix-popper-content-wrapper]:has([role='tooltip'])"],
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "oppna-filer",
+            "action": "goto",
+            "url": "/{workspace}/files",
+            "caption": "Öppna Filer i sidomenyn",
+            "notes": "Tabellen visar namn, storlek, typ, synlighet, vem som laddade upp filen och när. Överst finns sökfältet och filtren Typ och Synlighet, och till höger knappen Ladda upp."
+        },
+        {
+            "name": "typfilter",
+            "action": "click",
+            "selector": "button:has-text('Typ')",
+            "caption": "Typ begränsar listan till en filkategori",
+            "notes": "Kryssa i PDF, Word, Excel, PowerPoint, Bilder eller Video. Flera kategorier går att välja samtidigt."
+        },
+        {
+            "name": "stang-typfilter",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "synlighetsfilter",
+            "action": "click",
+            "selector": "button:has-text('Synlighet')",
+            "caption": "Synlighet skiljer privata filer från publika",
+            "notes": "Privat betyder att nedladdning kräver en signerad länk från arbetsytan. Publik betyder att vem som helst med länken kommer åt filen utan att logga in."
+        },
+        {
+            "name": "stang-synlighetsfilter",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "radmeny",
+            "action": "click",
+            "selector": "tbody tr:first-child button:has(svg.lucide-ellipsis)",
+            "caption": "Menyn på raden ger åtgärderna per fil",
+            "notes": "Kopiera URL ger en länk till filen, Kopiera checksum ger filens kontrollsumma, och Ladda ner sparar en kopia. Ta bort visas bara om du får radera filer. Det finns ingen förhandsgranskning i listan — ladda ner filen för att se innehållet."
+        },
+        {
+            "name": "stang-radmeny",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "ladda-upp",
+            "action": "click",
+            "selector": "button:has-text('Ladda upp')",
+            "caption": "Ladda upp tar emot flera filer åt gången",
+            "notes": "Dra in filerna eller klicka för att bläddra. Godkända filtyper står under rutan och varje fil får väga högst 25 MB. Synlighet längst ner avgör om filerna blir privata eller publika, och den gäller alla filer i uppladdningen."
+        },
+        {
+            "name": "stang-uppladdning",
+            "action": "press",
+            "key": "Escape"
+        }
+    ]
+}

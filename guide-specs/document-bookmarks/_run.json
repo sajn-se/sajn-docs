@@ -1,0 +1,131 @@
+{
+  "ranAt": "2026-09-13T09:59:25.917Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "oppna-dokument",
+      "action": "goto",
+      "screenshotFile": "02-oppna-dokument.png",
+      "caption": "Öppna Dokument i sidomenyn",
+      "notes": "Filterraden överst har Status, Taggar, datumfiltret och Fler filter.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 3,
+      "name": "oppna-status",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 4,
+      "name": "valj-vantande",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 5,
+      "name": "stang-status",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 6,
+      "name": "filter-valt",
+      "action": "screenshot",
+      "screenshotFile": "06-filter-valt.png",
+      "caption": "Ställ in filtret du vill kunna återkomma till",
+      "notes": "Här är listan filtrerad på status Väntande. Så fort minst ett filter är aktivt dyker en bokmärkesikon upp i filterraden.",
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 7,
+      "name": "oppna-bokmarke",
+      "action": "click",
+      "screenshotFile": "07-oppna-bokmarke.png",
+      "caption": "Klicka på bokmärkesikonen i filterraden",
+      "notes": "Rutan Skapa bokmärke öppnas. Namnet är det enda du fyller i — filtren sparas med automatiskt.",
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 8,
+      "name": "namnge",
+      "action": "fill",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 9,
+      "name": "spara",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 10,
+      "name": "vanta-bokmarke",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 11,
+      "name": "bokmarke-sparat",
+      "action": "screenshot",
+      "screenshotFile": "11-bokmarke-sparat.png",
+      "caption": "Bokmärket hamnar ovanför filterraden",
+      "notes": "Ett klick på etiketten återställer hela filterurvalet. Bokmärken är personliga och gäller den arbetsyta du står i.",
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 12,
+      "name": "oppna-hantera",
+      "action": "click",
+      "screenshotFile": "12-oppna-hantera.png",
+      "caption": "Kugghjulet öppnar Hantera bokmärken",
+      "notes": "Dra i handtaget till vänster för att ändra ordningen — samma ordning gäller ovanför listan. Papperskorgen längst till höger raderar ett bokmärke direkt, utan bekräftelse.",
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 13,
+      "name": "ta-bort",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    },
+    {
+      "index": 14,
+      "name": "vanta-borttaget",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn/documents?status=PENDING"
+    }
+  ]
+}

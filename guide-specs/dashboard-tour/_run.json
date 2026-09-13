@@ -1,0 +1,293 @@
+{
+  "ranAt": "2026-09-13T09:43:36.442Z",
+  "captured": [
+    {
+      "index": 1,
+      "name": "login",
+      "action": "login",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 2,
+      "name": "startsidan",
+      "action": "goto",
+      "screenshotFile": "02-startsidan.png",
+      "caption": "Så är sajn uppbyggt",
+      "notes": "Tre ytor: sidomenyn till vänster tar dig mellan vyerna, verktygsraden överst till höger samlar ikonerna, och mitten är startsidan. Väntar något på dig syns det som en siffra i verktygsraden, till exempel åtgärder eller dokument som väntar på din signatur. Klicka på siffran för att gå dit.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 3,
+      "name": "sidomenyn",
+      "action": "goto",
+      "screenshotFile": "03-sidomenyn.png",
+      "caption": "Sidomenyn tar dig till huvudvyerna",
+      "notes": "Överst ligger Hem, Dokument, Mallar och Kontakter. Under Övrigt ligger Arkiv, Filer, Produkter, Statistik och Inställningar. Den vy du står i fäller ut sina undersidor, så Dokument visar Kalender, Massutskick och Papperskorg. Under Senaste ligger det du öppnade sist.",
+      "url": "https://app.sajn.se/arlbn/documents"
+    },
+    {
+      "index": 4,
+      "name": "tillbaka-hem",
+      "action": "goto",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 5,
+      "name": "oppna-sok",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 6,
+      "name": "vanta-sok",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 7,
+      "name": "sok",
+      "action": "screenshot",
+      "screenshotFile": "07-sok.png",
+      "caption": "Sök i hela arbetsytan",
+      "notes": "Förstoringsglaset bredvid arbetsytans namn öppnar sökningen i en panel till höger. Tangentbordsgenvägen ⌘K gör samma sak var du än står i appen. Innan du skrivit något visar panelen snabbval, det du besökte senast och genvägar till inställningarna.",
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 8,
+      "name": "skriv-sok",
+      "action": "type",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 9,
+      "name": "vanta-traffar",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 10,
+      "name": "sokresultat",
+      "action": "screenshot",
+      "screenshotFile": "10-sokresultat.png",
+      "caption": "Träffarna kommer medan du skriver",
+      "notes": "Sökningen tittar på dokument, mallar, sidor i appen och inställningar, och erbjuder att skicka frågan vidare till Bob. Klicka på en träff för att öppna den. Esc tömmer sökrutan, och en gång till stänger panelen.",
+      "url": "https://app.sajn.se/arlbn?panel=find"
+    },
+    {
+      "index": 11,
+      "name": "stang-sok",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 12,
+      "name": "paus-sok",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 13,
+      "name": "oppna-skapa",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 14,
+      "name": "vanta-skapa",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 15,
+      "name": "skapa",
+      "action": "screenshot",
+      "screenshotFile": "15-skapa.png",
+      "caption": "Plusknappen skapar ett nytt dokument",
+      "notes": "Plusknappen längst till höger öppnar Nytt dokument. Härifrån laddar du upp en fil eller börjar från en mall. Tillbaka uppe till vänster stänger vyn utan att skapa något.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 16,
+      "name": "stang-skapa",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 17,
+      "name": "vanta-skapa-stangd",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 18,
+      "name": "paus-skapa",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 19,
+      "name": "oppna-aviseringar",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 20,
+      "name": "vanta-aviseringar",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 21,
+      "name": "aviseringar",
+      "action": "screenshot",
+      "screenshotFile": "21-aviseringar.png",
+      "caption": "Klockan visar dina aviseringar",
+      "notes": "Här samlas det som hänt i dina dokument: signeringar, påminnelser och förslag. Oläst visar det du inte har öppnat, Alla visar hela listan. Klicka på en rad för att gå till dokumentet.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 22,
+      "name": "stang-aviseringar",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 23,
+      "name": "paus-aviseringar",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 24,
+      "name": "oppna-hjalp",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 25,
+      "name": "vanta-hjalp",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 26,
+      "name": "hjalp",
+      "action": "screenshot",
+      "screenshotFile": "26-hjalp.png",
+      "caption": "Frågetecknet leder till hjälpen",
+      "notes": "Härifrån når du guiderna, kontaktar supporten och delar feedback när något saknas eller inte fungerar.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 27,
+      "name": "stang-hjalp",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 28,
+      "name": "paus-hjalp",
+      "action": "wait",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 29,
+      "name": "oppna-konto",
+      "action": "click",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 30,
+      "name": "vanta-konto",
+      "action": "waitForSelector",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 31,
+      "name": "konto",
+      "action": "screenshot",
+      "screenshotFile": "31-konto.png",
+      "caption": "Ditt konto ligger längst ner i sidomenyn",
+      "notes": "Namnet längst ner öppnar kontomenyn. Kugghjulet uppe till höger i rutan tar dig till dina kontoinställningar. Tillhör du flera organisationer byter du mellan dem här, och väntande inbjudningar dyker upp i samma ruta.",
+      "url": "https://app.sajn.se/arlbn"
+    },
+    {
+      "index": 32,
+      "name": "stang-konto",
+      "action": "press",
+      "screenshotFile": null,
+      "caption": null,
+      "notes": null,
+      "url": "https://app.sajn.se/arlbn"
+    }
+  ]
+}

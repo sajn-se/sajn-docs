@@ -1,9 +1,9 @@
 ---
 title: "Ladda upp Word-, Excel-, PowerPoint- och CSV-filer som dokument"
-description: "Konvertera en Office-, CSV- eller textfil till ett signerbart sajn-dokument via Ladda upp fil"
+description: "Konvertera en Office-, CSV- eller textfil till ett signerbart sajn-dokument"
 ---
 
-Förutom PDF kan du ladda upp Office-filer (Word, Excel, PowerPoint), CSV och vanliga textfiler direkt i sajn. Filen konverteras automatiskt till PDF i bakgrunden och blir innehållet i ett nytt sajn-dokument – redo att förses med parter, fält och signering. Du använder samma **Ladda upp fil**-flöde som för PDF.
+Förutom PDF kan du ladda upp Office-filer (Word, Excel, PowerPoint), CSV och vanliga textfiler direkt i sajn. Filen konverteras automatiskt till PDF i bakgrunden och blir innehållet i ett nytt sajn-dokument – redo att förses med parter, fält och signering. Du använder samma uppladdning som för PDF.
 
 ## Innan du börjar
 
@@ -15,24 +15,33 @@ Förutom PDF kan du ladda upp Office-filer (Word, Excel, PowerPoint), CSV och va
 
 <Steps>
   <Step title="Öppna Dokument i sidomenyn">
-    Öppna **Dokument** i sidomenyn. Dokumentlistan är utgångspunkten för att skapa ett nytt dokument från en befintlig fil. Knappen **Skapa nytt** högst upp till höger är delad: själva texten skapar ett tomt dokument, medan pilen bredvid öppnar en meny där du kan ladda upp en fil.
+    Öppna **Dokument** i sidomenyn. Knappen **Skapa nytt** högst upp till höger är delad: texten öppnar sidan *Nytt dokument* med en uppladdningsruta, medan pilen bredvid har genvägen **Ladda upp fil** som hoppar direkt till datorns filväljare.
 
     <Frame>
-      <img src="/images/guider/upload-office-documents/02-open-documents.png" alt="Dokumentlistan med den delade knappen Skapa nytt uppe till höger" />
+      <img src="/images/guider/upload-office-documents/02-oppna-dokument.png" alt="Dokumentlistan med den delade knappen Skapa nytt uppe till höger" />
     </Frame>
   </Step>
-  <Step title="Välj Ladda upp fil från menyn">
-    Klicka på pilen bredvid **Skapa nytt** och välj **Ladda upp fil**. Samma val används för alla filtyper. När filväljaren öppnas kan du välja DOCX, DOC, XLSX, XLS, CSV, PPT, PPTX, TXT eller PDF – sajn känner igen filtypen automatiskt på filändelsen och MIME-typen.
+  <Step title="Samma uppladdning för alla filtyper">
+    Klicka på **Skapa nytt** och släpp filen i rutan högst upp, eller klicka för att välja den från datorn. Rutan tar emot PDF, Word, Excel, PowerPoint, CSV och TXT, max 25 MB per fil. sajn känner igen filtypen automatiskt på filändelsen och MIME-typen – du behöver inte välja format någonstans.
 
     <Frame>
-      <img src="/images/guider/upload-office-documents/06-create-menu-open.png" alt="Menyn vid Skapa nytt öppen med valet Ladda upp fil" />
+      <img src="/images/guider/upload-office-documents/05-uppladdningsrutan.png" alt="Sidan Nytt dokument med uppladdningsrutan högst upp" />
     </Frame>
   </Step>
-  <Step title="Dokumentet skapas i editorn">
-    Dokumentet skapas och din konverterade fil visas i redigeraren. För Office-, CSV- och textfiler konverterar sajn filen till PDF i bakgrunden innan den läggs in i dokumentet. Det nya dokumentet får statusen **Utkast** och titeln sätts automatiskt utifrån filnamnet (utan filändelsen) – klicka på titeln längst upp till vänster om du vill döpa om det. Härifrån fortsätter du som vanligt: lägg till parter i sidopanelen till höger, placera signaturfält och andra fält ovanpå sidorna, och skicka sedan ut dokumentet för signering. Originalfilen sparas inte separat – det är den konverterade PDF:en som blir dokumentets innehåll.
+  <Step title="Namnge dokumentet och skapa det">
+    Filen listas med sin storlek. Lämnar du **Dokumentnamn** tomt får dokumentet filens namn utan filändelse. **Utgångsdatum** är valfritt. Klicka **Skapa dokument** nere till höger – konverteringen till PDF sker i bakgrunden.
 
     <Frame>
-      <img src="/images/guider/upload-office-documents/10-document-ready.png" alt="Det nya dokumentet öppet i editorn med den konverterade filen som innehåll" />
+      <img src="/images/guider/upload-office-documents/09-filen-vald.png" alt="Den uppladdade Word-filen med fälten Dokumentnamn och Utgångsdatum" />
+    </Frame>
+  </Step>
+  <Step title="Den konverterade filen blir dokumentets innehåll">
+    Dokumentet får statusen **Utkast** och den konverterade PDF:en visas som en egen sektion i redigeraren. Originalfilen sparas inte separat – det är den konverterade PDF:en som blir dokumentets innehåll, så formateringen kan skilja sig något från originalet. Kontrollera resultatet innan du skickar.
+
+    Hittar sajn namn på parter i texten dyker de upp som **Förslag** längst ner i panelen Parter. Härifrån fortsätter du som vanligt: lägg till parter, placera signatur- och textfält ovanpå sidorna från panelen **Innehåll**, och skicka sedan ut dokumentet för signering.
+
+    <Frame>
+      <img src="/images/guider/upload-office-documents/13-dokumentet-klart.png" alt="Det nya dokumentet öppet i redigeraren med den konverterade filen som innehåll" />
     </Frame>
   </Step>
 </Steps>

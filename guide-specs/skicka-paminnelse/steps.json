@@ -1,0 +1,225 @@
+{
+    "slug": "skicka-paminnelse",
+    "title": "Skicka en manuell påminnelse till en mottagare",
+    "intro": "En manuell påminnelse skickar om signeringslänken till en enskild mottagare, utan att röra dokumentet eller de andra parterna. Guiden utgår från ett utskickat dokument som ingen har signerat ännu.",
+    "audience": "Alla användare",
+    "prerequisites": [
+        "Dokumentet är i status Väntande.",
+        "Mottagaren får dokumentet via e-post eller SMS och har inte signerat eller avböjt."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])"
+    ],
+    "imageDir": "../../images/guider/skicka-paminnelse",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "dokumentlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "skapa-nytt",
+            "action": "click",
+            "selector": "button:has-text('Skapa nytt')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mallar",
+            "action": "waitForSelector",
+            "selector": "button[title='Konsultavtal']"
+        },
+        {
+            "name": "valj-mall",
+            "action": "click",
+            "selector": "button[title='Konsultavtal']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "[data-guide='document-add-signer']"
+        },
+        {
+            "name": "oppna-partatgarder",
+            "action": "click",
+            "selector": "button[aria-label='Partåtgärder']",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "redigera-part",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Redigera')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-partdialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange e-postadress']"
+        },
+        {
+            "name": "fyll-epost",
+            "action": "fill",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "value": "ai@sajn.se",
+            "screenshot": false
+        },
+        {
+            "name": "ingen-kontakt-mall",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') button[role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "spara-part",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Uppdatera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-stangd-dialog",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange e-postadress']",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "button[aria-label='Inställningar']",
+            "screenshot": false
+        },
+        {
+            "name": "satt-titel",
+            "action": "fill",
+            "selector": "input[placeholder='Dokumenttitel']",
+            "value": "Batch B: påminnelse",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-utgangsdatum",
+            "action": "click",
+            "selector": "button:has-text('Sätt utgångsdatum')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-frist",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button:has-text('Om 20 dagar')",
+            "screenshot": false
+        },
+        {
+            "name": "stang-datumvaljaren",
+            "action": "press",
+            "key": "Escape",
+            "screenshot": false
+        },
+        {
+            "name": "skicka",
+            "action": "click",
+            "selector": "button[aria-label='Skicka dokument']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickadialog",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Välj hur dokumentet ska skickas')"
+        },
+        {
+            "name": "bekrafta-utskick",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Skicka dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickat",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Välj hur dokumentet ska skickas')",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-status",
+            "action": "wait",
+            "ms": 8000
+        },
+        {
+            "name": "ladda-om",
+            "action": "reload",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-parter",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Partåtgärder']"
+        },
+        {
+            "name": "dokumentet",
+            "action": "screenshot",
+            "caption": "Öppna dokumentet och panelen Parter",
+            "notes": "Panelen Parter är förvald när du öppnar ett dokument. Varje part visas med sin e-postadress, sin roll och sin signeringsstatus. Dokumentet står i status Väntande, vilket är förutsättningen för att kunna påminna."
+        },
+        {
+            "name": "oppna-menyn",
+            "action": "click",
+            "selector": "button[aria-label='Partåtgärder']",
+            "match": "first",
+            "caption": "Öppna partens meny och välj Skicka påminnelse",
+            "notes": "Menyn öppnas med de tre prickarna till höger på raden. Den visas när du för muspekaren över raden — på pekskärm syns den alltid. Här finns också Kopiera signeringslänk, om du hellre vill skicka länken via en annan kanal."
+        },
+        {
+            "name": "skicka-paminnelse",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Skicka påminnelse')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickad",
+            "action": "wait",
+            "ms": 5000
+        },
+        {
+            "name": "detaljer",
+            "action": "click",
+            "selector": "button[aria-label='Detaljer']",
+            "caption": "Påminnelsen loggas i dokumentets historik",
+            "notes": "Påminnelsen skickas direkt, utan bekräftelse. I panelen Detaljer ser du den i dokumentets händelselogg tillsammans med allt annat som hänt. Övriga parter påverkas inte och utgångsdatumet ändras inte."
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Flytta till papperskorg'), [role='dialog'] button:has-text('Flytta till papperskorg')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttaget",
+            "action": "wait",
+            "ms": 5000
+        }
+    ]
+}

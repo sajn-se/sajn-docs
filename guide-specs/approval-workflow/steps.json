@@ -1,0 +1,41 @@
+{
+    "slug": "approval-workflow",
+    "title": "Konfigurera attestflöde för ett dokument",
+    "intro": "Ett attestflöde innebär att en kollega måste godkänna dokumentet internt innan det går ut till motparten. Det sätts per dokument i panelen Arbetsflöde, och kan göras obligatoriskt för hela arbetsytan.",
+    "audience": "Alla användare, och arbetsyteadministratörer för det som gäller hela arbetsytan",
+    "prerequisites": [
+        "Du är inloggad i sajn och har valt en arbetsyta.",
+        "Dokumentet är i status Utkast — godkännare kan bara läggas till på ett utkast.",
+        "Det finns minst en annan medlem i arbetsytan med behörigheten Godkänna dokument."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": ["[data-guide-mask]"],
+    "hide": ["[data-radix-popper-content-wrapper]:has([role='tooltip'])"],
+    "imageDir": "../../images/guider/approval-workflow",
+    "steps": [
+        { "name": "login", "action": "login" },
+        { "name": "dokumentlistan", "action": "goto", "url": "/{workspace}/documents", "screenshot": false },
+        { "name": "skapa-nytt", "action": "click", "selector": "button:has-text('Skapa nytt')", "match": "first", "screenshot": false },
+        { "name": "vanta-mallar", "action": "waitForSelector", "selector": "button[title='Konsultavtal']" },
+        { "name": "valj-mall", "action": "click", "selector": "button[title='Konsultavtal']", "screenshot": false },
+        { "name": "vanta-redigerare", "action": "waitForSelector", "selector": "button[aria-label='Arbetsflöde']" },
+        { "name": "oppna-installningar", "action": "click", "selector": "button[aria-label='Inställningar']", "screenshot": false },
+        { "name": "satt-titel", "action": "fill", "selector": "input[placeholder='Dokumenttitel']", "value": "Batch B: attest", "screenshot": false },
+        { "name": "oppna-arbetsflode", "action": "click", "selector": "button[aria-label='Arbetsflöde']", "screenshot": false },
+        { "name": "vanta-panel", "action": "wait", "ms": 1500 },
+        { "name": "arbetsflodet", "action": "screenshot", "caption": "Attesten sitter i panelen Arbetsflöde", "notes": "Kedjan visar dokumentets väg från Utkast till Slutfört. Steget Internt godkännande ligger mellan Utkast och Skickat, och innehåller reglaget Kräv godkännande. Så länge det är avslaget går dokumentet direkt till parterna när du skickar." },
+        { "name": "sla-pa", "action": "click", "selector": "[role='switch'][aria-label='Internt godkännande']", "screenshot": false },
+        { "name": "vanta-dialog", "action": "waitForSelector", "selector": "[role='dialog']:has-text('Internt godkännande')" },
+        { "name": "dialogen", "action": "screenshot", "caption": "Välj vilka kollegor som ska godkänna", "notes": "Listan visar bara medlemmar vars roll har behörigheten Godkänna dokument. Har ingen den behörigheten står det Inga användare med behörighet att godkänna dokument, och då måste en arbetsyteadministratör dela ut den först. Med flera godkännare kopplar du ihop dem med och, eller och sedan för att bestämma om alla, någon eller en i taget ska godkänna." },
+        { "name": "avbryt", "action": "click", "selector": "[role='dialog'] button:has-text('Avbryt')", "screenshot": false },
+        { "name": "vanta-stangd", "action": "waitForSelector", "selector": "[role='dialog']:has-text('Internt godkännande')", "state": "hidden" },
+        { "name": "stadning-arkiv", "action": "click", "selector": "button:text-is('Arkiv')", "screenshot": false },
+        { "name": "stadning-papperskorg", "action": "click", "selector": "[data-radix-popper-content-wrapper] [role='menuitem']:has-text('Flytta till papperskorg')", "screenshot": false },
+        { "name": "stadning-bekrafta", "action": "click", "selector": "[role='alertdialog'] button:has-text('Flytta till papperskorg'), [role='dialog'] button:has-text('Flytta till papperskorg')", "match": "last", "screenshot": false },
+        { "name": "vanta-borttaget", "action": "wait", "ms": 5000 },
+        { "name": "preferenser", "action": "goto", "url": "/{workspace}/settings/preferences", "screenshot": false },
+        { "name": "vanta-preferenser", "action": "waitForSelector", "selector": "text=Kräv godkännande innan utskick" },
+        { "name": "scrolla", "action": "scrollIntoView", "selector": "text=Kräv godkännande innan utskick", "align": "center", "screenshot": false },
+        { "name": "arbetsytans-krav", "action": "screenshot", "caption": "Gör attesten obligatorisk för hela arbetsytan", "notes": "Under Inställningar → Preferenser → Allmänt finns Kräv godkännande innan utskick. Slår du på den måste varje dokument i arbetsytan godkännas internt innan det skickas — även av den som annars får skicka utan godkännande. Saknar ett dokument godkännare läggs arbetsytans standardkedja till automatiskt." }
+    ]
+}
