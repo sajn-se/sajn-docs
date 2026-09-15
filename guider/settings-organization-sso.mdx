@@ -1,0 +1,80 @@
+---
+title: "Logga in med organisationens identitetsleverantör (SSO)"
+description: "Anslut Entra ID, Okta, ADFS eller Google Workspace, verifiera era e-postdomäner och kräv SSO för alla medlemmar"
+---
+
+Med SSO (single sign-on) loggar medarbetarna in i sajn med organisationens egen identitetsleverantör i stället för lösenord. Entra ID, Okta, ADFS och Google Workspace stöds, och sajn tar emot både SAML 2.0 och OpenID Connect – du klistrar in det din identitetsleverantör ger dig.
+
+Under [Organisation › Inloggning (SSO)](https://app.sajn.se/~/settings/organization/sso) ansluter du identitetsleverantören, verifierar era e-postdomäner och slår på kravet att alla adresser på de domänerna måste logga in via SSO.
+
+## Innan du börjar
+
+- SSO ingår i **Enterprise**. På Basic, Solo och Team syns sidan inte i inställningarna.
+- Du är inloggad med en användare som har behörighet att hantera organisationens inställningar.
+- Du kan skapa poster i DNS för de domäner ni ska använda, eller har någon som kan göra det åt er.
+- Du har administratörsåtkomst till er identitetsleverantör och kan lägga upp en ny applikation där.
+- Anslutningen gäller hela **organisationen** – inte en enskild arbetsyta.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna Organisation → Inloggning (SSO)">
+    Sidan har fyra sektioner: **Identitetsleverantör**, **Domäner**, **Kräv SSO** och **Ta bort SSO**. Etiketten bredvid rubriken *Identitetsleverantör* visar anslutningens status: *Aktiv*, *Väntar på första inloggning* eller *Inaktiv*.
+
+    Innan något är anslutet visar sidan bara knappen **Anslut**.
+  </Step>
+  <Step title="Anslut identitetsleverantören">
+    Klicka **Anslut** och välj protokoll.
+
+    För **SAML 2.0** anger du antingen en metadata-URL eller metadata-XML – inte båda. Metadata-URL:en måste vara en publik https-adress, till exempel `https://login.microsoftonline.com/TENANT_ID/federationmetadata/2007-06/federationmetadata.xml` för Entra ID. Har din identitetsleverantör ingen publik adress klistrar du in XML-filen i stället.
+
+    För **OpenID Connect** anger du discovery-URL (`https://IDP_DOMÄN/.well-known/openid-configuration`), client ID och client secret från applikationen du lagt upp hos identitetsleverantören.
+
+    Under **Standardroll** väljer du vilken roll nya användare får första gången de loggar in via SSO. Rollen går att ändra per användare i efterhand under Team & säkerhet.
+
+    Klicka **Spara**. Anslutningen får status *Väntar på första inloggning*.
+  </Step>
+  <Step title="Lämna sajns uppgifter till din identitetsleverantör">
+    När anslutningen är sparad listar sektionen *Identitetsleverantör* de värden du ska föra in på andra sidan. Klicka på ett värde för att kopiera det.
+
+    - **SAML 2.0:** *ACS URL* (även kallad Reply URL eller Assertion Consumer Service URL) och *Entity ID* (även kallad Audience URI eller Identifier).
+    - **OpenID Connect:** *Redirect URI* (även kallad Callback URL).
+
+    Identitetsleverantören måste skicka med användarens e-postadress. Utan den kan sajn inte matcha inloggningen mot en verifierad domän.
+  </Step>
+  <Step title="Verifiera e-postdomänen">
+    Skriv domänen i fältet under **Domäner** – till exempel `exempel.se` – och klicka **Lägg till**. Domänen listas som *Ej verifierad* tillsammans med den TXT-post du ska lägga upp.
+
+    Lägg en TXT-post på domänen med värdet `sajn-verification=TOKEN`, där `TOKEN` är strängen som visas på raden. Klicka sedan **Verifiera**. Hittas posten inte direkt beror det oftast på att ändringen inte slagit igenom ännu – DNS kan ta upp till en timme.
+
+    Bara adresser på verifierade domäner styrs till SSO. Lägg till en rad per domän om organisationen har flera.
+  </Step>
+  <Step title="Testa inloggningen">
+    Logga ut och gå till inloggningssidan. Klicka **Logga in med SSO**, ange din arbetsadress och klicka **Fortsätt med SSO**. Du skickas till identitetsleverantören och tillbaka till sajn.
+
+    Den första lyckade inloggningen aktiverar anslutningen: statusen byter från *Väntar på första inloggning* till *Aktiv*. Samma inloggning fungerar i sajns mobilapp.
+  </Step>
+  <Step title="Kräv SSO">
+    Slå på **Kräv SSO** när inloggningen fungerar. Då stängs lösenord, Google, Microsoft och inloggningsnycklar av för alla adresser på verifierade domäner. Försöker någon logga in på ett annat sätt får de beskedet att organisationen kräver SSO och skickas vidare till SSO-inloggningen.
+
+    Reglaget går bara att slå på när anslutningen är *Aktiv* och minst en domän är verifierad. Kravet följer domänen, inte medlemskapet – ett konto i en annan organisation kan alltså inte användas som genväg förbi SSO.
+  </Step>
+</Steps>
+
+## Nya användare
+
+Loggar någon in via SSO med en adress på en verifierad domän, och saknar konto, skapas kontot vid inloggningen och medlemmen läggs till i organisationen med den standardroll du valt. Ni behöver alltså inte bjuda in varje medarbetare separat.
+
+## Byt identitetsleverantör
+
+Klicka **Byt** i sektionen *Identitetsleverantör* för att ersätta konfigurationen. Den nya ersätter den gamla, anslutningen går tillbaka till *Väntar på första inloggning* och kravet på SSO stängs av tills en inloggning har bevisat att den nya konfigurationen fungerar. Verifierade domäner ligger kvar.
+
+Går något fel i den nya konfigurationen behålls den gamla anslutningen – ni blir inte utelåsta.
+
+## Ta bort SSO
+
+**Ta bort** raderar anslutningen och alla domäner. Inloggning via identitetsleverantören slutar fungera direkt, men konton, dokument och behörigheter påverkas inte: medlemmarna loggar in med sina vanliga metoder igen.
+
+## Spårbarhet
+
+Anslutning, byte, borttagning och ändringar av SSO-kravet loggas i organisationens [aktivitetslogg](/guider/settings-audit-log) med nivån *Säkerhet*. Där ser du vem som gjorde ändringen och när.

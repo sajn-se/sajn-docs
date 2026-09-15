@@ -1,0 +1,42 @@
+{
+    "slug": "settings-organization-sso",
+    "title": "Logga in med organisationens identitetsleverantör (SSO)",
+    "intro": "Med SSO loggar medarbetarna in i sajn med organisationens egen identitetsleverantör i stället för lösenord. Entra ID, Okta, ADFS och Google Workspace stöds, och sajn tar emot både SAML 2.0 och OpenID Connect. Guiden visar var sidan ligger, hur du ansluter identitetsleverantören, verifierar era e-postdomäner och slår på kravet på SSO.",
+    "audience": "Organisationsadministratörer",
+    "prerequisites": [
+        "Du är inloggad med en användare som har behörighet att hantera organisationens inställningar.",
+        "SSO kräver Enterprise.",
+        "Du kan skapa poster i DNS för de domäner ni ska använda."
+    ],
+    "viewport": { "width": 1800, "height": 1050 },
+    "mask": [
+        "[data-guide-mask]",
+        ".font-mono"
+    ],
+    "imageDir": "../../images/guider/settings-organization-sso",
+    "steps": [
+        { "name": "login", "action": "login" },
+        {
+            "name": "oversikt",
+            "action": "goto",
+            "url": "/{workspace}/settings/organization/sso",
+            "caption": "Öppna Inloggning (SSO) under Organisation",
+            "notes": "Sidan har fyra sektioner: Identitetsleverantör, Domäner, Kräv SSO och Ta bort SSO. Etiketten bredvid rubriken Identitetsleverantör visar status: Aktiv, Väntar på första inloggning eller Inaktiv. Innan något är anslutet visar sidan bara knappen Anslut."
+        },
+        {
+            "name": "anslut",
+            "action": "click",
+            "selector": "button:has-text('Anslut')",
+            "caption": "Klistra in det din identitetsleverantör ger dig",
+            "notes": "Dialogen har två protokoll. SAML 2.0 tar antingen en metadata-URL eller metadata-XML, inte båda. OpenID Connect tar discovery-URL, client ID och client secret. Standardroll styr vilken roll nya användare får första gången de loggar in via SSO."
+        },
+        {
+            "name": "oidc",
+            "action": "click",
+            "selector": "button:has-text('OpenID Connect')",
+            "caption": "OpenID Connect i stället för SAML",
+            "notes": "Fälten byts mot discovery-URL, client ID och client secret. När anslutningen är sparad visar sidan den Redirect URI du för in hos identitetsleverantören. För SAML visas i stället ACS URL och Entity ID."
+        },
+        { "name": "stang-dialog", "action": "press", "key": "Escape" }
+    ]
+}

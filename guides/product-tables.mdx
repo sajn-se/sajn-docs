@@ -1,403 +1,325 @@
 ---
-title: Product Tables
-description: 'Add pricing tables with products, quantities, and calculations to your documents'
+title: Product tables
+description: 'Add pricing tables with products, quantities, discounts, and recipient choices to your documents'
 ---
 
-# Product Tables
+# Product tables
 
-Product tables allow you to include structured pricing information in your documents. They're ideal for quotes, invoices, order forms, and any document that needs to present products or services with pricing.
+A product table presents products or services with pricing inside a document. Use one for quotes, order forms, service agreements, and any document where the signer needs to see what they're paying for.
 
-## Overview
+A product table can also ask the signer to choose. Mark rows as optional, group alternatives so that the signer picks one, or let the signer set a quantity. sajn recalculates the totals from what the signer chose and seals those amounts into the signed PDF file.
 
-A product table displays:
+## How a product table is structured
 
-- **Products/Services** with descriptions
-- **Quantities** for each line item
-- **Unit prices** and calculated totals
-- **Subtotals, VAT, and grand totals**
+A product table is a document field of type `PRODUCT_TABLE`. The field's `fieldMeta` object holds the whole table:
 
-<Frame>
-  <img src="/images/guides/product-table-example.png" alt="Product table in a document showing line items with prices and totals" />
-</Frame>
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `type` | string | Yes | Always `PRODUCT_TABLE`. Must match the field's `type`. |
+| `name` | string | Yes | The table's name. Shown above the table when `enableName` is `true`. |
+| `columns` | object | Yes | The columns to render, keyed by column key. See [Columns](#columns). |
+| `products` | array | Yes | The rows. See [Product rows](#product-rows). |
+| `enableName` | boolean | No | If `true`, renders `name` as a heading. Default: `false`. |
+| `pricing` | object | No | Moms settings for the table. See [Pricing and moms](#pricing-and-moms). |
+| `discount` | object | No | A table-level discount. See [Discounts](#discounts). |
+| `sections` | array | No | Row groups, including pick-one groups. See [Group rows into sections](#group-rows-into-sections). |
+| `allowSelection` | boolean | No | If `true`, the signer chooses which optional rows to include. |
+| `selectionSignerId` | string | No | The signer who makes the choice. |
+| `selectionRequired` | boolean | No | If `true`, the signer must choose before signing. |
+| `recipientChoice` | object | No | What the signer chose. Written at signing time. See [Recipient choices](#recipient-choices). |
+| `summaryLabels` | object | No | Labels for the summary rows: `subtotal`, `moms`, `total`, `payable`. |
+| `currency` | string | No | An ISO 4217 code, such as `SEK`. Without it, the price column's `pricePrefix` and `priceSuffix` control the rendering. |
+| `language` | string | No | The table's wording: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. Default: `sv`. |
+| `style` | object | No | `border` and `rounded` booleans. Both default to `true`. |
+| `locked` | boolean | No | If `true`, the editor can't change the table. |
+| `hidden` | boolean | No | If `true`, the table doesn't render. |
+| `visibilityRule` | object | No | Renders the table only when the rule matches. |
 
-## Creating Product Table Fields
+## Create a product table
 
-Product tables are added as document fields. First, create a document, then add a product table field.
-
-### Add a Product Table to a Document
+To add a product table to a draft document, send a `POST` request to the fields endpoint. Replace `DOCUMENT_ID` with the document's ID and `API_KEY` with your API key:
 
 ```bash
-curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+  -H "Authorization: Bearer API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "type": "PRODUCT_TABLE",
-    "page": 1,
-    "position": {
-      "x": 50,
-      "y": 300,
-      "width": 500,
-      "height": 200
-    },
+    "position": 1,
+    "key": "offert",
     "fieldMeta": {
-      "products": [
-        {
-          "name": "Website Design",
-          "description": "Custom website design and development",
-          "quantity": 1,
-          "unitPrice": 25000,
-          "unit": "st"
-        },
-        {
-          "name": "Hosting (Annual)",
-          "description": "Web hosting for one year",
-          "quantity": 1,
-          "unitPrice": 3600,
-          "unit": "year"
-        },
-        {
-          "name": "Support Hours",
-          "description": "Technical support and maintenance",
-          "quantity": 10,
-          "unitPrice": 950,
-          "unit": "hour"
-        }
-      ],
-      "currency": "SEK",
-      "vatRate": 25,
-      "showVat": true
-    }
-  }'
-```
-
-## Table Structure
-
-<Frame>
-  <img src="/images/guides/product-table-config.png" alt="Product table configuration interface showing field options" />
-</Frame>
-
-### Product Line Item Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Product or service name |
-| `description` | string | No | Detailed description |
-| `quantity` | number | Yes | Number of units |
-| `unitPrice` | number | Yes | Price per unit (in minor currency units or major) |
-| `unit` | string | No | Unit type (e.g., "st", "hour", "month") |
-| `discount` | number | No | Discount percentage for this line |
-
-### Table Configuration
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `currency` | string | Currency code (e.g., "SEK", "EUR", "USD") |
-| `vatRate` | number | VAT/tax percentage (e.g., 25 for 25%) |
-| `showVat` | boolean | Whether to display VAT separately |
-| `includesVat` | boolean | Whether prices include VAT |
-| `columns` | array | Custom column configuration |
-
-## Calculations
-
-Product tables automatically calculate:
-
-### Line Item Total
-
-```
-lineTotal = quantity × unitPrice × (1 - discount/100)
-```
-
-### Subtotal
-
-```
-subtotal = sum of all lineTotals
-```
-
-### VAT Amount
-
-```
-vatAmount = subtotal × (vatRate / 100)
-```
-
-### Grand Total
-
-```
-grandTotal = subtotal + vatAmount
-```
-
-### Example Calculation
-
-For the example above:
-
-| Product | Quantity | Unit Price | Line Total |
-|---------|----------|------------|------------|
-| Website Design | 1 | 25,000 SEK | 25,000 SEK |
-| Hosting (Annual) | 1 | 3,600 SEK | 3,600 SEK |
-| Support Hours | 10 | 950 SEK | 9,500 SEK |
-
-| | Amount |
-|---|--------|
-| **Subtotal** | 38,100 SEK |
-| **VAT (25%)** | 9,525 SEK |
-| **Grand Total** | 47,625 SEK |
-
-## Complete Example: Quote Document
-
-Create a quote with product table, signers, and custom fields:
-
-```bash
-# Step 1: Create the document
-curl -X POST https://app.sajn.se/api/v1/documents \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Quote - Website Project for Acme Corp",
-    "type": "SIGNABLE",
-    "expiresAt": "2024-02-28T23:59:59Z",
-    "documentMeta": {
-      "subject": "Quote for your website project",
-      "message": "Please review our quote and sign to accept."
-    },
-    "signers": [
-      {
-        "name": "Anna Andersson",
-        "email": "anna@acme.se",
-        "role": "SIGNER",
-        "deliveryMethod": "EMAIL",
-        "requiredSignature": "DRAWING"
-      }
-    ],
-    "customFields": [
-      {
-        "key": "quote_number",
-        "value": "Q-2024-0042"
+      "type": "PRODUCT_TABLE",
+      "name": "Offert",
+      "columns": {
+        "name": { "name": "Produkt", "originalName": "Produkt", "key": "name", "enabled": true, "settings": {} },
+        "description": { "name": "Beskrivning", "originalName": "Beskrivning", "key": "description", "enabled": true, "settings": {} },
+        "quantity": { "name": "Antal", "originalName": "Antal", "key": "quantity", "enabled": true, "settings": { "decimalPlaces": 0 } },
+        "price": { "name": "Pris", "originalName": "Pris", "key": "price", "enabled": true, "settings": { "decimalPlaces": 2 } },
+        "moms": { "name": "Moms", "originalName": "Moms", "key": "moms", "enabled": true, "settings": {} },
+        "lineTotal": { "name": "Summa", "originalName": "Summa", "key": "lineTotal", "enabled": true, "settings": {} }
       },
-      {
-        "key": "valid_until",
-        "value": "2024-02-28"
-      }
-    ]
-  }'
-```
-
-```bash
-# Step 2: Add the product table
-curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "type": "PRODUCT_TABLE",
-    "page": 1,
-    "position": {
-      "x": 50,
-      "y": 250,
-      "width": 500,
-      "height": 250
-    },
-    "fieldMeta": {
-      "products": [
-        {
-          "name": "Discovery & Planning",
-          "description": "Requirements gathering and project planning",
-          "quantity": 1,
-          "unitPrice": 15000
-        },
-        {
-          "name": "UI/UX Design",
-          "description": "User interface and experience design",
-          "quantity": 1,
-          "unitPrice": 35000
-        },
-        {
-          "name": "Frontend Development",
-          "description": "React-based frontend implementation",
-          "quantity": 1,
-          "unitPrice": 45000
-        },
-        {
-          "name": "Backend Development",
-          "description": "API and database development",
-          "quantity": 1,
-          "unitPrice": 55000
-        },
-        {
-          "name": "Testing & QA",
-          "description": "Quality assurance and testing",
-          "quantity": 1,
-          "unitPrice": 15000
-        }
-      ],
+      "pricing": { "pricesIncludeMoms": false, "defaultMomsRate": 25, "showMomsBreakdown": true },
       "currency": "SEK",
-      "vatRate": 25,
-      "showVat": true
-    }
-  }'
-```
-
-## Styling Product Tables
-
-### Column Configuration
-
-Customize which columns appear and their order:
-
-```json
-{
-  "fieldMeta": {
-    "columns": [
-      { "key": "name", "label": "Product", "width": 200 },
-      { "key": "description", "label": "Description", "width": 150 },
-      { "key": "quantity", "label": "Qty", "width": 50 },
-      { "key": "unitPrice", "label": "Unit Price", "width": 80 },
-      { "key": "lineTotal", "label": "Total", "width": 80 }
-    ],
-    "products": [...]
-  }
-}
-```
-
-### Formatting Options
-
-```json
-{
-  "fieldMeta": {
-    "currency": "SEK",
-    "currencySymbol": "kr",
-    "currencyPosition": "after",
-    "decimalPlaces": 2,
-    "thousandsSeparator": " ",
-    "decimalSeparator": ","
-  }
-}
-```
-
-This formats prices as: `25 000,00 kr`
-
-## Use Cases
-
-### Quotes and Proposals
-
-Present pricing for proposed work with clear line items:
-
-```json
-{
-  "products": [
-    { "name": "Consulting", "quantity": 40, "unitPrice": 1500, "unit": "hours" },
-    { "name": "Implementation", "quantity": 1, "unitPrice": 75000, "unit": "project" },
-    { "name": "Training", "quantity": 2, "unitPrice": 15000, "unit": "days" }
-  ]
-}
-```
-
-### Invoices
-
-Bill for delivered goods or services:
-
-```json
-{
-  "products": [
-    { "name": "Product A", "quantity": 100, "unitPrice": 150 },
-    { "name": "Product B", "quantity": 50, "unitPrice": 299 },
-    { "name": "Shipping", "quantity": 1, "unitPrice": 500 }
-  ]
-}
-```
-
-### Order Forms
-
-Allow customers to sign off on orders:
-
-```json
-{
-  "products": [
-    { "name": "Annual License", "quantity": 10, "unitPrice": 9990, "unit": "users" },
-    { "name": "Premium Support", "quantity": 1, "unitPrice": 25000, "unit": "year" },
-    { "name": "Onboarding", "quantity": 1, "unitPrice": 15000 }
-  ]
-}
-```
-
-### Service Agreements
-
-Define service packages and pricing:
-
-```json
-{
-  "products": [
-    { "name": "Basic Plan", "description": "Core features", "quantity": 12, "unitPrice": 999, "unit": "months" },
-    { "name": "Setup Fee", "quantity": 1, "unitPrice": 5000 },
-    { "name": "API Access", "quantity": 12, "unitPrice": 500, "unit": "months" }
-  ]
-}
-```
-
-## Updating Product Tables
-
-### Update Products
-
-Modify the product list on an existing field:
-
-```bash
-curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456 \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fieldMeta": {
       "products": [
         {
-          "name": "Updated Product",
-          "quantity": 5,
-          "unitPrice": 1000
+          "id": "discovery",
+          "name": "Förstudie",
+          "description": "Kravinsamling och projektplanering",
+          "quantity": 1,
+          "price": 15000,
+          "moms": 25
+        },
+        {
+          "id": "design",
+          "name": "Design",
+          "description": "Gränssnitt och användarupplevelse",
+          "quantity": 1,
+          "price": 35000,
+          "moms": 25
+        },
+        {
+          "id": "support",
+          "name": "Support",
+          "quantity": 10,
+          "price": 950,
+          "unit": "tim",
+          "moms": 25
         }
       ]
     }
   }'
 ```
 
+The `position` value is the field's 0-based order in the document, not a coordinate. The optional `key` value lets you address the field later without storing its ID.
+
+To create several fields in one request, send an array of field objects instead of a single object.
+
 <Note>
-  Product tables can only be modified while the document is in draft status. Once sent for signing, the table is locked.
+  You can add and change fields only while the document is in `DRAFT` status. A request against a sent document returns an HTTP `400 Bad Request` status code.
 </Note>
 
-## Best Practices
+## Product rows
 
-<AccordionGroup>
-  <Accordion title="Use clear product names">
-    Product names should be immediately understandable. Avoid internal codes or abbreviations that signers won't recognize.
-  </Accordion>
+Each entry in `products` is one row. Only `id` and `name` are required, but a row without a `price` value contributes nothing to the totals.
 
-  <Accordion title="Add descriptions for complex items">
-    Use the description field to clarify what's included in each line item, especially for services.
-  </Accordion>
+| Property | Type | Description |
+|---|---|---|
+| `id` | string | Identifies the row. Must be unique within the table. Sections and recipient choices reference it. |
+| `name` | string | The product or service name. |
+| `description` | string | A longer explanation of the row. |
+| `price` | number | The price per unit, in the basis set by `pricing.pricesIncludeMoms`. |
+| `quantity` | number | The number of units. Default: `1`. |
+| `unit` | string | The unit label, such as `tim` or `st`. |
+| `moms` | number | The tax rate as a percentage. Falls back to `pricing.defaultMomsRate`. |
+| `discount` | object | A row discount. See [Discounts](#discounts). |
+| `billing` | string | `ONE_TIME`, `MONTHLY`, `QUARTERLY`, or `YEARLY`. Default: `ONE_TIME`. |
+| `sectionId` | string | The section this row belongs to. |
+| `optional` | boolean | If `true`, the signer chooses whether to include the row. Requires `allowSelection`. |
+| `defaultSelected` | boolean | The row's starting state. See [Recipient choices](#recipient-choices). |
+| `quantityEditable` | boolean | If `true`, the signer sets the quantity. |
+| `quantityMin` | number | The lowest quantity the signer can set. Default: `1`. |
+| `quantityMax` | number | The highest quantity the signer can set. |
+| `productType` | string | `GOODS`, `SERVICE`, `ROT`, or `RUT`. See [ROT and RUT deductions](#rot-and-rut-deductions). |
+| `sku` | string | The article number, copied from the product library. |
+| `productId` | string | The library product this row came from. Informational only. |
 
-  <Accordion title="Show VAT separately">
-    In B2B contexts, buyers often need to see VAT separately for accounting. Enable `showVat: true`.
-  </Accordion>
+## Columns
 
-  <Accordion title="Use consistent currency">
-    Ensure the currency matches your business context and is clearly displayed.
-  </Accordion>
+The `columns` object decides which columns render and what they're called. Each key maps to an object with `name`, `originalName`, `key`, `enabled`, and `settings`.
 
-  <Accordion title="Verify totals before sending">
-    Double-check that calculated totals match your expectations before sending the document.
-  </Accordion>
+The `key` value must be a product property or `lineTotal`, which is calculated rather than stored. To hide a column without deleting it, set `enabled` to `false`. The `originalName` value keeps the column's original label so that sajn can retranslate a column you haven't renamed.
 
-  <Accordion title="Include terms">
-    For quotes and proposals, consider adding text fields with payment terms, validity period, and conditions.
-  </Accordion>
-</AccordionGroup>
+The `settings` object accepts `decimalPlaces`, `pricePrefix`, and `priceSuffix`. The price and moms columns also accept `pricesIncludeMoms`, `defaultMomsRate`, and `showMomsBreakdown`, but set those through `pricing` instead. sajn reads the column settings only for tables authored before `pricing` existed.
 
-## Next Steps
+## Pricing and moms
+
+The `pricing` object controls how sajn reads your prices:
+
+| Property | Type | Description |
+|---|---|---|
+| `pricesIncludeMoms` | boolean | If `true`, every `price` value includes moms. If `false`, prices exclude moms. Default: `false`. |
+| `defaultMomsRate` | number | The tax rate for rows without their own `moms` value. Default: `25`. |
+| `showMomsBreakdown` | boolean | If `true`, the summary shows moms as its own row. Default: `true`. |
+
+Set `pricesIncludeMoms` before you enter prices. It changes what every `price` value means, so switching it later changes every total in the table.
+
+## Discounts
+
+A discount is an object with a `type` of `PERCENT` or `AMOUNT` and a numeric `value`. A `PERCENT` discount takes that percentage off; an `AMOUNT` discount takes that many currency units off. sajn never discounts below zero.
+
+Set `discount` on a product row to reduce that row, or on the table to reduce the whole table. A table discount also accepts a `label` string, which replaces the default summary label.
+
+An `AMOUNT` discount is measured in the basis you entered prices in. On a table with `pricesIncludeMoms` set to `true`, a 500 kr discount takes 500 kr off the total the signer pays. On a table with prices excluding moms, the same discount takes 500 kr off the subtotal, and moms is charged on what's left.
+
+## How totals are calculated
+
+sajn calculates each included row, then applies the table discount:
+
+```
+gross     = price × quantity
+net       = gross − row discount
+lineTotal = net
+```
+
+When prices exclude moms, `net` is the row's amount excluding moms, and moms is `net × momsRate / 100`. When prices include moms, sajn divides the moms back out: the amount excluding moms is `net / (1 + momsRate / 100)`, and moms is the remainder.
+
+The table's `subtotal` value is the sum of every row excluding moms. sajn then applies the table discount and scales moms by the same proportion:
+
+```
+total = subtotal − table discount + moms
+```
+
+For the three rows in [Create a product table](#create-a-product-table), with prices excluding moms and a 10% table discount:
+
+| Product | Quantity | Price | Line total |
+|---|---|---|---|
+| Förstudie | 1 | 15,000 SEK | 15,000 SEK |
+| Design | 1 | 35,000 SEK | 35,000 SEK |
+| Support | 10 | 950 SEK | 9,500 SEK |
+
+| Summary row | Amount |
+|---|---|
+| Subtotal | 59,500 SEK |
+| Discount (10%) | −5,950 SEK |
+| Moms (25%) | 13,387.50 SEK |
+| Total | 66,937.50 SEK |
+
+## Let a recipient choose
+
+To turn a fixed price list into an offer the signer responds to, set `allowSelection` to `true` and name the signer in `selectionSignerId`. Mark the rows you want to offer with `optional`. The signer fills in their choice before they sign, and the totals follow it.
+
+To block signing until the signer has chosen, set `selectionRequired` to `true`. A table where nothing is selectable counts as answered, so `selectionRequired` never traps a signer on a fixed price list.
+
+To let the signer set a quantity, set `quantityEditable` on the row and bound it with `quantityMin` and `quantityMax`. sajn clamps whatever the signer enters to that range.
+
+```json
+{
+  "allowSelection": true,
+  "selectionSignerId": "SIGNER_ID",
+  "selectionRequired": true,
+  "products": [
+    { "id": "licens", "name": "Licens", "price": 1250, "moms": 25, "billing": "MONTHLY" },
+    {
+      "id": "onboarding",
+      "name": "Onboarding",
+      "price": 8000,
+      "moms": 25,
+      "optional": true,
+      "defaultSelected": true,
+      "quantityEditable": true,
+      "quantityMin": 1,
+      "quantityMax": 5
+    }
+  ]
+}
+```
+
+Replace `SIGNER_ID` with the ID of the signer who makes the choice.
+
+### Recipient choices
+
+The `recipientChoice` object records what the signer chose:
+
+```json
+{
+  "recipientChoice": {
+    "selectedIds": ["onboarding"],
+    "quantities": { "onboarding": 3 }
+  }
+}
+```
+
+sajn writes this object when the signer fills in the document, and reads it back when it calculates the totals and renders the signed PDF file. You can read it through the API, but you can't submit a choice on the signer's behalf. Before the signer answers, `defaultSelected` decides which optional rows count.
+
+## Group rows into sections
+
+A section groups rows under a heading. Each entry in `sections` needs an `id` and a `name`, and each row joins a section through `sectionId`.
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | string | Identifies the section. Rows reference it through `sectionId`. |
+| `name` | string | The heading above the group. |
+| `pickOne` | boolean | If `true`, at most one row in the section is included. |
+| `showSubtotal` | boolean | If `true`, the section shows its own subtotal. |
+
+A section with `pickOne` set to `true` presents its rows as alternatives. Give one row `defaultSelected` so that the section has an answer before the signer responds:
+
+```json
+{
+  "sections": [
+    { "id": "plan", "name": "Välj ett alternativ", "pickOne": true, "showSubtotal": true }
+  ],
+  "products": [
+    { "id": "bas", "name": "Bas", "price": 1250, "moms": 25, "sectionId": "plan", "defaultSelected": true },
+    { "id": "plus", "name": "Plus", "price": 2100, "moms": 25, "sectionId": "plan" }
+  ]
+}
+```
+
+<Note>
+  Pick-one applies whether or not `allowSelection` is set. A pick-one section with no chosen row and no `defaultSelected` row contributes nothing to the document, so always mark a default.
+</Note>
+
+## Bill on an interval
+
+Set `billing` on a row to `MONTHLY`, `QUARTERLY`, or `YEARLY` to charge it on that interval. Rows without a `billing` value are one-time charges.
+
+As soon as one row is recurring, the summary adds a total per interval alongside the grand total, so the signer sees what they pay once and what they pay each period.
+
+## ROT and RUT deductions
+
+Set a row's `productType` to `ROT` or `RUT` to mark labor that qualifies for the Swedish tax deduction. sajn deducts 30% of a `ROT` row and 50% of a `RUT` row, both measured including moms, and reports the result as the payable amount.
+
+The deduction is per row. Mark the labor rows and leave materials as `GOODS`, because materials don't qualify.
+
+## Update a product table
+
+To change a table, send a `PATCH` request with the complete `fieldMeta` object. The request replaces the metadata rather than merging into it, so include every property you want to keep:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldMeta": {
+      "type": "PRODUCT_TABLE",
+      "name": "Offert",
+      "columns": { "name": { "name": "Produkt", "originalName": "Produkt", "key": "name", "enabled": true, "settings": {} } },
+      "products": [
+        { "id": "support", "name": "Support", "quantity": 20, "price": 950, "moms": 25 }
+      ]
+    }
+  }'
+```
+
+Replace the following:
+
+- `DOCUMENT_ID`: the document's ID
+- `FIELD_ID`: the field's ID
+- `API_KEY`: your API key
+
+## Troubleshoot
+
+| Message | Cause |
+|---|---|
+| `Field meta är obligatoriskt för denna typ av fält.` | The request omitted `fieldMeta`. Product tables always need it. |
+| `Field meta matchar inte fälttypen.` | The `fieldMeta.type` value doesn't match the field's `type` value. Both must be `PRODUCT_TABLE`. |
+| `Ogiltig field meta för denna typ av fält.` | The metadata failed validation. Check that `name`, `columns`, and `products` are present, and that every column's `key` value names a product property or `lineTotal`. |
+| `Dokumentet är inte i status "DRAFT"` | The document was already sent. Fields change only in `DRAFT` status. |
+
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">
-    Learn document creation basics
+  <Card title="Creating documents" icon="file-plus" href="/guides/create-document">
+    Create the document that holds the table
   </Card>
-  <Card title="Templates and Forms" icon="file-lines" href="/guides/templates-and-forms">
-    Create reusable templates with product tables
+  <Card title="Templates and forms" icon="file-lines" href="/guides/templates-and-forms">
+    Reuse a product table across documents
   </Card>
-  <Card title="Document Fields API" icon="code" href="/api/POST%20/api/v1/documents/{id}/fields">
-    Full field API documentation
+  <Card title="Document fields API" icon="code" href="/api/POST%20/api/v1/documents/{id}/fields">
+    Read the full field reference
   </Card>
-  <Card title="Send for Signing" icon="paper-plane" href="/guides/send-for-signing">
-    Send documents to signers
+  <Card title="Send for signing" icon="paper-plane" href="/guides/send-for-signing">
+    Send the document to its signers
   </Card>
 </CardGroup>

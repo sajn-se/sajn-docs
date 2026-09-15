@@ -7455,11 +7455,99 @@
                                   "selectionSignerId": {
                                     "type": "string"
                                   },
+                                  "selectionRequired": {
+                                    "type": "boolean"
+                                  },
                                   "selectedProductIds": {
                                     "type": "array",
                                     "items": {
                                       "type": "string"
                                     }
+                                  },
+                                  "recipientChoice": {
+                                    "type": "object",
+                                    "properties": {
+                                      "selectedIds": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "quantities": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "type": "number"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "selectedIds",
+                                      "quantities"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "sections": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "pickOne": {
+                                          "type": "boolean"
+                                        },
+                                        "showSubtotal": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "name"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "discount": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PERCENT",
+                                          "AMOUNT"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "pricing": {
+                                    "type": "object",
+                                    "properties": {
+                                      "pricesIncludeMoms": {
+                                        "type": "boolean"
+                                      },
+                                      "defaultMomsRate": {
+                                        "type": "number"
+                                      },
+                                      "showMomsBreakdown": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "additionalProperties": false
                                   },
                                   "style": {
                                     "type": "object",
@@ -7523,6 +7611,50 @@
                                         },
                                         "defaultSelected": {
                                           "type": "boolean"
+                                        },
+                                        "quantityEditable": {
+                                          "type": "boolean"
+                                        },
+                                        "quantityMin": {
+                                          "type": "number"
+                                        },
+                                        "quantityMax": {
+                                          "type": "number"
+                                        },
+                                        "discount": {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "PERCENT",
+                                                "AMOUNT"
+                                              ]
+                                            },
+                                            "value": {
+                                              "type": "number"
+                                            }
+                                          },
+                                          "required": [
+                                            "type",
+                                            "value"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        "billing": {
+                                          "type": "string",
+                                          "enum": [
+                                            "ONE_TIME",
+                                            "MONTHLY",
+                                            "QUARTERLY",
+                                            "YEARLY"
+                                          ]
+                                        },
+                                        "sectionId": {
+                                          "type": "string"
+                                        },
+                                        "sku": {
+                                          "type": "string"
                                         },
                                         "productId": {
                                           "type": "string"
@@ -9837,11 +9969,99 @@
                                 "selectionSignerId": {
                                   "type": "string"
                                 },
+                                "selectionRequired": {
+                                  "type": "boolean"
+                                },
                                 "selectedProductIds": {
                                   "type": "array",
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "recipientChoice": {
+                                  "type": "object",
+                                  "properties": {
+                                    "selectedIds": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "quantities": {
+                                      "type": "object",
+                                      "additionalProperties": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "selectedIds",
+                                    "quantities"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "sections": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "pickOne": {
+                                        "type": "boolean"
+                                      },
+                                      "showSubtotal": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "name"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "discount": {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "PERCENT",
+                                        "AMOUNT"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "number"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "pricing": {
+                                  "type": "object",
+                                  "properties": {
+                                    "pricesIncludeMoms": {
+                                      "type": "boolean"
+                                    },
+                                    "defaultMomsRate": {
+                                      "type": "number"
+                                    },
+                                    "showMomsBreakdown": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "additionalProperties": false
                                 },
                                 "style": {
                                   "type": "object",
@@ -9905,6 +10125,50 @@
                                       },
                                       "defaultSelected": {
                                         "type": "boolean"
+                                      },
+                                      "quantityEditable": {
+                                        "type": "boolean"
+                                      },
+                                      "quantityMin": {
+                                        "type": "number"
+                                      },
+                                      "quantityMax": {
+                                        "type": "number"
+                                      },
+                                      "discount": {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "enum": [
+                                              "PERCENT",
+                                              "AMOUNT"
+                                            ]
+                                          },
+                                          "value": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "value"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "billing": {
+                                        "type": "string",
+                                        "enum": [
+                                          "ONE_TIME",
+                                          "MONTHLY",
+                                          "QUARTERLY",
+                                          "YEARLY"
+                                        ]
+                                      },
+                                      "sectionId": {
+                                        "type": "string"
+                                      },
+                                      "sku": {
+                                        "type": "string"
                                       },
                                       "productId": {
                                         "type": "string"
@@ -11457,11 +11721,99 @@
                                   "selectionSignerId": {
                                     "type": "string"
                                   },
+                                  "selectionRequired": {
+                                    "type": "boolean"
+                                  },
                                   "selectedProductIds": {
                                     "type": "array",
                                     "items": {
                                       "type": "string"
                                     }
+                                  },
+                                  "recipientChoice": {
+                                    "type": "object",
+                                    "properties": {
+                                      "selectedIds": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "quantities": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "type": "number"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "selectedIds",
+                                      "quantities"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "sections": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "pickOne": {
+                                          "type": "boolean"
+                                        },
+                                        "showSubtotal": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "name"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "discount": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PERCENT",
+                                          "AMOUNT"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "pricing": {
+                                    "type": "object",
+                                    "properties": {
+                                      "pricesIncludeMoms": {
+                                        "type": "boolean"
+                                      },
+                                      "defaultMomsRate": {
+                                        "type": "number"
+                                      },
+                                      "showMomsBreakdown": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "additionalProperties": false
                                   },
                                   "style": {
                                     "type": "object",
@@ -11525,6 +11877,50 @@
                                         },
                                         "defaultSelected": {
                                           "type": "boolean"
+                                        },
+                                        "quantityEditable": {
+                                          "type": "boolean"
+                                        },
+                                        "quantityMin": {
+                                          "type": "number"
+                                        },
+                                        "quantityMax": {
+                                          "type": "number"
+                                        },
+                                        "discount": {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "PERCENT",
+                                                "AMOUNT"
+                                              ]
+                                            },
+                                            "value": {
+                                              "type": "number"
+                                            }
+                                          },
+                                          "required": [
+                                            "type",
+                                            "value"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        "billing": {
+                                          "type": "string",
+                                          "enum": [
+                                            "ONE_TIME",
+                                            "MONTHLY",
+                                            "QUARTERLY",
+                                            "YEARLY"
+                                          ]
+                                        },
+                                        "sectionId": {
+                                          "type": "string"
+                                        },
+                                        "sku": {
+                                          "type": "string"
                                         },
                                         "productId": {
                                           "type": "string"
@@ -16032,11 +16428,99 @@
                                   "selectionSignerId": {
                                     "type": "string"
                                   },
+                                  "selectionRequired": {
+                                    "type": "boolean"
+                                  },
                                   "selectedProductIds": {
                                     "type": "array",
                                     "items": {
                                       "type": "string"
                                     }
+                                  },
+                                  "recipientChoice": {
+                                    "type": "object",
+                                    "properties": {
+                                      "selectedIds": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "quantities": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "type": "number"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "selectedIds",
+                                      "quantities"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "sections": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "pickOne": {
+                                          "type": "boolean"
+                                        },
+                                        "showSubtotal": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "name"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "discount": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PERCENT",
+                                          "AMOUNT"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "pricing": {
+                                    "type": "object",
+                                    "properties": {
+                                      "pricesIncludeMoms": {
+                                        "type": "boolean"
+                                      },
+                                      "defaultMomsRate": {
+                                        "type": "number"
+                                      },
+                                      "showMomsBreakdown": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "additionalProperties": false
                                   },
                                   "style": {
                                     "type": "object",
@@ -16100,6 +16584,50 @@
                                         },
                                         "defaultSelected": {
                                           "type": "boolean"
+                                        },
+                                        "quantityEditable": {
+                                          "type": "boolean"
+                                        },
+                                        "quantityMin": {
+                                          "type": "number"
+                                        },
+                                        "quantityMax": {
+                                          "type": "number"
+                                        },
+                                        "discount": {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "PERCENT",
+                                                "AMOUNT"
+                                              ]
+                                            },
+                                            "value": {
+                                              "type": "number"
+                                            }
+                                          },
+                                          "required": [
+                                            "type",
+                                            "value"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        "billing": {
+                                          "type": "string",
+                                          "enum": [
+                                            "ONE_TIME",
+                                            "MONTHLY",
+                                            "QUARTERLY",
+                                            "YEARLY"
+                                          ]
+                                        },
+                                        "sectionId": {
+                                          "type": "string"
+                                        },
+                                        "sku": {
+                                          "type": "string"
                                         },
                                         "productId": {
                                           "type": "string"
@@ -17747,11 +18275,99 @@
                               "selectionSignerId": {
                                 "type": "string"
                               },
+                              "selectionRequired": {
+                                "type": "boolean"
+                              },
                               "selectedProductIds": {
                                 "type": "array",
                                 "items": {
                                   "type": "string"
                                 }
+                              },
+                              "recipientChoice": {
+                                "type": "object",
+                                "properties": {
+                                  "selectedIds": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "quantities": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "number"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "selectedIds",
+                                  "quantities"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "sections": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "pickOne": {
+                                      "type": "boolean"
+                                    },
+                                    "showSubtotal": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "name"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "discount": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PERCENT",
+                                      "AMOUNT"
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "number"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "pricing": {
+                                "type": "object",
+                                "properties": {
+                                  "pricesIncludeMoms": {
+                                    "type": "boolean"
+                                  },
+                                  "defaultMomsRate": {
+                                    "type": "number"
+                                  },
+                                  "showMomsBreakdown": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "additionalProperties": false
                               },
                               "style": {
                                 "type": "object",
@@ -17815,6 +18431,50 @@
                                     },
                                     "defaultSelected": {
                                       "type": "boolean"
+                                    },
+                                    "quantityEditable": {
+                                      "type": "boolean"
+                                    },
+                                    "quantityMin": {
+                                      "type": "number"
+                                    },
+                                    "quantityMax": {
+                                      "type": "number"
+                                    },
+                                    "discount": {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "enum": [
+                                            "PERCENT",
+                                            "AMOUNT"
+                                          ]
+                                        },
+                                        "value": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "type",
+                                        "value"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "billing": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ONE_TIME",
+                                        "MONTHLY",
+                                        "QUARTERLY",
+                                        "YEARLY"
+                                      ]
+                                    },
+                                    "sectionId": {
+                                      "type": "string"
+                                    },
+                                    "sku": {
+                                      "type": "string"
                                     },
                                     "productId": {
                                       "type": "string"
@@ -19337,11 +19997,99 @@
                                 "selectionSignerId": {
                                   "type": "string"
                                 },
+                                "selectionRequired": {
+                                  "type": "boolean"
+                                },
                                 "selectedProductIds": {
                                   "type": "array",
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "recipientChoice": {
+                                  "type": "object",
+                                  "properties": {
+                                    "selectedIds": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "quantities": {
+                                      "type": "object",
+                                      "additionalProperties": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "selectedIds",
+                                    "quantities"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "sections": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "pickOne": {
+                                        "type": "boolean"
+                                      },
+                                      "showSubtotal": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "name"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "discount": {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "PERCENT",
+                                        "AMOUNT"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "number"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "pricing": {
+                                  "type": "object",
+                                  "properties": {
+                                    "pricesIncludeMoms": {
+                                      "type": "boolean"
+                                    },
+                                    "defaultMomsRate": {
+                                      "type": "number"
+                                    },
+                                    "showMomsBreakdown": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "additionalProperties": false
                                 },
                                 "style": {
                                   "type": "object",
@@ -19405,6 +20153,50 @@
                                       },
                                       "defaultSelected": {
                                         "type": "boolean"
+                                      },
+                                      "quantityEditable": {
+                                        "type": "boolean"
+                                      },
+                                      "quantityMin": {
+                                        "type": "number"
+                                      },
+                                      "quantityMax": {
+                                        "type": "number"
+                                      },
+                                      "discount": {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "enum": [
+                                              "PERCENT",
+                                              "AMOUNT"
+                                            ]
+                                          },
+                                          "value": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "value"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "billing": {
+                                        "type": "string",
+                                        "enum": [
+                                          "ONE_TIME",
+                                          "MONTHLY",
+                                          "QUARTERLY",
+                                          "YEARLY"
+                                        ]
+                                      },
+                                      "sectionId": {
+                                        "type": "string"
+                                      },
+                                      "sku": {
+                                        "type": "string"
                                       },
                                       "productId": {
                                         "type": "string"
@@ -21306,11 +22098,99 @@
                             "selectionSignerId": {
                               "type": "string"
                             },
+                            "selectionRequired": {
+                              "type": "boolean"
+                            },
                             "selectedProductIds": {
                               "type": "array",
                               "items": {
                                 "type": "string"
                               }
+                            },
+                            "recipientChoice": {
+                              "type": "object",
+                              "properties": {
+                                "selectedIds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "quantities": {
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "selectedIds",
+                                "quantities"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "sections": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "pickOne": {
+                                    "type": "boolean"
+                                  },
+                                  "showSubtotal": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "discount": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "PERCENT",
+                                    "AMOUNT"
+                                  ]
+                                },
+                                "value": {
+                                  "type": "number"
+                                },
+                                "label": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "value"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "pricing": {
+                              "type": "object",
+                              "properties": {
+                                "pricesIncludeMoms": {
+                                  "type": "boolean"
+                                },
+                                "defaultMomsRate": {
+                                  "type": "number"
+                                },
+                                "showMomsBreakdown": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "additionalProperties": false
                             },
                             "style": {
                               "type": "object",
@@ -21374,6 +22254,50 @@
                                   },
                                   "defaultSelected": {
                                     "type": "boolean"
+                                  },
+                                  "quantityEditable": {
+                                    "type": "boolean"
+                                  },
+                                  "quantityMin": {
+                                    "type": "number"
+                                  },
+                                  "quantityMax": {
+                                    "type": "number"
+                                  },
+                                  "discount": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PERCENT",
+                                          "AMOUNT"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "billing": {
+                                    "type": "string",
+                                    "enum": [
+                                      "ONE_TIME",
+                                      "MONTHLY",
+                                      "QUARTERLY",
+                                      "YEARLY"
+                                    ]
+                                  },
+                                  "sectionId": {
+                                    "type": "string"
+                                  },
+                                  "sku": {
+                                    "type": "string"
                                   },
                                   "productId": {
                                     "type": "string"
@@ -23025,11 +23949,99 @@
                               "selectionSignerId": {
                                 "type": "string"
                               },
+                              "selectionRequired": {
+                                "type": "boolean"
+                              },
                               "selectedProductIds": {
                                 "type": "array",
                                 "items": {
                                   "type": "string"
                                 }
+                              },
+                              "recipientChoice": {
+                                "type": "object",
+                                "properties": {
+                                  "selectedIds": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "quantities": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "number"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "selectedIds",
+                                  "quantities"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "sections": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "pickOne": {
+                                      "type": "boolean"
+                                    },
+                                    "showSubtotal": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "name"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "discount": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PERCENT",
+                                      "AMOUNT"
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "number"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "pricing": {
+                                "type": "object",
+                                "properties": {
+                                  "pricesIncludeMoms": {
+                                    "type": "boolean"
+                                  },
+                                  "defaultMomsRate": {
+                                    "type": "number"
+                                  },
+                                  "showMomsBreakdown": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "additionalProperties": false
                               },
                               "style": {
                                 "type": "object",
@@ -23093,6 +24105,50 @@
                                     },
                                     "defaultSelected": {
                                       "type": "boolean"
+                                    },
+                                    "quantityEditable": {
+                                      "type": "boolean"
+                                    },
+                                    "quantityMin": {
+                                      "type": "number"
+                                    },
+                                    "quantityMax": {
+                                      "type": "number"
+                                    },
+                                    "discount": {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "enum": [
+                                            "PERCENT",
+                                            "AMOUNT"
+                                          ]
+                                        },
+                                        "value": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "type",
+                                        "value"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "billing": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ONE_TIME",
+                                        "MONTHLY",
+                                        "QUARTERLY",
+                                        "YEARLY"
+                                      ]
+                                    },
+                                    "sectionId": {
+                                      "type": "string"
+                                    },
+                                    "sku": {
+                                      "type": "string"
                                     },
                                     "productId": {
                                       "type": "string"
@@ -25457,11 +26513,99 @@
                                   "selectionSignerId": {
                                     "type": "string"
                                   },
+                                  "selectionRequired": {
+                                    "type": "boolean"
+                                  },
                                   "selectedProductIds": {
                                     "type": "array",
                                     "items": {
                                       "type": "string"
                                     }
+                                  },
+                                  "recipientChoice": {
+                                    "type": "object",
+                                    "properties": {
+                                      "selectedIds": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "quantities": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "type": "number"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "selectedIds",
+                                      "quantities"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "sections": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "pickOne": {
+                                          "type": "boolean"
+                                        },
+                                        "showSubtotal": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "name"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "discount": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PERCENT",
+                                          "AMOUNT"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "pricing": {
+                                    "type": "object",
+                                    "properties": {
+                                      "pricesIncludeMoms": {
+                                        "type": "boolean"
+                                      },
+                                      "defaultMomsRate": {
+                                        "type": "number"
+                                      },
+                                      "showMomsBreakdown": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "additionalProperties": false
                                   },
                                   "style": {
                                     "type": "object",
@@ -25525,6 +26669,50 @@
                                         },
                                         "defaultSelected": {
                                           "type": "boolean"
+                                        },
+                                        "quantityEditable": {
+                                          "type": "boolean"
+                                        },
+                                        "quantityMin": {
+                                          "type": "number"
+                                        },
+                                        "quantityMax": {
+                                          "type": "number"
+                                        },
+                                        "discount": {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "PERCENT",
+                                                "AMOUNT"
+                                              ]
+                                            },
+                                            "value": {
+                                              "type": "number"
+                                            }
+                                          },
+                                          "required": [
+                                            "type",
+                                            "value"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        "billing": {
+                                          "type": "string",
+                                          "enum": [
+                                            "ONE_TIME",
+                                            "MONTHLY",
+                                            "QUARTERLY",
+                                            "YEARLY"
+                                          ]
+                                        },
+                                        "sectionId": {
+                                          "type": "string"
+                                        },
+                                        "sku": {
+                                          "type": "string"
                                         },
                                         "productId": {
                                           "type": "string"
@@ -25865,6 +27053,274 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "productTables": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "fieldId": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "description": "ISO 4217; null on tables authored before currencies",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "language": {
+                            "type": "string",
+                            "enum": [
+                              "sv",
+                              "en",
+                              "no",
+                              "da",
+                              "fi",
+                              "de",
+                              "is",
+                              "es",
+                              "fr",
+                              "it"
+                            ]
+                          },
+                          "allowSelection": {
+                            "type": "boolean"
+                          },
+                          "selectionSignerId": {
+                            "description": "The party who makes the selection",
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "selectionRequired": {
+                            "type": "boolean"
+                          },
+                          "sections": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "pickOne": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "pickOne"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "rows": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "sku": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "unit": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "price": {
+                                  "type": "number",
+                                  "description": "Unit price, in the basis the table was priced in (excl. moms unless the table prices include it)"
+                                },
+                                "moms": {
+                                  "type": "number",
+                                  "description": "Moms rate in percent, falling back to the table default"
+                                },
+                                "billing": {
+                                  "type": "string",
+                                  "enum": [
+                                    "ONE_TIME",
+                                    "MONTHLY",
+                                    "QUARTERLY",
+                                    "YEARLY"
+                                  ]
+                                },
+                                "discount": {
+                                  "description": "Row discount, off the row amount",
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "PERCENT",
+                                        "AMOUNT"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "nullable": true
+                                },
+                                "optional": {
+                                  "type": "boolean",
+                                  "description": "The recipient may choose whether to include this row"
+                                },
+                                "selected": {
+                                  "type": "boolean",
+                                  "description": "Whether the row counts towards the totals. Declined rows are still listed, with false."
+                                },
+                                "quantity": {
+                                  "type": "number",
+                                  "description": "Final quantity, including a recipient-set one"
+                                },
+                                "lineTotal": {
+                                  "type": "number",
+                                  "description": "price × quantity − discount, in the basis the price was entered in"
+                                },
+                                "lineNet": {
+                                  "type": "number",
+                                  "description": "Line amount excl. moms"
+                                },
+                                "lineMoms": {
+                                  "type": "number"
+                                },
+                                "sectionId": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "productType": {
+                                  "type": "string",
+                                  "enum": [
+                                    "GOODS",
+                                    "SERVICE",
+                                    "ROT",
+                                    "RUT"
+                                  ],
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "sku",
+                                "name",
+                                "description",
+                                "unit",
+                                "price",
+                                "moms",
+                                "billing",
+                                "discount",
+                                "optional",
+                                "selected",
+                                "quantity",
+                                "lineTotal",
+                                "lineNet",
+                                "lineMoms",
+                                "sectionId",
+                                "productType"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "Every row, selected or not, in table order"
+                          },
+                          "totals": {
+                            "type": "object",
+                            "properties": {
+                              "subtotal": {
+                                "type": "number",
+                                "description": "Net, before the table discount"
+                              },
+                              "discountAmount": {
+                                "type": "number"
+                              },
+                              "momsAmount": {
+                                "type": "number"
+                              },
+                              "total": {
+                                "type": "number"
+                              },
+                              "rotDeduction": {
+                                "type": "number"
+                              },
+                              "rutDeduction": {
+                                "type": "number"
+                              },
+                              "payable": {
+                                "type": "number",
+                                "description": "total − ROT/RUT deductions"
+                              },
+                              "byBilling": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "object",
+                                  "properties": {
+                                    "subtotal": {
+                                      "type": "number"
+                                    },
+                                    "momsAmount": {
+                                      "type": "number"
+                                    },
+                                    "total": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "subtotal",
+                                    "momsAmount",
+                                    "total"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "subtotal",
+                              "discountAmount",
+                              "momsAmount",
+                              "total",
+                              "rotDeduction",
+                              "rutDeduction",
+                              "payable",
+                              "byBilling"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Computed from the selected rows only"
+                          }
+                        },
+                        "required": [
+                          "fieldId",
+                          "name",
+                          "currency",
+                          "language",
+                          "allowSelection",
+                          "selectionSignerId",
+                          "selectionRequired",
+                          "sections",
+                          "rows",
+                          "totals"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Every product table on the document, resolved: each row carries the recipient's final `selected` state and `quantity`, and the totals count the selected rows only. Empty when the document has no product table."
                     }
                   },
                   "required": [
@@ -25874,7 +27330,8 @@
                     "createdAt",
                     "updatedAt",
                     "signers",
-                    "parties"
+                    "parties",
+                    "productTables"
                   ],
                   "additionalProperties": false
                 }
@@ -43398,11 +44855,99 @@
                                 "selectionSignerId": {
                                   "type": "string"
                                 },
+                                "selectionRequired": {
+                                  "type": "boolean"
+                                },
                                 "selectedProductIds": {
                                   "type": "array",
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "recipientChoice": {
+                                  "type": "object",
+                                  "properties": {
+                                    "selectedIds": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "quantities": {
+                                      "type": "object",
+                                      "additionalProperties": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "selectedIds",
+                                    "quantities"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "sections": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "pickOne": {
+                                        "type": "boolean"
+                                      },
+                                      "showSubtotal": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "name"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "discount": {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "PERCENT",
+                                        "AMOUNT"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "number"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "pricing": {
+                                  "type": "object",
+                                  "properties": {
+                                    "pricesIncludeMoms": {
+                                      "type": "boolean"
+                                    },
+                                    "defaultMomsRate": {
+                                      "type": "number"
+                                    },
+                                    "showMomsBreakdown": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "additionalProperties": false
                                 },
                                 "style": {
                                   "type": "object",
@@ -43466,6 +45011,50 @@
                                       },
                                       "defaultSelected": {
                                         "type": "boolean"
+                                      },
+                                      "quantityEditable": {
+                                        "type": "boolean"
+                                      },
+                                      "quantityMin": {
+                                        "type": "number"
+                                      },
+                                      "quantityMax": {
+                                        "type": "number"
+                                      },
+                                      "discount": {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "enum": [
+                                              "PERCENT",
+                                              "AMOUNT"
+                                            ]
+                                          },
+                                          "value": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "value"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "billing": {
+                                        "type": "string",
+                                        "enum": [
+                                          "ONE_TIME",
+                                          "MONTHLY",
+                                          "QUARTERLY",
+                                          "YEARLY"
+                                        ]
+                                      },
+                                      "sectionId": {
+                                        "type": "string"
+                                      },
+                                      "sku": {
+                                        "type": "string"
                                       },
                                       "productId": {
                                         "type": "string"
@@ -45396,11 +46985,99 @@
                                   "selectionSignerId": {
                                     "type": "string"
                                   },
+                                  "selectionRequired": {
+                                    "type": "boolean"
+                                  },
                                   "selectedProductIds": {
                                     "type": "array",
                                     "items": {
                                       "type": "string"
                                     }
+                                  },
+                                  "recipientChoice": {
+                                    "type": "object",
+                                    "properties": {
+                                      "selectedIds": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "quantities": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "type": "number"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "selectedIds",
+                                      "quantities"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "sections": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "pickOne": {
+                                          "type": "boolean"
+                                        },
+                                        "showSubtotal": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "name"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "discount": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PERCENT",
+                                          "AMOUNT"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "pricing": {
+                                    "type": "object",
+                                    "properties": {
+                                      "pricesIncludeMoms": {
+                                        "type": "boolean"
+                                      },
+                                      "defaultMomsRate": {
+                                        "type": "number"
+                                      },
+                                      "showMomsBreakdown": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "additionalProperties": false
                                   },
                                   "style": {
                                     "type": "object",
@@ -45464,6 +47141,50 @@
                                         },
                                         "defaultSelected": {
                                           "type": "boolean"
+                                        },
+                                        "quantityEditable": {
+                                          "type": "boolean"
+                                        },
+                                        "quantityMin": {
+                                          "type": "number"
+                                        },
+                                        "quantityMax": {
+                                          "type": "number"
+                                        },
+                                        "discount": {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "PERCENT",
+                                                "AMOUNT"
+                                              ]
+                                            },
+                                            "value": {
+                                              "type": "number"
+                                            }
+                                          },
+                                          "required": [
+                                            "type",
+                                            "value"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        "billing": {
+                                          "type": "string",
+                                          "enum": [
+                                            "ONE_TIME",
+                                            "MONTHLY",
+                                            "QUARTERLY",
+                                            "YEARLY"
+                                          ]
+                                        },
+                                        "sectionId": {
+                                          "type": "string"
+                                        },
+                                        "sku": {
+                                          "type": "string"
                                         },
                                         "productId": {
                                           "type": "string"
@@ -48058,11 +49779,99 @@
                                   "selectionSignerId": {
                                     "type": "string"
                                   },
+                                  "selectionRequired": {
+                                    "type": "boolean"
+                                  },
                                   "selectedProductIds": {
                                     "type": "array",
                                     "items": {
                                       "type": "string"
                                     }
+                                  },
+                                  "recipientChoice": {
+                                    "type": "object",
+                                    "properties": {
+                                      "selectedIds": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "quantities": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "type": "number"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "selectedIds",
+                                      "quantities"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "sections": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "pickOne": {
+                                          "type": "boolean"
+                                        },
+                                        "showSubtotal": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "name"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "discount": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PERCENT",
+                                          "AMOUNT"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "pricing": {
+                                    "type": "object",
+                                    "properties": {
+                                      "pricesIncludeMoms": {
+                                        "type": "boolean"
+                                      },
+                                      "defaultMomsRate": {
+                                        "type": "number"
+                                      },
+                                      "showMomsBreakdown": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "additionalProperties": false
                                   },
                                   "style": {
                                     "type": "object",
@@ -48126,6 +49935,50 @@
                                         },
                                         "defaultSelected": {
                                           "type": "boolean"
+                                        },
+                                        "quantityEditable": {
+                                          "type": "boolean"
+                                        },
+                                        "quantityMin": {
+                                          "type": "number"
+                                        },
+                                        "quantityMax": {
+                                          "type": "number"
+                                        },
+                                        "discount": {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string",
+                                              "enum": [
+                                                "PERCENT",
+                                                "AMOUNT"
+                                              ]
+                                            },
+                                            "value": {
+                                              "type": "number"
+                                            }
+                                          },
+                                          "required": [
+                                            "type",
+                                            "value"
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        "billing": {
+                                          "type": "string",
+                                          "enum": [
+                                            "ONE_TIME",
+                                            "MONTHLY",
+                                            "QUARTERLY",
+                                            "YEARLY"
+                                          ]
+                                        },
+                                        "sectionId": {
+                                          "type": "string"
+                                        },
+                                        "sku": {
+                                          "type": "string"
                                         },
                                         "productId": {
                                           "type": "string"
@@ -49773,11 +51626,99 @@
                               "selectionSignerId": {
                                 "type": "string"
                               },
+                              "selectionRequired": {
+                                "type": "boolean"
+                              },
                               "selectedProductIds": {
                                 "type": "array",
                                 "items": {
                                   "type": "string"
                                 }
+                              },
+                              "recipientChoice": {
+                                "type": "object",
+                                "properties": {
+                                  "selectedIds": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "quantities": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "number"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "selectedIds",
+                                  "quantities"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "sections": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "pickOne": {
+                                      "type": "boolean"
+                                    },
+                                    "showSubtotal": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "name"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "discount": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PERCENT",
+                                      "AMOUNT"
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "number"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "pricing": {
+                                "type": "object",
+                                "properties": {
+                                  "pricesIncludeMoms": {
+                                    "type": "boolean"
+                                  },
+                                  "defaultMomsRate": {
+                                    "type": "number"
+                                  },
+                                  "showMomsBreakdown": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "additionalProperties": false
                               },
                               "style": {
                                 "type": "object",
@@ -49841,6 +51782,50 @@
                                     },
                                     "defaultSelected": {
                                       "type": "boolean"
+                                    },
+                                    "quantityEditable": {
+                                      "type": "boolean"
+                                    },
+                                    "quantityMin": {
+                                      "type": "number"
+                                    },
+                                    "quantityMax": {
+                                      "type": "number"
+                                    },
+                                    "discount": {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "enum": [
+                                            "PERCENT",
+                                            "AMOUNT"
+                                          ]
+                                        },
+                                        "value": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "type",
+                                        "value"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "billing": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ONE_TIME",
+                                        "MONTHLY",
+                                        "QUARTERLY",
+                                        "YEARLY"
+                                      ]
+                                    },
+                                    "sectionId": {
+                                      "type": "string"
+                                    },
+                                    "sku": {
+                                      "type": "string"
                                     },
                                     "productId": {
                                       "type": "string"
@@ -51363,11 +53348,99 @@
                                 "selectionSignerId": {
                                   "type": "string"
                                 },
+                                "selectionRequired": {
+                                  "type": "boolean"
+                                },
                                 "selectedProductIds": {
                                   "type": "array",
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "recipientChoice": {
+                                  "type": "object",
+                                  "properties": {
+                                    "selectedIds": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "quantities": {
+                                      "type": "object",
+                                      "additionalProperties": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "selectedIds",
+                                    "quantities"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "sections": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "pickOne": {
+                                        "type": "boolean"
+                                      },
+                                      "showSubtotal": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "name"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "discount": {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "PERCENT",
+                                        "AMOUNT"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "number"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "pricing": {
+                                  "type": "object",
+                                  "properties": {
+                                    "pricesIncludeMoms": {
+                                      "type": "boolean"
+                                    },
+                                    "defaultMomsRate": {
+                                      "type": "number"
+                                    },
+                                    "showMomsBreakdown": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "additionalProperties": false
                                 },
                                 "style": {
                                   "type": "object",
@@ -51431,6 +53504,50 @@
                                       },
                                       "defaultSelected": {
                                         "type": "boolean"
+                                      },
+                                      "quantityEditable": {
+                                        "type": "boolean"
+                                      },
+                                      "quantityMin": {
+                                        "type": "number"
+                                      },
+                                      "quantityMax": {
+                                        "type": "number"
+                                      },
+                                      "discount": {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "enum": [
+                                              "PERCENT",
+                                              "AMOUNT"
+                                            ]
+                                          },
+                                          "value": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "value"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "billing": {
+                                        "type": "string",
+                                        "enum": [
+                                          "ONE_TIME",
+                                          "MONTHLY",
+                                          "QUARTERLY",
+                                          "YEARLY"
+                                        ]
+                                      },
+                                      "sectionId": {
+                                        "type": "string"
+                                      },
+                                      "sku": {
+                                        "type": "string"
                                       },
                                       "productId": {
                                         "type": "string"
@@ -53107,11 +55224,99 @@
                             "selectionSignerId": {
                               "type": "string"
                             },
+                            "selectionRequired": {
+                              "type": "boolean"
+                            },
                             "selectedProductIds": {
                               "type": "array",
                               "items": {
                                 "type": "string"
                               }
+                            },
+                            "recipientChoice": {
+                              "type": "object",
+                              "properties": {
+                                "selectedIds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "quantities": {
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "selectedIds",
+                                "quantities"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "sections": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "pickOne": {
+                                    "type": "boolean"
+                                  },
+                                  "showSubtotal": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "discount": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "PERCENT",
+                                    "AMOUNT"
+                                  ]
+                                },
+                                "value": {
+                                  "type": "number"
+                                },
+                                "label": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "value"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "pricing": {
+                              "type": "object",
+                              "properties": {
+                                "pricesIncludeMoms": {
+                                  "type": "boolean"
+                                },
+                                "defaultMomsRate": {
+                                  "type": "number"
+                                },
+                                "showMomsBreakdown": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "additionalProperties": false
                             },
                             "style": {
                               "type": "object",
@@ -53175,6 +55380,50 @@
                                   },
                                   "defaultSelected": {
                                     "type": "boolean"
+                                  },
+                                  "quantityEditable": {
+                                    "type": "boolean"
+                                  },
+                                  "quantityMin": {
+                                    "type": "number"
+                                  },
+                                  "quantityMax": {
+                                    "type": "number"
+                                  },
+                                  "discount": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PERCENT",
+                                          "AMOUNT"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "billing": {
+                                    "type": "string",
+                                    "enum": [
+                                      "ONE_TIME",
+                                      "MONTHLY",
+                                      "QUARTERLY",
+                                      "YEARLY"
+                                    ]
+                                  },
+                                  "sectionId": {
+                                    "type": "string"
+                                  },
+                                  "sku": {
+                                    "type": "string"
                                   },
                                   "productId": {
                                     "type": "string"
@@ -54826,11 +57075,99 @@
                               "selectionSignerId": {
                                 "type": "string"
                               },
+                              "selectionRequired": {
+                                "type": "boolean"
+                              },
                               "selectedProductIds": {
                                 "type": "array",
                                 "items": {
                                   "type": "string"
                                 }
+                              },
+                              "recipientChoice": {
+                                "type": "object",
+                                "properties": {
+                                  "selectedIds": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "quantities": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "number"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "selectedIds",
+                                  "quantities"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "sections": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "pickOne": {
+                                      "type": "boolean"
+                                    },
+                                    "showSubtotal": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "name"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "discount": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PERCENT",
+                                      "AMOUNT"
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "number"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "pricing": {
+                                "type": "object",
+                                "properties": {
+                                  "pricesIncludeMoms": {
+                                    "type": "boolean"
+                                  },
+                                  "defaultMomsRate": {
+                                    "type": "number"
+                                  },
+                                  "showMomsBreakdown": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "additionalProperties": false
                               },
                               "style": {
                                 "type": "object",
@@ -54894,6 +57231,50 @@
                                     },
                                     "defaultSelected": {
                                       "type": "boolean"
+                                    },
+                                    "quantityEditable": {
+                                      "type": "boolean"
+                                    },
+                                    "quantityMin": {
+                                      "type": "number"
+                                    },
+                                    "quantityMax": {
+                                      "type": "number"
+                                    },
+                                    "discount": {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "enum": [
+                                            "PERCENT",
+                                            "AMOUNT"
+                                          ]
+                                        },
+                                        "value": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "type",
+                                        "value"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "billing": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ONE_TIME",
+                                        "MONTHLY",
+                                        "QUARTERLY",
+                                        "YEARLY"
+                                      ]
+                                    },
+                                    "sectionId": {
+                                      "type": "string"
+                                    },
+                                    "sku": {
+                                      "type": "string"
                                     },
                                     "productId": {
                                       "type": "string"
