@@ -6248,6 +6248,52 @@
                             "FI_FTN_BEFORE_SIGNING",
                             "NL_IDIN_BEFORE_SIGNING"
                           ]
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed (max 5). Pass an empty array to clear.",
+                          "maxItems": 5,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "email",
+                            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                          }
+                        },
+                        "visibility": {
+                          "description": "Who can see documents created from this template: EVERYONE, RESPONSIBLE, PERMISSION, or USER_SPECIFIC",
+                          "type": "string",
+                          "enum": [
+                            "EVERYONE",
+                            "RESPONSIBLE",
+                            "PERMISSION",
+                            "USER_SPECIFIC"
+                          ]
+                        },
+                        "selectedUserIds": {
+                          "description": "User IDs granted access when visibility is USER_SPECIFIC",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean"
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) ID. See GET /api/v1/document-categories.",
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -8489,6 +8535,52 @@
                           "FI_FTN_BEFORE_SIGNING",
                           "NL_IDIN_BEFORE_SIGNING"
                         ]
+                      },
+                      "internalRecipients": {
+                        "description": "Email addresses that receive a copy of the sealed PDF once the document is completed (max 5). Pass an empty array to clear.",
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                        }
+                      },
+                      "visibility": {
+                        "description": "Who can see documents created from this template: EVERYONE, RESPONSIBLE, PERMISSION, or USER_SPECIFIC",
+                        "type": "string",
+                        "enum": [
+                          "EVERYONE",
+                          "RESPONSIBLE",
+                          "PERMISSION",
+                          "USER_SPECIFIC"
+                        ]
+                      },
+                      "selectedUserIds": {
+                        "description": "User IDs granted access when visibility is USER_SPECIFIC",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "ssnDisplayMode": {
+                        "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                        "type": "string",
+                        "enum": [
+                          "FULL",
+                          "PARTIAL",
+                          "NONE"
+                        ],
+                        "nullable": true
+                      },
+                      "sameDeviceSigning": {
+                        "description": "Whether all parties sign in sequence on one device",
+                        "type": "boolean"
+                      },
+                      "documentCategoryId": {
+                        "description": "Document category (Dokumenttyp) ID. See GET /api/v1/document-categories.",
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "additionalProperties": false
@@ -14190,6 +14282,77 @@
                                 "description": "Whether redirect after signing is enabled",
                                 "type": "boolean",
                                 "nullable": true
+                              },
+                              "internalRecipients": {
+                                "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true
+                              },
+                              "signableAfterExpired": {
+                                "description": "Whether the document remains signable after its expiration date",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "sendPlainTextEmailOnly": {
+                                "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "reminderIntervalDays": {
+                                "description": "Days between automatic reminders",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "allowDelegation": {
+                                "description": "Whether signers may delegate signing to another person",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "accessVerification": {
+                                "description": "Document-wide verification required to open the document",
+                                "type": "string",
+                                "enum": [
+                                  "NONE",
+                                  "PIN_BEFORE_SIGNING",
+                                  "SMS_BEFORE_SIGNING",
+                                  "EMAIL_BEFORE_SIGNING",
+                                  "BANKID_BEFORE_SIGNING",
+                                  "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                                  "NO_BANKID_HIGH_BEFORE_SIGNING",
+                                  "DK_MITID_BEFORE_SIGNING",
+                                  "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                                  "FI_FTN_BEFORE_SIGNING",
+                                  "NL_IDIN_BEFORE_SIGNING"
+                                ],
+                                "nullable": true
+                              },
+                              "aiChatEnabled": {
+                                "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "ssnDisplayMode": {
+                                "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                                "type": "string",
+                                "enum": [
+                                  "FULL",
+                                  "PARTIAL",
+                                  "NONE"
+                                ],
+                                "nullable": true
+                              },
+                              "sameDeviceSigning": {
+                                "description": "Whether all parties sign in sequence on one device",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "documentCategoryId": {
+                                "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                                "type": "string",
+                                "nullable": true
                               }
                             },
                             "additionalProperties": false,
@@ -14445,6 +14608,75 @@
                       "redirectEnabled": {
                         "description": "Whether redirect after signing is enabled",
                         "type": "boolean"
+                      },
+                      "internalRecipients": {
+                        "description": "Email addresses that receive a copy of the sealed PDF once the document is completed (max 5). Pass an empty array to clear.",
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                        }
+                      },
+                      "signableAfterExpired": {
+                        "description": "Whether the document remains signable after its expiration date",
+                        "type": "boolean"
+                      },
+                      "sendPlainTextEmailOnly": {
+                        "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                        "type": "boolean",
+                        "nullable": true
+                      },
+                      "reminderIntervalDays": {
+                        "description": "Days between automatic reminders",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "allowDelegation": {
+                        "description": "Whether signers may delegate signing to another person",
+                        "type": "boolean"
+                      },
+                      "accessVerification": {
+                        "description": "Document-wide verification required to open: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
+                        "type": "string",
+                        "enum": [
+                          "NONE",
+                          "SMS_BEFORE_SIGNING",
+                          "EMAIL_BEFORE_SIGNING",
+                          "PIN_BEFORE_SIGNING",
+                          "SE_BANKID_BEFORE_SIGNING",
+                          "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                          "NO_BANKID_HIGH_BEFORE_SIGNING",
+                          "DK_MITID_BEFORE_SIGNING",
+                          "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                          "FI_FTN_BEFORE_SIGNING",
+                          "NL_IDIN_BEFORE_SIGNING"
+                        ]
+                      },
+                      "aiChatEnabled": {
+                        "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                        "type": "boolean",
+                        "nullable": true
+                      },
+                      "ssnDisplayMode": {
+                        "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                        "type": "string",
+                        "enum": [
+                          "FULL",
+                          "PARTIAL",
+                          "NONE"
+                        ],
+                        "nullable": true
+                      },
+                      "sameDeviceSigning": {
+                        "description": "Whether all parties sign in sequence on one device",
+                        "type": "boolean"
+                      },
+                      "documentCategoryId": {
+                        "description": "Document category (Dokumenttyp) ID. See GET /api/v1/document-categories.",
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "additionalProperties": false
@@ -24846,6 +25078,77 @@
                           "description": "Whether redirect after signing is enabled",
                           "type": "boolean",
                           "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "signableAfterExpired": {
+                          "description": "Whether the document remains signable after its expiration date",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "sendPlainTextEmailOnly": {
+                          "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "reminderIntervalDays": {
+                          "description": "Days between automatic reminders",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "allowDelegation": {
+                          "description": "Whether signers may delegate signing to another person",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "PIN_BEFORE_SIGNING",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING",
+                            "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                            "NO_BANKID_HIGH_BEFORE_SIGNING",
+                            "DK_MITID_BEFORE_SIGNING",
+                            "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                            "FI_FTN_BEFORE_SIGNING",
+                            "NL_IDIN_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
+                        },
+                        "aiChatEnabled": {
+                          "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -27508,6 +27811,75 @@
                       "redirectEnabled": {
                         "description": "Whether redirect after signing is enabled",
                         "type": "boolean"
+                      },
+                      "internalRecipients": {
+                        "description": "Email addresses that receive a copy of the sealed PDF once the document is completed (max 5). Pass an empty array to clear.",
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                        }
+                      },
+                      "signableAfterExpired": {
+                        "description": "Whether the document remains signable after its expiration date",
+                        "type": "boolean"
+                      },
+                      "sendPlainTextEmailOnly": {
+                        "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                        "type": "boolean",
+                        "nullable": true
+                      },
+                      "reminderIntervalDays": {
+                        "description": "Days between automatic reminders",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "allowDelegation": {
+                        "description": "Whether signers may delegate signing to another person",
+                        "type": "boolean"
+                      },
+                      "accessVerification": {
+                        "description": "Document-wide verification required to open: NONE (default), SMS_BEFORE_SIGNING, EMAIL_BEFORE_SIGNING, or BANKID_BEFORE_SIGNING",
+                        "type": "string",
+                        "enum": [
+                          "NONE",
+                          "SMS_BEFORE_SIGNING",
+                          "EMAIL_BEFORE_SIGNING",
+                          "PIN_BEFORE_SIGNING",
+                          "SE_BANKID_BEFORE_SIGNING",
+                          "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                          "NO_BANKID_HIGH_BEFORE_SIGNING",
+                          "DK_MITID_BEFORE_SIGNING",
+                          "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                          "FI_FTN_BEFORE_SIGNING",
+                          "NL_IDIN_BEFORE_SIGNING"
+                        ]
+                      },
+                      "aiChatEnabled": {
+                        "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                        "type": "boolean",
+                        "nullable": true
+                      },
+                      "ssnDisplayMode": {
+                        "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                        "type": "string",
+                        "enum": [
+                          "FULL",
+                          "PARTIAL",
+                          "NONE"
+                        ],
+                        "nullable": true
+                      },
+                      "sameDeviceSigning": {
+                        "description": "Whether all parties sign in sequence on one device",
+                        "type": "boolean"
+                      },
+                      "documentCategoryId": {
+                        "description": "Document category (Dokumenttyp) ID. See GET /api/v1/document-categories.",
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "additionalProperties": false
@@ -27715,6 +28087,77 @@
                         "redirectEnabled": {
                           "description": "Whether redirect after signing is enabled",
                           "type": "boolean",
+                          "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "signableAfterExpired": {
+                          "description": "Whether the document remains signable after its expiration date",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "sendPlainTextEmailOnly": {
+                          "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "reminderIntervalDays": {
+                          "description": "Days between automatic reminders",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "allowDelegation": {
+                          "description": "Whether signers may delegate signing to another person",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "PIN_BEFORE_SIGNING",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING",
+                            "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                            "NO_BANKID_HIGH_BEFORE_SIGNING",
+                            "DK_MITID_BEFORE_SIGNING",
+                            "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                            "FI_FTN_BEFORE_SIGNING",
+                            "NL_IDIN_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
+                        },
+                        "aiChatEnabled": {
+                          "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -27947,6 +28390,77 @@
                         "redirectEnabled": {
                           "description": "Whether redirect after signing is enabled",
                           "type": "boolean",
+                          "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "signableAfterExpired": {
+                          "description": "Whether the document remains signable after its expiration date",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "sendPlainTextEmailOnly": {
+                          "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "reminderIntervalDays": {
+                          "description": "Days between automatic reminders",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "allowDelegation": {
+                          "description": "Whether signers may delegate signing to another person",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "PIN_BEFORE_SIGNING",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING",
+                            "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                            "NO_BANKID_HIGH_BEFORE_SIGNING",
+                            "DK_MITID_BEFORE_SIGNING",
+                            "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                            "FI_FTN_BEFORE_SIGNING",
+                            "NL_IDIN_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
+                        },
+                        "aiChatEnabled": {
+                          "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -28889,6 +29403,77 @@
                           "description": "Whether redirect after signing is enabled",
                           "type": "boolean",
                           "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "signableAfterExpired": {
+                          "description": "Whether the document remains signable after its expiration date",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "sendPlainTextEmailOnly": {
+                          "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "reminderIntervalDays": {
+                          "description": "Days between automatic reminders",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "allowDelegation": {
+                          "description": "Whether signers may delegate signing to another person",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "PIN_BEFORE_SIGNING",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING",
+                            "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                            "NO_BANKID_HIGH_BEFORE_SIGNING",
+                            "DK_MITID_BEFORE_SIGNING",
+                            "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                            "FI_FTN_BEFORE_SIGNING",
+                            "NL_IDIN_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
+                        },
+                        "aiChatEnabled": {
+                          "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -29016,6 +29601,77 @@
                         "redirectEnabled": {
                           "description": "Whether redirect after signing is enabled",
                           "type": "boolean",
+                          "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "signableAfterExpired": {
+                          "description": "Whether the document remains signable after its expiration date",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "sendPlainTextEmailOnly": {
+                          "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "reminderIntervalDays": {
+                          "description": "Days between automatic reminders",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "allowDelegation": {
+                          "description": "Whether signers may delegate signing to another person",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "PIN_BEFORE_SIGNING",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING",
+                            "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                            "NO_BANKID_HIGH_BEFORE_SIGNING",
+                            "DK_MITID_BEFORE_SIGNING",
+                            "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                            "FI_FTN_BEFORE_SIGNING",
+                            "NL_IDIN_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
+                        },
+                        "aiChatEnabled": {
+                          "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -29297,6 +29953,77 @@
                         "redirectEnabled": {
                           "description": "Whether redirect after signing is enabled",
                           "type": "boolean",
+                          "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "signableAfterExpired": {
+                          "description": "Whether the document remains signable after its expiration date",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "sendPlainTextEmailOnly": {
+                          "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "reminderIntervalDays": {
+                          "description": "Days between automatic reminders",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "allowDelegation": {
+                          "description": "Whether signers may delegate signing to another person",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "PIN_BEFORE_SIGNING",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING",
+                            "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                            "NO_BANKID_HIGH_BEFORE_SIGNING",
+                            "DK_MITID_BEFORE_SIGNING",
+                            "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                            "FI_FTN_BEFORE_SIGNING",
+                            "NL_IDIN_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
+                        },
+                        "aiChatEnabled": {
+                          "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -29611,6 +30338,77 @@
                         "redirectEnabled": {
                           "description": "Whether redirect after signing is enabled",
                           "type": "boolean",
+                          "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "signableAfterExpired": {
+                          "description": "Whether the document remains signable after its expiration date",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "sendPlainTextEmailOnly": {
+                          "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "reminderIntervalDays": {
+                          "description": "Days between automatic reminders",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "allowDelegation": {
+                          "description": "Whether signers may delegate signing to another person",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "PIN_BEFORE_SIGNING",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING",
+                            "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                            "NO_BANKID_HIGH_BEFORE_SIGNING",
+                            "DK_MITID_BEFORE_SIGNING",
+                            "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                            "FI_FTN_BEFORE_SIGNING",
+                            "NL_IDIN_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
+                        },
+                        "aiChatEnabled": {
+                          "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -36717,6 +37515,122 @@
         ]
       }
     },
+    "/api/v1/document-categories": {
+      "get": {
+        "description": "Retrieve every document category (Dokumenttyp) in the workspace, sorted by name.\n\nA category scopes which custom fields apply to a document. Use an `id` from this list as `documentMeta.documentCategoryId` when creating or updating a document, or as `templateMeta.documentCategoryId` on a template.",
+        "summary": "List document categories",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getDocumentCategories",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "documentCategories": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Unique document category identifier"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Category name, e.g. \"Anställningsavtal\""
+                          },
+                          "customInputIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Custom field IDs scoped to this category, in display order. Empty when the category scopes none."
+                          },
+                          "createdAt": {
+                            "description": "Date and time when the category was created",
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "description": "Date and time when the category was last updated",
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "customInputIds",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "documentCategories"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    },
+                    "errorId": {
+                      "description": "Identifier for this occurrence — quote it to support when reporting a 500",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "documents:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tags": {
       "get": {
         "description": "Retrieve a paginated list of all tags in your organization.\n\nTags help organize and categorize documents, templates, and contacts.\n\n**Pagination:** Use 'page' and 'perPage' query parameters.",
@@ -42814,6 +43728,77 @@
                           "description": "Whether redirect after signing is enabled",
                           "type": "boolean",
                           "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "signableAfterExpired": {
+                          "description": "Whether the document remains signable after its expiration date",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "sendPlainTextEmailOnly": {
+                          "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "reminderIntervalDays": {
+                          "description": "Days between automatic reminders",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "allowDelegation": {
+                          "description": "Whether signers may delegate signing to another person",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "accessVerification": {
+                          "description": "Document-wide verification required to open the document",
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "PIN_BEFORE_SIGNING",
+                            "SMS_BEFORE_SIGNING",
+                            "EMAIL_BEFORE_SIGNING",
+                            "BANKID_BEFORE_SIGNING",
+                            "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                            "NO_BANKID_HIGH_BEFORE_SIGNING",
+                            "DK_MITID_BEFORE_SIGNING",
+                            "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                            "FI_FTN_BEFORE_SIGNING",
+                            "NL_IDIN_BEFORE_SIGNING"
+                          ],
+                          "nullable": true
+                        },
+                        "aiChatEnabled": {
+                          "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -43541,6 +44526,53 @@
                                   "FI_FTN_BEFORE_SIGNING",
                                   "NL_IDIN_BEFORE_SIGNING"
                                 ],
+                                "nullable": true
+                              },
+                              "internalRecipients": {
+                                "description": "Email addresses that receive a copy of the sealed PDF once a document created from this template is completed",
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true
+                              },
+                              "visibility": {
+                                "description": "Who can see documents created from this template: EVERYONE, RESPONSIBLE, PERMISSION, or USER_SPECIFIC",
+                                "type": "string",
+                                "enum": [
+                                  "EVERYONE",
+                                  "RESPONSIBLE",
+                                  "PERMISSION",
+                                  "USER_SPECIFIC"
+                                ],
+                                "nullable": true
+                              },
+                              "selectedUserIds": {
+                                "description": "User IDs granted access when visibility is USER_SPECIFIC",
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true
+                              },
+                              "ssnDisplayMode": {
+                                "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                                "type": "string",
+                                "enum": [
+                                  "FULL",
+                                  "PARTIAL",
+                                  "NONE"
+                                ],
+                                "nullable": true
+                              },
+                              "sameDeviceSigning": {
+                                "description": "Whether all parties sign in sequence on one device",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "documentCategoryId": {
+                                "description": "Document category (Dokumenttyp) applied to documents created from this template. See GET /api/v1/document-categories.",
+                                "type": "string",
                                 "nullable": true
                               }
                             },
@@ -45520,6 +46552,53 @@
                             "NL_IDIN_BEFORE_SIGNING"
                           ],
                           "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once a document created from this template is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "visibility": {
+                          "description": "Who can see documents created from this template: EVERYONE, RESPONSIBLE, PERMISSION, or USER_SPECIFIC",
+                          "type": "string",
+                          "enum": [
+                            "EVERYONE",
+                            "RESPONSIBLE",
+                            "PERMISSION",
+                            "USER_SPECIFIC"
+                          ],
+                          "nullable": true
+                        },
+                        "selectedUserIds": {
+                          "description": "User IDs granted access when visibility is USER_SPECIFIC",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) applied to documents created from this template. See GET /api/v1/document-categories.",
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "additionalProperties": false,
@@ -45766,6 +46845,53 @@
                             "FI_FTN_BEFORE_SIGNING",
                             "NL_IDIN_BEFORE_SIGNING"
                           ],
+                          "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once a document created from this template is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "visibility": {
+                          "description": "Who can see documents created from this template: EVERYONE, RESPONSIBLE, PERMISSION, or USER_SPECIFIC",
+                          "type": "string",
+                          "enum": [
+                            "EVERYONE",
+                            "RESPONSIBLE",
+                            "PERMISSION",
+                            "USER_SPECIFIC"
+                          ],
+                          "nullable": true
+                        },
+                        "selectedUserIds": {
+                          "description": "User IDs granted access when visibility is USER_SPECIFIC",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) applied to documents created from this template. See GET /api/v1/document-categories.",
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -47902,6 +49028,52 @@
                           "FI_FTN_BEFORE_SIGNING",
                           "NL_IDIN_BEFORE_SIGNING"
                         ]
+                      },
+                      "internalRecipients": {
+                        "description": "Email addresses that receive a copy of the sealed PDF once the document is completed (max 5). Pass an empty array to clear.",
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                        }
+                      },
+                      "visibility": {
+                        "description": "Who can see documents created from this template: EVERYONE, RESPONSIBLE, PERMISSION, or USER_SPECIFIC",
+                        "type": "string",
+                        "enum": [
+                          "EVERYONE",
+                          "RESPONSIBLE",
+                          "PERMISSION",
+                          "USER_SPECIFIC"
+                        ]
+                      },
+                      "selectedUserIds": {
+                        "description": "User IDs granted access when visibility is USER_SPECIFIC",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "ssnDisplayMode": {
+                        "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                        "type": "string",
+                        "enum": [
+                          "FULL",
+                          "PARTIAL",
+                          "NONE"
+                        ],
+                        "nullable": true
+                      },
+                      "sameDeviceSigning": {
+                        "description": "Whether all parties sign in sequence on one device",
+                        "type": "boolean"
+                      },
+                      "documentCategoryId": {
+                        "description": "Document category (Dokumenttyp) ID. See GET /api/v1/document-categories.",
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "additionalProperties": false
@@ -48033,6 +49205,53 @@
                             "FI_FTN_BEFORE_SIGNING",
                             "NL_IDIN_BEFORE_SIGNING"
                           ],
+                          "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once a document created from this template is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "visibility": {
+                          "description": "Who can see documents created from this template: EVERYONE, RESPONSIBLE, PERMISSION, or USER_SPECIFIC",
+                          "type": "string",
+                          "enum": [
+                            "EVERYONE",
+                            "RESPONSIBLE",
+                            "PERMISSION",
+                            "USER_SPECIFIC"
+                          ],
+                          "nullable": true
+                        },
+                        "selectedUserIds": {
+                          "description": "User IDs granted access when visibility is USER_SPECIFIC",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) applied to documents created from this template. See GET /api/v1/document-categories.",
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -48442,6 +49661,53 @@
                             "FI_FTN_BEFORE_SIGNING",
                             "NL_IDIN_BEFORE_SIGNING"
                           ],
+                          "nullable": true
+                        },
+                        "internalRecipients": {
+                          "description": "Email addresses that receive a copy of the sealed PDF once a document created from this template is completed",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "visibility": {
+                          "description": "Who can see documents created from this template: EVERYONE, RESPONSIBLE, PERMISSION, or USER_SPECIFIC",
+                          "type": "string",
+                          "enum": [
+                            "EVERYONE",
+                            "RESPONSIBLE",
+                            "PERMISSION",
+                            "USER_SPECIFIC"
+                          ],
+                          "nullable": true
+                        },
+                        "selectedUserIds": {
+                          "description": "User IDs granted access when visibility is USER_SPECIFIC",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "ssnDisplayMode": {
+                          "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                          "type": "string",
+                          "enum": [
+                            "FULL",
+                            "PARTIAL",
+                            "NONE"
+                          ],
+                          "nullable": true
+                        },
+                        "sameDeviceSigning": {
+                          "description": "Whether all parties sign in sequence on one device",
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "documentCategoryId": {
+                          "description": "Document category (Dokumenttyp) applied to documents created from this template. See GET /api/v1/document-categories.",
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -63565,6 +64831,77 @@
                               "redirectEnabled": {
                                 "description": "Whether redirect after signing is enabled",
                                 "type": "boolean",
+                                "nullable": true
+                              },
+                              "internalRecipients": {
+                                "description": "Email addresses that receive a copy of the sealed PDF once the document is completed",
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true
+                              },
+                              "signableAfterExpired": {
+                                "description": "Whether the document remains signable after its expiration date",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "sendPlainTextEmailOnly": {
+                                "description": "Send plain text email invitations only (no HTML). null inherits the workspace default.",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "reminderIntervalDays": {
+                                "description": "Days between automatic reminders",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "allowDelegation": {
+                                "description": "Whether signers may delegate signing to another person",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "accessVerification": {
+                                "description": "Document-wide verification required to open the document",
+                                "type": "string",
+                                "enum": [
+                                  "NONE",
+                                  "PIN_BEFORE_SIGNING",
+                                  "SMS_BEFORE_SIGNING",
+                                  "EMAIL_BEFORE_SIGNING",
+                                  "BANKID_BEFORE_SIGNING",
+                                  "NO_BANKID_BIOMETRIC_BEFORE_SIGNING",
+                                  "NO_BANKID_HIGH_BEFORE_SIGNING",
+                                  "DK_MITID_BEFORE_SIGNING",
+                                  "DK_MITID_ERHVERV_BEFORE_SIGNING",
+                                  "FI_FTN_BEFORE_SIGNING",
+                                  "NL_IDIN_BEFORE_SIGNING"
+                                ],
+                                "nullable": true
+                              },
+                              "aiChatEnabled": {
+                                "description": "Whether the signer-facing AI chat is enabled. null inherits the workspace default.",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "ssnDisplayMode": {
+                                "description": "How personal numbers are displayed to signers: FULL, PARTIAL, or NONE. null inherits the workspace default.",
+                                "type": "string",
+                                "enum": [
+                                  "FULL",
+                                  "PARTIAL",
+                                  "NONE"
+                                ],
+                                "nullable": true
+                              },
+                              "sameDeviceSigning": {
+                                "description": "Whether all parties sign in sequence on one device",
+                                "type": "boolean",
+                                "nullable": true
+                              },
+                              "documentCategoryId": {
+                                "description": "Document category (Dokumenttyp) scoping which custom fields apply. See GET /api/v1/document-categories.",
+                                "type": "string",
                                 "nullable": true
                               }
                             },
