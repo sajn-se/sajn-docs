@@ -144,6 +144,8 @@ curl -X PATCH https://app.sajn.se/api/v1/webhooks/wh_abc123 \
 
 ### Common Update Scenarios
 
+The `enabled` field controls your configured setting. Automatic pausing after sustained delivery failures is separate: changing the URL or setting `enabled` to `true` does not clear a pause. After fixing the endpoint, use **Testa och återaktivera** or **Återaktivera utan test** in the dashboard. See [Reactivate and replay](/guides/webhooks#reactivate-and-replay).
+
 **Disable a webhook temporarily** without deleting it:
 
 ```bash

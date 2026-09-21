@@ -43,6 +43,7 @@ All webhooks are sent as `POST` requests with a JSON body:
 | `Content-Type` | `application/json` |
 | `X-Sajn-Secret` | The secret you configured (empty string if not set). Use this to verify that the request came from sajn. |
 | `X-Sajn-Environment` | `sandbox` for deliveries from a sandbox organization, `production` for everything else. Useful when both environments post to the same endpoint. |
+| `X-Sajn-Delivery` | Delivery identifier. Use it to deduplicate retries and manual replays. |
 
 ### Verifying Requests
 
@@ -58,10 +59,34 @@ Existing fields are never removed or retyped without a new API version.
 
 ## Delivery
 
-- Webhooks are dispatched asynchronously via a background job queue.
-- Each webhook call is logged with request/response details and kept for **72 hours**.
-- If delivery fails (network error or non-2xx response), an in-app notification is sent to organization members who have enabled webhook failure notifications.
-- There is **no automatic retry**. If delivery fails, you can inspect the call log in the dashboard and resend manually or handle it on your end.
+Webhooks are dispatched asynchronously through a background job queue. Delivery logs, including request and response details, are retained for 7 days.
+
+Network errors and HTTP `408`, `429`, and `5xx` responses receive up to 5 total attempts with increasing delays. Other failed responses are not retried automatically. For HTTP `429`, sajn delays requests to that subscription until `Retry-After` permits them, or for 60 seconds if the header is missing or invalid.
+
+### Automatic pausing
+
+sajn automatically pauses a subscription after at least 5 consecutive failed deliveries when either condition applies:
+
+- Responses remain HTTP `401`, `403`, `404`, or `410` for at least 1 hour.
+- Deliveries fail without a success for at least 72 hours.
+
+A successful delivery resets the failure streak. Failed retry attempts count as one failed delivery after its final attempt. Pausing applies to an individual subscription, not every URL on the same host. Subscriptions managed by installed integrations are excluded.
+
+Pausing stops outbound requests and saves new events for manual replay within the 7-day retention period. The subscription's `enabled` field remains its configured setting; automatic pause is separate state.
+
+### Pause notifications
+
+sajn sends a notification when a subscription is automatically paused, rather than for every failed delivery. In-app notifications go to the organization owner and workspace members with permission to manage webhooks who have enabled webhook notifications.
+
+The pause email goes to the subscription's `failureNotificationEmail` address. If none is configured, it goes to the organization owner when their webhook email preferences permit it. Each pause incident produces one notification per recipient and one email to the selected address.
+
+### Reactivate and replay
+
+After fixing the endpoint, open **Settings > Developer > Webhooks** and select **Testa och återaktivera**. This sends the latest retained failed event as a real delivery. A successful response clears the pause; a failed response leaves it paused. You can also select **Återaktivera utan test**.
+
+Editing the subscription or setting `enabled` to `true` does not clear an automatic pause. Reactivation resumes new deliveries without automatically replaying the backlog. Use the delivery log to resend retained events individually.
+
+The `X-Sajn-Delivery` identifier stays the same across automatic retries and manual replay when the delivery has a stored identifier. Older retained records created before identifier storage was introduced might lack it. Deduplicate requests using this header so a replay does not repeat completed work.
 
 ---
 
