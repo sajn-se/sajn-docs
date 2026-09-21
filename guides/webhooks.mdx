@@ -17,7 +17,7 @@ Webhooks are configured per workspace under **Settings > Developer > Webhooks**.
 |-------|----------|-------------|
 | URL | Yes | The endpoint that will receive POST requests. Must be publicly reachable (HTTPS recommended). |
 | Events | Yes | Which events to subscribe to. |
-| Secret | No | A shared secret sent in the `X-Sajn-Secret` header so you can verify requests. |
+| Secret | No | The signing key for this endpoint. sajn generates a 32-byte key when you omit it, and signs every delivery with it. |
 
 The URL is validated on creation -- sajn will resolve the hostname, block private/internal IPs (SSRF protection), and send a test POST to confirm the endpoint is reachable.
 
@@ -41,12 +41,14 @@ All webhooks are sent as `POST` requests with a JSON body:
 | Header | Description |
 |--------|-------------|
 | `Content-Type` | `application/json` |
-| `X-Sajn-Secret` | The secret you configured (empty string if not set). Use this to verify that the request came from sajn. |
+| `X-Sajn-Signature` | `t=<unix seconds>,v1=<hex HMAC-SHA256>`, signed with the webhook secret. Webhooks created without a secret don't carry this header. |
+| `X-Sajn-Delivery` | The delivery ID. It stays the same across every retry of one event, so use it to deduplicate. |
+| `X-Sajn-Secret` | Deprecated. The secret you configured (empty string if not set). Use the `X-Sajn-Signature` header instead. |
 | `X-Sajn-Environment` | `sandbox` for deliveries from a sandbox organization, `production` for everything else. Useful when both environments post to the same endpoint. |
 
 ### Verifying Requests
 
-Compare the `X-Sajn-Secret` header value against the secret you configured when creating the webhook. Reject requests that don't match.
+Compute an HMAC-SHA256 over `<t>.<raw request body>` with your webhook secret, where `t` is the timestamp from the `X-Sajn-Signature` header. Compare the result against the `v1` value in constant time, and reject requests where the values differ or the timestamp is too old. Verify against the raw body, not a re-serialized copy.
 
 ### Handling New Fields
 
@@ -58,10 +60,17 @@ Existing fields are never removed or retyped without a new API version.
 
 ## Delivery
 
-- Webhooks are dispatched asynchronously via a background job queue.
-- Each webhook call is logged with request/response details and kept for **72 hours**.
-- If delivery fails (network error or non-2xx response), an in-app notification is sent to organization members who have enabled webhook failure notifications.
-- There is **no automatic retry**. If delivery fails, you can inspect the call log in the dashboard and resend manually or handle it on your end.
+- sajn dispatches webhooks asynchronously through a background job queue.
+- Each webhook call is logged with request and response details and kept for **72 hours**.
+- Failed deliveries (a `5xx`, `408`, or `429` status code, or a network error) are retried up to 5 times with exponential backoff capped at 300 seconds. Every attempt reuses the same `X-Sajn-Delivery` value, so your endpoint must deduplicate on it.
+- After a failed delivery, sajn sends an in-app notification to organization members who turned on webhook failure notifications.
+- To resend one past delivery with its original payload, call [`POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry`](/api/POST%20/api/v1/webhooks/{id}/deliveries/{deliveryId}/retry).
+
+### Reconciling missed events
+
+Every event the workspace emitted in the last 30 days is readable through [`GET /api/v1/events`](/api/GET%20/api/v1/events), whether or not a webhook was subscribed to it. The `payload` is the same object a webhook delivery carries.
+
+After an outage on your side, page through the events since your last known timestamp with the `since` query parameter, then call [`POST /api/v1/events/{id}/replay`](/api/POST%20/api/v1/events/{id}/replay) for each event you need re-delivered. A replay is queued to every webhook currently subscribed to that event type and carries a new delivery ID.
 
 ---
 

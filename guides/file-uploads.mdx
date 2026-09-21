@@ -71,7 +71,7 @@ curl -X POST https://app.sajn.se/api/v1/files \
 
 - **`fileId`** — the created file record ID. Its status is `PENDING` until the upload is confirmed on first access.
 - **`key`** — the storage key to reference in document fields.
-- **`uploadUrl`** — presigned `PUT` URL, valid for **1 hour**.
+- **`uploadUrl`** — presigned `PUT` URL, valid for **15 minutes**.
 
 ## Step 2: Upload the Bytes
 
@@ -119,7 +119,7 @@ Confirming is **optional but recommended** and **idempotent** — confirming an 
 
 Control who can access your uploaded files via the `visibility` field in Step 1:
 
-- **`PRIVATE`** (default) — access requires a fresh signed URL (valid for 60 minutes), retrieved via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}).
+- **`PRIVATE`** (default) — access requires a fresh signed URL (valid for 15 minutes), retrieved via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}).
 - **`PUBLIC`** — accessible via a permanent CloudFront URL.
 
 ## Using Uploaded Files in Documents
@@ -341,7 +341,7 @@ When the bytes you `PUT` don't match the `checksum` you declared in Step 1, stor
 
 1. **Compute size and checksum together** from the same byte buffer you upload.
 2. **Validate file type and size** client-side before requesting a presigned URL.
-3. **Upload promptly** — the presigned `uploadUrl` is only valid for 1 hour.
+3. **Upload promptly** — the presigned `uploadUrl` is only valid for 15 minutes.
 4. **Store storage keys** for later reference in document fields.
 
 ## Related Resources
