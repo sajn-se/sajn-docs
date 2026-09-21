@@ -66,6 +66,23 @@ Existing fields are never removed or retyped without a new API version.
 - After a failed delivery, sajn sends an in-app notification to organization members who turned on webhook failure notifications.
 - To resend one past delivery with its original payload, call [`POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry`](/api/POST%20/api/v1/webhooks/{id}/deliveries/{deliveryId}/retry).
 
+### Automatic pausing
+
+An endpoint that keeps failing is paused, so sajn stops sending to a receiver that can't take deliveries. Two conditions must both hold:
+
+- The webhook has **5 or more consecutive failed deliveries**. A delivery counts once its retries are exhausted, not once per attempt.
+- The failure streak has lasted long enough: **1 hour** when every failure in it returned a `401`, `403`, `404`, or `410` status code, or **72 hours** for any other failure, including network errors.
+
+One successful delivery resets the streak. An endpoint that answers some events with a `2xx` status code and fails others therefore never reaches the pause threshold, however long the failures continue.
+
+A paused webhook receives nothing until you reactivate it. When sajn pauses a webhook, it sends an in-app notification to organization members who turned on webhook failure notifications, and an email to the failure address configured on the webhook.
+
+To reactivate, open **Settings > Developer > Webhooks**, find the webhook marked as automatically paused, and select **Reactivate** from its row menu. Reactivating clears the failure counters. You can also replay the most recent failed delivery as a test first; sajn keeps failed deliveries for 7 days for this purpose, and reactivates the webhook only when the test delivery succeeds.
+
+<Note>
+  Webhooks installed by an integration are exempt from automatic pausing. The integration manages its own endpoint health.
+</Note>
+
 ### Reconciling missed events
 
 Every event the workspace emitted in the last 30 days is readable through [`GET /api/v1/events`](/api/GET%20/api/v1/events), whether or not a webhook was subscribed to it. The `payload` is the same object a webhook delivery carries.
