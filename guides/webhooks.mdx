@@ -85,9 +85,39 @@ To reactivate, open **Settings > Developer > Webhooks**, find the webhook marked
 
 ### Reconciling missed events
 
-Every event the workspace emitted in the last 30 days is readable through [`GET /api/v1/events`](/api/GET%20/api/v1/events), whether or not a webhook was subscribed to it. The `payload` is the same object a webhook delivery carries.
+Every event the workspace emitted in the last 30 days is readable through [`GET /api/v1/events`](/api/GET%20/api/v1/events), whether or not a webhook was subscribed to it. The `payload` is the same object a webhook delivery carries. To fetch one event you already have the ID for, call [`GET /api/v1/events/{id}`](/api/GET%20/api/v1/events/{id}).
 
-After an outage on your side, page through the events since your last known timestamp with the `since` query parameter, then call [`POST /api/v1/events/{id}/replay`](/api/POST%20/api/v1/events/{id}/replay) for each event you need re-delivered. A replay is queued to every webhook currently subscribed to that event type and carries a new delivery ID.
+The list is keyset-paginated. Set `since` to your last known timestamp, then follow `nextCursor` as the `cursor` parameter until `hasNextPage` is `false`. Events arriving while you page never shift the window, so a full walk is a complete reconcile:
+
+```bash
+curl "https://app.sajn.se/api/v1/events?since=2026-09-21T16:00:00Z&perPage=100" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The response carries the page and the cursor for the next one:
+
+```json
+{
+  "events": [
+    {
+      "id": "evt_123",
+      "event": "DOCUMENT_COMPLETED",
+      "payload": { "id": "doc_456" },
+      "createdAt": "2026-09-21T16:16:57.000Z"
+    }
+  ],
+  "hasNextPage": true,
+  "nextCursor": "eyJjcmVhdGVkQXQiOiIyMDI2LTA5LTIxVDE2OjE2OjU3WiJ9"
+}
+```
+
+To re-deliver an event, call [`POST /api/v1/events/{id}/replay`](/api/POST%20/api/v1/events/{id}/replay). The replay goes to every webhook currently subscribed to the event type and carries a new delivery ID. To target one endpoint after an outage on a single receiver, pass its ID in the body:
+
+```json
+{ "webhookId": "wh_789" }
+```
+
+The request returns a `404 Not Found` status code when that webhook isn't subscribed to the event type.
 
 ---
 
