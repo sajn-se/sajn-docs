@@ -30,7 +30,7 @@ curl -L "https://files.sajn.se/documents/doc_123/signed.pdf?signature=..." \
 ```
 
 <Note>
-  The `downloadUrl` is valid for **1 hour**. Request a fresh one if it expires.
+  The `downloadUrl` is valid for **15 minutes**. Request a fresh one if it expires.
 </Note>
 
 <Frame>
@@ -200,22 +200,29 @@ const axios = require('axios');
 const crypto = require('crypto');
 
 const app = express();
-app.use(express.json());
 
-// sajn sends the secret you configured as a plain header — compare it, don't hash it
-const secretMatches = (received) => {
-  const expected = process.env.WEBHOOK_SECRET;
-  const a = Buffer.from(received ?? '');
+// Verify the signature over the raw body, before any JSON parsing
+const signatureMatches = (header, rawBody) => {
+  const parts = Object.fromEntries(
+    String(header ?? '').split(',').map((part) => part.split('='))
+  );
+  if (!parts.t || !parts.v1) return false;
+
+  const expected = crypto
+    .createHmac('sha256', process.env.WEBHOOK_SECRET)
+    .update(`${parts.t}.${rawBody}`)
+    .digest('hex');
+  const a = Buffer.from(parts.v1);
   const b = Buffer.from(expected);
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 };
 
-app.post('/webhooks/sajn', async (req, res) => {
-  if (!secretMatches(req.headers['x-sajn-secret'])) {
-    return res.status(401).send('Invalid secret');
+app.post('/webhooks/sajn', express.raw({ type: 'application/json' }), async (req, res) => {
+  if (!signatureMatches(req.headers['x-sajn-signature'], req.body)) {
+    return res.status(401).send('Invalid signature');
   }
 
-  const { event, payload } = req.body;
+  const { event, payload } = JSON.parse(req.body);
 
   // Handle document completion — payload is the document object
   if (event === 'DOCUMENT_COMPLETED') {
@@ -267,6 +274,7 @@ app.listen(3000);
 
 ```python
 from flask import Flask, request, abort
+import hashlib
 import hmac
 import requests
 import os
@@ -275,12 +283,21 @@ app = Flask(__name__)
 
 @app.route('/webhooks/sajn', methods=['POST'])
 def webhook():
-    # sajn sends the secret you configured as a plain header — compare it, don't hash it
-    secret = request.headers.get('X-Sajn-Secret', '')
-    if not hmac.compare_digest(secret, os.environ['WEBHOOK_SECRET']):
+    # Verify the signature over the raw body, before any JSON parsing
+    parts = dict(
+        part.split('=', 1)
+        for part in request.headers.get('X-Sajn-Signature', '').split(',')
+        if '=' in part
+    )
+    expected = hmac.new(
+        os.environ['WEBHOOK_SECRET'].encode(),
+        f"{parts.get('t', '')}.{request.get_data(as_text=True)}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    if not hmac.compare_digest(parts.get('v1', ''), expected):
         abort(401)
 
-    body = request.json
+    body = request.get_json()
     event = body['event']
     payload = body['payload']
 

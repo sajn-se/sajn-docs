@@ -81,6 +81,19 @@ Under fliken [Loggar](https://app.sajn.se/~/settings/workspace/developer/logs) f
 
 Misslyckas en leverans gör sajn flera omförsök. Har du fyllt i **E-post vid fel** får du ett mejl när alla försök är slut.
 
+## Automatisk paus
+
+En endpoint som fortsätter misslyckas pausas. Två villkor måste vara uppfyllda:
+
+- Webhooken har **minst 5 misslyckade leveranser i rad**. En leverans räknas när dess omförsök är slut, inte per försök.
+- Felserien har pågått i **72 timmar**. Svarskoden spelar ingen roll: en skur av fel pausar aldrig en endpoint, bara en serie som överlever hela fönstret.
+
+En enda lyckad leverans nollställer serien. En endpoint som svarar `2xx` på vissa händelser och misslyckas med andra når därför aldrig gränsen, hur länge felen än fortsätter.
+
+En pausad webhook får inga anrop alls förrän du återaktiverar den. Raden visar då statusen **Automatiskt pausad** med orsak och tidpunkt, och du får en notis i appen och ett mejl till adressen i **E-post vid fel**.
+
+Öppna menyn på raden och välj **Återaktivera utan test** för att starta om webhooken direkt. Felräknarna nollställs. Vill du testa mottagaren först skickar sajn om den senaste misslyckade leveransen – de sparas i 7 dagar – och återaktiverar webhooken bara om testet går fram.
+
 ## Nästa steg
 
 <CardGroup cols={2}>

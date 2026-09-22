@@ -21,6 +21,10 @@
       "value": "https://app.sajn.se"
     },
     {
+      "key": "uploadBaseUrl",
+      "value": "https://upload.sajn.se"
+    },
+    {
       "key": "apiKey",
       "value": ""
     },
@@ -81,31 +85,6 @@
       ]
     },
     {
-      "name": "Helpers",
-      "item": [
-        {
-          "name": "List signature methods",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/v1/helpers/signature-methods",
-            "description": "The signature methods you can offer a signer, with display labels \u2014 the generic methods plus every eID scheme currently live for your market.\n\n**Build pickers from this rather than hard-coding a list.** Schemes are switched on market by market; sending one that isn't live yet is rejected with \"This eID scheme is not yet available\".\n\nThis is the *pickable* set, not every accepted value: `NONE` and `MANUAL` are still accepted on `requiredSignature` but are omitted because the app derives them (`NONE` = the party's role isn't a signing role; `MANUAL` = an imported archive document already signed on paper).\n\n**Scope:** `profile:read`"
-          },
-          "response": []
-        },
-        {
-          "name": "List verification gates",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/v1/helpers/two-step-verifications",
-            "description": "The values accepted by a party's `twoStepVerification` \u2014 the identity gate a signer passes *before* the document opens \u2014 with display labels.\n\nSame rule as signature methods: build pickers from this, since the eID-backed gates become available as those schemes go live per market. Note `NO_QES` has no gate; it is a signing tier only.\n\n**Scope:** `profile:read`"
-          },
-          "response": []
-        }
-      ]
-    },
-    {
       "name": "Documents",
       "item": [
         {
@@ -113,8 +92,8 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/api/v1/documents?page=1&perPage=10&status=['string']&tagId=['string']&folderId=string&externalId=string&responsibleUserId=['string']&createdAfter=&createdBefore=&query=string&archived=True&orderBy=updatedAt&orderDirection=desc",
-            "description": "Retrieve a paginated list of all documents in your organization.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including signers.\n\n**Pagination:** Use 'page' and 'perPage' query parameters to control pagination."
+            "url": "{{baseUrl}}/api/v1/documents?page=1&perPage=10&status=['string']&tagId=['string']&folderId=string&externalId=string&responsibleUserId=['string']&createdAfter=&createdBefore=&updatedAfter=&updatedBefore=&completedAfter=&completedBefore=&cursor=string&query=string&archived=True&orderBy=updatedAt&orderDirection=desc",
+            "description": "Retrieve a paginated list of all documents in your workspace.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including parties and fields.\n\n**Page-based pagination:** `page` and `perPage` (max 100). The response carries `total` and `totalPages`.\n\n**Cursor pagination (recommended for sync):** pass `nextCursor` from the previous response as `cursor`. Cursor pages are stable while documents change underneath, which page numbers are not. Requires `orderBy` createdAt or updatedAt (the default). `page` is ignored when `cursor` is set.\n\n**Incremental sync:** filter with `updatedAfter` set to the newest `updatedAt` you have stored, order by updatedAt ascending, and walk the cursor until `hasNextPage` is false."
           },
           "response": []
         },
@@ -129,7 +108,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/documents",
-            "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields and template parties are automatically copied unless `parties` are explicitly provided in the request.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n> **Note:** The legacy `signers` field is also accepted as input for backwards compatibility, but is deprecated and will stop working in API v2. Use `parties` going forward. If both are provided, `parties` takes precedence.\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, party IDs, tokens, and signing URLs for all added parties. The legacy `signers` field is also included in the response (same content as `parties`) for backwards compatibility, but is deprecated.",
+            "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. Template fields and template parties are automatically copied unless `parties` are explicitly provided in the request.\n\n**CRM Link:** Use `integrationLink` to link the document to a CRM record (currently HubSpot deals). When the workspace has a field mapping configured for the integration, mapped custom fields and product-table rows are prefilled from the record, and signing status is written back to it. Explicit `customFields` in the request take precedence over prefilled values.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n> **Note:** The legacy `signers` field is also accepted as input for backwards compatibility, but is deprecated and will stop working in API v2. Use `parties` going forward. If both are provided, `parties` takes precedence.\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill form fields** using key-based updates: `PATCH /api/v1/documents/{docId}/fields/key:name`\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"type\": \"contact\",\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill form fields using keys\nPATCH /api/v1/documents/{docId}/fields/key:name\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"Andreas\"}\n}\n\nPATCH /api/v1/documents/{docId}/fields/key:phone\n{\n  \"fieldMeta\": {\"type\": \"input\", \"value\": \"0767767712\"}\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document ID, party IDs, tokens, and signing URLs for all added parties. The legacy `signers` field is also included in the response (same content as `parties`) for backwards compatibility, but is deprecated.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Employment Contract\",\n  \"type\": \"SIGNABLE\",\n  \"signers\": [],\n  \"documentMeta\": {\n    \"subject\": \"Employment Contract\",\n    \"message\": \"Please review and sign this agreement.\",\n    \"signingOrder\": \"PARALLEL\",\n    \"preferredLanguage\": \"en\"\n  }\n}",
@@ -148,7 +127,7 @@
             "method": "DELETE",
             "header": [],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}",
-            "description": "Soft delete a document. The document is marked as deleted but not permanently removed from the database.\n\n**Note:** Deleted documents are not included in list responses but can be retrieved by ID if you have the document ID."
+            "description": "Move a document to the trash. It is marked as deleted but not yet removed \u2014 restore it, or let the workspace's trash window purge it.\n\nWorks for every status, including `COMPLETED`. You are the controller of your data; deciding when a signed agreement goes is your call.\n\n**Note:** Deleted documents are not included in list responses but can still be retrieved by ID.\n\n**To remove a document immediately and irreversibly**, use `POST /api/v1/documents/{id}/purge`."
           },
           "response": []
         },
@@ -200,23 +179,9 @@
           "name": "Cancel a pending approval",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/approval",
-            "description": "Cancel a pending approval request. Only the user who submitted the approval can cancel it. The document status returns to DRAFT.",
-            "body": {
-              "mode": "raw",
-              "raw": "{}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
+            "description": "Cancel a pending approval request. Only the user who submitted the approval can cancel it. The document status returns to DRAFT."
           },
           "response": []
         },
@@ -226,7 +191,7 @@
             "method": "GET",
             "header": [],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/approval",
-            "description": "Get the current approval status for a document. Returns the approval details including status, approver, and requester information."
+            "description": "Get the current approval status for a document. Returns the approval chain (`approvers`, ordered by stage), the overall `status` derived from it, and requester information."
           },
           "response": []
         },
@@ -265,7 +230,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/approval/reject",
-            "description": "Reject a pending document. A comment is required explaining the reason. The document status returns to DRAFT so the creator can make changes and resubmit.",
+            "description": "Reject a pending document. A comment is required explaining the reason. Rejection is fail-fast \u2014 one rejected step rejects the whole chain \u2014 and the document status returns to DRAFT so the creator can make changes and resubmit.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"comment\": \"string\"\n}",
@@ -420,7 +385,7 @@
             "method": "GET",
             "header": [],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/download?fileType=ORIGINAL",
-            "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL, optional): Which file to download. Defaults to SIGNED.\n\nFor new integrations prefer `GET /api/v1/documents/:id/download/:fileType`, which requires the file type explicitly.\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- SIGNED / JOURNAL: Document must be in COMPLETED status\n- ORIGINAL: Available for all document statuses\n\nReturns 404 if the requested file does not exist for this document."
+            "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL, optional): Which file to download. Defaults to SIGNED.\n\nFor new integrations prefer `GET /api/v1/documents/:id/download/:fileType`, which requires the file type explicitly.\n\n**Response:** Returns a pre-signed URL valid for 15 minutes. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- SIGNED / JOURNAL: Document must be in COMPLETED status\n- ORIGINAL: Available for all document statuses\n\nReturns 404 if the requested file does not exist for this document."
           },
           "response": []
         },
@@ -430,7 +395,7 @@
             "method": "GET",
             "header": [],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/download/{{fileType}}",
-            "description": "Get a download URL for a specific file of a document. The file type is part of the path and is required.\n\n**Path Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL): Which file to download.\n    - `ORIGINAL` \u2014 the unsigned source document (available for all statuses).\n    - `SIGNED` \u2014 the signed/sealed copy (document must be COMPLETED).\n    - `JOURNAL` \u2014 the signing journal / audit trail (document must be COMPLETED).\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\nReturns 404 if the requested file does not exist for this document."
+            "description": "Get a download URL for a specific file of a document. The file type is part of the path and is required.\n\n**Path Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL): Which file to download.\n    - `ORIGINAL` \u2014 the unsigned source document (available for all statuses).\n    - `SIGNED` \u2014 the signed/sealed copy (document must be COMPLETED).\n    - `JOURNAL` \u2014 the signing journal / audit trail (document must be COMPLETED).\n\n**Response:** Returns a pre-signed URL valid for 15 minutes. The URL provides secure access to the document file.\n\nReturns 404 if the requested file does not exist for this document."
           },
           "response": []
         },
@@ -448,13 +413,57 @@
             "description": "Extend the expiration date of a document that has already been sent for signing.\n\n**Status Requirements:**\n- Document must be in `PENDING` status. For `DRAFT` documents, set `expiresAt` via `PATCH /api/v1/documents/{id}` instead.\n\n**Permissions:**\n- Requires the `EDIT_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `expiresAt` (required) - The new expiration date/time (ISO 8601). Must be in the future and strictly later than the current expiration date.\n\n**What happens:**\n1. The document's `expiresAt` is updated.\n2. An audit log entry is recorded.\n3. Every recipient that is still notifiable (has an email, notifications enabled, delivery method other than `NONE`, and has not rejected) is emailed that the signing deadline has moved.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"expiresAt\": {}\n}",
+              "raw": "{\n  \"expiresAt\": \"2026-03-06T12:00:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
+          },
+          "response": []
+        },
+        {
+          "name": "List document links",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/links",
+            "description": "List a document's links to other documents, in both directions.\n\n**Link types:** AMENDS, REPLACES, RENEWS, RELATES_TO \u2014 the from-document acts on the to-document.\n\n**Direction:** FROM means this document is the acting end of the link; TO means another document links to it.\n\nLinks whose other end you don't have access to are omitted. A trashed target is returned with `target: null`."
+          },
+          "response": []
+        },
+        {
+          "name": "Link document to another document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/links",
+            "description": "Create a link from this document to another document in the same organization.\n\n**Required Fields:**\n- `toDocumentId` - The document to link to\n- `linkType` - AMENDS, REPLACES, RENEWS or RELATES_TO (this document acts on the target)\n\nBoth documents must be accessible to the acting user. RELATES_TO is symmetric \u2014 the same pair can only be related once regardless of direction.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toDocumentId\": \"string\",\n  \"linkType\": \"AMENDS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove a document link",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/links/{{linkId}}",
+            "description": "Remove a link between two documents. Requires edit access to either end of the link."
           },
           "response": []
         },
@@ -479,7 +488,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties",
-            "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - **Deprecated** \u2014 still accepted on input but silently treated as `SIGNER`, and never returned. Use `SIGNER`.\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party. Use GET /documents/:id/parties/:partyId to retrieve the signing URL.",
+            "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - **Deprecated.** Still accepted on input but stored as `SIGNER`; never returned. Removed in v2.\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party. Use GET /documents/:id/parties/:partyId to retrieve the signing URL.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"contactId\": \"string\",\n  \"role\": \"SIGNER\"\n}",
@@ -523,7 +532,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties/{{partyId}}",
-            "description": "Update party information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Party's full name\n- `email` - Party's email address\n- `phone` - Party's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Party role (SIGNER, ORGANIZER, REVIEWER)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Restrictions:** Cannot update after party has signed the document.",
+            "description": "Update party information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Party's full name\n- `email` - Party's email address\n- `phone` - Party's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Party role (SIGNER, ORGANIZER, REVIEWER)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE`, `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Restrictions:** Cannot update after party has signed the document.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"role\": \"SIGNER\"\n}",
@@ -543,6 +552,30 @@
             "header": [],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties/{{partyId}}/remind",
             "description": "Send a manual reminder email to a specific party who has not yet signed.\n\n**Prerequisites:**\n- Document must be in `PENDING` status\n- Party must have a delivery method other than `NONE`\n- Party must have an email address and must have already been sent the document\n- Party must not have already signed or rejected the document\n- Document must not have expired\n\n**Rate limiting:** Only one reminder can be sent to a given party per 24 hours."
+          },
+          "response": []
+        },
+        {
+          "name": "Permanently delete a document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/purge",
+            "description": "Irreversibly delete a document: database rows, uploaded files, the sealed PDF, the signing certificate and the audit trail. There is no undo and no support path to recover it.\n\n**Requirements:**\n- The document must already be in the trash. Call `DELETE /api/v1/documents/{id}` first.\n- Requires the `PERMANENTLY_DELETE_DOCUMENT` workspace permission, which is not part of the default document-permission set.\n- Requires the `documents:delete` scope.\n\n**Completed documents:** allowed, and the verify link printed into the sealed PDF keeps working. It resolves to a record holding the document ID, the sealed PDF's SHA-256 and the deletion date \u2014 and no personal data. A counterparty holding the PDF can still check their copy against that hash; the PAdES signature in their file also validates on its own, without sajn.\n\n**Backups:** the document is gone from the live database immediately. Encrypted database backups roll off within 7 days.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"confirmDocumentId\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "response": []
         },
@@ -605,6 +638,16 @@
           "response": []
         },
         {
+          "name": "Get verified signer identities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signatures",
+            "description": "The identity each eID actually verified, per signature \u2014 as opposed to the signer details the sender entered when creating the document.\n\n**Why this is a separate endpoint:** `signer.ssn` is what the sender supplied. It is never overwritten with what the eID returned, so the two can differ, and this is where you read the verified one.\n\n**One shape for every eID.** Keys are always present and null when a scheme issues nothing, so you never branch on provider to find where the identity lives:\n- `identity.nationalId` \u2014 the national identity number, masked per the workspace's SSN display setting. **Null for schemes that issue none:** MitID without CPR scope, MitID Erhverv, and iDIN, which may never expose a BSN.\n- `identity.serialNumber` \u2014 always present. A stable, non-sensitive reference for this person at your organization. Use it to recognise a returning signer without ever handling a national id. Scoped per organization, so the same person yields a different value for a different customer.\n- `identity.match` \u2014 whether the verified identity matched the intended signer. Computed before masking, so it stays meaningful even when `nationalId` is hidden by policy.\n\n`identity` is null for drawn and click-to-sign signatures: nothing verified an identity.\n\n**Permissions:** requires the `READ_DOCUMENT` workspace permission and the `signatures:read` scope. `documents:read` alone never returns a national identity number.\n\n**Auditing:** every call is recorded on the organization audit log \u2014 who read a verified identity and when. The identity values themselves are never logged."
+          },
+          "response": []
+        },
+        {
           "name": "Withdraw a sent document",
           "request": {
             "method": "POST",
@@ -654,7 +697,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers",
-            "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `POST /api/v1/documents/:id/parties` instead \u2014 \"party\" is the correct term for a document participant.\n\nAdd a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - **Deprecated** \u2014 still accepted on input but silently treated as `SIGNER`, and never returned. Use `SIGNER`.\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
+            "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `POST /api/v1/documents/:id/parties` instead \u2014 \"party\" is the correct term for a document participant.\n\nAdd a signer/participant to a document. The signer must reference an existing contact.\n\n**Signer Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n- `ACCEPTOR` - **Deprecated.** Still accepted on input but stored as `SIGNER`; never returned. Removed in v2.\n\n**Per-Signer Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created signer. Use GET /documents/:id/signers/:signerId to retrieve the signing URL.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"deliveryMethod\": \"EMAIL\",\n  \"requiredSignature\": \"DRAWING\"\n}",
@@ -698,7 +741,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/signers/{{signerId}}",
-            "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `PATCH /api/v1/documents/:id/parties/:partyId` instead \u2014 \"party\" is the correct term for a document participant.\n\nUpdate signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Restrictions:** Cannot update after signer has signed the document.",
+            "description": "**[DEPRECATED \u2014 will stop working in API v2]** This endpoint is kept for backwards compatibility. Use `PATCH /api/v1/documents/:id/parties/:partyId` instead \u2014 \"party\" is the correct term for a document participant.\n\nUpdate signer information. Most fields can only be updated before the document is sent.\n\n**Updatable Fields:**\n- `name` - Signer's full name\n- `email` - Signer's email address\n- `phone` - Signer's phone number\n- `companyName` - Company name\n- `companyRole` - Role within company\n- `companyOrgNumber` - Company organization number\n- `companyId` - Link to existing company\n- `ssn` - Swedish personal number (for BankID)\n- `role` - Signer role (SIGNER, ORGANIZER, REVIEWER)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE`, `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Restrictions:** Cannot update after signer has signed the document.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"role\": \"SIGNER\"\n}",
@@ -726,6 +769,16 @@
     {
       "name": "Document Fields",
       "item": [
+        {
+          "name": "List document fields",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields",
+            "description": "List the content blocks of a document in position order, with full type-specific metadata.\n\nFor `PDF` fields, `fieldMeta.placedFields` holds the boxes placed on the PDF pages (signature and initials marks, signer inputs, fixed text) with their page and coordinates, and `fieldMeta.formFields` holds form fields extracted from the PDF itself. See the field placement guide for the coordinate model."
+          },
+          "response": []
+        },
         {
           "name": "Update multiple FORM subfields by key in one request",
           "request": {
@@ -761,7 +814,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields",
-            "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
+            "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has `page` (0-based), `rect` (`x`, `y`, `width`, `height` in PDF points, origin at the bottom-left corner of the page), `pageWidth` and `pageHeight` (points), and a `kind`:\n- `input` with `inputType` `signature` or `initials` and a `signerId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `input` with `inputType` `text`, `date`, `checkbox` or `select` and a `signerId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `static` with `content` (HTML): fixed text stamped at that position.\n\nExample:\n```json\n{\n  \"type\": \"PDF\",\n  \"position\": 0,\n  \"fieldMeta\": {\n    \"type\": \"PDF\",\n    \"value\": \"f/org_123/abc123def/contract.pdf\",\n    \"placedFields\": [\n      {\n        \"id\": \"sig-1\",\n        \"kind\": \"input\",\n        \"inputType\": \"signature\",\n        \"page\": 2,\n        \"rect\": { \"x\": 72, \"y\": 96, \"width\": 200, \"height\": 48 },\n        \"pageWidth\": 595.28,\n        \"pageHeight\": 841.89,\n        \"signerId\": \"PARTY_ID\",\n        \"required\": true\n      }\n    ]\n  }\n}\n```\n\nRead the result back with `GET /api/v1/documents/{id}/fields`.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"type\": \"TEXT\",\n  \"position\": 1,\n  \"fieldMeta\": {\n    \"type\": \"TEXT\"\n  }\n}",
@@ -781,6 +834,16 @@
             "header": [],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}",
             "description": "Remove a field from a document. Only allowed for DRAFT documents."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a document field",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}",
+            "description": "Get one content block of a document by its field ID, with full type-specific metadata."
           },
           "response": []
         },
@@ -873,7 +936,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/contacts",
-            "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n- `lastName` - Contact's last name\n\n**Optional Fields:**\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `ssn` - Swedish personal number (for BankID)\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
+            "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n\n**Optional Fields:**\n- `lastName` - Contact's last name (omit or send an empty string for single-name contacts)\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `ssn` - Swedish personal number (for BankID)\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+46701234567\"\n}",
@@ -902,7 +965,7 @@
             "method": "DELETE",
             "header": [],
             "url": "{{baseUrl}}/api/v1/contacts/{{documentId}}",
-            "description": "Soft delete a contact. The contact is marked as deleted but existing document signers remain unaffected."
+            "description": "Permanently delete a contact. Existing document signers are unaffected \u2014 they keep their own name/email snapshot and are unlinked from the contact rather than removed, so past and in-flight documents stay intact."
           },
           "response": []
         },
@@ -985,7 +1048,7 @@
             "method": "GET",
             "header": [],
             "url": "{{baseUrl}}/api/v1/companies/lookup?orgNr=string",
-            "description": "Look up a company in the external company registry by organization number and retrieve detailed information including signatories.\n\n**Query Parameters:**\n- `orgNr` (required) - Organization number to search for\n\n**Response includes:**\n- Basic company info (name, status, org number)\n- Contact information (phone, address)\n- Legal information (company form, domicile, registration dates)\n- Tax information (employer status, F-tax, VAT)\n- Business info (SNI codes, activity description, company signature)\n- Responsible persons (executives, board members, auditors, owners)\n- Location coordinates\n\n**Rate Limit:** This endpoint is rate limited to 2 requests per minute.\n\n**Note:** This searches an external registry, not your local workspace companies. Results are cached for 3 days."
+            "description": "Look up a company in the external company registry by organization number and retrieve detailed information including signatories.\n\n**Query Parameters:**\n- `orgNr` (required) - Organization number to search for\n\n**Response includes:**\n- Basic company info (name, status, org number)\n- Contact information (phone, address)\n- Legal information (company form, domicile, registration dates)\n- Tax information (VAT registration, verified against the EU VIES registry; `employer` and `fTax` are not currently populated)\n- Business info (SNI codes, activity description, company signature)\n- Responsible persons (executives, board members, auditors, owners)\n- Location coordinates\n\n**Rate Limit:** This endpoint is rate limited to 2 requests per minute.\n\n**Note:** This searches an external registry, not your local workspace companies. Results are cached for 3 days."
           },
           "response": []
         },
@@ -1052,23 +1115,9 @@
           "name": "Delete a file",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [],
             "url": "{{baseUrl}}/api/v1/files/{{documentId}}",
-            "description": "Delete a file from storage and database.\n\n**Warning:** This operation is irreversible. The file will be permanently deleted from both S3 and the database.",
-            "body": {
-              "mode": "raw",
-              "raw": "{}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
+            "description": "Delete a file from storage and database.\n\n**Warning:** This operation is irreversible. The file will be permanently deleted from both S3 and the database."
           },
           "response": []
         },
@@ -1078,7 +1127,7 @@
             "method": "GET",
             "header": [],
             "url": "{{baseUrl}}/api/v1/files/{{documentId}}",
-            "description": "Retrieve file information and access URL.\n\n**URL Generation:**\n- For `PRIVATE` files: Returns a fresh signed URL (valid for 60 minutes)\n- For `PUBLIC` files: Returns the permanent CloudFront URL\n\n**Response includes:**\n- File metadata (filename, size, MIME type)\n- Visibility setting\n- Access URL\n- Upload information"
+            "description": "Retrieve file information and access URL.\n\n**URL Generation:**\n- For `PRIVATE` files: Returns a fresh signed URL (valid for 15 minutes)\n- For `PUBLIC` files: Returns the permanent CloudFront URL\n\n**Response includes:**\n- File metadata (filename, size, MIME type)\n- Visibility setting\n- Access URL\n- Upload information"
           },
           "response": []
         },
@@ -1086,23 +1135,9 @@
           "name": "Confirm an uploaded file",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [],
             "url": "{{baseUrl}}/api/v1/files/{{documentId}}/confirm",
-            "description": "Confirm a previously-created file after its bytes have been uploaded to the presigned URL.\n\nThe server reads the persisted object back from storage (`HeadObject`), verifies the size and \u2014 when the backend records it \u2014 that the SHA-256 matches the checksum supplied at create time, then flips the file from `PENDING` to `CONFIRMED`.\n\n**When to call:** right after the upload `PUT` returns `200`. It is optional but recommended \u2014 a file is otherwise confirmed lazily the first time it is fetched via `GET /api/v1/files/:id`. Idempotent: confirming an already-confirmed file returns its recorded state.",
-            "body": {
-              "mode": "raw",
-              "raw": "{}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
+            "description": "Confirm a previously-created file after its bytes have been uploaded to the presigned URL.\n\nThe server reads the persisted object back from storage (`HeadObject`), verifies the size and \u2014 when the backend records it \u2014 that the SHA-256 matches the checksum supplied at create time, then flips the file from `PENDING` to `CONFIRMED`.\n\n**When to call:** right after the upload `PUT` returns `200`. It is optional but recommended \u2014 a file is otherwise confirmed lazily the first time it is fetched via `GET /api/v1/files/:id`. Idempotent: confirming an already-confirmed file returns its recorded state."
           },
           "response": []
         }

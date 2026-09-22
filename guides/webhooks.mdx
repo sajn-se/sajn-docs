@@ -17,7 +17,7 @@ Webhooks are configured per workspace under **Settings > Developer > Webhooks**.
 |-------|----------|-------------|
 | URL | Yes | The endpoint that will receive POST requests. Must be publicly reachable (HTTPS recommended). |
 | Events | Yes | Which events to subscribe to. |
-| Secret | No | A shared secret sent in the `X-Sajn-Secret` header so you can verify requests. |
+| Secret | No | The signing key for this endpoint. sajn generates a 32-byte key when you omit it, and signs every delivery with it. |
 
 The URL is validated on creation -- sajn will resolve the hostname, block private/internal IPs (SSRF protection), and send a test POST to confirm the endpoint is reachable.
 
@@ -41,12 +41,14 @@ All webhooks are sent as `POST` requests with a JSON body:
 | Header | Description |
 |--------|-------------|
 | `Content-Type` | `application/json` |
-| `X-Sajn-Secret` | The secret you configured (empty string if not set). Use this to verify that the request came from sajn. |
+| `X-Sajn-Signature` | `t=<unix seconds>,v1=<hex HMAC-SHA256>`, signed with the webhook secret. Webhooks created without a secret don't carry this header. |
+| `X-Sajn-Delivery` | The delivery ID. It stays the same across every retry of one event, so use it to deduplicate. |
+| `X-Sajn-Secret` | Deprecated. The secret you configured (empty string if not set). Use the `X-Sajn-Signature` header instead. |
 | `X-Sajn-Environment` | `sandbox` for deliveries from a sandbox organization, `production` for everything else. Useful when both environments post to the same endpoint. |
 
 ### Verifying Requests
 
-Compare the `X-Sajn-Secret` header value against the secret you configured when creating the webhook. Reject requests that don't match.
+Compute an HMAC-SHA256 over `<t>.<raw request body>` with your webhook secret, where `t` is the timestamp from the `X-Sajn-Signature` header. Compare the result against the `v1` value in constant time, and reject requests where the values differ or the timestamp is too old. Verify against the raw body, not a re-serialized copy.
 
 ### Handling New Fields
 
@@ -58,10 +60,64 @@ Existing fields are never removed or retyped without a new API version.
 
 ## Delivery
 
-- Webhooks are dispatched asynchronously via a background job queue.
-- Each webhook call is logged with request/response details and kept for **72 hours**.
-- If delivery fails (network error or non-2xx response), an in-app notification is sent to organization members who have enabled webhook failure notifications.
-- There is **no automatic retry**. If delivery fails, you can inspect the call log in the dashboard and resend manually or handle it on your end.
+- sajn dispatches webhooks asynchronously through a background job queue.
+- Each webhook call is logged with request and response details and kept for **72 hours**.
+- Failed deliveries (a `5xx`, `408`, or `429` status code, or a network error) are retried up to 5 times with exponential backoff capped at 300 seconds. Every attempt reuses the same `X-Sajn-Delivery` value, so your endpoint must deduplicate on it.
+- After a failed delivery, sajn sends an in-app notification to organization members who turned on webhook failure notifications.
+- To resend one past delivery with its original payload, call [`POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry`](/api/POST%20/api/v1/webhooks/{id}/deliveries/{deliveryId}/retry).
+
+### Automatic pausing
+
+An endpoint that keeps failing is paused, so sajn stops sending to a receiver that can't take deliveries. Two conditions must both hold:
+
+- The webhook has **5 or more consecutive failed deliveries**. A delivery counts once its retries are exhausted, not once per attempt.
+- The failure streak has lasted **72 hours**. The status code doesn't matter: a burst of failures never pauses an endpoint, only a streak that outlives the window does.
+
+One successful delivery resets the streak. An endpoint that answers some events with a `2xx` status code and fails others therefore never reaches the pause threshold, however long the failures continue.
+
+A paused webhook receives nothing until you reactivate it. When sajn pauses a webhook, it sends an in-app notification to organization members who turned on webhook failure notifications, and an email to the failure address configured on the webhook.
+
+To reactivate, open **Settings > Developer > Webhooks**, find the webhook marked as automatically paused, and select **Reactivate** from its row menu. Reactivating clears the failure counters. You can also replay the most recent failed delivery as a test first; sajn keeps failed deliveries for 7 days for this purpose, and reactivates the webhook only when the test delivery succeeds.
+
+<Note>
+  Webhooks installed by an integration are exempt from automatic pausing. The integration manages its own endpoint health.
+</Note>
+
+### Reconciling missed events
+
+Every event the workspace emitted in the last 30 days is readable through [`GET /api/v1/events`](/api/GET%20/api/v1/events), whether or not a webhook was subscribed to it. The `payload` is the same object a webhook delivery carries. To fetch one event you already have the ID for, call [`GET /api/v1/events/{id}`](/api/GET%20/api/v1/events/{id}).
+
+The list is keyset-paginated. Set `since` to your last known timestamp, then follow `nextCursor` as the `cursor` parameter until `hasNextPage` is `false`. Events arriving while you page never shift the window, so a full walk is a complete reconcile:
+
+```bash
+curl "https://app.sajn.se/api/v1/events?since=2026-09-21T16:00:00Z&perPage=100" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The response carries the page and the cursor for the next one:
+
+```json
+{
+  "events": [
+    {
+      "id": "evt_123",
+      "event": "DOCUMENT_COMPLETED",
+      "payload": { "id": "doc_456" },
+      "createdAt": "2026-09-21T16:16:57.000Z"
+    }
+  ],
+  "hasNextPage": true,
+  "nextCursor": "eyJjcmVhdGVkQXQiOiIyMDI2LTA5LTIxVDE2OjE2OjU3WiJ9"
+}
+```
+
+To re-deliver an event, call [`POST /api/v1/events/{id}/replay`](/api/POST%20/api/v1/events/{id}/replay). The replay goes to every webhook currently subscribed to the event type and carries a new delivery ID. To target one endpoint after an outage on a single receiver, pass its ID in the body:
+
+```json
+{ "webhookId": "wh_789" }
+```
+
+The request returns a `404 Not Found` status code when that webhook isn't subscribed to the event type.
 
 ---
 

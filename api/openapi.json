@@ -7337,6 +7337,10 @@
                                                     },
                                                     "sha256": {
                                                       "type": "string"
+                                                    },
+                                                    "storageProviderId": {
+                                                      "type": "string",
+                                                      "nullable": true
                                                     }
                                                   },
                                                   "required": [
@@ -9897,6 +9901,10 @@
                                                   },
                                                   "sha256": {
                                                     "type": "string"
+                                                  },
+                                                  "storageProviderId": {
+                                                    "type": "string",
+                                                    "nullable": true
                                                   }
                                                 },
                                                 "required": [
@@ -11649,6 +11657,10 @@
                                                     },
                                                     "sha256": {
                                                       "type": "string"
+                                                    },
+                                                    "storageProviderId": {
+                                                      "type": "string",
+                                                      "nullable": true
                                                     }
                                                   },
                                                   "required": [
@@ -16496,6 +16508,10 @@
                                                     },
                                                     "sha256": {
                                                       "type": "string"
+                                                    },
+                                                    "storageProviderId": {
+                                                      "type": "string",
+                                                      "nullable": true
                                                     }
                                                   },
                                                   "required": [
@@ -18343,6 +18359,10 @@
                                                 },
                                                 "sha256": {
                                                   "type": "string"
+                                                },
+                                                "storageProviderId": {
+                                                  "type": "string",
+                                                  "nullable": true
                                                 }
                                               },
                                               "required": [
@@ -20065,6 +20085,10 @@
                                                   },
                                                   "sha256": {
                                                     "type": "string"
+                                                  },
+                                                  "storageProviderId": {
+                                                    "type": "string",
+                                                    "nullable": true
                                                   }
                                                 },
                                                 "required": [
@@ -22166,6 +22190,10 @@
                                               },
                                               "sha256": {
                                                 "type": "string"
+                                              },
+                                              "storageProviderId": {
+                                                "type": "string",
+                                                "nullable": true
                                               }
                                             },
                                             "required": [
@@ -24017,6 +24045,10 @@
                                                 },
                                                 "sha256": {
                                                   "type": "string"
+                                                },
+                                                "storageProviderId": {
+                                                  "type": "string",
+                                                  "nullable": true
                                                 }
                                               },
                                               "required": [
@@ -26652,6 +26684,10 @@
                                                     },
                                                     "sha256": {
                                                       "type": "string"
+                                                    },
+                                                    "storageProviderId": {
+                                                      "type": "string",
+                                                      "nullable": true
                                                     }
                                                   },
                                                   "required": [
@@ -28986,7 +29022,7 @@
     },
     "/api/v1/documents/{id}/download": {
       "get": {
-        "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL, optional): Which file to download. Defaults to SIGNED.\n\nFor new integrations prefer `GET /api/v1/documents/:id/download/:fileType`, which requires the file type explicitly.\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- SIGNED / JOURNAL: Document must be in COMPLETED status\n- ORIGINAL: Available for all document statuses\n\nReturns 404 if the requested file does not exist for this document.",
+        "description": "Get a download URL for a document.\n\n**Query Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL, optional): Which file to download. Defaults to SIGNED.\n\nFor new integrations prefer `GET /api/v1/documents/:id/download/:fileType`, which requires the file type explicitly.\n\n**Response:** Returns a pre-signed URL valid for 15 minutes. The URL provides secure access to the document file.\n\n**Status Requirements:**\n- SIGNED / JOURNAL: Document must be in COMPLETED status\n- ORIGINAL: Available for all document statuses\n\nReturns 404 if the requested file does not exist for this document.",
         "summary": "Download a document file",
         "parameters": [
           {
@@ -29121,7 +29157,7 @@
     },
     "/api/v1/documents/{id}/download/{fileType}": {
       "get": {
-        "description": "Get a download URL for a specific file of a document. The file type is part of the path and is required.\n\n**Path Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL): Which file to download.\n    - `ORIGINAL` — the unsigned source document (available for all statuses).\n    - `SIGNED` — the signed/sealed copy (document must be COMPLETED).\n    - `JOURNAL` — the signing journal / audit trail (document must be COMPLETED).\n\n**Response:** Returns a pre-signed URL valid for 1 hour. The URL provides secure access to the document file.\n\nReturns 404 if the requested file does not exist for this document.",
+        "description": "Get a download URL for a specific file of a document. The file type is part of the path and is required.\n\n**Path Parameters:**\n- `fileType` (ORIGINAL | SIGNED | JOURNAL): Which file to download.\n    - `ORIGINAL` — the unsigned source document (available for all statuses).\n    - `SIGNED` — the signed/sealed copy (document must be COMPLETED).\n    - `JOURNAL` — the signing journal / audit trail (document must be COMPLETED).\n\n**Response:** Returns a pre-signed URL valid for 15 minutes. The URL provides secure access to the document file.\n\nReturns 404 if the requested file does not exist for this document.",
         "summary": "Download a document file by type",
         "parameters": [
           {
@@ -41217,7 +41253,7 @@
     },
     "/api/v1/files/{id}": {
       "get": {
-        "description": "Retrieve file information and access URL.\n\n**URL Generation:**\n- For `PRIVATE` files: Returns a fresh signed URL (valid for 60 minutes)\n- For `PUBLIC` files: Returns the permanent CloudFront URL\n\n**Response includes:**\n- File metadata (filename, size, MIME type)\n- Visibility setting\n- Access URL\n- Upload information",
+        "description": "Retrieve file information and access URL.\n\n**URL Generation:**\n- For `PRIVATE` files: Returns a fresh signed URL (valid for 15 minutes)\n- For `PUBLIC` files: Returns the permanent CloudFront URL\n\n**Response includes:**\n- File metadata (filename, size, MIME type)\n- Visibility setting\n- Access URL\n- Upload information",
         "summary": "Get file by ID",
         "parameters": [
           {
@@ -45723,6 +45759,10 @@
                                                   },
                                                   "sha256": {
                                                     "type": "string"
+                                                  },
+                                                  "storageProviderId": {
+                                                    "type": "string",
+                                                    "nullable": true
                                                   }
                                                 },
                                                 "required": [
@@ -47947,6 +47987,10 @@
                                                     },
                                                     "sha256": {
                                                       "type": "string"
+                                                    },
+                                                    "storageProviderId": {
+                                                      "type": "string",
+                                                      "nullable": true
                                                     }
                                                   },
                                                   "required": [
@@ -50881,6 +50925,10 @@
                                                     },
                                                     "sha256": {
                                                       "type": "string"
+                                                    },
+                                                    "storageProviderId": {
+                                                      "type": "string",
+                                                      "nullable": true
                                                     }
                                                   },
                                                   "required": [
@@ -52728,6 +52776,10 @@
                                                 },
                                                 "sha256": {
                                                   "type": "string"
+                                                },
+                                                "storageProviderId": {
+                                                  "type": "string",
+                                                  "nullable": true
                                                 }
                                               },
                                               "required": [
@@ -54450,6 +54502,10 @@
                                                   },
                                                   "sha256": {
                                                     "type": "string"
+                                                  },
+                                                  "storageProviderId": {
+                                                    "type": "string",
+                                                    "nullable": true
                                                   }
                                                 },
                                                 "required": [
@@ -56326,6 +56382,10 @@
                                               },
                                               "sha256": {
                                                 "type": "string"
+                                              },
+                                              "storageProviderId": {
+                                                "type": "string",
+                                                "nullable": true
                                               }
                                             },
                                             "required": [
@@ -58177,6 +58237,10 @@
                                                 },
                                                 "sha256": {
                                                   "type": "string"
+                                                },
+                                                "storageProviderId": {
+                                                  "type": "string",
+                                                  "nullable": true
                                                 }
                                               },
                                               "required": [
@@ -65998,6 +66062,13 @@
                               "RESOLVED"
                             ]
                           },
+                          "visibility": {
+                            "type": "string",
+                            "enum": [
+                              "INTERNAL",
+                              "SHARED"
+                            ]
+                          },
                           "excerpt": {
                             "type": "string",
                             "nullable": true
@@ -66072,7 +66143,8 @@
                                   "type": "string",
                                   "enum": [
                                     "USER",
-                                    "AI"
+                                    "AI",
+                                    "SIGNER"
                                   ]
                                 },
                                 "body": {
@@ -66135,6 +66207,7 @@
                           "id",
                           "documentId",
                           "status",
+                          "visibility",
                           "excerpt",
                           "createdAt",
                           "updatedAt",
@@ -66281,6 +66354,14 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "visibility": {
+                    "description": "SHARED makes the thread visible to every party on the document; INTERNAL (the default) keeps it to the workspace",
+                    "type": "string",
+                    "enum": [
+                      "INTERNAL",
+                      "SHARED"
+                    ]
                   }
                 },
                 "required": [
@@ -66311,6 +66392,13 @@
                       "enum": [
                         "OPEN",
                         "RESOLVED"
+                      ]
+                    },
+                    "visibility": {
+                      "type": "string",
+                      "enum": [
+                        "INTERNAL",
+                        "SHARED"
                       ]
                     },
                     "excerpt": {
@@ -66387,7 +66475,8 @@
                             "type": "string",
                             "enum": [
                               "USER",
-                              "AI"
+                              "AI",
+                              "SIGNER"
                             ]
                           },
                           "body": {
@@ -66450,6 +66539,7 @@
                     "id",
                     "documentId",
                     "status",
+                    "visibility",
                     "excerpt",
                     "createdAt",
                     "updatedAt",
@@ -66660,7 +66750,8 @@
                       "type": "string",
                       "enum": [
                         "USER",
-                        "AI"
+                        "AI",
+                        "SIGNER"
                       ]
                     },
                     "body": {
@@ -66908,6 +66999,13 @@
                         "RESOLVED"
                       ]
                     },
+                    "visibility": {
+                      "type": "string",
+                      "enum": [
+                        "INTERNAL",
+                        "SHARED"
+                      ]
+                    },
                     "excerpt": {
                       "type": "string",
                       "nullable": true
@@ -66982,7 +67080,8 @@
                             "type": "string",
                             "enum": [
                               "USER",
-                              "AI"
+                              "AI",
+                              "SIGNER"
                             ]
                           },
                           "body": {
@@ -67045,6 +67144,7 @@
                     "id",
                     "documentId",
                     "status",
+                    "visibility",
                     "excerpt",
                     "createdAt",
                     "updatedAt",
@@ -69003,7 +69103,64 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "DOCUMENT_CREATED",
+                    "DOCUMENT_SENT",
+                    "DOCUMENT_SIGNED",
+                    "DOCUMENT_COMPLETED",
+                    "DOCUMENT_REJECTED",
+                    "DOCUMENT_EXPIRED",
+                    "DOCUMENT_WITHDRAWN",
+                    "DOCUMENT_RECREATED",
+                    "DOCUMENT_MODIFIED",
+                    "DOCUMENT_DELETED",
+                    "DOCUMENT_RESTORED",
+                    "DOCUMENT_ARCHIVED",
+                    "DOCUMENT_UNARCHIVED",
+                    "DOCUMENT_EXPIRATION_EXTENDED",
+                    "DOCUMENT_PARTY_SENT",
+                    "DOCUMENT_PARTY_DELIVERY_FAILED",
+                    "DOCUMENT_PARTY_OPENED",
+                    "DOCUMENT_PARTY_READ",
+                    "DOCUMENT_PARTY_SIGNED",
+                    "DOCUMENT_PARTY_REJECTED",
+                    "DOCUMENT_PARTY_DELEGATED",
+                    "DOCUMENT_PARTY_AUTH_FAILED",
+                    "DOCUMENT_PARTY_ADDED",
+                    "DOCUMENT_PARTY_REMOVED",
+                    "DOCUMENT_REMINDER_AUTOMATIC",
+                    "DOCUMENT_REMINDER_MANUAL",
+                    "DOCUMENT_OPENED",
+                    "DOCUMENT_ARCHIVE_UPLOADED",
+                    "ID_CREATED",
+                    "ID_SENT",
+                    "ID_OPENED",
+                    "ID_VERIFIED",
+                    "ID_FAILED",
+                    "ID_CANCELED",
+                    "CONTACT_CREATED",
+                    "CONTACT_UPDATED",
+                    "CONTACT_DELETED",
+                    "TEMPLATE_CREATED",
+                    "TEMPLATE_UPDATED",
+                    "TEMPLATE_DELETED",
+                    "TEMPLATE_RESTORED",
+                    "WORKSPACE_CREATED",
+                    "MEMBER_ADDED",
+                    "LOGIN_COMPLETED",
+                    "LOGIN_FAILED",
+                    "SECURITY_DOCUMENT_DOWNLOADED",
+                    "SECURITY_DOCUMENTS_EXPORTED",
+                    "SECURITY_SIGNATURE_IDENTITY_ACCESSED",
+                    "SECURITY_WORKSPACE_MEMBER_REMOVED",
+                    "SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED",
+                    "SECURITY_WORKSPACE_ROLE_UPDATED",
+                    "SECURITY_WORKSPACE_RETENTION_UPDATED",
+                    "WORKFLOW_STARTED",
+                    "WORKFLOW_COMPLETED",
+                    "WORKFLOW_FAILED"
+                  ]
                 }
               }
             }
@@ -69160,6 +69317,648 @@
           {
             "oauth2": [
               "webhooks:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "description": "Returns every event the workspace emitted in the last 30 days, newest-first, whether or not a webhook was subscribed to it. The `payload` is the same object a webhook delivery carries.\n\nPagination is keyset: follow `nextCursor` until it is `null`. New events arriving while you page never shift the window, so a full walk with `since` set to your last known timestamp is a complete reconcile even though webhooks are delivered at least once.",
+        "summary": "List events",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": 25,
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Keyset pagination cursor: pass the `nextCursor` from the previous response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "event",
+            "in": "query",
+            "description": "Filter by event type (e.g. DOCUMENT_SIGNED)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "DOCUMENT_CREATED",
+                    "DOCUMENT_SENT",
+                    "DOCUMENT_SIGNED",
+                    "DOCUMENT_COMPLETED",
+                    "DOCUMENT_REJECTED",
+                    "DOCUMENT_EXPIRED",
+                    "DOCUMENT_WITHDRAWN",
+                    "DOCUMENT_RECREATED",
+                    "DOCUMENT_MODIFIED",
+                    "DOCUMENT_DELETED",
+                    "DOCUMENT_RESTORED",
+                    "DOCUMENT_ARCHIVED",
+                    "DOCUMENT_UNARCHIVED",
+                    "DOCUMENT_EXPIRATION_EXTENDED",
+                    "DOCUMENT_PARTY_SENT",
+                    "DOCUMENT_PARTY_DELIVERY_FAILED",
+                    "DOCUMENT_PARTY_OPENED",
+                    "DOCUMENT_PARTY_READ",
+                    "DOCUMENT_PARTY_SIGNED",
+                    "DOCUMENT_PARTY_REJECTED",
+                    "DOCUMENT_PARTY_DELEGATED",
+                    "DOCUMENT_PARTY_AUTH_FAILED",
+                    "DOCUMENT_PARTY_ADDED",
+                    "DOCUMENT_PARTY_REMOVED",
+                    "DOCUMENT_REMINDER_AUTOMATIC",
+                    "DOCUMENT_REMINDER_MANUAL",
+                    "DOCUMENT_OPENED",
+                    "DOCUMENT_ARCHIVE_UPLOADED",
+                    "ID_CREATED",
+                    "ID_SENT",
+                    "ID_OPENED",
+                    "ID_VERIFIED",
+                    "ID_FAILED",
+                    "ID_CANCELED",
+                    "CONTACT_CREATED",
+                    "CONTACT_UPDATED",
+                    "CONTACT_DELETED",
+                    "TEMPLATE_CREATED",
+                    "TEMPLATE_UPDATED",
+                    "TEMPLATE_DELETED",
+                    "TEMPLATE_RESTORED",
+                    "WORKSPACE_CREATED",
+                    "MEMBER_ADDED",
+                    "LOGIN_COMPLETED",
+                    "LOGIN_FAILED",
+                    "SECURITY_DOCUMENT_DOWNLOADED",
+                    "SECURITY_DOCUMENTS_EXPORTED",
+                    "SECURITY_SIGNATURE_IDENTITY_ACCESSED",
+                    "SECURITY_WORKSPACE_MEMBER_REMOVED",
+                    "SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED",
+                    "SECURITY_WORKSPACE_ROLE_UPDATED",
+                    "SECURITY_WORKSPACE_RETENTION_UPDATED",
+                    "WORKFLOW_STARTED",
+                    "WORKFLOW_COMPLETED",
+                    "WORKFLOW_FAILED"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Only events created at or after this ISO 8601 timestamp",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "description": "Only events created before this ISO 8601 timestamp",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        ],
+        "operationId": "getEvents",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "event": {
+                            "type": "string",
+                            "enum": [
+                              "DOCUMENT_CREATED",
+                              "DOCUMENT_SENT",
+                              "DOCUMENT_SIGNED",
+                              "DOCUMENT_COMPLETED",
+                              "DOCUMENT_REJECTED",
+                              "DOCUMENT_EXPIRED",
+                              "DOCUMENT_WITHDRAWN",
+                              "DOCUMENT_RECREATED",
+                              "DOCUMENT_MODIFIED",
+                              "DOCUMENT_DELETED",
+                              "DOCUMENT_RESTORED",
+                              "DOCUMENT_ARCHIVED",
+                              "DOCUMENT_UNARCHIVED",
+                              "DOCUMENT_EXPIRATION_EXTENDED",
+                              "DOCUMENT_PARTY_SENT",
+                              "DOCUMENT_PARTY_DELIVERY_FAILED",
+                              "DOCUMENT_PARTY_OPENED",
+                              "DOCUMENT_PARTY_READ",
+                              "DOCUMENT_PARTY_SIGNED",
+                              "DOCUMENT_PARTY_REJECTED",
+                              "DOCUMENT_PARTY_DELEGATED",
+                              "DOCUMENT_PARTY_AUTH_FAILED",
+                              "DOCUMENT_PARTY_ADDED",
+                              "DOCUMENT_PARTY_REMOVED",
+                              "DOCUMENT_REMINDER_AUTOMATIC",
+                              "DOCUMENT_REMINDER_MANUAL",
+                              "DOCUMENT_OPENED",
+                              "DOCUMENT_ARCHIVE_UPLOADED",
+                              "ID_CREATED",
+                              "ID_SENT",
+                              "ID_OPENED",
+                              "ID_VERIFIED",
+                              "ID_FAILED",
+                              "ID_CANCELED",
+                              "CONTACT_CREATED",
+                              "CONTACT_UPDATED",
+                              "CONTACT_DELETED",
+                              "TEMPLATE_CREATED",
+                              "TEMPLATE_UPDATED",
+                              "TEMPLATE_DELETED",
+                              "TEMPLATE_RESTORED",
+                              "WORKSPACE_CREATED",
+                              "MEMBER_ADDED",
+                              "LOGIN_COMPLETED",
+                              "LOGIN_FAILED",
+                              "SECURITY_DOCUMENT_DOWNLOADED",
+                              "SECURITY_DOCUMENTS_EXPORTED",
+                              "SECURITY_SIGNATURE_IDENTITY_ACCESSED",
+                              "SECURITY_WORKSPACE_MEMBER_REMOVED",
+                              "SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED",
+                              "SECURITY_WORKSPACE_ROLE_UPDATED",
+                              "SECURITY_WORKSPACE_RETENTION_UPDATED",
+                              "WORKFLOW_STARTED",
+                              "WORKFLOW_COMPLETED",
+                              "WORKFLOW_FAILED"
+                            ]
+                          },
+                          "payload": {},
+                          "createdAt": {}
+                        },
+                        "required": [
+                          "id",
+                          "event",
+                          "payload",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "hasNextPage": {
+                      "type": "boolean"
+                    },
+                    "nextCursor": {
+                      "description": "Cursor for the next page, or null on the last page. Pass it as `cursor` on the next request.",
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "events",
+                    "hasNextPage",
+                    "nextCursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    },
+                    "errorId": {
+                      "description": "Identifier for this occurrence — quote it to support when reporting a 500",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    },
+                    "errorId": {
+                      "description": "Identifier for this occurrence — quote it to support when reporting a 500",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "webhooks:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/events/{id}": {
+      "get": {
+        "description": "Returns a single event with its payload. Use it to fetch the full object for an id you received out of band, or to confirm an event before replaying it.",
+        "summary": "Get an event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getEvent",
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "event": {
+                      "type": "string",
+                      "enum": [
+                        "DOCUMENT_CREATED",
+                        "DOCUMENT_SENT",
+                        "DOCUMENT_SIGNED",
+                        "DOCUMENT_COMPLETED",
+                        "DOCUMENT_REJECTED",
+                        "DOCUMENT_EXPIRED",
+                        "DOCUMENT_WITHDRAWN",
+                        "DOCUMENT_RECREATED",
+                        "DOCUMENT_MODIFIED",
+                        "DOCUMENT_DELETED",
+                        "DOCUMENT_RESTORED",
+                        "DOCUMENT_ARCHIVED",
+                        "DOCUMENT_UNARCHIVED",
+                        "DOCUMENT_EXPIRATION_EXTENDED",
+                        "DOCUMENT_PARTY_SENT",
+                        "DOCUMENT_PARTY_DELIVERY_FAILED",
+                        "DOCUMENT_PARTY_OPENED",
+                        "DOCUMENT_PARTY_READ",
+                        "DOCUMENT_PARTY_SIGNED",
+                        "DOCUMENT_PARTY_REJECTED",
+                        "DOCUMENT_PARTY_DELEGATED",
+                        "DOCUMENT_PARTY_AUTH_FAILED",
+                        "DOCUMENT_PARTY_ADDED",
+                        "DOCUMENT_PARTY_REMOVED",
+                        "DOCUMENT_REMINDER_AUTOMATIC",
+                        "DOCUMENT_REMINDER_MANUAL",
+                        "DOCUMENT_OPENED",
+                        "DOCUMENT_ARCHIVE_UPLOADED",
+                        "ID_CREATED",
+                        "ID_SENT",
+                        "ID_OPENED",
+                        "ID_VERIFIED",
+                        "ID_FAILED",
+                        "ID_CANCELED",
+                        "CONTACT_CREATED",
+                        "CONTACT_UPDATED",
+                        "CONTACT_DELETED",
+                        "TEMPLATE_CREATED",
+                        "TEMPLATE_UPDATED",
+                        "TEMPLATE_DELETED",
+                        "TEMPLATE_RESTORED",
+                        "WORKSPACE_CREATED",
+                        "MEMBER_ADDED",
+                        "LOGIN_COMPLETED",
+                        "LOGIN_FAILED",
+                        "SECURITY_DOCUMENT_DOWNLOADED",
+                        "SECURITY_DOCUMENTS_EXPORTED",
+                        "SECURITY_SIGNATURE_IDENTITY_ACCESSED",
+                        "SECURITY_WORKSPACE_MEMBER_REMOVED",
+                        "SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED",
+                        "SECURITY_WORKSPACE_ROLE_UPDATED",
+                        "SECURITY_WORKSPACE_RETENTION_UPDATED",
+                        "WORKFLOW_STARTED",
+                        "WORKFLOW_COMPLETED",
+                        "WORKFLOW_FAILED"
+                      ]
+                    },
+                    "payload": {},
+                    "createdAt": {}
+                  },
+                  "required": [
+                    "id",
+                    "event",
+                    "payload",
+                    "createdAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    },
+                    "errorId": {
+                      "description": "Identifier for this occurrence — quote it to support when reporting a 500",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    },
+                    "errorId": {
+                      "description": "Identifier for this occurrence — quote it to support when reporting a 500",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "webhooks:read"
+            ]
+          },
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/events/{id}/replay": {
+      "post": {
+        "description": "Queues a fresh delivery of the event. By default it goes to every webhook currently subscribed to its type; pass `webhookId` to target one endpoint, for example after an outage on a single receiver. The delivery carries a new delivery id, so an endpoint that deduplicates on `X-Sajn-Delivery-Id` treats it as new.",
+        "summary": "Replay an event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Bearer token for API authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255
+            },
+            "description": "Makes retries safe. A retry with the same key and the same request replays the stored response for 24 hours (header `Idempotent-Replayed: true`); the same key with a different request returns 400."
+          }
+        ],
+        "operationId": "replayEvent",
+        "requestBody": {
+          "description": "Body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "webhookId": {
+                    "description": "Replay to this webhook only. Omit to replay to every webhook subscribed to the event type.",
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "endpoints": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "Number of webhooks the event was queued to"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "endpoints"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    },
+                    "errorId": {
+                      "description": "Identifier for this occurrence — quote it to support when reporting a 500",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message describing what went wrong"
+                    },
+                    "code": {
+                      "description": "Machine-readable error code (e.g. APPROVAL_REQUIRED)",
+                      "type": "string"
+                    },
+                    "errorId": {
+                      "description": "Identifier for this occurrence — quote it to support when reporting a 500",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Error response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "webhooks:write"
             ]
           },
           {
