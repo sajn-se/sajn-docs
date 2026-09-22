@@ -86,7 +86,7 @@ Misslyckas en leverans gör sajn flera omförsök. Har du fyllt i **E-post vid f
 En endpoint som fortsätter misslyckas pausas. Två villkor måste vara uppfyllda:
 
 - Webhooken har **minst 5 misslyckade leveranser i rad**. En leverans räknas när dess omförsök är slut, inte per försök.
-- Felserien har pågått tillräckligt länge: **1 timme** om varje fel i serien svarade `401`, `403`, `404` eller `410`, annars **72 timmar**, nätverksfel inräknade.
+- Felserien har pågått i **72 timmar**. Svarskoden spelar ingen roll: en skur av fel pausar aldrig en endpoint, bara en serie som överlever hela fönstret.
 
 En enda lyckad leverans nollställer serien. En endpoint som svarar `2xx` på vissa händelser och misslyckas med andra når därför aldrig gränsen, hur länge felen än fortsätter.
 

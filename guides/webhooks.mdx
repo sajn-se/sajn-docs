@@ -71,7 +71,7 @@ Existing fields are never removed or retyped without a new API version.
 An endpoint that keeps failing is paused, so sajn stops sending to a receiver that can't take deliveries. Two conditions must both hold:
 
 - The webhook has **5 or more consecutive failed deliveries**. A delivery counts once its retries are exhausted, not once per attempt.
-- The failure streak has lasted long enough: **1 hour** when every failure in it returned a `401`, `403`, `404`, or `410` status code, or **72 hours** for any other failure, including network errors.
+- The failure streak has lasted **72 hours**. The status code doesn't matter: a burst of failures never pauses an endpoint, only a streak that outlives the window does.
 
 One successful delivery resets the streak. An endpoint that answers some events with a `2xx` status code and fails others therefore never reaches the pause threshold, however long the failures continue.
 
