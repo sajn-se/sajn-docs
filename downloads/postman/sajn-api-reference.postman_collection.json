@@ -814,10 +814,10 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields",
-            "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has `page` (0-based), `rect` (`x`, `y`, `width`, `height` in PDF points, origin at the bottom-left corner of the page), `pageWidth` and `pageHeight` (points), and a `kind`:\n- `input` with `inputType` `signature` or `initials` and a `signerId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `input` with `inputType` `text`, `date`, `checkbox` or `select` and a `signerId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `static` with `content` (HTML): fixed text stamped at that position.\n\nExample:\n```json\n{\n  \"type\": \"PDF\",\n  \"position\": 0,\n  \"fieldMeta\": {\n    \"type\": \"PDF\",\n    \"value\": \"f/org_123/abc123def/contract.pdf\",\n    \"placedFields\": [\n      {\n        \"id\": \"sig-1\",\n        \"kind\": \"input\",\n        \"inputType\": \"signature\",\n        \"page\": 2,\n        \"rect\": { \"x\": 72, \"y\": 96, \"width\": 200, \"height\": 48 },\n        \"pageWidth\": 595.28,\n        \"pageHeight\": 841.89,\n        \"signerId\": \"PARTY_ID\",\n        \"required\": true\n      }\n    ]\n  }\n}\n```\n\nRead the result back with `GET /api/v1/documents/{id}/fields`.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
+            "description": "Add a field/section to a document. Can create single field or multiple fields at once.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has a unique `id`, `page` (0-based), `rect` (`x`, `y`, `width`, `height` in PDF points, origin at the bottom-left corner of the page), and a `kind`. The server fills `pageWidth`, `pageHeight`, and `pageRotation` from the PDF page when you omit them. If you send `pageWidth` and `pageHeight`, `rect` is measured on a page of that size and scaled to the real page. The box kinds are the following:\n- `input` with `inputType` `signature` or `initials` and a `signerId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `input` with `inputType` `text`, `date`, `checkbox` or `select` and a `signerId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `static` with `content` (HTML): fixed text stamped at that position.\n\nExample:\n```json\n{\n  \"type\": \"PDF\",\n  \"position\": 0,\n  \"fieldMeta\": {\n    \"type\": \"PDF\",\n    \"value\": \"f/org_123/abc123def/contract.pdf\",\n    \"placedFields\": [\n      {\n        \"id\": \"sig-1\",\n        \"kind\": \"input\",\n        \"inputType\": \"signature\",\n        \"page\": 2,\n        \"rect\": { \"x\": 72, \"y\": 96, \"width\": 200, \"height\": 48 },\n        \"pageWidth\": 595.28,\n        \"pageHeight\": 841.89,\n        \"signerId\": \"PARTY_ID\",\n        \"required\": true\n      }\n    ]\n  }\n}\n```\n\nThe request fails with an HTTP `400 Bad Request` status code, and writes nothing, when a box has a `page` the PDF doesn't have, doesn't fit on its page, names a `signerId` that isn't a party on the document, or is a `signature` or `initials` box without a party with the `SIGNER` role. The `issues` array in the response lists every problem with its path, such as `fieldMeta.placedFields.2.rect`.\n\nRead the result back with `GET /api/v1/documents/{id}/fields`. To add, move, or remove single boxes later, use `PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields`.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"TEXT\",\n  \"position\": 1,\n  \"fieldMeta\": {\n    \"type\": \"TEXT\"\n  }\n}",
+              "raw": "{\n  \"type\": \"TEXT\",\n  \"position\": 0,\n  \"fieldMeta\": {\n    \"type\": \"TEXT\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -862,6 +862,30 @@
             "body": {
               "mode": "raw",
               "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add, update, or remove boxes on a PDF field",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}/placed-fields",
+            "description": "Changes individual boxes on a PDF field without sending the whole field. Only DRAFT documents can be changed.\n\nEach box in `upsert` has the same shape as an entry in `fieldMeta.placedFields` on `POST /api/v1/documents/{id}/fields`, and is checked the same way. A box whose `id` already exists on the field replaces that box and keeps its stacking order. A box with a new `id` is added on top. `remove` lists the ids of boxes to delete. Boxes you don't mention stay as they are.\n\nThe change is atomic: if any box is invalid, nothing is written and the response lists every problem in `issues`. If another edit changes the field while the request runs, the request fails with an HTTP `400 Bad Request` status code and code `INVALID_STATE`; send it again.\n\n**Example - move one box and remove another:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}/placed-fields\n{\n  \"upsert\": [\n    {\n      \"id\": \"sig-1\",\n      \"kind\": \"input\",\n      \"inputType\": \"signature\",\n      \"page\": 2,\n      \"rect\": { \"x\": 72, \"y\": 120, \"width\": 200, \"height\": 48 },\n      \"signerId\": \"PARTY_ID\"\n    }\n  ],\n  \"remove\": [\"initials-3\"]\n}\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"upsert\": [],\n  \"remove\": []\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1029,7 +1053,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/companies",
-            "description": "Create a new company in your organization.\n\n**Required Fields:**\n- `name` - Company name\n\n**Optional Fields:**\n- `orgNumber` - Organization number (must be unique if provided)\n- `country` - Country name\n\n**Note:** If a company with the same organization number exists, a 409 Conflict error is returned.",
+            "description": "Create a new company in your organization.\n\n**Required Fields:**\n- `name` - Company name\n\n**Optional Fields:**\n- `orgNumber` - Organization number (must be unique if provided)\n- `country` - Country code, defaults to `SE`\n\n**Note:** If a company with the same organization number exists, a 409 Conflict error is returned.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"string\"\n}",
@@ -1230,7 +1254,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/custom-fields",
-            "description": "Create a new custom field definition.\n\n**Required Fields:**\n- `name` - Field name\n- `type` - DOCUMENT or CONTACT\n- `inputType` - Input type (TEXT, NUMBER, DATE, CHECKBOX, SELECT, TEXTAREA)\n\n**Optional Fields:**\n- `defaultValue` - Default value for the field\n- `required` - Whether field is required (default: false)\n- `options` - For SELECT type, comma-separated options",
+            "description": "Create a new custom field definition.\n\n**Required Fields:**\n- `name` - Field name\n- `type` - DOCUMENT or CONTACT\n- `inputType` - Input type (TEXT, NUMBER, DATE, CHECKBOX, SELECT, TEXTAREA)\n\n**Optional Fields:**\n- `defaultValue` - Default value for the field\n- `required` - Whether field is required (default: false)\n- `options` - For SELECT type, the options as a JSON-encoded string array, for example `[\"Small\",\"Large\"]`",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"string\",\n  \"type\": \"DOCUMENT\",\n  \"inputType\": \"TEXT\",\n  \"required\": false\n}",

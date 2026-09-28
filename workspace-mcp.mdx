@@ -100,6 +100,8 @@ Some tools need a workspace permission as well as a scope — most notably the d
 | `updateFormField` | `documents:write` | Change a form block's fields or layout |
 | `addTable` | `documents:write` | Add a data table (no prices) |
 | `addProductTable` | `documents:write` | Add a price table with quantities, units and VAT |
+| `createUploadUrl` | `documents:write` | Get a single-use URL to upload a PDF or Office file to |
+| `attachFileToDocument` | `documents:write` | Add an uploaded file to a draft or archive-imported document |
 | `removeField` | `documents:write` | Remove a block <sup>destructive</sup> |
 | `addTagToDocument` / `removeTagFromDocument` | `documents:write` | Tag it |
 | `moveDocumentToFolder` | `documents:write` | File it |
@@ -173,15 +175,30 @@ These are the tools for diagnosing an integration. They are read-only unless not
 
 ## Uploading a PDF
 
-Files cannot be sent through a tool call — an MCP tool call carries JSON, not file bytes, and a real PDF would be far too large to encode into one. So uploading is handed back to you:
+A tool call carries JSON, not file bytes, so the file itself never goes through the MCP connection. How it reaches sajn depends on whether the assistant can run shell commands or raw HTTP requests.
+
+**Assistants that can run commands** (Claude Code, agents with a shell tool) upload on their own:
+
+1. `createDocument` creates the draft.
+2. `createUploadUrl` returns a single-use upload URL and an `uploadKey`.
+3. The assistant sends the file to that URL in a `PUT` request.
+4. `attachFileToDocument` adds the file to the document. Word, Excel, and other Office files are converted to PDF at this step.
+
+**Other assistants** hand the upload back to you:
 
 1. The assistant calls `createDocument` and gives you the link it returns.
 2. You open the link and **drag the PDF onto the document**.
 3. You tell the assistant it's uploaded, and it continues — `listFields` to see the PDF, `listFillableFields` to see what can be filled in, then parties and sending as usual.
 
 <Note>
-The link is an ordinary document URL, not a token — opening it requires your own sajn login. An assistant that offers to receive the file directly, or asks you to paste a document's contents, is getting it wrong.
+The link is an ordinary document URL, not a token — opening it requires your own sajn login. An assistant that asks you to paste a document's contents into the chat is getting it wrong.
 </Note>
+
+Files can be PDF, Word, Excel, PowerPoint, CSV, or plain text, up to 25 MB.
+
+### Importing signed agreements into the archive
+
+To add agreements that were signed outside sajn, ask the assistant to import them into the archive. It creates one document per file with `type` set to `ARCHIVE_IMPORTED`, titled after the file name, and attaches the file through either of the preceding routes.
 
 ## Setup
 

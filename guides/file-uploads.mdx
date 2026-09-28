@@ -71,7 +71,7 @@ curl -X POST https://app.sajn.se/api/v1/files \
 
 - **`fileId`** — the created file record ID. Its status is `PENDING` until the upload is confirmed on first access.
 - **`key`** — the storage key to reference in document fields.
-- **`uploadUrl`** — presigned `PUT` URL, valid for **15 minutes**.
+- **`uploadUrl`** — presigned `PUT` URL, valid for **15 minutes**. It only accepts a body whose `Content-Type` matches `mimeType` and whose length matches `size`.
 
 ## Step 2: Upload the Bytes
 

@@ -17,8 +17,10 @@ The coordinate model is the PDF's own:
 |----------|------|-------------|
 | `page` | integer | 0-based page index within the PDF. |
 | `rect` | object | `x`, `y`, `width`, `height` in PDF points (1/72 inch). The origin is the bottom-left corner of the page, and `y` grows upward. |
-| `pageWidth`, `pageHeight` | number | The page size in points. A4 portrait is `595.28` × `841.89`. |
+| `pageWidth`, `pageHeight` | number | Optional. The page size in points. A4 portrait is `595.28` × `841.89`. |
 | `pageRotation` | `0`, `90`, `180`, `270` | Optional. The page's `/Rotate` value, when the PDF has one. |
+
+When you omit `pageWidth`, `pageHeight`, and `pageRotation`, sajn reads them from the PDF page. When you send `pageWidth` and `pageHeight`, sajn treats `rect` as measured on a page of that size and scales it to the real page.
 
 If your own model uses percentages from the top-left corner, convert with `x = xPercent * pageWidth` and `y = pageHeight - (yPercent + heightPercent) * pageHeight`.
 
@@ -115,9 +117,59 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
   }'
 ```
 
-To change the layout later, send the full `fieldMeta` again with `PATCH /api/v1/documents/{id}/fields/{fieldId}`. Fields can only be changed while the document is a `DRAFT`.
+sajn checks every box before it writes anything. The request fails with an HTTP `400 Bad Request` status code when a box has any of the following problems:
 
-## Step 3: Read the Layout Back
+- Its `page` doesn't exist in the PDF.
+- Its `rect` doesn't fit on the page.
+- Its `signerId` isn't a party on the document.
+- It's a `signature` or `initials` box whose party doesn't have the `SIGNER` role.
+
+The `issues` array in the response lists every problem with its path:
+
+```json
+{
+  "message": "The box must fit on the 595.28 × 841.89 pt page, measured from its bottom-left corner, but it spans x 500 to 700 and y 96 to 144.",
+  "code": "INVALID_REQUEST",
+  "issues": [
+    {
+      "path": "fieldMeta.placedFields.0.rect",
+      "message": "The box must fit on the 595.28 × 841.89 pt page, measured from its bottom-left corner, but it spans x 500 to 700 and y 96 to 144."
+    }
+  ]
+}
+```
+
+## Step 3: Change Single Boxes
+
+To add, move, or remove boxes without resending the whole field, use `PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields`. Fields can only be changed while the document is a `DRAFT`.
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456/placed-fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "upsert": [
+      {
+        "id": "sig-1",
+        "kind": "input",
+        "inputType": "signature",
+        "page": 3,
+        "rect": { "x": 72, "y": 120, "width": 200, "height": 48 },
+        "signerId": "party_abc123"
+      }
+    ],
+    "remove": ["start-date"]
+  }'
+```
+
+- A box in `upsert` whose `id` already exists replaces that box and keeps its drawing order. A box with a new `id` is added on top.
+- `remove` lists the ids of boxes to delete. Boxes you don't mention stay as they are.
+- The change is atomic: if any box is invalid, nothing is written and `issues` lists every problem.
+- If another edit changes the field while the request runs, the request fails with code `INVALID_STATE`. Send it again.
+
+The response is the PDF field with its full `fieldMeta` after the change.
+
+## Step 4: Read the Layout Back
 
 ```bash
 curl https://app.sajn.se/api/v1/documents/doc_123/fields \
@@ -168,4 +220,4 @@ When the uploaded PDF contains its own form fields (AcroForm), sajn extracts the
 
 ## Templates
 
-Everything on this page works the same on templates through `/api/v1/templates/{id}/fields`. A `signerId` on a template refers to a template party, and documents created from the template carry the boxes over to the matching document party.
+Everything on this page works the same on templates through `/api/v1/templates/{id}/fields` and `/api/v1/templates/{id}/fields/{fieldId}/placed-fields`. A `signerId` on a template refers to a template party, and documents created from the template carry the boxes over to the matching document party.
