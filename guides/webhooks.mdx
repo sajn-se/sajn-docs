@@ -64,7 +64,7 @@ Existing fields are never removed or retyped without a new API version.
 - Each webhook call is logged with request and response details and kept for **72 hours**.
 - Failed deliveries (a `5xx`, `408`, or `429` status code, or a network error) are retried up to 5 times with exponential backoff capped at 300 seconds. Every attempt reuses the same `X-Sajn-Delivery` value, so your endpoint must deduplicate on it.
 - After a failed delivery, sajn sends an in-app notification to organization members who turned on webhook failure notifications.
-- To resend one past delivery with its original payload, call [`POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry`](/api/POST%20/api/v1/webhooks/{id}/deliveries/{deliveryId}/retry).
+- To resend one past delivery with its original payload, call [`POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry`](/api-reference/replay-a-webhook-delivery).
 
 ### Automatic pausing
 
@@ -85,7 +85,7 @@ To reactivate, open **Settings > Developer > Webhooks**, find the webhook marked
 
 ### Reconciling missed events
 
-Every event the workspace emitted in the last 30 days is readable through [`GET /api/v1/events`](/api/GET%20/api/v1/events), whether or not a webhook was subscribed to it. The `payload` is the same object a webhook delivery carries. To fetch one event you already have the ID for, call [`GET /api/v1/events/{id}`](/api/GET%20/api/v1/events/{id}).
+Every event the workspace emitted in the last 30 days is readable through [`GET /api/v1/events`](/api-reference/list-events), whether or not a webhook was subscribed to it. The `payload` is the same object a webhook delivery carries. To fetch one event you already have the ID for, call [`GET /api/v1/events/{id}`](/api-reference/get-an-event).
 
 The list is keyset-paginated. Set `since` to your last known timestamp, then follow `nextCursor` as the `cursor` parameter until `hasNextPage` is `false`. Events arriving while you page never shift the window, so a full walk is a complete reconcile:
 
@@ -111,7 +111,7 @@ The response carries the page and the cursor for the next one:
 }
 ```
 
-To re-deliver an event, call [`POST /api/v1/events/{id}/replay`](/api/POST%20/api/v1/events/{id}/replay). The replay goes to every webhook currently subscribed to the event type and carries a new delivery ID. To target one endpoint after an outage on a single receiver, pass its ID in the body:
+To re-deliver an event, call [`POST /api/v1/events/{id}/replay`](/api-reference/replay-an-event). The replay goes to every webhook currently subscribed to the event type and carries a new delivery ID. To target one endpoint after an outage on a single receiver, pass its ID in the body:
 
 ```json
 { "webhookId": "wh_789" }

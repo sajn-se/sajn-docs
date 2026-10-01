@@ -11,13 +11,13 @@ Learn how to securely upload files to sajn for use in document fields.
 
 Uploading a file uses a **presigned flow** that sends the bytes straight to storage, so there is no API-server size limit:
 
-1. **Request a presigned URL** — call [`POST /api/v1/files`](/api/POST%20/api/v1/files) with the file's metadata and checksum. You receive a `fileId`, a storage `key`, and a presigned `uploadUrl`.
+1. **Request a presigned URL** — call [`POST /api/v1/files`](/api-reference/create-a-file-presigned-upload) with the file's metadata and checksum. You receive a `fileId`, a storage `key`, and a presigned `uploadUrl`.
 2. **Upload the bytes** — `PUT` the raw file to the `uploadUrl`. Storage verifies the checksum on write.
-3. **Confirm the upload** *(recommended)* — call [`POST /api/v1/files/{id}/confirm`](/api/POST%20/api/v1/files/{id}/confirm) to verify the stored object and flip the record from `PENDING` to `CONFIRMED` immediately.
+3. **Confirm the upload** *(recommended)* — call [`POST /api/v1/files/{id}/confirm`](/api-reference/confirm-an-uploaded-file) to verify the stored object and flip the record from `PENDING` to `CONFIRMED` immediately.
 4. **Use the storage key** — reference the returned `key` in document fields.
 
 <Note>
-Confirming is optional. If you skip step 3, the file is confirmed lazily the first time it is fetched via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}). Calling confirm explicitly verifies the upload up front and is idempotent.
+Confirming is optional. If you skip step 3, the file is confirmed lazily the first time it is fetched via [`GET /api/v1/files/{id}`](/api-reference/get-file-by-id). Calling confirm explicitly verifies the upload up front and is idempotent.
 </Note>
 
 <Warning>
@@ -32,7 +32,7 @@ Confirming is optional. If you skip step 3, the file is confirmed lazily the fir
 
 ## Step 1: Request a Presigned URL
 
-Compute the file's **SHA-256 hash, base64-encoded**, then call [`POST /api/v1/files`](/api/POST%20/api/v1/files):
+Compute the file's **SHA-256 hash, base64-encoded**, then call [`POST /api/v1/files`](/api-reference/create-a-file-presigned-upload):
 
 ### Request
 
@@ -90,7 +90,7 @@ Do **not** send your sajn `Authorization` header to the presigned `uploadUrl` �
 
 ## Step 3: Confirm the Upload (Recommended)
 
-Right after the upload `PUT` returns `200`, call [`POST /api/v1/files/{id}/confirm`](/api/POST%20/api/v1/files/{id}/confirm). The server reads the persisted object back from storage, verifies its size and checksum, then flips the file from `PENDING` to `CONFIRMED`:
+Right after the upload `PUT` returns `200`, call [`POST /api/v1/files/{id}/confirm`](/api-reference/confirm-an-uploaded-file). The server reads the persisted object back from storage, verifies its size and checksum, then flips the file from `PENDING` to `CONFIRMED`:
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/files/file_abc123/confirm \
@@ -112,14 +112,14 @@ curl -X POST https://app.sajn.se/api/v1/files/file_abc123/confirm \
 - **`checksumVerified`** — whether the storage backend reported a SHA-256 that matched the checksum you supplied at create time.
 
 <Tip>
-Confirming is **optional but recommended** and **idempotent** — confirming an already-confirmed file returns its recorded state. If you skip it, the file is confirmed automatically the first time it is fetched via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}).
+Confirming is **optional but recommended** and **idempotent** — confirming an already-confirmed file returns its recorded state. If you skip it, the file is confirmed automatically the first time it is fetched via [`GET /api/v1/files/{id}`](/api-reference/get-file-by-id).
 </Tip>
 
 ## File Visibility
 
 Control who can access your uploaded files via the `visibility` field in Step 1:
 
-- **`PRIVATE`** (default) — access requires a fresh signed URL (valid for 15 minutes), retrieved via [`GET /api/v1/files/{id}`](/api/GET%20/api/v1/files/{id}).
+- **`PRIVATE`** (default) — access requires a fresh signed URL (valid for 15 minutes), retrieved via [`GET /api/v1/files/{id}`](/api-reference/get-file-by-id).
 - **`PUBLIC`** — accessible via a permanent CloudFront URL.
 
 ## Using Uploaded Files in Documents
@@ -127,12 +127,12 @@ Control who can access your uploaded files via the `visibility` field in Step 1:
 After a successful upload, use the storage `key` in document field metadata. You can either create a new PDF field or update an existing one:
 
 <Note>
-PDF fields use `value` for the file storage key, while TEXT and HTML fields use `content` for their data. See the [API Reference](/api/POST%20/api/v1/documents/{id}/fields) for full details on each field type.
+PDF fields use `value` for the file storage key, while TEXT and HTML fields use `content` for their data. See the [API Reference](/api-reference/create-a-document-field) for full details on each field type.
 </Note>
 
 ### Create New PDF Field
 
-Use the [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) endpoint to add the uploaded PDF:
+Use the [Create Document Field](/api-reference/create-a-document-field) endpoint to add the uploaded PDF:
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
@@ -150,7 +150,7 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_123/fields \
 
 ### Update Existing PDF Field
 
-Use the [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) endpoint to replace an existing PDF:
+Use the [Update Document Field](/api-reference/update-a-document-field) endpoint to replace an existing PDF:
 
 ```bash
 curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123/fields/field_456 \
@@ -352,8 +352,8 @@ When the bytes you `PUT` don't match the `checksum` you declared in Step 1, stor
 - [Webhooks](/guides/webhooks) - Get notified when documents are signed
 
 ### API Reference
-- [Create a File (presigned upload)](/api/POST%20/api/v1/files) - Request a presigned upload URL
-- [Confirm a File](/api/POST%20/api/v1/files/{id}/confirm) - Verify the upload and mark it CONFIRMED
-- [Get File](/api/GET%20/api/v1/files/{id}) - Retrieve a file (confirms the upload on first fetch)
-- [Create Document Field](/api/POST%20/api/v1/documents/{id}/fields) - Add fields to documents
-- [Update Document Field](/api/PATCH%20/api/v1/documents/{id}/fields/{fieldId}) - Modify existing fields
+- [Create a File (presigned upload)](/api-reference/create-a-file-presigned-upload) - Request a presigned upload URL
+- [Confirm a File](/api-reference/confirm-an-uploaded-file) - Verify the upload and mark it CONFIRMED
+- [Get File](/api-reference/get-file-by-id) - Retrieve a file (confirms the upload on first fetch)
+- [Create Document Field](/api-reference/create-a-document-field) - Add fields to documents
+- [Update Document Field](/api-reference/update-a-document-field) - Modify existing fields

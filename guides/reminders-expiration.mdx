@@ -35,10 +35,6 @@ curl -X POST https://app.sajn.se/api/v1/documents \
   }'
 ```
 
-<Frame>
-  <img src="/images/guides/document-expiration.png" alt="Document settings showing expiration date configuration" />
-</Frame>
-
 ### Updating Expiration on Draft Documents
 
 For documents still in `DRAFT`, update the expiration with a `PATCH`:
@@ -58,7 +54,7 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/doc_123 \
 
 ### Extending Expiration on Sent Documents
 
-Once a document has been sent and is in `PENDING` status, use the dedicated [Extend Expiration endpoint](/api/POST%20/api/v1/documents/{id}/extend-expiration) instead of `PATCH`. The new `expiresAt` must be in the future and **strictly later** than the current expiration:
+Once a document has been sent and is in `PENDING` status, use the dedicated [Extend Expiration endpoint](/api-reference/change-a-sent-documents-expiration-date) instead of `PATCH`. The new `expiresAt` must be in the future and **strictly later** than the current expiration:
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents/doc_123/extend-expiration \
@@ -112,13 +108,9 @@ If a document expires before signing is complete, you have several options:
 
 Reminders help move stalled documents forward by prompting signers to take action.
 
-<Frame>
-  <img src="/images/guides/reminder-email.png" alt="Example reminder email sent to a signer" />
-</Frame>
-
 ### Manual Reminders
 
-Send a reminder to every pending party on a document by calling the [Send Reminders endpoint](/api/POST%20/api/v1/documents/{id}/reminders) with an empty body:
+Send a reminder to every pending party on a document by calling the [Send Reminders endpoint](/api-reference/send-reminders-to-one-or-more-signers) with an empty body:
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents/doc_123/reminders \
@@ -144,7 +136,7 @@ curl -X POST https://app.sajn.se/api/v1/documents/doc_123/reminders \
   The legacy `signerIds` field is still accepted for backwards compatibility but is **deprecated** and will be removed in API v2. Use `partyIds` going forward — if both are provided, `partyIds` takes precedence.
 </Note>
 
-You can also remind a single party directly via [`POST /api/v1/documents/{id}/parties/{partyId}/remind`](/api/POST%20/api/v1/documents/{id}/parties/{partyId}/remind).
+You can also remind a single party directly via [`POST /api/v1/documents/{id}/parties/{partyId}/remind`](/api-reference/send-a-reminder-to-a-party).
 
 ### Automatic Reminders
 

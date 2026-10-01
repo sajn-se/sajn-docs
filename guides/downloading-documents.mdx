@@ -33,10 +33,6 @@ curl -L "https://files.sajn.se/documents/doc_123/signed.pdf?signature=..." \
   The `downloadUrl` is valid for **15 minutes**. Request a fresh one if it expires.
 </Note>
 
-<Frame>
-  <img src="/images/guides/signed-document.png" alt="Signed document showing embedded signatures from all parties" />
-</Frame>
-
 ### Choosing which file to download
 
 Choose which file the pre-signed URL points to with the `fileType` value:
@@ -419,7 +415,7 @@ async function safeDownload(documentId, fileType = 'SIGNED') {
   <Card title="Reminders & Expiration" icon="clock" href="/guides/reminders-expiration">
     Manage unsigned documents
   </Card>
-  <Card title="API Reference" icon="code" href="/api/GET%20/api/v1/documents/{id}/download">
+  <Card title="API Reference" icon="code" href="/api-reference/download-a-document-file">
     Download endpoint documentation
   </Card>
   <Card title="Creating Documents" icon="file-plus" href="/guides/create-document">

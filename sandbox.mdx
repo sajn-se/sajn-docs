@@ -81,7 +81,7 @@ Drafts don't count, and neither do documents you delete after sending.
 The counter resets at the start of each month. There is no way to raise it, and no way to reset
 it early other than waiting or creating a new sandbox.
 
-When the limit is reached, [`POST /api/v1/documents/{id}/send`](/api/POST%20/api/v1/documents/{id}/send)
+When the limit is reached, [`POST /api/v1/documents/{id}/send`](/api-reference/send-document-for-signing)
 returns an HTTP `400 Bad Request` status code:
 
 ```json
@@ -99,7 +99,7 @@ Webhook deliveries carry an `X-Sajn-Environment` header, set to `sandbox` or `pr
 it when both environments post to the same endpoint. For more information, see [Webhooks](/guides/webhooks).
 
 To check which organization and workspace a key points at, call
-[`GET /api/v1/me`](/api/GET%20/api/v1/me).
+[`GET /api/v1/me`](/api-reference/get-authenticated-user-+-workspace-context).
 
 ## Deleting a Sandbox
 

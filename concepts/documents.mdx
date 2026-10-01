@@ -111,7 +111,7 @@ Documents can contain different types of fields:
 - **PRODUCT_TABLE**: Tables with products/services and pricing
 - **TABLE**: Simple tables with custom rows and columns
 
-Learn more in the [Document Fields API reference](/api/POST%20/api/v1/documents/{id}/fields).
+Learn more in the [Document Fields API reference](/api-reference/create-a-document-field).
 
 ## Tags and Organization
 
@@ -135,7 +135,7 @@ When a document expires, its status changes to `EXPIRED` and signers can no long
 
 ## Retention and Deletion
 
-Completed documents are stored indefinitely by default. Each workspace can enable a retention policy that moves completed documents to the trash after a set period, with per-document exemptions available. Any document can be deleted regardless of status via [`DELETE /api/v1/documents/{id}`](/api/DELETE%20/api/v1/documents/{id}), which moves it to the trash; permanent deletion is a separate, irreversible operation via `POST /api/v1/documents/{id}/purge`. See the guide on [storage and deletion](/guider/lagring-och-radering) for details.
+Completed documents are stored indefinitely by default. Each workspace can enable a retention policy that moves completed documents to the trash after a set period, with per-document exemptions available. Any document can be deleted regardless of status via [`DELETE /api/v1/documents/{id}`](/api-reference/delete-a-document), which moves it to the trash; permanent deletion is a separate, irreversible operation via `POST /api/v1/documents/{id}/purge`. See the guide on [storage and deletion](/guider/lagring-och-radering) for details.
 
 ## Best Practices
 

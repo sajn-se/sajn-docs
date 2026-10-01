@@ -17,10 +17,6 @@ sajn offers three approaches for multi-party signing:
 | **Sequential** | One after another in order | Approval chains, escalations |
 | **Mixed** | Some parallel, some sequential | Complex workflows |
 
-<Frame>
-  <img src="/images/guides/signing-parallel.png" alt="Diagram showing parallel signing where all signers receive the document simultaneously" />
-</Frame>
-
 ## Parallel Signing
 
 In parallel signing, all signers receive the document at the same time and can sign in any order.
@@ -72,10 +68,6 @@ curl -X POST https://app.sajn.se/api/v1/documents \
 </Tip>
 
 ## Sequential Signing
-
-<Frame>
-  <img src="/images/guides/signing-sequential.png" alt="Diagram showing sequential signing with numbered steps" />
-</Frame>
 
 In sequential signing, signers receive the document one at a time in a specified order. Each signer is emailed (or sent an SMS) **only when it becomes their turn** — a downstream signer gets no notification at send time. The next signer is contacted automatically after the previous step is complete.
 
