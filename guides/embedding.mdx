@@ -19,14 +19,19 @@ sajn provides official embedding packages for popular frameworks:
 
 ## Enabling Embedding
 
-To enable embedding for your application:
+Embedded signing is part of the Enterprise plan. If you build on sajn to send documents to your own customers, you also need a partner licence. To get started, contact [hej@sajn.se](mailto:hej@sajn.se).
 
-1. Contact sajn support at [hej@sajn.se](mailto:hej@sajn.se)
-2. Provide the list of domains where you want to embed the signing experience
-3. sajn will whitelist your domains for embedding
+After sajn turns on embedding for your organization, add the domains that may embed the signing page:
+
+1. In sajn, go to **Inställningar > Arbetsyteinställningar > Utvecklare** and open the **Inbäddning** tab.
+2. Enter your domains, separated by commas. A domain can start with a wildcard, such as `*.example.com`.
+
+The list starts empty, and an empty list allows no domains outside sajn. To test before you go live, add your domains in the [sandbox](/sandbox) first.
 
 <Note>
-  Localhost is automatically allowed for development purposes.
+  The list only accepts public domains served over HTTPS, so `localhost` doesn't work. To test
+  from your machine, expose your local app on a public HTTPS domain, such as a tunnel, and add
+  that domain.
 </Note>
 
 ## Choose Your Framework
