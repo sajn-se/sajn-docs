@@ -1,0 +1,81 @@
+---
+title: "Build with AI"
+description: "Give an AI assistant the sajn docs as Markdown, llms.txt, or an MCP server, and connect it to your workspace"
+---
+
+AI coding assistants write better sajn integrations when they read the current docs instead of guessing from training data. sajn gives you four ways to hand them the docs, and one way to let them work in your workspace.
+
+## Choose an option
+
+| You want the assistant to | Use |
+|---|---|
+| Read one page you're looking at | The Markdown version of the page, or the contextual menu |
+| Load the whole docs site at once | `llms.txt` |
+| Search the docs while it works, in your editor | The [docs MCP server](/ai/docs-mcp) |
+| Read and change documents, contacts, and templates in your workspace | The [workspace MCP server](/ai/workspace-mcp) |
+| Move your code from `2026-09` to `2026-10` | The [upgrade prompt](/upgrading/2026-10#upgrade-with-an-ai-assistant) |
+
+## Read a page as Markdown
+
+Every page has a Markdown version at the same URL with `.md` added. For example, the Markdown version of the quickstart is the following:
+
+```text
+https://docs.sajn.se/get-started/quickstart.md
+```
+
+Paste the URL into an assistant that can fetch web pages, or paste the Markdown itself. Markdown has no navigation or styling, so it uses fewer tokens than the HTML page.
+
+## Use the contextual menu
+
+The menu next to the title of every page has the following options:
+
+- **Copy page** copies the page as Markdown.
+- **View as Markdown** opens the Markdown version.
+- **Open in ChatGPT** and **Open in Claude** start a conversation with the page as context.
+- **Connect to Cursor** and **Connect to VS Code** add the [docs MCP server](/ai/docs-mcp) to the editor.
+
+## Load the docs with llms.txt
+
+The docs site publishes an [`llms.txt`](https://llmstxt.org) file, an index of every page with a short description and a link to its Markdown version:
+
+```text
+https://docs.sajn.se/llms.txt
+```
+
+To load the full text of every page in one file, use `https://docs.sajn.se/llms-full.txt`. It's large, so we recommend it only for assistants with a big context window.
+
+## Search the docs with MCP
+
+The docs MCP server lets an assistant search these docs whenever it needs to, instead of loading them up front. It needs no login, and it can't see your account.
+
+```text
+https://docs.sajn.se/mcp
+```
+
+For setup instructions for Claude, Cursor, VS Code, and other clients, see [Documentation MCP server](/ai/docs-mcp).
+
+## Work in your workspace with MCP
+
+The workspace MCP server connects an assistant to your sajn account. It can find and read documents, build and send them, manage parties, contacts, and templates, and read API logs and webhook deliveries while you debug an integration. You sign in with OAuth 2.0, and the assistant can do only what your workspace role allows.
+
+```text
+https://app.sajn.se/api/mcp
+```
+
+For the tools, scopes, and setup, see [sajn MCP server](/ai/workspace-mcp).
+
+<Warning>
+  The workspace MCP server acts on real data. A document that the assistant sends reaches real people. To try it safely, connect it to a [sandbox](/get-started/sandbox).
+</Warning>
+
+## Upgrade an integration with AI
+
+The [Upgrading to 2026-10](/upgrading/2026-10) guide includes a prompt for coding assistants such as Claude Code, Cursor, and Codex. Run it in your repository: it lists every change between `2026-09` and `2026-10`, and points the assistant at the Markdown version of the guide for the before-and-after examples.
+
+## Generate a typed client
+
+To generate a client in your language, give the assistant or your code generator the OpenAPI specification:
+
+```text
+https://app.sajn.se/api/v1/openapi
+```

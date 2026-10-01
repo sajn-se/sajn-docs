@@ -1,9 +1,7 @@
 ---
-title: "Errors"
+title: "sajn Login errors"
 description: "OAuth error codes, BankID hint codes, and what to do about each"
 ---
-
-# Errors
 
 ## Where an error shows up
 
@@ -68,7 +66,7 @@ and notifying on every mistyped cancel would flood your endpoint.
 | `401` | Missing or invalid API key |
 | `403` | The organization does not have sajn Login enabled |
 | `404` | Unknown session, expired result, **or a session belonging to another workspace** |
-| `429` | Rate limited — see [Rate limits](/api/introduction#rate-limits) |
+| `429` | Rate limited — see [Rate limits](/api-fundamentals/rate-limits) |
 
 <Note>
   A session from another workspace answers `404`, not `403`. "Exists but isn't yours" is itself

@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "almond",
   "name": "sajn",
   "colors": {
-    "primary": "#2563EB",
+    "primary": "#2663EB",
     "light": "#3B82F6",
-    "dark": "#1D4ED8"
+    "dark": "#1E4ED8"
   },
   "favicon": "/favicon.ico",
   "logo": {
@@ -21,7 +21,7 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Logga in",
+      "label": "Dashboard",
       "href": "https://app.sajn.se"
     }
   },
@@ -38,60 +38,86 @@
               "guider/startsidan-widgets",
               "guider/workspace-switching",
               "guider/notifications",
-              "guider/setup-2fa-passkey",
-              "guider/signing-methods",
-              "guider/signeringsupplevelsen",
-              "guider/ai",
-              "guider/bob",
-              "guider/atgarder"
+              "guider/setup-2fa-passkey"
             ]
           },
           {
-            "group": "Dokument",
+            "group": "Skapa och redigera",
             "pages": [
               "guider/skapa-dokument",
-              "guider/dokumentredigeraren",
-              "guider/add-fields-to-document",
-              "guider/tilldela-falt-till-part",
               "guider/create-document-from-template",
               "guider/create-document-from-pdf",
               "guider/upload-office-documents",
+              "guider/dokumentredigeraren",
+              "guider/add-fields-to-document",
+              "guider/tilldela-falt-till-part",
               "guider/edit-pdf-in-editor",
-              "guider/document-ai-analysis",
-              "guider/document-ai-text-edit",
-              "guider/private-documents",
-              "guider/lagg-till-part",
-              "guider/sekventiell-signering",
-              "guider/internal-recipients",
-              "guider/andra-installningar",
-              "guider/skicka-dokument",
-              "guider/massutskick",
-              "guider/skicka-paminnelse",
-              "guider/forlang-utgangsdatum",
-              "guider/document-version-history",
-              "guider/kalender",
-              "guider/document-bookmarks",
-              "guider/files-overview",
-              "guider/produkter",
-              "guider/folders",
               "guider/add-attachments",
+              "guider/produkter",
               "guider/comments-mentions",
-              "guider/approval-workflow"
+              "guider/document-version-history",
+              "guider/private-documents"
             ]
           },
           {
-            "group": "Mallar",
+            "group": "Skicka för signering",
+            "pages": [
+              "guider/lagg-till-part",
+              "guider/signing-methods",
+              "guider/sekventiell-signering",
+              "guider/internal-recipients",
+              "guider/andra-installningar",
+              "guider/approval-workflow",
+              "guider/skicka-dokument",
+              "guider/massutskick",
+              "guider/signeringsupplevelsen"
+            ]
+          },
+          {
+            "group": "Följ upp",
+            "pages": [
+              "guider/folj-upp-dokument",
+              "guider/skicka-paminnelse",
+              "guider/forlang-utgangsdatum",
+              "guider/aterkalla-dokument",
+              "guider/kalender",
+              "guider/signing-session-replay"
+            ]
+          },
+          {
+            "group": "Mallar och formulär",
             "pages": [
               "guider/skapa-mall",
               "guider/add-fields-to-template",
               "guider/create-template-from-pdf",
               "guider/use-template",
-              "guider/formular",
               "guider/samma-falt-olika-mottagare",
               "guider/ai-generate-template-section",
               "guider/sajn-collection",
               "guider/lock-template",
-              "guider/delete-template"
+              "guider/delete-template",
+              "guider/formular"
+            ]
+          },
+          {
+            "group": "Hitta och organisera",
+            "pages": [
+              "guider/folders",
+              "guider/settings-tags",
+              "guider/document-bookmarks",
+              "guider/files-overview",
+              "guider/document-content-search"
+            ]
+          },
+          {
+            "group": "Arkiv och bevisvärde",
+            "pages": [
+              "guider/arkivet",
+              "guider/archive-document",
+              "guider/trash-document",
+              "guider/verifiera-dokument",
+              "guider/juridisk-giltighet",
+              "guider/lagring-och-radering"
             ]
           },
           {
@@ -103,472 +129,981 @@
             ]
           },
           {
-            "group": "sajnID",
+            "group": "sajn ID",
             "pages": [
               "guider/create-sajn-id",
               "guider/manage-sajn-id"
             ]
           },
           {
-            "group": "Arkiv & statistik",
+            "group": "AI och Bob",
             "pages": [
-              "guider/arkivet",
-              "guider/verifiera-dokument",
-              "guider/juridisk-giltighet",
-              "guider/archive-document",
-              "guider/trash-document",
-              "guider/lagring-och-radering",
-              "guider/statistics",
-              "guider/rapporter",
-              "guider/signing-session-replay"
-            ]
-          },
-          {
-            "group": "Konto & inställningar",
-            "pages": [
-              "guider/settings-user",
-              "guider/settings-communication-preferences",
-              "guider/settings-overview",
-              "guider/settings-preferences"
-            ]
-          },
-          {
-            "group": "Arbetsyta",
-            "pages": [
-              "guider/arbetsytor",
-              "guider/settings-workspaces",
-              "guider/settings-workspace-members-roles",
-              "guider/settings-branding",
-              "guider/settings-email-templates",
-              "guider/settings-message-templates",
-              "guider/settings-custom-fields",
-              "guider/settings-tags",
+              "guider/ai",
+              "guider/bob",
+              "guider/atgarder",
+              "guider/document-ai-analysis",
+              "guider/document-ai-text-edit",
               "guider/settings-ai",
-              "guider/settings-search",
+              "guider/settings-search"
+            ]
+          },
+          {
+            "group": "Statistik och rapporter",
+            "pages": [
+              "guider/statistics",
+              "guider/rapporter"
+            ]
+          },
+          {
+            "group": "Integrationer",
+            "pages": [
+              "guider/integrationer",
+              "guider/word-tillagget",
+              "guider/hubspot",
+              "guider/zapier-och-make",
               "guider/settings-inbox",
               "guider/settings-embed",
-              "guider/custom-signing-page",
-              "guider/integrationer",
-              "guider/settings-developer-api",
-              "guider/webhooks",
               "guider/redirect-after-signing",
-              "guider/document-content-search"
+              "guider/webhooks",
+              "guider/settings-developer-api"
             ]
           },
           {
-            "group": "Organisation",
+            "group": "Inställningar",
             "pages": [
-              "guider/settings-organization-business-details",
-              "guider/byt-organisationsnamn",
-              "guider/settings-organization-members-roles",
-              "guider/settings-role-blueprints",
-              "guider/settings-organization-security",
-              "guider/settings-organization-sso",
-              "guider/settings-organization-data-privacy",
-              "guider/settings-audit-log",
-              "guider/settings-subscription",
-              "guider/settings-usage"
+              "guider/settings-overview",
+              {
+                "group": "Ditt konto",
+                "pages": [
+                  "guider/settings-user",
+                  "guider/settings-communication-preferences"
+                ]
+              },
+              {
+                "group": "Arbetsyta",
+                "pages": [
+                  "guider/arbetsytor",
+                  "guider/settings-workspaces",
+                  "guider/settings-workspace-members-roles",
+                  "guider/settings-preferences",
+                  "guider/settings-branding",
+                  "guider/custom-signing-page",
+                  "guider/settings-email-templates",
+                  "guider/settings-message-templates",
+                  "guider/settings-custom-fields"
+                ]
+              },
+              {
+                "group": "Organisation",
+                "pages": [
+                  "guider/settings-organization-business-details",
+                  "guider/byt-organisationsnamn",
+                  "guider/settings-organization-members-roles",
+                  "guider/settings-role-blueprints",
+                  "guider/settings-organization-security",
+                  "guider/settings-organization-sso",
+                  "guider/settings-organization-data-privacy",
+                  "guider/settings-audit-log",
+                  "guider/settings-subscription",
+                  "guider/settings-usage"
+                ]
+              }
             ]
           }
         ]
       },
       {
         "tab": "API",
-        "openapi": "api/openapi.json",
-        "groups": [
+        "dropdowns": [
           {
-            "group": "Getting Started",
-            "pages": [
-              "api/introduction",
-              "choosing-authentication",
-              "quickstart",
-              "authentication",
-              "sandbox",
-              "postman",
-              "docs-mcp",
-              "workspace-mcp"
-            ]
-          },
-          {
-            "group": "Core Concepts",
-            "pages": [
-              "concepts/organizations",
-              "concepts/workspaces",
-              "concepts/documents",
-              "concepts/signing-certificate",
-              "concepts/signers",
-              "concepts/signing-methods",
-              "concepts/contacts",
-              "concepts/activity-events",
-              "concepts/sajn-id",
-              "concepts/onboarding-signing-flow"
-            ]
-          },
-          {
-            "group": "Document Creation",
-            "pages": [
-              "guides/create-document",
-              "guides/templates-and-forms",
-              "guides/managing-templates",
-              "guides/signer-fields",
-              "guides/pdf-field-placement",
-              "guides/html-fields",
-              "guides/formatting-html-content",
-              "guides/file-uploads",
-              "guides/product-tables"
-            ]
-          },
-          {
-            "group": "Contacts & CRM",
-            "pages": [
-              "guides/managing-contacts",
-              "guides/working-with-companies",
-              "guides/custom-fields",
-              "guides/crm-field-integration",
-              "guides/organizing-with-tags"
-            ]
-          },
-          {
-            "group": "Signing & Delivery",
-            "pages": [
-              "guides/send-for-signing",
-              "guides/multi-party-signing",
-              "guides/migrate-signers-to-parties",
-              "guides/identity-verification",
-              "guides/reminders-expiration",
-              "guides/downloading-documents",
-              "guides/syncing-documents",
-              "guides/redirect-url"
-            ]
-          },
-          {
-            "group": "Webhooks & Embedding",
-            "pages": [
-              "guides/webhooks",
-              "guides/managing-webhooks",
+            "dropdown": "2026-10",
+            "description": "Latest",
+            "icon": "circle-check",
+            "openapi": "api/openapi.json",
+            "groups": [
               {
-                "group": "Embedding",
+                "group": "Get started",
                 "pages": [
-                  "guides/embedding",
-                  "guides/embedding-vanilla",
-                  "guides/embedding-react",
-                  "guides/embedding-vue"
+                  "get-started/introduction",
+                  "get-started/quickstart",
+                  "get-started/authentication",
+                  "get-started/choosing-authentication",
+                  "get-started/sandbox",
+                  "get-started/postman",
+                  {
+                    "group": "Build with AI",
+                    "pages": [
+                      "ai/overview",
+                      "ai/docs-mcp",
+                      "ai/workspace-mcp"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Core concepts",
+                "pages": [
+                  "concepts/organizations",
+                  "concepts/workspaces",
+                  "concepts/documents",
+                  "concepts/parties",
+                  "concepts/fields",
+                  "concepts/templates-and-forms",
+                  "concepts/contacts",
+                  "concepts/signing-methods",
+                  "concepts/signing-certificate",
+                  "concepts/sajn-id",
+                  "concepts/activity-events",
+                  "concepts/glossary"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  {
+                    "group": "Documents",
+                    "pages": [
+                      "guides/documents/create-document",
+                      "guides/documents/send-for-signing",
+                      "guides/documents/multi-party-signing",
+                      "guides/documents/reminders-expiration",
+                      "guides/documents/redirect-url",
+                      "guides/documents/downloading-documents",
+                      "guides/documents/file-uploads",
+                      "guides/documents/organizing-with-tags",
+                      "guides/documents/onboarding-signing-flow"
+                    ]
+                  },
+                  {
+                    "group": "Fields and data",
+                    "pages": [
+                      "guides/fields/signer-fields",
+                      "guides/fields/pdf-field-placement",
+                      "guides/fields/html-fields",
+                      "guides/fields/formatting-html-content",
+                      "guides/fields/product-tables",
+                      "guides/fields/custom-fields"
+                    ]
+                  },
+                  {
+                    "group": "Templates and forms",
+                    "pages": [
+                      "guides/templates/templates-and-forms",
+                      "guides/templates/managing-templates",
+                      "guides/templates/managing-forms"
+                    ]
+                  },
+                  {
+                    "group": "Contacts and companies",
+                    "pages": [
+                      "guides/contacts/managing-contacts",
+                      "guides/contacts/working-with-companies"
+                    ]
+                  },
+                  {
+                    "group": "Identity and signing",
+                    "pages": [
+                      "guides/identity/identity-verification",
+                      "guides/identity/signing-methods"
+                    ]
+                  },
+                  {
+                    "group": "Embedding",
+                    "pages": [
+                      "guides/embedding/overview",
+                      "guides/embedding/vanilla-js",
+                      "guides/embedding/react",
+                      "guides/embedding/vue"
+                    ]
+                  },
+                  {
+                    "group": "Sync and integrations",
+                    "pages": [
+                      "guides/integrations/syncing-documents",
+                      "guides/integrations/crm-field-integration"
+                    ]
+                  },
+                  {
+                    "group": "Recipes",
+                    "pages": [
+                      "guides/recipes/crm-contract-notifications",
+                      "guides/recipes/bulk-from-template",
+                      "guides/recipes/embed-signing",
+                      "guides/recipes/nightly-sync",
+                      "guides/recipes/verify-identity-before-signing"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "pages": [
+                  "webhooks/overview",
+                  "webhooks/manage-endpoints",
+                  "webhooks/events",
+                  "webhooks/payloads",
+                  "webhooks/verify-signatures",
+                  "webhooks/delivery-and-retries",
+                  "webhooks/replay-and-reconcile",
+                  "webhooks/testing"
+                ]
+              },
+              {
+                "group": "API fundamentals",
+                "pages": [
+                  "api-fundamentals/versioning",
+                  "api-fundamentals/errors",
+                  "api-fundamentals/pagination",
+                  "api-fundamentals/rate-limits",
+                  "api-fundamentals/idempotency",
+                  "api-fundamentals/query-parameters",
+                  "api-fundamentals/oauth"
+                ]
+              },
+              {
+                "group": "Upgrading",
+                "pages": [
+                  "upgrading/2026-10",
+                  "upgrading/changelog",
+                  "upgrading/migrate-signers-to-parties"
+                ]
+              },
+              {
+                "group": "sajn Login",
+                "pages": [
+                  "login/overview",
+                  "login/quickstart",
+                  "login/oidc",
+                  "login/session-api",
+                  "login/claims",
+                  "login/testing",
+                  "login/webhooks",
+                  "login/errors"
+                ]
+              },
+              {
+                "group": "API reference",
+                "pages": [
+                  {
+                    "group": "Login",
+                    "pages": [
+                      "POST /api/v1/login/sessions",
+                      "GET /api/v1/login/sessions/{id}"
+                    ]
+                  },
+                  {
+                    "group": "System",
+                    "pages": [
+                      "GET /api/v1/health"
+                    ]
+                  },
+                  {
+                    "group": "Account",
+                    "pages": [
+                      "GET /api/v1/me"
+                    ]
+                  },
+                  {
+                    "group": "Workspaces",
+                    "pages": [
+                      "GET /api/v1/workspaces",
+                      "GET /api/v1/workspace-permissions"
+                    ]
+                  },
+                  {
+                    "group": "Members",
+                    "pages": [
+                      "GET /api/v1/members",
+                      "POST /api/v1/members",
+                      "GET /api/v1/members/{userId}",
+                      "PATCH /api/v1/members/{userId}",
+                      "DELETE /api/v1/members/{userId}",
+                      "GET /api/v1/member-invites",
+                      "POST /api/v1/member-invites/{id}/resend",
+                      "DELETE /api/v1/member-invites/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Workspace Roles",
+                    "pages": [
+                      "GET /api/v1/workspace-roles",
+                      "POST /api/v1/workspace-roles",
+                      "GET /api/v1/workspace-roles/{id}",
+                      "PATCH /api/v1/workspace-roles/{id}",
+                      "DELETE /api/v1/workspace-roles/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Documents",
+                    "pages": [
+                      "GET /api/v1/documents",
+                      "POST /api/v1/documents",
+                      "GET /api/v1/documents/{id}",
+                      "PATCH /api/v1/documents/{id}",
+                      "DELETE /api/v1/documents/{id}",
+                      "GET /api/v1/documents/{id}/download/{fileType}",
+                      "GET /api/v1/documents/{id}/activity",
+                      "POST /api/v1/documents/{id}/send",
+                      "POST /api/v1/documents/{id}/withdraw",
+                      "POST /api/v1/documents/{id}/extend-expiration",
+                      "GET /api/v1/documents/{id}/delegations",
+                      "GET /api/v1/documents/{id}/reminders",
+                      "POST /api/v1/documents/{id}/reminders",
+                      "GET /api/v1/documents/{id}/signatures",
+                      "GET /api/v1/documents/{id}/links",
+                      "POST /api/v1/documents/{id}/links",
+                      "DELETE /api/v1/documents/{id}/links/{linkId}",
+                      "POST /api/v1/documents/{id}/purge"
+                    ]
+                  },
+                  {
+                    "group": "Document Parties",
+                    "pages": [
+                      "GET /api/v1/documents/{id}/parties",
+                      "POST /api/v1/documents/{id}/parties",
+                      "GET /api/v1/documents/{id}/parties/{partyId}",
+                      "PATCH /api/v1/documents/{id}/parties/{partyId}",
+                      "DELETE /api/v1/documents/{id}/parties/{partyId}"
+                    ]
+                  },
+                  {
+                    "group": "Document Comments",
+                    "pages": [
+                      "GET /api/v1/documents/{id}/comments",
+                      "POST /api/v1/documents/{id}/comments",
+                      "PATCH /api/v1/documents/{id}/comments/{threadId}",
+                      "DELETE /api/v1/documents/{id}/comments/{threadId}",
+                      "POST /api/v1/documents/{id}/comments/{threadId}/messages"
+                    ]
+                  },
+                  {
+                    "group": "Document Chat",
+                    "pages": [
+                      "GET /api/v1/documents/{id}/chat",
+                      "POST /api/v1/documents/{id}/chat"
+                    ]
+                  },
+                  {
+                    "group": "Files",
+                    "pages": [
+                      "POST /api/v1/files",
+                      "POST /api/v1/files/{id}/confirm",
+                      "GET /api/v1/files",
+                      "GET /api/v1/files/{id}",
+                      "DELETE /api/v1/files/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Folders",
+                    "pages": [
+                      "GET /api/v1/folders",
+                      "POST /api/v1/folders",
+                      "GET /api/v1/folders/{id}",
+                      "PATCH /api/v1/folders/{id}",
+                      "DELETE /api/v1/folders/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Blocks",
+                    "pages": [
+                      "GET /api/v1/blocks",
+                      "GET /api/v1/blocks/{id}",
+                      "DELETE /api/v1/blocks/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Document Approval",
+                    "pages": [
+                      "GET /api/v1/approvers",
+                      "GET /api/v1/documents/{id}/approval",
+                      "DELETE /api/v1/documents/{id}/approval",
+                      "POST /api/v1/documents/{id}/approval/approve",
+                      "POST /api/v1/documents/{id}/approval/reject"
+                    ]
+                  },
+                  {
+                    "group": "Document Fields",
+                    "pages": [
+                      "GET /api/v1/documents/{id}/fields",
+                      "GET /api/v1/documents/{id}/fields/{fieldId}",
+                      "POST /api/v1/documents/{id}/fields",
+                      "PATCH /api/v1/documents/{id}/fields",
+                      "PATCH /api/v1/documents/{id}/fields/{fieldId}",
+                      "PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields",
+                      "DELETE /api/v1/documents/{id}/fields/{fieldId}",
+                      "GET /api/v1/documents/{id}/field-values",
+                      "PATCH /api/v1/documents/{id}/field-values"
+                    ]
+                  },
+                  {
+                    "group": "Document Tags",
+                    "pages": [
+                      "POST /api/v1/documents/{id}/tags",
+                      "DELETE /api/v1/documents/{id}/tags/{tagId}"
+                    ]
+                  },
+                  {
+                    "group": "Templates",
+                    "pages": [
+                      "GET /api/v1/templates",
+                      "POST /api/v1/templates",
+                      "GET /api/v1/templates/{id}",
+                      "PATCH /api/v1/templates/{id}",
+                      "DELETE /api/v1/templates/{id}",
+                      "POST /api/v1/templates/{id}/duplicate",
+                      "GET /api/v1/templates/{id}/fields",
+                      "GET /api/v1/templates/{id}/fields/{fieldId}",
+                      "POST /api/v1/templates/{id}/fields",
+                      "PATCH /api/v1/templates/{id}/fields/{fieldId}",
+                      "PATCH /api/v1/templates/{id}/fields/{fieldId}/placed-fields",
+                      "DELETE /api/v1/templates/{id}/fields/{fieldId}",
+                      "GET /api/v1/templates/{id}/parties",
+                      "POST /api/v1/templates/{id}/parties",
+                      "PATCH /api/v1/templates/{id}/parties/{partyId}",
+                      "DELETE /api/v1/templates/{id}/parties/{partyId}",
+                      "POST /api/v1/templates/{id}/tags",
+                      "DELETE /api/v1/templates/{id}/tags/{tagId}",
+                      "GET /api/v1/templates/{id}/documents"
+                    ]
+                  },
+                  {
+                    "group": "Forms",
+                    "pages": [
+                      "GET /api/v1/forms",
+                      "POST /api/v1/forms",
+                      "GET /api/v1/forms/{id}",
+                      "PATCH /api/v1/forms/{id}",
+                      "DELETE /api/v1/forms/{id}",
+                      "POST /api/v1/forms/{id}/publish",
+                      "POST /api/v1/forms/{id}/unpublish",
+                      "POST /api/v1/forms/{id}/rotate-token",
+                      "PUT /api/v1/forms/{id}/respondent",
+                      "GET /api/v1/forms/{id}/document",
+                      "PATCH /api/v1/forms/{id}/document",
+                      "PUT /api/v1/forms/{id}/document/fields",
+                      "PUT /api/v1/forms/{id}/document/parties",
+                      "GET /api/v1/forms/{id}/submissions",
+                      "GET /api/v1/forms/{id}/submissions/{submissionId}"
+                    ]
+                  },
+                  {
+                    "group": "Contacts",
+                    "pages": [
+                      "GET /api/v1/contacts",
+                      "POST /api/v1/contacts",
+                      "GET /api/v1/contacts/{id}",
+                      "GET /api/v1/contacts/search",
+                      "PATCH /api/v1/contacts/{id}",
+                      "DELETE /api/v1/contacts/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Companies",
+                    "pages": [
+                      "GET /api/v1/companies",
+                      "POST /api/v1/companies",
+                      "GET /api/v1/companies/{id}",
+                      "GET /api/v1/companies/lookup",
+                      "GET /api/v1/companies/search"
+                    ]
+                  },
+                  {
+                    "group": "Tags",
+                    "pages": [
+                      "GET /api/v1/tags",
+                      "POST /api/v1/tags",
+                      "PATCH /api/v1/tags/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Document Categories",
+                    "pages": [
+                      "GET /api/v1/document-categories"
+                    ]
+                  },
+                  {
+                    "group": "Custom Fields",
+                    "pages": [
+                      "GET /api/v1/custom-fields",
+                      "POST /api/v1/custom-fields",
+                      "GET /api/v1/custom-fields/{id}",
+                      "PATCH /api/v1/custom-fields/{id}",
+                      "DELETE /api/v1/custom-fields/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Webhooks",
+                    "pages": [
+                      "GET /api/v1/webhooks",
+                      "POST /api/v1/webhooks",
+                      "GET /api/v1/webhooks/{id}",
+                      "PATCH /api/v1/webhooks/{id}",
+                      "DELETE /api/v1/webhooks/{id}",
+                      "GET /api/v1/webhooks/{id}/deliveries",
+                      "GET /api/v1/webhooks/{id}/deliveries/{deliveryId}",
+                      "POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry"
+                    ]
+                  },
+                  {
+                    "group": "Events",
+                    "pages": [
+                      "GET /api/v1/events",
+                      "GET /api/v1/events/{id}",
+                      "POST /api/v1/events/{id}/replay"
+                    ]
+                  },
+                  {
+                    "group": "sajn ID",
+                    "pages": [
+                      "GET /api/v1/sajn-id",
+                      "POST /api/v1/sajn-id",
+                      "GET /api/v1/sajn-id/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Organization",
+                    "pages": [
+                      "GET /api/v1/organization",
+                      "GET /api/v1/limits"
+                    ]
+                  },
+                  {
+                    "group": "Helpers",
+                    "pages": [
+                      "GET /api/v1/helpers/countries",
+                      "GET /api/v1/helpers/currencies",
+                      "GET /api/v1/helpers/languages",
+                      "GET /api/v1/helpers/timezones",
+                      "GET /api/v1/helpers/signature-methods",
+                      "GET /api/v1/helpers/two-step-verifications"
+                    ]
+                  },
+                  {
+                    "group": "Webhook events",
+                    "pages": [
+                      {
+                        "group": "Documents",
+                        "pages": [
+                          "webhook DOCUMENT_CREATED",
+                          "webhook DOCUMENT_SENT",
+                          "webhook DOCUMENT_SIGNED",
+                          "webhook DOCUMENT_COMPLETED",
+                          "webhook DOCUMENT_REJECTED",
+                          "webhook DOCUMENT_EXPIRED",
+                          "webhook DOCUMENT_WITHDRAWN",
+                          "webhook DOCUMENT_MODIFIED",
+                          "webhook DOCUMENT_DELETED",
+                          "webhook DOCUMENT_RESTORED",
+                          "webhook DOCUMENT_ARCHIVED",
+                          "webhook DOCUMENT_UNARCHIVED",
+                          "webhook DOCUMENT_EXPIRATION_EXTENDED",
+                          "webhook DOCUMENT_ARCHIVE_UPLOADED"
+                        ]
+                      },
+                      {
+                        "group": "Parties",
+                        "pages": [
+                          "webhook DOCUMENT_PARTY_SENT",
+                          "webhook DOCUMENT_PARTY_DELIVERY_FAILED",
+                          "webhook DOCUMENT_PARTY_OPENED",
+                          "webhook DOCUMENT_PARTY_READ",
+                          "webhook DOCUMENT_PARTY_SIGNED",
+                          "webhook DOCUMENT_PARTY_REJECTED",
+                          "webhook DOCUMENT_PARTY_DELEGATED",
+                          "webhook DOCUMENT_PARTY_AUTH_FAILED",
+                          "webhook DOCUMENT_PARTY_ADDED",
+                          "webhook DOCUMENT_PARTY_REMOVED",
+                          "webhook DOCUMENT_REMINDER_AUTOMATIC",
+                          "webhook DOCUMENT_REMINDER_MANUAL"
+                        ]
+                      },
+                      {
+                        "group": "Identity checks",
+                        "pages": [
+                          "webhook ID_CREATED",
+                          "webhook ID_SENT",
+                          "webhook ID_OPENED",
+                          "webhook ID_VERIFIED",
+                          "webhook ID_FAILED",
+                          "webhook ID_CANCELED"
+                        ]
+                      },
+                      {
+                        "group": "Contacts",
+                        "pages": [
+                          "webhook CONTACT_CREATED",
+                          "webhook CONTACT_UPDATED",
+                          "webhook CONTACT_DELETED"
+                        ]
+                      },
+                      {
+                        "group": "Templates and forms",
+                        "pages": [
+                          "webhook TEMPLATE_CREATED",
+                          "webhook TEMPLATE_UPDATED",
+                          "webhook TEMPLATE_DELETED",
+                          "webhook TEMPLATE_RESTORED",
+                          "webhook FORM_SUBMITTED"
+                        ]
+                      },
+                      {
+                        "group": "Workspace",
+                        "pages": [
+                          "webhook WORKSPACE_CREATED",
+                          "webhook MEMBER_ADDED"
+                        ]
+                      },
+                      {
+                        "group": "sajn Login",
+                        "pages": [
+                          "webhook LOGIN_COMPLETED",
+                          "webhook LOGIN_FAILED"
+                        ]
+                      },
+                      {
+                        "group": "Security",
+                        "pages": [
+                          "webhook SECURITY_DOCUMENT_DOWNLOADED",
+                          "webhook SECURITY_DOCUMENTS_EXPORTED",
+                          "webhook SECURITY_SIGNATURE_IDENTITY_ACCESSED",
+                          "webhook SECURITY_WORKSPACE_MEMBER_REMOVED",
+                          "webhook SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED",
+                          "webhook SECURITY_WORKSPACE_ROLE_UPDATED",
+                          "webhook SECURITY_WORKSPACE_RETENTION_UPDATED"
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
           },
           {
-            "group": "Login",
-            "pages": [
-              "login/overview",
-              "login/quickstart",
-              "login/oidc",
-              "login/session-api",
-              "login/claims",
-              "login/testing",
-              "login/webhooks",
-              "login/errors",
-              "POST /api/v1/login/sessions",
-              "GET /api/v1/login/sessions/{id}"
-            ]
-          },
-          {
-            "group": "System",
-            "pages": [
-              "GET /api/v1/health"
-            ]
-          },
-          {
-            "group": "Account",
-            "pages": [
-              "GET /api/v1/me"
-            ]
-          },
-          {
-            "group": "Workspaces",
-            "pages": [
-              "GET /api/v1/workspaces",
-              "GET /api/v1/workspace-permissions"
-            ]
-          },
-          {
-            "group": "Members",
-            "pages": [
-              "GET /api/v1/members",
-              "POST /api/v1/members",
-              "GET /api/v1/members/{userId}",
-              "PATCH /api/v1/members/{userId}",
-              "DELETE /api/v1/members/{userId}",
-              "GET /api/v1/member-invites",
-              "POST /api/v1/member-invites/{id}/resend",
-              "DELETE /api/v1/member-invites/{id}"
-            ]
-          },
-          {
-            "group": "Workspace Roles",
-            "pages": [
-              "GET /api/v1/workspace-roles",
-              "POST /api/v1/workspace-roles",
-              "GET /api/v1/workspace-roles/{id}",
-              "PATCH /api/v1/workspace-roles/{id}",
-              "DELETE /api/v1/workspace-roles/{id}"
-            ]
-          },
-          {
-            "group": "Documents",
-            "pages": [
-              "GET /api/v1/documents",
-              "POST /api/v1/documents",
-              "GET /api/v1/documents/{id}",
-              "PATCH /api/v1/documents/{id}",
-              "DELETE /api/v1/documents/{id}",
-              "GET /api/v1/documents/{id}/download",
-              "GET /api/v1/documents/{id}/download/{fileType}",
-              "GET /api/v1/documents/{id}/activity",
-              "POST /api/v1/documents/{id}/send",
-              "POST /api/v1/documents/{id}/withdraw",
-              "POST /api/v1/documents/{id}/extend-expiration",
-              "GET /api/v1/documents/{id}/delegations",
-              "GET /api/v1/documents/{id}/reminders",
-              "POST /api/v1/documents/{id}/reminders",
-              "GET /api/v1/documents/{id}/signatures",
-              "GET /api/v1/documents/{id}/links",
-              "POST /api/v1/documents/{id}/links",
-              "DELETE /api/v1/documents/{id}/links/{linkId}",
-              "POST /api/v1/documents/{id}/purge"
-            ]
-          },
-          {
-            "group": "Document Parties",
-            "pages": [
-              "GET /api/v1/documents/{id}/parties",
-              "POST /api/v1/documents/{id}/parties",
-              "GET /api/v1/documents/{id}/parties/{partyId}",
-              "PATCH /api/v1/documents/{id}/parties/{partyId}",
-              "DELETE /api/v1/documents/{id}/parties/{partyId}",
-              "POST /api/v1/documents/{id}/parties/{partyId}/remind"
-            ]
-          },
-          {
-            "group": "Document Comments",
-            "pages": [
-              "GET /api/v1/documents/{id}/comments",
-              "POST /api/v1/documents/{id}/comments",
-              "PATCH /api/v1/documents/{id}/comments/{threadId}",
-              "DELETE /api/v1/documents/{id}/comments/{threadId}",
-              "POST /api/v1/documents/{id}/comments/{threadId}/messages"
-            ]
-          },
-          {
-            "group": "Document Chat",
-            "pages": [
-              "GET /api/v1/documents/{id}/chat",
-              "POST /api/v1/documents/{id}/chat"
-            ]
-          },
-          {
-            "group": "Files",
-            "pages": [
-              "POST /api/v1/files",
-              "POST /api/v1/files/{id}/confirm",
-              "GET /api/v1/files",
-              "GET /api/v1/files/{id}",
-              "DELETE /api/v1/files/{id}"
-            ]
-          },
-          {
-            "group": "Folders",
-            "pages": [
-              "GET /api/v1/folders",
-              "POST /api/v1/folders",
-              "GET /api/v1/folders/{id}",
-              "PATCH /api/v1/folders/{id}",
-              "DELETE /api/v1/folders/{id}"
-            ]
-          },
-          {
-            "group": "Blocks",
-            "pages": [
-              "GET /api/v1/blocks",
-              "GET /api/v1/blocks/{id}",
-              "DELETE /api/v1/blocks/{id}"
-            ]
-          },
-          {
-            "group": "Document Signers",
-            "pages": [
-              "GET /api/v1/documents/{id}/signers",
-              "POST /api/v1/documents/{id}/signers",
-              "GET /api/v1/documents/{id}/signers/{signerId}",
-              "PATCH /api/v1/documents/{id}/signers/{signerId}",
-              "DELETE /api/v1/documents/{id}/signers/{signerId}",
-              "POST /api/v1/documents/{id}/signers/{signerId}/remind"
-            ]
-          },
-          {
-            "group": "Document Approval",
-            "pages": [
-              "GET /api/v1/approvers",
-              "GET /api/v1/documents/{id}/approval",
-              "DELETE /api/v1/documents/{id}/approval",
-              "POST /api/v1/documents/{id}/approval/approve",
-              "POST /api/v1/documents/{id}/approval/reject"
-            ]
-          },
-          {
-            "group": "Document Fields",
-            "pages": [
-              "GET /api/v1/documents/{id}/fields",
-              "GET /api/v1/documents/{id}/fields/{fieldId}",
-              "POST /api/v1/documents/{id}/fields",
-              "PATCH /api/v1/documents/{id}/fields",
-              "PATCH /api/v1/documents/{id}/fields/{fieldId}",
-              "PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields",
-              "DELETE /api/v1/documents/{id}/fields/{fieldId}"
-            ]
-          },
-          {
-            "group": "Document Tags",
-            "pages": [
-              "POST /api/v1/documents/{id}/tags",
-              "DELETE /api/v1/documents/{id}/tags/{tagId}"
-            ]
-          },
-          {
-            "group": "Templates",
-            "pages": [
-              "GET /api/v1/templates",
-              "POST /api/v1/templates",
-              "GET /api/v1/templates/{id}",
-              "PATCH /api/v1/templates/{id}",
-              "DELETE /api/v1/templates/{id}",
-              "POST /api/v1/templates/{id}/duplicate",
-              "GET /api/v1/templates/{id}/fields",
-              "GET /api/v1/templates/{id}/fields/{fieldId}",
-              "POST /api/v1/templates/{id}/fields",
-              "PATCH /api/v1/templates/{id}/fields/{fieldId}",
-              "PATCH /api/v1/templates/{id}/fields/{fieldId}/placed-fields",
-              "DELETE /api/v1/templates/{id}/fields/{fieldId}",
-              "GET /api/v1/templates/{id}/parties",
-              "POST /api/v1/templates/{id}/parties",
-              "PATCH /api/v1/templates/{id}/parties/{partyId}",
-              "DELETE /api/v1/templates/{id}/parties/{partyId}",
-              "POST /api/v1/templates/{id}/tags",
-              "DELETE /api/v1/templates/{id}/tags/{tagId}",
-              "GET /api/v1/templates/{id}/documents"
-            ]
-          },
-          {
-            "group": "Forms",
-            "pages": [
-              "guides/managing-forms",
-              "GET /api/v1/forms",
-              "POST /api/v1/forms",
-              "GET /api/v1/forms/{id}",
-              "PATCH /api/v1/forms/{id}",
-              "DELETE /api/v1/forms/{id}",
-              "POST /api/v1/forms/{id}/publish",
-              "POST /api/v1/forms/{id}/unpublish",
-              "POST /api/v1/forms/{id}/rotate-token",
-              "PUT /api/v1/forms/{id}/respondent",
-              "GET /api/v1/forms/{id}/document",
-              "PATCH /api/v1/forms/{id}/document",
-              "PUT /api/v1/forms/{id}/document/fields",
-              "PUT /api/v1/forms/{id}/document/parties",
-              "GET /api/v1/forms/{id}/submissions",
-              "GET /api/v1/forms/{id}/submissions/{submissionId}"
-            ]
-          },
-          {
-            "group": "Contacts",
-            "pages": [
-              "GET /api/v1/contacts",
-              "POST /api/v1/contacts",
-              "GET /api/v1/contacts/{id}",
-              "GET /api/v1/contacts/search",
-              "PATCH /api/v1/contacts/{id}",
-              "DELETE /api/v1/contacts/{id}"
-            ]
-          },
-          {
-            "group": "Companies",
-            "pages": [
-              "GET /api/v1/companies",
-              "POST /api/v1/companies",
-              "GET /api/v1/companies/{id}",
-              "GET /api/v1/companies/lookup",
-              "GET /api/v1/companies/search"
-            ]
-          },
-          {
-            "group": "Tags",
-            "pages": [
-              "GET /api/v1/tags",
-              "POST /api/v1/tags",
-              "PATCH /api/v1/tags/{id}"
-            ]
-          },
-          {
-            "group": "Document Categories",
-            "pages": [
-              "GET /api/v1/document-categories"
-            ]
-          },
-          {
-            "group": "Custom Fields",
-            "pages": [
-              "GET /api/v1/custom-fields",
-              "POST /api/v1/custom-fields",
-              "GET /api/v1/custom-fields/{id}",
-              "PATCH /api/v1/custom-fields/{id}",
-              "DELETE /api/v1/custom-fields/{id}"
-            ]
-          },
-          {
-            "group": "Webhooks",
-            "pages": [
-              "GET /api/v1/webhooks",
-              "POST /api/v1/webhooks",
-              "GET /api/v1/webhooks/{id}",
-              "PATCH /api/v1/webhooks/{id}",
-              "DELETE /api/v1/webhooks/{id}",
-              "GET /api/v1/webhooks/{id}/deliveries",
-              "GET /api/v1/webhooks/{id}/deliveries/{deliveryId}",
-              "POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry"
-            ]
-          },
-          {
-            "group": "Events",
-            "pages": [
-              "GET /api/v1/events",
-              "GET /api/v1/events/{id}",
-              "POST /api/v1/events/{id}/replay"
-            ]
-          },
-          {
-            "group": "sajn ID",
-            "pages": [
-              "GET /api/v1/sajn-id",
-              "POST /api/v1/sajn-id",
-              "GET /api/v1/sajn-id/{id}"
-            ]
-          },
-          {
-            "group": "Organization",
-            "pages": [
-              "GET /api/v1/organization",
-              "GET /api/v1/limits"
-            ]
-          },
-          {
-            "group": "Helpers",
-            "pages": [
-              "GET /api/v1/helpers/countries",
-              "GET /api/v1/helpers/currencies",
-              "GET /api/v1/helpers/languages",
-              "GET /api/v1/helpers/timezones",
-              "GET /api/v1/helpers/signature-methods",
-              "GET /api/v1/helpers/two-step-verifications"
+            "dropdown": "2026-09",
+            "description": "Deprecated",
+            "icon": "box-archive",
+            "color": {
+              "light": "#6B7280",
+              "dark": "#9CA3AF"
+            },
+            "openapi": {
+              "source": "api/openapi-2026-09.json",
+              "directory": "api-reference/2026-09"
+            },
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "api-reference/version-2026-09"
+                ]
+              },
+              {
+                "group": "Login",
+                "pages": [
+                  "api/openapi-2026-09.json POST /api/v1/login/sessions",
+                  "api/openapi-2026-09.json GET /api/v1/login/sessions/{id}"
+                ]
+              },
+              {
+                "group": "System",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/health"
+                ]
+              },
+              {
+                "group": "Account",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/me"
+                ]
+              },
+              {
+                "group": "Workspaces",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/workspaces",
+                  "api/openapi-2026-09.json GET /api/v1/workspace-permissions"
+                ]
+              },
+              {
+                "group": "Members",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/members",
+                  "api/openapi-2026-09.json POST /api/v1/members",
+                  "api/openapi-2026-09.json GET /api/v1/members/{userId}",
+                  "api/openapi-2026-09.json PATCH /api/v1/members/{userId}",
+                  "api/openapi-2026-09.json DELETE /api/v1/members/{userId}",
+                  "api/openapi-2026-09.json GET /api/v1/member-invites",
+                  "api/openapi-2026-09.json POST /api/v1/member-invites/{id}/resend",
+                  "api/openapi-2026-09.json DELETE /api/v1/member-invites/{id}"
+                ]
+              },
+              {
+                "group": "Workspace Roles",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/workspace-roles",
+                  "api/openapi-2026-09.json POST /api/v1/workspace-roles",
+                  "api/openapi-2026-09.json GET /api/v1/workspace-roles/{id}",
+                  "api/openapi-2026-09.json PATCH /api/v1/workspace-roles/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/workspace-roles/{id}"
+                ]
+              },
+              {
+                "group": "Documents",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/documents",
+                  "api/openapi-2026-09.json POST /api/v1/documents",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}",
+                  "api/openapi-2026-09.json PATCH /api/v1/documents/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/documents/{id}",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/download",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/download/{fileType}",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/activity",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/send",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/withdraw",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/extend-expiration",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/delegations",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/reminders",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/reminders",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/signatures",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/links",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/links",
+                  "api/openapi-2026-09.json DELETE /api/v1/documents/{id}/links/{linkId}",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/purge"
+                ]
+              },
+              {
+                "group": "Document Parties",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/parties",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/parties",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/parties/{partyId}",
+                  "api/openapi-2026-09.json PATCH /api/v1/documents/{id}/parties/{partyId}",
+                  "api/openapi-2026-09.json DELETE /api/v1/documents/{id}/parties/{partyId}",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/parties/{partyId}/remind"
+                ]
+              },
+              {
+                "group": "Document Comments",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/comments",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/comments",
+                  "api/openapi-2026-09.json PATCH /api/v1/documents/{id}/comments/{threadId}",
+                  "api/openapi-2026-09.json DELETE /api/v1/documents/{id}/comments/{threadId}",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/comments/{threadId}/messages"
+                ]
+              },
+              {
+                "group": "Document Chat",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/chat",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/chat"
+                ]
+              },
+              {
+                "group": "Files",
+                "pages": [
+                  "api/openapi-2026-09.json POST /api/v1/files",
+                  "api/openapi-2026-09.json POST /api/v1/files/{id}/confirm",
+                  "api/openapi-2026-09.json GET /api/v1/files",
+                  "api/openapi-2026-09.json GET /api/v1/files/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/files/{id}"
+                ]
+              },
+              {
+                "group": "Folders",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/folders",
+                  "api/openapi-2026-09.json POST /api/v1/folders",
+                  "api/openapi-2026-09.json GET /api/v1/folders/{id}",
+                  "api/openapi-2026-09.json PATCH /api/v1/folders/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/folders/{id}"
+                ]
+              },
+              {
+                "group": "Blocks",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/blocks",
+                  "api/openapi-2026-09.json GET /api/v1/blocks/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/blocks/{id}"
+                ]
+              },
+              {
+                "group": "Document Signers",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/signers",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/signers",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/signers/{signerId}",
+                  "api/openapi-2026-09.json PATCH /api/v1/documents/{id}/signers/{signerId}",
+                  "api/openapi-2026-09.json DELETE /api/v1/documents/{id}/signers/{signerId}",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/signers/{signerId}/remind"
+                ]
+              },
+              {
+                "group": "Document Approval",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/approvers",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/approval",
+                  "api/openapi-2026-09.json DELETE /api/v1/documents/{id}/approval",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/approval/approve",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/approval/reject"
+                ]
+              },
+              {
+                "group": "Document Fields",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/fields",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/fields/{fieldId}",
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/fields",
+                  "api/openapi-2026-09.json PATCH /api/v1/documents/{id}/fields",
+                  "api/openapi-2026-09.json PATCH /api/v1/documents/{id}/fields/{fieldId}",
+                  "api/openapi-2026-09.json PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields",
+                  "api/openapi-2026-09.json DELETE /api/v1/documents/{id}/fields/{fieldId}",
+                  "api/openapi-2026-09.json GET /api/v1/documents/{id}/field-values",
+                  "api/openapi-2026-09.json PATCH /api/v1/documents/{id}/field-values"
+                ]
+              },
+              {
+                "group": "Document Tags",
+                "pages": [
+                  "api/openapi-2026-09.json POST /api/v1/documents/{id}/tags",
+                  "api/openapi-2026-09.json DELETE /api/v1/documents/{id}/tags/{tagId}"
+                ]
+              },
+              {
+                "group": "Templates",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/templates",
+                  "api/openapi-2026-09.json POST /api/v1/templates",
+                  "api/openapi-2026-09.json GET /api/v1/templates/{id}",
+                  "api/openapi-2026-09.json PATCH /api/v1/templates/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/templates/{id}",
+                  "api/openapi-2026-09.json POST /api/v1/templates/{id}/duplicate",
+                  "api/openapi-2026-09.json GET /api/v1/templates/{id}/fields",
+                  "api/openapi-2026-09.json GET /api/v1/templates/{id}/fields/{fieldId}",
+                  "api/openapi-2026-09.json POST /api/v1/templates/{id}/fields",
+                  "api/openapi-2026-09.json PATCH /api/v1/templates/{id}/fields/{fieldId}",
+                  "api/openapi-2026-09.json PATCH /api/v1/templates/{id}/fields/{fieldId}/placed-fields",
+                  "api/openapi-2026-09.json DELETE /api/v1/templates/{id}/fields/{fieldId}",
+                  "api/openapi-2026-09.json GET /api/v1/templates/{id}/parties",
+                  "api/openapi-2026-09.json POST /api/v1/templates/{id}/parties",
+                  "api/openapi-2026-09.json PATCH /api/v1/templates/{id}/parties/{partyId}",
+                  "api/openapi-2026-09.json DELETE /api/v1/templates/{id}/parties/{partyId}",
+                  "api/openapi-2026-09.json POST /api/v1/templates/{id}/tags",
+                  "api/openapi-2026-09.json DELETE /api/v1/templates/{id}/tags/{tagId}",
+                  "api/openapi-2026-09.json GET /api/v1/templates/{id}/documents"
+                ]
+              },
+              {
+                "group": "Forms",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/forms",
+                  "api/openapi-2026-09.json POST /api/v1/forms",
+                  "api/openapi-2026-09.json GET /api/v1/forms/{id}",
+                  "api/openapi-2026-09.json PATCH /api/v1/forms/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/forms/{id}",
+                  "api/openapi-2026-09.json POST /api/v1/forms/{id}/publish",
+                  "api/openapi-2026-09.json POST /api/v1/forms/{id}/unpublish",
+                  "api/openapi-2026-09.json POST /api/v1/forms/{id}/rotate-token",
+                  "api/openapi-2026-09.json PUT /api/v1/forms/{id}/respondent",
+                  "api/openapi-2026-09.json GET /api/v1/forms/{id}/document",
+                  "api/openapi-2026-09.json PATCH /api/v1/forms/{id}/document",
+                  "api/openapi-2026-09.json PUT /api/v1/forms/{id}/document/fields",
+                  "api/openapi-2026-09.json PUT /api/v1/forms/{id}/document/parties",
+                  "api/openapi-2026-09.json GET /api/v1/forms/{id}/submissions",
+                  "api/openapi-2026-09.json GET /api/v1/forms/{id}/submissions/{submissionId}"
+                ]
+              },
+              {
+                "group": "Contacts",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/contacts",
+                  "api/openapi-2026-09.json POST /api/v1/contacts",
+                  "api/openapi-2026-09.json GET /api/v1/contacts/{id}",
+                  "api/openapi-2026-09.json GET /api/v1/contacts/search",
+                  "api/openapi-2026-09.json PATCH /api/v1/contacts/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/contacts/{id}"
+                ]
+              },
+              {
+                "group": "Companies",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/companies",
+                  "api/openapi-2026-09.json POST /api/v1/companies",
+                  "api/openapi-2026-09.json GET /api/v1/companies/{id}",
+                  "api/openapi-2026-09.json GET /api/v1/companies/lookup",
+                  "api/openapi-2026-09.json GET /api/v1/companies/search"
+                ]
+              },
+              {
+                "group": "Tags",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/tags",
+                  "api/openapi-2026-09.json POST /api/v1/tags",
+                  "api/openapi-2026-09.json PATCH /api/v1/tags/{id}"
+                ]
+              },
+              {
+                "group": "Document Categories",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/document-categories"
+                ]
+              },
+              {
+                "group": "Custom Fields",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/custom-fields",
+                  "api/openapi-2026-09.json POST /api/v1/custom-fields",
+                  "api/openapi-2026-09.json GET /api/v1/custom-fields/{id}",
+                  "api/openapi-2026-09.json PATCH /api/v1/custom-fields/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/custom-fields/{id}"
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/webhooks",
+                  "api/openapi-2026-09.json POST /api/v1/webhooks",
+                  "api/openapi-2026-09.json GET /api/v1/webhooks/{id}",
+                  "api/openapi-2026-09.json PATCH /api/v1/webhooks/{id}",
+                  "api/openapi-2026-09.json DELETE /api/v1/webhooks/{id}",
+                  "api/openapi-2026-09.json GET /api/v1/webhooks/{id}/deliveries",
+                  "api/openapi-2026-09.json GET /api/v1/webhooks/{id}/deliveries/{deliveryId}",
+                  "api/openapi-2026-09.json POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry"
+                ]
+              },
+              {
+                "group": "Events",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/events",
+                  "api/openapi-2026-09.json GET /api/v1/events/{id}",
+                  "api/openapi-2026-09.json POST /api/v1/events/{id}/replay"
+                ]
+              },
+              {
+                "group": "sajn ID",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/sajn-id",
+                  "api/openapi-2026-09.json POST /api/v1/sajn-id",
+                  "api/openapi-2026-09.json GET /api/v1/sajn-id/{id}"
+                ]
+              },
+              {
+                "group": "Organization",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/organization",
+                  "api/openapi-2026-09.json GET /api/v1/limits"
+                ]
+              },
+              {
+                "group": "Helpers",
+                "pages": [
+                  "api/openapi-2026-09.json GET /api/v1/helpers/countries",
+                  "api/openapi-2026-09.json GET /api/v1/helpers/currencies",
+                  "api/openapi-2026-09.json GET /api/v1/helpers/languages",
+                  "api/openapi-2026-09.json GET /api/v1/helpers/timezones",
+                  "api/openapi-2026-09.json GET /api/v1/helpers/signature-methods",
+                  "api/openapi-2026-09.json GET /api/v1/helpers/two-step-verifications"
+                ]
+              }
             ]
           }
         ]
@@ -597,7 +1132,7 @@
   "redirects": [
     {
       "source": "/developer-mcp",
-      "destination": "/workspace-mcp"
+      "destination": "/ai/workspace-mcp"
     },
     {
       "source": "/guider/personliga-installningar",
@@ -614,6 +1149,178 @@
     {
       "source": "/guider/anpassade-falt-i-dokument",
       "destination": "/guider/settings-custom-fields"
+    },
+    {
+      "source": "/api/introduction",
+      "destination": "/get-started/introduction"
+    },
+    {
+      "source": "/quickstart",
+      "destination": "/get-started/quickstart"
+    },
+    {
+      "source": "/authentication",
+      "destination": "/get-started/authentication"
+    },
+    {
+      "source": "/choosing-authentication",
+      "destination": "/get-started/choosing-authentication"
+    },
+    {
+      "source": "/sandbox",
+      "destination": "/get-started/sandbox"
+    },
+    {
+      "source": "/postman",
+      "destination": "/get-started/postman"
+    },
+    {
+      "source": "/docs-mcp",
+      "destination": "/ai/docs-mcp"
+    },
+    {
+      "source": "/workspace-mcp",
+      "destination": "/ai/workspace-mcp"
+    },
+    {
+      "source": "/concepts/signers",
+      "destination": "/concepts/parties"
+    },
+    {
+      "source": "/concepts/onboarding-signing-flow",
+      "destination": "/guides/documents/onboarding-signing-flow"
+    },
+    {
+      "source": "/guides/create-document",
+      "destination": "/guides/documents/create-document"
+    },
+    {
+      "source": "/guides/send-for-signing",
+      "destination": "/guides/documents/send-for-signing"
+    },
+    {
+      "source": "/guides/multi-party-signing",
+      "destination": "/guides/documents/multi-party-signing"
+    },
+    {
+      "source": "/guides/reminders-expiration",
+      "destination": "/guides/documents/reminders-expiration"
+    },
+    {
+      "source": "/guides/redirect-url",
+      "destination": "/guides/documents/redirect-url"
+    },
+    {
+      "source": "/guides/downloading-documents",
+      "destination": "/guides/documents/downloading-documents"
+    },
+    {
+      "source": "/guides/file-uploads",
+      "destination": "/guides/documents/file-uploads"
+    },
+    {
+      "source": "/guides/organizing-with-tags",
+      "destination": "/guides/documents/organizing-with-tags"
+    },
+    {
+      "source": "/guides/signer-fields",
+      "destination": "/guides/fields/signer-fields"
+    },
+    {
+      "source": "/guides/pdf-field-placement",
+      "destination": "/guides/fields/pdf-field-placement"
+    },
+    {
+      "source": "/guides/html-fields",
+      "destination": "/guides/fields/html-fields"
+    },
+    {
+      "source": "/guides/formatting-html-content",
+      "destination": "/guides/fields/formatting-html-content"
+    },
+    {
+      "source": "/guides/product-tables",
+      "destination": "/guides/fields/product-tables"
+    },
+    {
+      "source": "/guides/custom-fields",
+      "destination": "/guides/fields/custom-fields"
+    },
+    {
+      "source": "/guides/templates-and-forms",
+      "destination": "/guides/templates/templates-and-forms"
+    },
+    {
+      "source": "/guides/managing-templates",
+      "destination": "/guides/templates/managing-templates"
+    },
+    {
+      "source": "/guides/managing-forms",
+      "destination": "/guides/templates/managing-forms"
+    },
+    {
+      "source": "/guides/managing-contacts",
+      "destination": "/guides/contacts/managing-contacts"
+    },
+    {
+      "source": "/guides/working-with-companies",
+      "destination": "/guides/contacts/working-with-companies"
+    },
+    {
+      "source": "/guides/identity-verification",
+      "destination": "/guides/identity/identity-verification"
+    },
+    {
+      "source": "/guides/embedding",
+      "destination": "/guides/embedding/overview"
+    },
+    {
+      "source": "/guides/embedding-vanilla",
+      "destination": "/guides/embedding/vanilla-js"
+    },
+    {
+      "source": "/guides/embedding-react",
+      "destination": "/guides/embedding/react"
+    },
+    {
+      "source": "/guides/embedding-vue",
+      "destination": "/guides/embedding/vue"
+    },
+    {
+      "source": "/guides/syncing-documents",
+      "destination": "/guides/integrations/syncing-documents"
+    },
+    {
+      "source": "/guides/crm-field-integration",
+      "destination": "/guides/integrations/crm-field-integration"
+    },
+    {
+      "source": "/guides/managing-webhooks",
+      "destination": "/webhooks/manage-endpoints"
+    },
+    {
+      "source": "/guides/migrate-signers-to-parties",
+      "destination": "/upgrading/migrate-signers-to-parties"
+    },
+    {
+      "source": "/api-reference/versioning",
+      "destination": "/api-fundamentals/versioning"
+    },
+    {
+      "source": "/api-reference/errors",
+      "destination": "/api-fundamentals/errors"
+    },
+    {
+      "source": "/api-reference/upgrading-to-2026-10",
+      "destination": "/upgrading/2026-10"
+    },
+    {
+      "source": "/api-reference/changelog",
+      "destination": "/upgrading/changelog"
+    },
+    {
+      "source": "/guides/webhooks",
+      "destination": "/webhooks/overview"
     }
   ],
   "contextual": {
@@ -630,5 +1337,8 @@
     "socials": {
       "github": "https://github.com/sajn"
     }
+  },
+  "fonts": {
+    "family": "Inter"
   }
 }

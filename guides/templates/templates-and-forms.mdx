@@ -1,0 +1,236 @@
+---
+title: "Create documents from templates"
+description: "Create a document from a template, fill in its form fields by key, set its parties, and send it"
+---
+
+In this guide, you create a document from a template, fill in the template's form fields from your own data, put the right people in the template's parties, and send the document.
+
+A template holds the content, the parties, and the settings that every document created from it starts with. The form fields in it have keys, such as `employee-name`, that you set in the sajn editor. Your code fills in values by key, so it keeps working when someone edits the text around the fields.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Create a template in the sajn app with FORM fields that have keys, and with the parties the document needs, such as `Employee`. To find the template's ID, call [List all templates](/api-reference/list-all-templates) with `query` set to part of its name.
+
+## Create, fill in, and send
+
+<Steps>
+  <Step title="Create the document from the template">
+    Send a `POST` request to `/api/v1/documents` with the `templateId`. Leave out `parties`, so the document keeps the template's parties and the signature boxes placed for them:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST https://app.sajn.se/api/v1/documents \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Employment contract - Alex Andersson",
+        "templateId": "TEMPLATE_ID",
+        "externalId": "hr-2026-0142"
+      }'
+    ```
+
+    ```javascript Node.js
+    const api = "https://app.sajn.se/api/v1";
+    const headers = {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      "Sajn-Version": "2026-10",
+      "Content-Type": "application/json",
+    };
+
+    const response = await fetch(`${api}/documents`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        name: "Employment contract - Alex Andersson",
+        templateId: "TEMPLATE_ID",
+        externalId: "hr-2026-0142",
+      }),
+    });
+    const document = await response.json();
+    console.log(document.id, document.parties.map((party) => [party.id, party.name]));
+    ```
+
+    ```python Python
+    import os
+
+    import requests
+
+    API = "https://app.sajn.se/api/v1"
+    HEADERS = {
+        "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+        "Sajn-Version": "2026-10",
+    }
+
+    response = requests.post(f"{API}/documents", headers=HEADERS, json={
+        "name": "Employment contract - Alex Andersson",
+        "templateId": "TEMPLATE_ID",
+        "externalId": "hr-2026-0142",
+    })
+    response.raise_for_status()
+    document = response.json()
+    print(document["id"], [(party["id"], party["name"]) for party in document["parties"]])
+    ```
+
+    </CodeGroup>
+
+    Replace `TEMPLATE_ID` with the template's ID. The response is the document, with a copy of each template party in `parties`. The document also gets the template's settings, such as the signing order and the reminders.
+
+    If you send `parties` in this request, they replace the template's parties, and signature and initials boxes placed on a PDF for the template's parties are removed. Use that only for templates without placed boxes.
+  </Step>
+
+  <Step title="Find the keys">
+    List the values you can fill in:
+
+    ```bash
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/field-values \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Replace `DOCUMENT_ID` with the document `id`. Each value has a `key`, a `label`, a `type`, and `filledBy`. You can write values where `filledBy` is `sender`. A party fills in the values where `filledBy` is `signer`:
+
+    ```json
+    {
+      "values": [
+        {
+          "key": "employee-name",
+          "label": "Name",
+          "kind": "form",
+          "fieldId": "cm4k2xd5s0005abcd7890uvwx",
+          "type": "INPUT",
+          "required": true,
+          "value": null,
+          "filledBy": "sender",
+          "partyId": null
+        },
+        {
+          "key": "department",
+          "label": "Department",
+          "kind": "form",
+          "fieldId": "cm4k2xd5s0005abcd7890uvwx",
+          "type": "SELECT",
+          "required": false,
+          "options": ["HR", "Sales", "Engineering"],
+          "value": null,
+          "filledBy": "sender",
+          "partyId": null
+        }
+      ]
+    }
+    ```
+
+    The keys are the same for every document from the template, so you can look them up once.
+  </Step>
+
+  <Step title="Fill in the values">
+    Send every value in one `PATCH` request:
+
+    ```bash
+    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/field-values \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "values": [
+          { "key": "employee-name", "value": "Alex Andersson" },
+          { "key": "department", "value": "Engineering" },
+          { "key": "start-date", "value": "2026-11-01" }
+        ]
+      }'
+    ```
+
+    The response reports each key in `results`, lists required values that are still empty in `remaining`, and returns every value in `values`:
+
+    ```json
+    {
+      "success": true,
+      "results": [
+        { "key": "employee-name", "success": true },
+        { "key": "department", "success": true },
+        { "key": "start-date", "success": true }
+      ],
+      "remaining": [],
+      "values": []
+    }
+    ```
+
+    The example leaves out the `values` list. A value fails, and the others are still written, when its key doesn't exist, two fields share the key, a party fills it in, or it doesn't match the type or the `options`. Send at most 100 values per request. A FORM `CHECKBOX` value is a list of the selected options, such as `["Remote", "Parking"]`.
+  </Step>
+
+  <Step title="Put the right people in the parties">
+    Update each copied party with the real person. Send `role` in every party update, because an update without it sets the role to `SIGNER`:
+
+    ```bash
+    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Alex Andersson",
+        "email": "alex@example.com",
+        "role": "SIGNER"
+      }'
+    ```
+
+    Replace `PARTY_ID` with the `id` of the copied party, such as the one named `Employee`. To add a party the template doesn't have, send a `POST` request to `/api/v1/documents/DOCUMENT_ID/parties` with a `contactId`.
+  </Step>
+
+  <Step title="Send the document">
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/send \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+    ```
+
+    The response is the document with the status `PENDING`. For the response codes and the invitation message, see [Send a document for signing](/guides/documents/send-for-signing).
+  </Step>
+</Steps>
+
+## Fill in FORM subfields with other properties
+
+The `field-values` endpoint writes values only. To change other properties of FORM subfields, such as the `label` or the party who fills one in, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields` with an `updates` array of up to 50 subfields:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "updates": [
+      { "key": "start-date", "fieldMeta": { "type": "datepicker", "label": "First working day" } }
+    ]
+  }'
+```
+
+sajn merges each `fieldMeta` into the subfield and keeps the other properties. Don't send several single-key requests (`PATCH .../fields/key:KEY`) at the same time for subfields of one form: they overwrite each other.
+
+## Handle errors
+
+- `results[].success: false` from `field-values`: read `error`. The other values are written.
+- `400` from `field-values`: another edit changed one of the fields while the request ran, and nothing was written. Send the request again.
+- `400 INVALID_STATE`: the document isn't a `DRAFT`. You can fill in values only before sending.
+- `404 NOT_FOUND`: the template or the document doesn't exist in the workspace that the API key belongs to.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Bulk-create from a template" icon="layer-group" href="/guides/recipes/bulk-from-template">
+    Create one document per row of your data.
+  </Card>
+  <Card title="Manage templates" icon="file-lines" href="/guides/templates/managing-templates">
+    Create and change templates through the API.
+  </Card>
+  <Card title="Fields that parties fill in" icon="pen-field" href="/guides/fields/signer-fields">
+    Leave inputs for the party to complete.
+  </Card>
+  <Card title="Fill in values on a document" icon="code" href="/api-reference/fill-in-values-on-a-document">
+    See the endpoint in the API reference.
+  </Card>
+</CardGroup>

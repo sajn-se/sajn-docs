@@ -1,0 +1,134 @@
+---
+title: "Webhooks"
+description: "Get an HTTPS request from sajn when a document is signed, a contact changes, or an identity check completes"
+---
+
+A webhook sends an HTTPS `POST` request to your server when something happens in a sajn workspace. Use webhooks instead of polling to do things like the following:
+
+- Download the signed PDF as soon as a document is completed.
+- Keep the status of an agreement in your CRM or ERP in step with sajn.
+- Start your own onboarding flow when a party signs, or follow up with a party whose invitation bounced.
+- Feed security events, such as downloads and role changes, into a SIEM.
+
+Webhooks belong to a workspace. An endpoint receives the events of the workspace it was created in, and you manage it with that workspace's API key or in its settings. Webhooks are part of API access, which requires the Team plan or higher; a [sandbox](/get-started/sandbox) organization always has it.
+
+## Set up an endpoint
+
+<Steps>
+  <Step title="Expose an HTTPS endpoint">
+    Add a route to your server that accepts a `POST` request with a JSON body and returns a `2xx` status code. sajn delivers only to public HTTPS URLs. To receive deliveries on your own machine, see [Test webhooks locally](/webhooks/testing).
+  </Step>
+  <Step title="Create the webhook">
+    Choose the events you want and point them at your URL.
+
+    <Tabs>
+      <Tab title="Dashboard">
+        1. In the [dashboard](https://app.sajn.se), go to **Inställningar > Utvecklare > Webhooks**.
+        2. Click **Skapa webhook** (Create webhook).
+        3. In **Webhook URL**, enter your endpoint's URL.
+        4. In **Händelser** (Events), select the events to subscribe to.
+        5. Click **Skapa webhook**.
+      </Tab>
+      <Tab title="API">
+        Send a request to [`POST /api/v1/webhooks`](/api-reference/create-a-new-webhook):
+
+        ```bash
+        curl -X POST https://app.sajn.se/api/v1/webhooks \
+          -H "Authorization: Bearer API_KEY" \
+          -H "Sajn-Version: 2026-10" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "webhookUrl": "https://example.com/webhooks/sajn",
+            "eventTriggers": ["DOCUMENT_COMPLETED", "DOCUMENT_REJECTED"]
+          }'
+        ```
+
+        Replace `API_KEY` with an API key for the workspace.
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Store the signing secret">
+    The API response contains `secret`, the key that sajn signs every delivery with. sajn returns it only in this response, so store it now, for example as the `SAJN_WEBHOOK_SECRET` environment variable. To replace it later, see [Rotate the signing secret](/webhooks/manage-endpoints#rotate-the-signing-secret).
+  </Step>
+  <Step title="Verify each delivery">
+    Check the `X-Sajn-Signature` header against the raw request body before you trust a delivery. [Verify webhook signatures](/webhooks/verify-signatures) has working code for Node.js, Python, PHP, Go, Ruby, and C#.
+  </Step>
+  <Step title="Trigger an event">
+    Send a document and sign it, or [replay a past event](/webhooks/replay-and-reconcile#replay-an-event). Each attempt appears with its status code and response body in **Inställningar > Utvecklare > Loggar**, and through [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries).
+  </Step>
+</Steps>
+
+## Delivery request
+
+Every delivery is a `POST` request whose JSON body is an envelope around the event data:
+
+```json
+{
+  "id": "cm4k2x9p10001abcd1234efgh",
+  "event": "DOCUMENT_COMPLETED",
+  "createdAt": "2026-10-01T09:30:00.000Z",
+  "apiVersion": "2026-10",
+  "payload": {
+    "id": "cm4k2x9p10002abcd1234efgh",
+    "name": "Employment agreement",
+    "status": "COMPLETED"
+  }
+}
+```
+
+The `payload` in this example is shortened. The envelope has the following fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | The event ID. It's the same on every retry and replay, and on every endpoint that receives the event. To read the event later, pass it to [`GET /api/v1/events/{id}`](/api-reference/get-an-event). |
+| `event` | string | The event type, such as `DOCUMENT_COMPLETED`. For every type, see [Webhook events](/webhooks/events). |
+| `createdAt` | string (ISO 8601) | When the event happened, not when sajn sent this attempt. It doesn't change across retries and replays. |
+| `apiVersion` | string | The API version that the endpoint is pinned to. It sets the shape of `payload`. For more information, see [Webhook versions](/api-fundamentals/versioning#webhook-versions). |
+| `payload` | object | The event data. Its shape depends on `event`; see [Webhook payloads](/webhooks/payloads). |
+
+### Headers
+
+Each delivery carries the following headers:
+
+| Header | Description |
+|--------|-------------|
+| `Content-Type` | `application/json`. |
+| `X-Sajn-Signature` | `t=<unix seconds>,v1=<hex HMAC-SHA256>`, a signature over the timestamp and the raw body. For how to check it, see [Verify webhook signatures](/webhooks/verify-signatures). Only a legacy webhook that has no secret lacks this header. |
+| `X-Sajn-Delivery` | The delivery ID: one event to one endpoint. It stays the same across the retries of that delivery. A replay of the event gets a new one. |
+| `Sajn-Version` | The endpoint's API version, the same value as `apiVersion` in the body. |
+| `X-Sajn-Environment` | `sandbox` for deliveries from a sandbox organization, `production` for everything else. Use it when both environments post to the same URL. |
+
+<Note>
+  An endpoint on API version `2026-09` receives `{ event, payload, createdAt, webhookEndpoint, apiVersion }`. It has no `id`, `createdAt` is the time of the attempt, and `webhookEndpoint` is the endpoint URL. It also receives the signing secret in plain text in an `X-Sajn-Secret` header, which `2026-10` endpoints don't get. Verify with `X-Sajn-Signature` on both versions. For every difference, see [Upgrading to 2026-10](/upgrading/2026-10).
+</Note>
+
+## How delivery behaves
+
+Build your endpoint around four rules.
+
+**Respond fast.** Return a `2xx` status code within 30 seconds, then do the work. sajn treats a slower response as a failed attempt. We recommend that you put the event on a queue and process it from there.
+
+**Expect duplicates.** Delivery is at least once. A retry after a timeout, a replay, and a delivery to a second endpoint all carry the same `id`, so store the IDs that you've processed and skip the ones you've seen. `X-Sajn-Delivery` identifies one endpoint's delivery of an event, so use it to group the attempts of one delivery in your own logs.
+
+**Don't rely on order.** Each delivery is independent, and a retried delivery can arrive after a later event. For example, a `DOCUMENT_PARTY_SIGNED` event can arrive after the `DOCUMENT_COMPLETED` event for the same document. Compare `createdAt` values, or fetch the current state from the API, before you overwrite newer data with older data.
+
+**Ignore fields you don't know.** sajn adds fields to payloads without a new API version, so your endpoint must accept keys that it doesn't recognize. Most JSON parsers do. Strict ones don't: check `zod` schemas with `.strict()`, Pydantic models with `extra="forbid"`, JSON Schema with `additionalProperties: false`, Go's `DisallowUnknownFields()`, and Jackson, which turns on `FAIL_ON_UNKNOWN_PROPERTIES` by default. sajn never removes or retypes an existing field without a new API version.
+
+sajn retries a failed attempt for about 2.3 hours and pauses an endpoint that keeps failing for 72 hours. For the schedule, see [Delivery and retries](/webhooks/delivery-and-retries). If your endpoint was down for longer, [Replay and reconcile events](/webhooks/replay-and-reconcile) shows how to catch up.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Webhook events" icon="list" href="/webhooks/events">
+    Every event type, when it fires, and the payload it carries.
+  </Card>
+  <Card title="Verify signatures" icon="shield-check" href="/webhooks/verify-signatures">
+    Reject deliveries that didn't come from sajn.
+  </Card>
+  <Card title="Manage endpoints" icon="gear" href="/webhooks/manage-endpoints">
+    Create, update, pause, and delete webhooks.
+  </Card>
+  <Card title="Test webhooks locally" icon="flask" href="/webhooks/testing">
+    Receive real deliveries on your own machine.
+  </Card>
+</CardGroup>

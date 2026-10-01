@@ -1,0 +1,152 @@
+---
+title: "Authentication"
+description: "Create an API key, send it with every request, and keep it safe"
+---
+
+The sajn API authenticates every request with a bearer token in the `Authorization` header. For a server that works with your own sajn workspace, that token is an **API key**, which this page covers.
+
+If you build software that other sajn customers connect to their own accounts, use [OAuth 2.0](/api-fundamentals/oauth) instead. If you're not sure which applies to you, see [Choosing an authentication method](/get-started/choosing-authentication).
+
+## Create an API key
+
+To create a key, you need the **Hantera API-nycklar** permission in the workspace, and the organization needs API access. API access is included from the Team plan, and in every [sandbox](/get-started/sandbox).
+
+1. In the sajn app, open the workspace that the integration works in.
+1. Go to **Inställningar > Utvecklare > API-nycklar**. **Utvecklare** is in the workspace settings.
+1. Click **Skapa API-nyckel**.
+1. Enter a name that says what uses the key, such as `crm-sync-production`.
+1. In **Utgår**, choose when the key expires: after 30 days, 90 days, 1 year, or never.
+1. Click **Skapa nyckel**, and copy the key. sajn shows the full key only once.
+
+sajn emails every workspace member who can manage API keys when a key is created.
+
+### Key prefixes
+
+The prefix tells you which kind of organization a key belongs to:
+
+| Prefix | Environment | Example |
+|--------|-------------|---------|
+| `sajn_sk_` | Production | `sajn_sk_` followed by 64 random characters |
+| `sajn_dev_` | [Sandbox](/get-started/sandbox) | `sajn_dev_` followed by 64 random characters |
+
+Both kinds use the same base URL. The key decides which environment the request reaches.
+
+## Send the key
+
+Send the key as a bearer token in the `Authorization` header, together with the API version:
+
+<CodeGroup>
+
+```bash curl
+curl https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+```javascript Node.js
+const response = await fetch("https://app.sajn.se/api/v1/documents", {
+  headers: {
+    Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+    "Sajn-Version": "2026-10",
+  },
+});
+const { documents } = await response.json();
+```
+
+```python Python
+import os
+import requests
+
+response = requests.get(
+    "https://app.sajn.se/api/v1/documents",
+    headers={
+        "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+        "Sajn-Version": "2026-10",
+    },
+)
+documents = response.json()["documents"]
+```
+
+</CodeGroup>
+
+These samples read the key from the `SAJN_API_KEY` environment variable.
+
+## What a key can do
+
+A key is bound to the workspace you created it in, and acts as the user who created it:
+
+- **One workspace.** Every request works on that workspace's documents, contacts, and templates. You never send a workspace ID. If your organization has several workspaces, create one key per workspace.
+- **The creator's role.** The key can do what the creator's workspace role allows, and nothing more. If the role changes, so does what the key can do. A request that the role doesn't allow fails with the code `PERMISSION_DENIED`.
+- **No scopes.** Unlike an OAuth token, an API key isn't limited to a set of scopes.
+
+If the creator is deactivated, or the organization is suspended, requests with the key fail with the code `ACCOUNT_INACTIVE`. To keep an integration running when people change roles or leave, we recommend creating its keys from an account that exists only for the integration.
+
+To check which user, workspace, and organization a key acts as, call [`GET /me`](/api-reference/get-authenticated-user-+-workspace-context):
+
+```bash
+curl https://app.sajn.se/api/v1/me \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+The response is similar to the following:
+
+```json
+{
+  "userId": "cm4k2x9p00000abcd0000mnop",
+  "email": "integration@example.com",
+  "name": "Example Integration",
+  "workspace": { "id": "cm4k2x9p00003abcd0000qrst", "slug": "k3x9p", "name": "Sales" },
+  "organization": { "id": "cm4k2x9p00004abcd0000uvwx", "name": "Example AB" }
+}
+```
+
+## Rotate a key
+
+To replace a key without downtime, do the following:
+
+1. Create a new key, as described in [Create an API key](#create-an-api-key).
+1. Deploy the new key to your integration.
+1. Confirm in the **Senast använd** column of the API key list that the old key is no longer used.
+1. Delete the old key.
+
+The API key list also lets you regenerate a key. Regenerating replaces the key at once: the old value stops working immediately, and the new key keeps the name and expiration date. The new key acts as the user who regenerated it. Use it when a key has leaked and must stop working now.
+
+## Keep keys safe
+
+<AccordionGroup>
+  <Accordion title="Keep keys out of code">
+    Store keys in environment variables or a secrets manager. Never commit a key to version control, and never send it to a browser or a mobile app.
+  </Accordion>
+  <Accordion title="Use one key per integration and environment">
+    A separate key for each integration and environment limits what a leaked key exposes, and lets you revoke one without breaking the others. Use a sandbox key for development and testing.
+  </Accordion>
+  <Accordion title="Set an expiration date">
+    A key that expires limits how long a leaked key works. Rotate it before it expires.
+  </Accordion>
+  <Accordion title="Review key usage">
+    The API key list shows when each key was last used. Delete keys you no longer use. To see individual requests, use the API logs under **Inställningar > Utvecklare > Loggar**.
+  </Accordion>
+</AccordionGroup>
+
+## Authentication errors
+
+A failed authentication returns an error in the standard shape. Branch on `code`, not on `message`:
+
+```json
+{
+  "code": "UNAUTHORIZED",
+  "message": "API token was not provided",
+  "requestId": "req_V1StGXR8Z5jdHi6BmyT2"
+}
+```
+
+The following codes relate to authentication:
+
+| Status | `code` | Meaning |
+|--------|--------|---------|
+| `401 Unauthorized` | `UNAUTHORIZED` | The key is missing, invalid, expired, or revoked. |
+| `403 Forbidden` | `PERMISSION_DENIED` | The key's user lacks the workspace permission that the operation requires. |
+| `403 Forbidden` | `ACCOUNT_INACTIVE` | The organization, user, or membership behind the key is deactivated or suspended. |
+
+In API version `2026-09`, the error body has no `requestId`, and the `code` values differ. For every error code, see [Errors](/api-fundamentals/errors). For the request limits per organization, see [Rate limits and quotas](/api-fundamentals/rate-limits).

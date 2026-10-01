@@ -5,8 +5,6 @@ description: "Lägg till en inloggningsnyckel eller en autentiseringsapp som sta
 
 Tvåstegsautentisering krävs på alla sajn-konton, och e-postkod är påslagen från början. Vill du ha något snabbare och säkrare lägger du till ett starkare skydd: en **inloggningsnyckel** för lösenordsfri inloggning med biometri eller säkerhetsnyckel, eller en **autentiseringsapp** som ger en engångskod.
 
-Den här guiden visar var ingångarna finns och vad varje val gör. Den genomför inte registreringen åt dig.
-
 ## Innan du börjar
 
 - Du är inloggad på ditt sajn-konto.
@@ -17,7 +15,7 @@ Den här guiden visar var ingångarna finns och vad varje val gör. Den genomfö
 
 <Steps>
   <Step title="Öppna Inställningar → Personuppgifter → Säkerhet">
-    Sidan **Personuppgifter** har tre flikar: **Profil**, **Säkerhet** och **Appar**. Allt som rör inloggningen ligger under [Säkerhet](https://app.sajn.se/~/settings/account/security): *Inloggningsnycklar*, *Tvåstegsautentisering*, *Aktiva sessioner* och betrodda enheter.
+    Sidan **Personuppgifter** har tre flikar: **Profil**, **Säkerhet** och **Appar**. Allt som rör inloggningen ligger under [Säkerhet](https://app.sajn.se/~/settings/account/security): *Inloggningsnycklar*, *Tvåstegsautentisering*, *Aktiva sessioner*, *Betrodda enheter* och *IP-begränsning*.
 
     <Frame>
       <img src="/images/guider/setup-2fa-passkey/02-sakerhet.png" alt="Fliken Säkerhet under Personuppgifter med sektionerna Inloggningsnycklar, Tvåstegsautentisering och Aktiva sessioner" />
@@ -32,8 +30,6 @@ Den här guiden visar var ingångarna finns och vad varje val gör. Den genomfö
   </Step>
   <Step title="Rutan förklarar vad som händer innan webbläsaren tar över">
     Klickar du **Fortsätt** lämnar sajn över till webbläsaren, som frågar var nyckeln ska sparas – i lösenordshanteraren, i nyckelringen eller på en säkerhetsnyckel – och du bekräftar med biometri eller PIN. Därefter får du namnge nyckeln så att du känner igen den senare.
-
-    Den här guiden stannar vid informationen och registrerar ingenting.
 
     <Frame>
       <img src="/images/guider/setup-2fa-passkey/03-inloggningsnyckel.png" alt="Rutan Lägg till inloggningsnyckel med knappen Fortsätt" />
@@ -64,3 +60,14 @@ Den här guiden visar var ingångarna finns och vad varje val gör. Den genomfö
 - **Inloggningsnyckel** är både snabbast och starkast: inget lösenord, ingen kod att skriva av. Registrera gärna en per enhet du använder ofta.
 - **Autentiseringsapp** fungerar överallt och kräver ingen särskild hårdvara, men du får skriva av en kod varje gång.
 - **E-postkod** är utgångsläget och den svagaste varianten, eftersom den bygger på att din e-post är säker.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Hantera ditt personliga konto" icon="user-gear" href="/guider/settings-user">
+    Ändra namn, språk och lösenord under Personuppgifter.
+  </Card>
+  <Card title="Säkerhet för organisationen" icon="shield-check" href="/guider/settings-organization-security">
+    Ställ in säkerhetskrav som gäller alla i organisationen.
+  </Card>
+</CardGroup>

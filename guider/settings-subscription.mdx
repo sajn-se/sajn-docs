@@ -1,9 +1,9 @@
 ---
-title: "Hantera din prenumeration och tillägg"
+title: "Fakturering: abonnemang, fakturor och saldo"
 description: "Se din plan, kostnader och fakturadatum — byt abonnemang, hantera betalmetoder och fyll på saldo"
 ---
 
-På sidan [Ditt abonnemang](https://app.sajn.se/~/settings/organization/subscription) ser du vilken plan organisationen har, vad som ingår, när nästa faktura skickas och var fakturorna ligger. Härifrån byter du också plan, hanterar betalmetoder och fyller på saldot. Den här guiden är en rundtur i sidan – den ändrar inte din plan.
+På sidan [Fakturering](https://app.sajn.se/~/settings/organization/billing) ser du vilken plan organisationen har, vad som ingår, när nästa faktura skickas och var fakturorna ligger. Härifrån byter du också plan, hanterar betalmetoder och fyller på saldot.
 
 ## Innan du börjar
 
@@ -11,10 +11,25 @@ På sidan [Ditt abonnemang](https://app.sajn.se/~/settings/organization/subscrip
 - Sidan är en organisationsinställning – alla arbetsytor i organisationen delar samma abonnemang.
 - Beloppen i bilderna är maskerade.
 
+## Vad som ingår i planerna
+
+Kvoterna gäller per organisation och kalendermånad. Aktuella priser finns på [sajn.se/priser](https://www.sajn.se/priser).
+
+| | Basic | Solo | Team | Enterprise |
+| --- | --- | --- | --- | --- |
+| Användare | 1 | 1 | 3, eller 6, 10 eller 20 som tillval | Enligt avtal |
+| Dokument per månad | 3 | Obegränsat | Obegränsat | Obegränsat |
+| Parter per dokument | 3 | 25 | 25 | 25 |
+| Svenskt BankID per månad | 3 | 25 | 250 | Enligt avtal |
+| Arbetsytor | 1 | 1 | 5 | 50 |
+| API och webhooks | Nej | Nej | Ja | Ja |
+
+BankID-signaturer utöver kvoten dras från saldot, som finns från Solo och uppåt. Testmiljön (sandbox) är gratis på alla planer.
+
 ## Steg för steg
 
 <Steps>
-  <Step title="Öppna Inställningar och välj Ditt abonnemang">
+  <Step title="Öppna Inställningar och välj Fakturering">
     Sidan har fem flikar: **Översikt**, **Användning**, **Fakturor**, **Betalning** och **Saldo**. Vilka som visas beror på din behörighet och på planen – *Saldo* finns till exempel inte på Basic.
 
     Till höger står planen, priset och datum för nästa faktura, och under det vad som ingår i planen: dokument, BankID-signaturer, sajn ID-verifieringar, antal användare och AI-assistent. Knappen **Hantera abonnemang** (eller **Uppgradera** på Basic) leder till planväljaren.
@@ -33,7 +48,7 @@ På sidan [Ditt abonnemang](https://app.sajn.se/~/settings/organization/subscrip
     </Frame>
   </Step>
   <Step title="Fliken Betalning – betalmetoder och faktureringsuppgifter">
-    Överst ligger organisationens betalmetoder och vilken som är förvald. Har ni ingen ännu står det att inga betalmetoder lagts till, med knappen **Lägg till betalningsmetod**.
+    Överst ligger organisationens betalmetoder och vilken som är förvald. Finns ingen ännu står det att inga betalmetoder lagts till, med knappen **Lägg till betalningsmetod**.
 
     Under visas **Faktureringsinformation** – företagsnamn, org.nummer, e-post för faktura, telefon, VAT-nummer, er referens och faktureringsadress. Uppgifterna är skrivskyddade här; du ändrar dem under [Inställningar › Företag](https://app.sajn.se/~/settings/organization/business-details) via länken **Ändra under Företag**.
 
@@ -62,5 +77,16 @@ På sidan [Ditt abonnemang](https://app.sajn.se/~/settings/organization/subscrip
 </Steps>
 
 <Note>
-  Föredrar ni faktura i stället för kort? Länken **Hör av dig** längst ned på planväljaren skickar ett mejl till oss. Fakturaupplägget sköts av sajn, och då visar abonnemangssidan bara en sammanfattning i stället för planväljaren.
+  Föredrar du faktura i stället för kort? Länken **Hör av dig** längst ned på planväljaren skickar ett mejl till oss. Fakturaupplägget sköts av sajn, och då visar abonnemangssidan bara en sammanfattning i stället för planväljaren.
 </Note>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Användning" icon="gauge" href="/guider/settings-usage">
+    Följ förbrukningen per arbetsyta och period.
+  </Card>
+  <Card title="Företagsuppgifter" icon="briefcase" href="/guider/settings-organization-business-details">
+    Fakturaadress och företagsuppgifter.
+  </Card>
+</CardGroup>

@@ -3,7 +3,7 @@ title: "Hantera API-nycklar och utvecklarinställningar"
 description: "Skapa och hantera API-nycklar, webhooks och loggar för integrationer mot sajns REST API"
 ---
 
-På sidan [Utvecklare](https://app.sajn.se/~/settings/workspace/developer) finns allt som behövs för att bygga mot sajns REST API: API-nycklar, webhooks, övervakning och loggar. Den här guiden är en rundtur av flikarna. Den skapar ingen nyckel – API-nycklar är riktiga inloggningsuppgifter och ska bara skapas när du faktiskt behöver en.
+På sidan [Utvecklare](https://app.sajn.se/~/settings/workspace/developer) finns allt som behövs för att bygga mot sajns REST API: API-nycklar, webhooks, övervakning och loggar. Den här guiden går igenom flikarna. Skapa bara en API-nyckel när du behöver en, eftersom nyckeln fungerar som riktiga inloggningsuppgifter.
 
 Sidan hör till **arbetsytan**, inte organisationen. Nycklar och webhooks du skapar här gäller den arbetsyta du står i.
 
@@ -16,7 +16,7 @@ Sidan hör till **arbetsytan**, inte organisationen. Nycklar och webhooks du ska
 
 <Steps>
   <Step title="Öppna Inställningar och sedan Utvecklare">
-    Fliken **Hem** samlar det du behöver för att komma igång: genvägar till dokumentationen, MCP-servern och sajns Postman-samling, adressen till MCP-servern, och arbetsytans **API-gränser**. Gränserna – förfrågningar per minut och per dygn – räknas per organisation, och `X-RateLimit-*`-headrarna i svaren visar aktuell status.
+    Fliken **Hem** samlar det du behöver för att komma igång: genvägar till dokumentationen, MCP-servern och sajns Postman-samling, adressen till MCP-servern, och **API-gränser för din plan**. Gränserna – förfrågningar per minut och per dygn – räknas per organisation, och `X-RateLimit-*`-headrarna i svaren visar aktuell status.
 
     Längst ned kan du prenumerera på **Utvecklarnyheter**, som går till din inloggningsadress.
 
@@ -53,7 +53,7 @@ Sidan hör till **arbetsytan**, inte organisationen. Nycklar och webhooks du ska
   <Step title="Övervakning visar API- och webhook-hälsa">
     Fliken **Övervakning** sammanfattar de senaste 24 eller 72 timmarna: antal **API-förfrågningar**, **API-felfrekvens**, **svarstid p50 och p95**, antal **webhook-leveranser**, **webhook-fel** och **leveranstid p50 och p95**. Under nyckeltalen ligger två diagram – förfrågningar per timme och webhook-leveranstid.
 
-    Statistiken bygger på loggarna och täcker därför samma 72 timmar som de.
+    Statistiken bygger på loggarna.
 
     <Frame>
       <img src="/images/guider/settings-developer-api/09-monitoring.png" alt="Fliken Övervakning med nyckeltal och två diagram" />
@@ -63,15 +63,39 @@ Sidan hör till **arbetsytan**, inte organisationen. Nycklar och webhooks du ska
     Fliken **Loggar** innehåller två tabeller:
 
     - **API-loggar** – varje anrop mot REST-API:t, med tid, metod, sökväg, statuskod, varaktighet och IP-adress. Filtrera på metod eller statuskod, eller sök på sökväg och IP. Klicka på en rad för att se hela anropet.
-    - **Webhook-loggar** – utgående anrop sajn skickat till era endpoints, med webhook, händelse, URL, status och svarskod.
+    - **Webhook-loggar** – utgående anrop sajn skickat till dina endpoints, med webhook, händelse, URL, status och svarskod.
 
-    Båda sparas i **72 timmar** och är det första stället att titta när en integration inte beter sig som väntat.
+    Båda sparas i **7 dagar** och är det första stället att titta när en integration inte beter sig som väntat.
 
     <Frame>
       <img src="/images/guider/settings-developer-api/13-logs.png" alt="Fliken Loggar med API-loggar överst och webhook-loggar under" />
     </Frame>
   </Step>
 </Steps>
+
+## Välj API-version
+
+sajn ändrar ibland formatet på det som API:t och webhooks skickar. Varje sådan ändring får en ny **API-version**, namngiven efter månaden den släpptes, till exempel `2026-10`. Organisationens API-version bestämmer vilket format dina integrationer får, så att en ändring hos sajn inte bryter dem utan förvarning.
+
+Inställningen gäller hela organisationen, inte bara arbetsytan. Rutan **API-version** visas på fliken **Hem** om din roll har behörigheten **Hantera organisationsinställningar**.
+
+1. Öppna [Inställningar → Utvecklare](https://app.sajn.se/~/settings/workspace/developer) och leta upp rutan **API-version**.
+2. Välj en version i menyn. Den nyaste är märkt **Senaste**. En utfasad version är märkt **Utfasas** med datumet då den slutar fungera.
+3. Klicka **Byt version** för att bekräfta.
+
+{/* TODO screenshot: rutan API-version på fliken Hem under Utvecklare, med menyn öppen och tabellen Anrop de senaste 72 timmarna */}
+
+Bytet påverkar så här:
+
+- Anrop som inte anger någon version, och webhooks som skapas efter bytet, använder den nya versionen direkt.
+- Befintliga webhooks behåller sin egen version. Du byter version på en webhook i dess dialog, se [Konfigurera webhooks](/guider/webhooks).
+- Integrationer som själva anger version i sina anrop påverkas inte.
+
+Är organisationens version utfasad visar rutan datumet då den slutar fungera. Byt version före det datumet, tillsammans med den som byggt dina integrationer. Har ingen version valts än visar menyn **Inte vald**, och den senaste versionen väljs vid organisationens första API-anrop.
+
+Tabellen **Anrop de senaste 72 timmarna** visar vilka versioner dina integrationer faktiskt använder: version, hur den valdes (**Header** betyder att integrationen angav versionen själv, **Organisationens standard** att den fick organisationens version), antal anrop och när versionen senast användes. Titta här innan du byter, så ser du om någon integration fortfarande använder en äldre version.
+
+Utvecklare hittar detaljerna i [Versionshantering](/api-reference/versioning).
 
 ## De andra flikarna
 
@@ -84,3 +108,14 @@ Två flikar dyker bara upp när funktionen är påslagen för organisationen: **
 <Warning>
   En API-nyckel ger åtkomst till arbetsytans data. Lägg den aldrig i klientkod, i ett publikt repo eller i en skärmdump. Misstänker du att en nyckel läckt – återkalla den direkt.
 </Warning>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Konfigurera webhooks" icon="webhook" href="/guider/webhooks">
+    Ta emot händelser i ditt eget system när dokument signeras eller slutförs.
+  </Card>
+  <Card title="Automatisera med Zapier och Make" icon="bolt" href="/guider/zapier-och-make">
+    Koppla ihop sajn med andra tjänster utan att skriva kod.
+  </Card>
+</CardGroup>

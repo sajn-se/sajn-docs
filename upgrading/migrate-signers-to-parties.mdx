@@ -1,0 +1,208 @@
+---
+title: "Migrate from signers to parties"
+description: "Move from the signer endpoints and fields, removed in API version 2026-10, to parties"
+---
+
+The API calls every participant on a document a **party**: someone who signs, reviews, or organizes. API version `2026-10` removes the signer endpoints and fields, and renames the remaining signer-named fields to party names. This guide covers the signers-to-parties part of moving to `2026-10`. For every other change, such as the BankID codes, `nationalId`, the error format, and the webhook envelope, see [Upgrading to 2026-10](/upgrading/2026-10).
+
+Migrate in two steps:
+
+1. While you're still on API version `2026-09`, switch to the `/parties` endpoints and the `parties` fields. They work on both versions, so you can deploy this change on its own.
+2. When you switch to `2026-10`, update the response fields that only `2026-10` renames.
+
+<Warning>
+  API version `2026-09` is deprecated and stops working on October 1, 2027. On `2026-10`, the `/signers` endpoints return an HTTP `404 Not Found` status code, and requests that send `signers`, `signerIds`, or the `ACCEPTOR` role are rejected.
+</Warning>
+
+## Switch to parties on 2026-09
+
+Each replacement in the following table works on `2026-09` and `2026-10`:
+
+| Removed in 2026-10 | Replacement |
+|------------|-------------|
+| `GET /api/v1/documents/{id}/signers` | `GET /api/v1/documents/{id}/parties` |
+| `POST /api/v1/documents/{id}/signers` | `POST /api/v1/documents/{id}/parties` |
+| `GET /api/v1/documents/{id}/signers/{signerId}` | `GET /api/v1/documents/{id}/parties/{partyId}` |
+| `PATCH /api/v1/documents/{id}/signers/{signerId}` | `PATCH /api/v1/documents/{id}/parties/{partyId}` |
+| `DELETE /api/v1/documents/{id}/signers/{signerId}` | `DELETE /api/v1/documents/{id}/parties/{partyId}` |
+| `POST /api/v1/documents/{id}/signers/{signerId}/remind` | `POST /api/v1/documents/{id}/reminders` with `partyIds` |
+| `signers` in the `POST /api/v1/documents` request body | `parties` |
+| `signers` in `GET /api/v1/documents/{id}` and document webhook payloads | `parties` |
+| `signerIds` in the `POST /api/v1/documents/{id}/reminders` request body | `partyIds` |
+| The `ACCEPTOR` role | `SIGNER` |
+
+`POST /api/v1/documents/{id}/parties/{partyId}/remind` also exists only on `2026-09`. Send reminders with `POST /api/v1/documents/{id}/reminders` instead.
+
+The request bodies of the party endpoints are the same as those of the signer endpoints, and each party object keeps its `id` field.
+
+### List the parties
+
+Replace the path, and read the list from `parties`:
+
+```bash
+curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-09"
+```
+
+The response wraps the list in `parties` instead of `signers`:
+
+```json
+{ "parties": [ { "id": "cm4k2xa3f0002abcd5678ijkl", "name": "Alex Andersson", "role": "SIGNER" } ] }
+```
+
+### Add a party
+
+The request body is the same as for `POST /api/v1/documents/{id}/signers`:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-09" \
+  -H "Content-Type: application/json" \
+  -d '{ "contactId": "CONTACT_ID", "role": "SIGNER" }'
+```
+
+To add parties when you create a document, send them in `parties` instead of `signers`.
+
+### Send a reminder
+
+Send the party IDs in `partyIds`:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/reminders \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-09" \
+  -H "Content-Type: application/json" \
+  -d '{ "partyIds": ["PARTY_ID"] }'
+```
+
+The response reports each party's outcome in `results` instead of failing the request:
+
+```json
+{
+  "sent": 1,
+  "skipped": 0,
+  "failed": 0,
+  "results": [
+    {
+      "partyId": "cm4k2xa3f0002abcd5678ijkl",
+      "partyEmail": "alex@example.com",
+      "partyName": "Alex Andersson",
+      "status": "SENT",
+      "reason": null
+    }
+  ]
+}
+```
+
+On `2026-09`, the entries in `results` have `signerId`, `signerEmail`, and `signerName` instead.
+
+In these examples, replace the following:
+
+- `API_KEY`: your API key.
+- `DOCUMENT_ID`: the document ID.
+- `CONTACT_ID`: the ID of a contact.
+- `PARTY_ID`: the ID of a party on the document.
+
+The examples send `Sajn-Version: 2026-09`, because this step runs before you switch versions.
+
+## Update the renamed fields on 2026-10
+
+The following fields keep their `2026-09` names until you switch to `2026-10`:
+
+| Where | 2026-09 | 2026-10 |
+|-------|---------|---------|
+| `POST /api/v1/documents` response | `documentId`, and `signerId` on each party | The full document, in the shape of `GET /api/v1/documents/{id}`: `id`, and `id` on each party |
+| `GET /api/v1/documents/{id}/signatures` | `signerId`, `signerName` | `partyId`, `partyName` |
+| `GET /api/v1/documents/{id}/reminders` and the `POST` response `results` | `signerId`, `signerEmail`, `signerName` | `partyId`, `partyEmail`, `partyName` |
+| `GET /api/v1/documents/{id}/delegations` | `originalSignerId`, `delegateSignerId`, `originalSigner`, `delegateSigner` | `originalPartyId`, `delegatePartyId`, `originalParty`, `delegateParty` |
+| Form responses, such as `GET /api/v1/forms/{id}` | `respondentSignerId` | `respondentPartyId` |
+| `PUT /api/v1/forms/{id}/respondent` request body | `signerId` | `partyId` |
+| `GET /api/v1/documents/{id}/field-values` | `signerId` | `partyId` |
+| `fieldMeta`: boxes in `placedFields` and FORM subfields | `signerId` | `partyId` |
+| `fieldMeta` of a PRODUCT_TABLE, and `productTables` on documents and webhooks | `selectionSignerId` | `selectionPartyId` |
+| `DOCUMENT_PARTY_AUTH_FAILED` and `DOCUMENT_PARTY_DELEGATED` webhook payloads | `documentId`, `documentName`, `signerId` | `document` and `party` |
+
+The `fieldMeta` renames apply to every request and response that carries `fieldMeta`, including `upsert` on the placed-fields endpoints and `initialFields` on `POST /api/v1/templates`. On `2026-10`, a request that sends `signerId` or `selectionSignerId` inside `fieldMeta` fails with `400 VALIDATION_FAILED`.
+
+For example, on `2026-10` you read the IDs from the `POST /api/v1/documents` response like this:
+
+```javascript
+const document = await response.json();
+
+const documentId = document.id;
+const partyIds = document.parties.map((party) => party.id);
+```
+
+## Migration checklist
+
+<AccordionGroup>
+  <Accordion title="Update endpoint paths">
+    Replace every `/signers` path segment with `/parties`, and the `{signerId}` path parameter with `{partyId}`. Replace calls to a per-party `remind` endpoint with `POST /api/v1/documents/{id}/reminders`.
+  </Accordion>
+  <Accordion title="Rename request fields">
+    Send `parties` instead of `signers` when you create a document, `partyIds` instead of `signerIds` when you send reminders, and `SIGNER` instead of `ACCEPTOR`.
+  </Accordion>
+  <Accordion title="Rename response fields">
+    Read `parties` instead of `signers`. When you switch to `2026-10`, also read the fields in the [renamed fields table](#update-the-renamed-fields-on-2026-10).
+  </Accordion>
+  <Accordion title="Search for stragglers">
+    Search your codebase for `signers`, `signerId`, `signerIds`, `/signers`, and `ACCEPTOR` to catch every call site, including tests and fixtures.
+  </Accordion>
+</AccordionGroup>
+
+## Migrate with an AI assistant
+
+To have a coding assistant, such as Claude Code, Cursor, or Codex, make the changes, give it the following prompt in your repository. The prompt points the model at the Markdown version of this guide so it has the full mapping:
+
+```text AI migration prompt
+You are migrating a codebase that calls the sajn API from "signers" to
+"parties", for sajn API version 2026-10. The full migration guide is available
+as Markdown here:
+
+  https://docs.sajn.se/upgrading/migrate-signers-to-parties.md
+
+Fetch and follow that guide, then apply these changes across my entire codebase:
+
+1. Replace the path segment "/signers" with "/parties" in every sajn API call,
+   and the path parameter "{signerId}" with "{partyId}".
+2. Replace calls to ".../signers/{signerId}/remind" or ".../parties/{partyId}/remind"
+   with POST /api/v1/documents/{id}/reminders and a body of
+   { "partyIds": [...] }.
+3. Send "parties" instead of "signers" on POST /api/v1/documents, "partyIds"
+   instead of "signerIds" on reminders, and the role "SIGNER" instead of
+   "ACCEPTOR".
+4. Read "parties" instead of "signers" from responses. Keep each party
+   object's "id" field as-is.
+5. Apply every field rename in the guide's "Update the renamed fields on
+   2026-10" table, such as "documentId" -> "id" on the POST /api/v1/documents
+   response and "signerId" -> "partyId" inside fieldMeta.
+6. Send the header "Sajn-Version: 2026-10" on every sajn API request.
+7. Update tests, fixtures, types, and docs/comments to match.
+
+Search for "signers", "signerId", "signerIds", "/signers", and "ACCEPTOR" to
+find every call site. Show me a diff of each change before applying, and flag
+anything ambiguous.
+```
+
+<Tip>
+  To get any page on docs.sajn.se as Markdown, add `.md` to its URL. For more information, see [Build with AI](/ai/overview).
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Upgrading to 2026-10" icon="arrow-up" href="/upgrading/2026-10">
+    See every change in API version 2026-10.
+  </Card>
+  <Card title="Add a party" icon="user-plus" href="/api-reference/add-a-party-to-document">
+    See the party endpoints in the API reference.
+  </Card>
+  <Card title="Multi-party signing" icon="users" href="/guides/documents/multi-party-signing">
+    Configure parallel and sequential signing.
+  </Card>
+  <Card title="Parties" icon="user" href="/concepts/parties">
+    Learn how parties and roles work.
+  </Card>
+</CardGroup>

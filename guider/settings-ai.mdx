@@ -3,7 +3,7 @@ title: "AI-inställningar för din arbetsyta"
 description: "Styr om AI-funktioner är aktiverade, när PDF:er ska analyseras, om parter får chatta med dokumentet och vilka riktlinjer AI:n följer"
 ---
 
-På sidan [AI & Sökning](https://app.sajn.se/~/settings/workspace/ai) styr du hur sajns AI beter sig i en specifik arbetsyta – om den är påslagen, när Bob ska analysera uppladdade PDF:er, om parter får chatta med dokumentet och vilka förslag Bob får lämna. Sidan har tre flikar: *AI*, *Playbook* och *Sökning & indexering*. Den här guiden visar de två första och ändrar ingenting.
+På sidan [AI & Sökning](https://app.sajn.se/~/settings/workspace/ai) styr du hur sajns AI beter sig i en specifik arbetsyta – om den är påslagen, när Bob ska analysera uppladdade PDF:er, om parter får chatta med dokumentet och vilka förslag Bob får lämna. Sidan har tre flikar: *AI*, *Playbook* och *Sökning & indexering*. Den här guiden visar de två första.
 
 ## Innan du börjar
 
@@ -15,9 +15,9 @@ På sidan [AI & Sökning](https://app.sajn.se/~/settings/workspace/ai) styr du h
 
 <Steps>
   <Step title="Öppna Inställningar → AI & Sökning">
-    Rutan högst upp sammanfattar datahanteringen: sajn tränar aldrig modeller på ert innehåll, och chattar sparas hos sajn och kan raderas permanent när som helst. Länken **Läs mer** går till [AI i sajn](/guider/ai), som beskriver exakt vad som skickas och sparas.
+    Rutan högst upp sammanfattar datahanteringen: sajn tränar aldrig modeller på ditt innehåll, och chattar sparas hos sajn och kan raderas permanent när som helst. Länken **Läs mer** går till [AI i sajn](/guider/ai), som beskriver exakt vad som skickas och sparas.
 
-    **Generellt** innehåller huvudvalet *Aktivera AI-funktioner*. Står det **Nej** stängs allt AI-relaterat av i arbetsytan – chattassistenten, dokumentanalysen och AI-genereringen – och resten av sidan får ingen effekt. Det är rätt ställe att börja om ni av integritets- eller policyskäl inte vill ha AI i en viss arbetsyta.
+    **Generellt** innehåller huvudvalet *Aktivera AI-funktioner*. Står det **Nej** stängs allt AI-relaterat av i arbetsytan – chattassistenten, dokumentanalysen och AI-genereringen – och resten av sidan får ingen effekt. Det är rätt ställe att börja om du av integritets- eller policyskäl inte vill ha AI i en viss arbetsyta.
 
     **AI-analys av uppladdade PDF:er** bestämmer när Bob ska tolka en uppladdad PDF. *Alltid* kör analysen direkt och föreslår parter, signeringsinställningar och titel; *Manuellt* kör ingen analys automatiskt utan låter användaren starta den från dokumentet. PDF:er som kommer in via API:t analyseras aldrig automatiskt – inställningen gäller bara uppladdningar från dashboarden.
 
@@ -39,10 +39,10 @@ På sidan [AI & Sökning](https://app.sajn.se/~/settings/workspace/ai) styr du h
       <img src="/images/guider/settings-ai/03-forslag.png" alt="Sektionen Förslag och styrning med taggförslag och påminnelseförslag" />
     </Frame>
   </Step>
-  <Step title="Fliken Playbook – era riktlinjer för AI:n">
-    [Playbooken](https://app.sajn.se/~/settings/workspace/ai/playbook) är det ni alltid kräver, accepterar eller vill få flaggat. Den följs vid granskning och analys av avtal och i chatten med Bob, och ersätter de anpassade instruktioner som tidigare låg på AI-fliken.
+  <Step title="Fliken Playbook – riktlinjer för AI:n">
+    [Playbooken](https://app.sajn.se/~/settings/workspace/ai/playbook) är det organisationen alltid kräver, accepterar eller vill få flaggat. Den följs vid granskning och analys av avtal och i chatten med Bob, och ersätter de anpassade instruktioner som tidigare låg på AI-fliken.
 
-    **Startpaket** är färdiga riktlinjer per avtalstyp – sekretessavtal, konsultavtal, leverantörsavtal, anställningsavtal och SaaS-avtal. Välj vilka dokument paketet ska gälla och klicka **Lägg till**, så kan du sedan ändra det som inte stämmer för er.
+    **Startpaket** är färdiga riktlinjer per avtalstyp – sekretessavtal, konsultavtal, leverantörsavtal, anställningsavtal och SaaS-avtal. Välj vilka dokument paketet ska gälla och klicka **Lägg till**, så kan du sedan ändra det som inte stämmer för dig.
 
     Under **Lägg till riktlinjer** skriver du egna riktlinjer, en per rad. Du kan också klistra in ett helt dokument, så delar Bob upp det i riktlinjer som du godkänner innan de sparas. Förslagen under fältet är exempel du kan klicka in direkt.
 
@@ -51,3 +51,14 @@ På sidan [AI & Sökning](https://app.sajn.se/~/settings/workspace/ai) styr du h
     </Frame>
   </Step>
 </Steps>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Bob, din AI-assistent" icon="sparkles" href="/guider/bob">
+    Använd assistenten.
+  </Card>
+  <Card title="Sökning och indexering" icon="magnifying-glass" href="/guider/settings-search">
+    Styr vilka dokument som indexeras.
+  </Card>
+</CardGroup>

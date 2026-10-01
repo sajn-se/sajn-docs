@@ -1,0 +1,134 @@
+---
+title: "Webhook events"
+description: "Every webhook event that sajn sends, when it fires, and the payload it carries"
+---
+
+Subscribe an endpoint to an event by adding its type to `eventTriggers`. This page lists every event type that sajn sends, grouped by resource. Each event links to its reference page, which has the full payload schema, and each group links to the shared payload on [Webhook payloads](/webhooks/payloads). Every event appears in [`GET /api/v1/events`](/api-reference/list-events) for 30 days, whether or not an endpoint subscribed to it.
+
+sajn collapses deliveries of identical events within 24 hours. For example, if a party opens a document twice and nothing else changed in between, your endpoint can get one delivery while `GET /api/v1/events` lists both events. To count occurrences, use the [events API](/webhooks/replay-and-reconcile) rather than deliveries.
+
+## Choose events
+
+Most integrations need only a few events:
+
+| To | Subscribe to |
+|----|--------------|
+| Store the signed PDF | `DOCUMENT_COMPLETED` |
+| Mirror document status in a CRM | `DOCUMENT_SENT`, `DOCUMENT_COMPLETED`, `DOCUMENT_REJECTED`, `DOCUMENT_EXPIRED`, `DOCUMENT_WITHDRAWN` |
+| Track each party's progress | `DOCUMENT_PARTY_OPENED`, `DOCUMENT_PARTY_SIGNED`, `DOCUMENT_PARTY_REJECTED` |
+| Catch invitations that didn't arrive | `DOCUMENT_PARTY_DELIVERY_FAILED` |
+| Act on a submitted form | `FORM_SUBMITTED` |
+| Feed a SIEM | The `SECURITY_*` events |
+
+`DOCUMENT_SIGNED` fires when every signer has signed, before sajn seals the PDF. Wait for `DOCUMENT_COMPLETED` before you download the signed file.
+
+## Document events
+
+These events fire when a document changes state. Unless the table says otherwise, the payload is the [Document payload](/webhooks/payloads#document-payload).
+
+| Event | Fires when |
+|-------|------------|
+| [`DOCUMENT_CREATED`](/api-reference/webhook-events/document_created) | A document is created, including as a duplicate of another document. |
+| [`DOCUMENT_SENT`](/api-reference/webhook-events/document_sent) | The document is sent to its parties. Sending it again after a withdrawal fires the event again. |
+| [`DOCUMENT_SIGNED`](/api-reference/webhook-events/document_signed) | Every party with the `SIGNER` role has signed. sajn hasn't sealed the PDF yet. |
+| [`DOCUMENT_COMPLETED`](/api-reference/webhook-events/document_completed) | sajn has sealed the signed PDF, or a member completed the document manually. |
+| [`DOCUMENT_REJECTED`](/api-reference/webhook-events/document_rejected) | A party rejects the document. It follows the `DOCUMENT_PARTY_REJECTED` event for that party. |
+| [`DOCUMENT_EXPIRED`](/api-reference/webhook-events/document_expired) | A pending document passes its expiration date. |
+| [`DOCUMENT_WITHDRAWN`](/api-reference/webhook-events/document_withdrawn) | The sender withdraws a sent document. The document returns to `DRAFT`, so `status` in the payload is `DRAFT`. |
+| [`DOCUMENT_MODIFIED`](/api-reference/webhook-events/document_modified) | The content of a sent document is updated in place, before anyone has signed. |
+| [`DOCUMENT_EXPIRATION_EXTENDED`](/api-reference/webhook-events/document_expiration_extended) | A pending or expired document gets a new expiration date. An expired document returns to `PENDING`. The payload is the [Expiration extended payload](/webhooks/payloads#expiration-extended-payload). |
+| [`DOCUMENT_DELETED`](/api-reference/webhook-events/document_deleted) | The document is moved to the trash, by a member or by the workspace's retention policy. |
+| [`DOCUMENT_RESTORED`](/api-reference/webhook-events/document_restored) | The document is restored from the trash. |
+| [`DOCUMENT_ARCHIVED`](/api-reference/webhook-events/document_archived) | The document is archived. |
+| [`DOCUMENT_UNARCHIVED`](/api-reference/webhook-events/document_unarchived) | The document is taken out of the archive. |
+| [`DOCUMENT_ARCHIVE_UPLOADED`](/api-reference/webhook-events/document_archive_uploaded) | An attachment emailed to the workspace inbox becomes a document. The payload is the [Inbox upload payload](/webhooks/payloads#inbox-upload-payload). |
+
+## Party events
+
+These events fire when something happens to one party on a sent document. The payload is the [Document and party payload](/webhooks/payloads#document-and-party-payload), with `party` set to the party that the event is about.
+
+| Event | Fires when |
+|-------|------------|
+| [`DOCUMENT_PARTY_SENT`](/api-reference/webhook-events/document_party_sent) | sajn sends the party their invitation by email or SMS. |
+| [`DOCUMENT_PARTY_DELIVERY_FAILED`](/api-reference/webhook-events/document_party_delivery_failed) | The party's invitation email bounces or their SMS fails. sajn also stops the party's scheduled reminders. |
+| [`DOCUMENT_PARTY_OPENED`](/api-reference/webhook-events/document_party_opened) | The party opens the document. It fires on the first open, and again on later visits while the document is pending. |
+| [`DOCUMENT_PARTY_READ`](/api-reference/webhook-events/document_party_read) | The party has read the document. |
+| [`DOCUMENT_PARTY_SIGNED`](/api-reference/webhook-events/document_party_signed) | The party signs. |
+| [`DOCUMENT_PARTY_REJECTED`](/api-reference/webhook-events/document_party_rejected) | The party rejects the document. |
+| [`DOCUMENT_PARTY_ADDED`](/api-reference/webhook-events/document_party_added) | A party is added to a document that's already sent. |
+| [`DOCUMENT_PARTY_REMOVED`](/api-reference/webhook-events/document_party_removed) | A party is removed from a document that's already sent. `party` describes the party as it was before removal. |
+| [`DOCUMENT_PARTY_DELEGATED`](/api-reference/webhook-events/document_party_delegated) | The party delegates their signature to someone else. The payload is the [Delegation payload](/webhooks/payloads#delegation-payload). |
+| [`DOCUMENT_PARTY_AUTH_FAILED`](/api-reference/webhook-events/document_party_auth_failed) | The party fails a verification step: an SMS or email code, a PIN, BankID, or another eID. The payload is the [Verification failure payload](/webhooks/payloads#verification-failure-payload). |
+| [`DOCUMENT_REMINDER_AUTOMATIC`](/api-reference/webhook-events/document_reminder_automatic) | sajn sends the party a scheduled reminder. |
+| [`DOCUMENT_REMINDER_MANUAL`](/api-reference/webhook-events/document_reminder_manual) | A member sends the party a reminder. |
+
+## Identity check events
+
+These events fire as a [sajn ID](/concepts/sajn-id) identity check moves through its steps. The payload is the [Identity check payload](/webhooks/payloads#identity-check-payload).
+
+| Event | Fires when |
+|-------|------------|
+| [`ID_CREATED`](/api-reference/webhook-events/id_created) | An identity check is created. |
+| [`ID_SENT`](/api-reference/webhook-events/id_sent) | The verification link is sent by email or SMS, including when it's sent again. |
+| [`ID_OPENED`](/api-reference/webhook-events/id_opened) | The person opens the verification link. |
+| [`ID_VERIFIED`](/api-reference/webhook-events/id_verified) | The person verifies their identity with BankID. |
+| [`ID_FAILED`](/api-reference/webhook-events/id_failed) | The verification fails. A check that's sent again can fail again. |
+| [`ID_CANCELED`](/api-reference/webhook-events/id_canceled) | The identity check is canceled. |
+
+## Contact events
+
+These events fire when a contact in the workspace changes. The payload is the [Contact payload](/webhooks/payloads#contact-payload).
+
+| Event | Fires when |
+|-------|------------|
+| [`CONTACT_CREATED`](/api-reference/webhook-events/contact_created) | A contact is created. |
+| [`CONTACT_UPDATED`](/api-reference/webhook-events/contact_updated) | A contact's details change. |
+| [`CONTACT_DELETED`](/api-reference/webhook-events/contact_deleted) | A contact is deleted. The payload describes the contact as it was before deletion. |
+
+## Template events
+
+These events fire when a template changes. Forms don't fire them; a submitted form fires `FORM_SUBMITTED`. The payload is the [Template payload](/webhooks/payloads#template-payload).
+
+| Event | Fires when |
+|-------|------------|
+| [`TEMPLATE_CREATED`](/api-reference/webhook-events/template_created) | A template is created, including as a duplicate of another template. |
+| [`TEMPLATE_UPDATED`](/api-reference/webhook-events/template_updated) | A template's content, settings, style, or lock changes. It fires at most once a minute per template, and the payload adds `changedFields`. Edits in between don't fire their own event, so treat it as a signal to fetch the template again rather than as a full change log. |
+| [`TEMPLATE_DELETED`](/api-reference/webhook-events/template_deleted) | A template is moved to the trash. |
+| [`TEMPLATE_RESTORED`](/api-reference/webhook-events/template_restored) | A template is restored from the trash. |
+
+## Form events
+
+| Event | Fires when |
+|-------|------------|
+| [`FORM_SUBMITTED`](/api-reference/webhook-events/form_submitted) | A respondent submits a public form. It fires once per submission. The payload is the [Form submission payload](/webhooks/payloads#form-submission-payload). |
+
+## Workspace events
+
+| Event | Fires when |
+|-------|------------|
+| [`WORKSPACE_CREATED`](/api-reference/webhook-events/workspace_created) | A workspace is created. The event belongs to the new workspace, so an endpoint in another workspace doesn't receive it. The payload is the [Workspace payload](/webhooks/payloads#workspace-payload). |
+| [`MEMBER_ADDED`](/api-reference/webhook-events/member_added) | A user joins the workspace, by accepting an invitation or by being added by an administrator. The payload is the [Member added payload](/webhooks/payloads#member-added-payload). |
+
+## Security events
+
+These events report security-relevant actions in a workspace, for a SIEM or an audit feed. The payload is a [Security payload](/webhooks/payloads#security-payloads).
+
+| Event | Fires when |
+|-------|------------|
+| [`SECURITY_DOCUMENT_DOWNLOADED`](/api-reference/webhook-events/security_document_downloaded) | Someone downloads a document's original file, signed file, or journal. |
+| [`SECURITY_DOCUMENTS_EXPORTED`](/api-reference/webhook-events/security_documents_exported) | Someone exports documents in bulk, from a selection or a folder. |
+| [`SECURITY_SIGNATURE_IDENTITY_ACCESSED`](/api-reference/webhook-events/security_signature_identity_accessed) | Someone reads the signatures and identity data of a document. |
+| [`SECURITY_WORKSPACE_MEMBER_REMOVED`](/api-reference/webhook-events/security_workspace_member_removed) | A member is removed from the workspace. |
+| [`SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED`](/api-reference/webhook-events/security_workspace_member_role_changed) | A workspace member gets a different role. |
+| [`SECURITY_WORKSPACE_ROLE_UPDATED`](/api-reference/webhook-events/security_workspace_role_updated) | The permissions of a workspace role change, through the dashboard or the API. |
+| [`SECURITY_WORKSPACE_RETENTION_UPDATED`](/api-reference/webhook-events/security_workspace_retention_updated) | The workspace's retention periods change. |
+
+Organization-level actions, such as sign-ins, two-factor changes, and API key changes, have no security event, because webhooks belong to a workspace.
+
+## sajn Login events
+
+[`LOGIN_COMPLETED`](/api-reference/webhook-events/login_completed) and [`LOGIN_FAILED`](/api-reference/webhook-events/login_failed) report the outcome of a [sajn Login](/login/overview) authentication. They use the same delivery, signing, and retries as every other event. For when they fire and their payloads, see [Login webhooks](/login/webhooks).
+
+## Retired event types
+
+`DOCUMENT_OPENED`, `DOCUMENT_RECREATED`, `WORKFLOW_STARTED`, `WORKFLOW_COMPLETED`, and `WORKFLOW_FAILED` never fire, and you can't subscribe to them. In API version `2026-10`, an `event` filter that names one of them returns a `400 Bad Request` status code. To track a party opening a document, use `DOCUMENT_PARTY_OPENED`. To track changes to a sent document, use `DOCUMENT_MODIFIED`.

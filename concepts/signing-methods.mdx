@@ -1,431 +1,137 @@
 ---
-title: Signing Methods
-description: 'Understanding the different electronic signature methods available in sajn'
+title: "Signing methods"
+description: "What each signature method proves about the signer, and which one to choose"
 ---
 
-# Signing Methods
+A party's `requiredSignature` decides how they sign. The methods differ in what they prove: that someone intended to sign, or that a verified person signed. Whichever method you choose, sajn seals the completed PDF with a PAdES seal, so any change to the file after signing is detectable.
 
-sajn supports multiple signing methods to accommodate different use cases, security requirements, and legal needs. Each method offers a different balance between convenience and verification strength.
+## Signature levels
 
-## SES vs AES Signatures
+The eIDAS regulation defines three levels of electronic signature. Each sajn method maps to one of them:
 
-Before choosing a signing method, it's important to understand the two categories of electronic signatures under the eIDAS regulation:
+| Level | What it proves | sajn methods |
+|-------|----------------|--------------|
+| Simple electronic signature (SES) | The signer intended to sign | `CLICK_TO_SIGN`, `DRAWING` |
+| Advanced electronic signature (AES) | A verified person signed, through their national eID | `SE_BANKID`, `DK_MITID`, `DK_MITID_ERHVERV`, `FI_FTN`, `NO_BANKID_BIOMETRIC`, `NO_BANKID_HIGH`, `NL_IDIN` |
+| Qualified electronic signature (QES) | The highest level, equal to a handwritten signature in the EU | `NO_QES` |
 
-| Type | Full Name | Legal Weight | Verification |
-|------|-----------|--------------|--------------|
-| **SES** | Simple Electronic Signature | Legally valid, basic | Intent to sign |
-| **AES** | Advanced Electronic Signature | Higher legal standing | Identity verified |
+For most everyday agreements, a simple signature is enough. Use an eID when you need proof of who signed.
 
-<Tip>
-  For most everyday business documents, SES methods (Drawing, Click-to-Sign) provide sufficient legal validity. Use AES (BankID) for contracts requiring stronger identity verification.
-</Tip>
+## Methods
 
-## Quick Comparison
+| Value | Method | Level | The signer needs |
+|-------|--------|-------|------------------|
+| `CLICK_TO_SIGN` | Click a button and confirm | SES | A browser |
+| `DRAWING` | Draw a signature with a mouse, trackpad, or finger | SES | A browser |
+| `SE_BANKID` | Swedish BankID | AES | Swedish BankID |
+| `DK_MITID` | Danish MitID, personal | AES | MitID |
+| `DK_MITID_ERHVERV` | Danish MitID Erhverv, on behalf of a company | AES | MitID Erhverv |
+| `FI_FTN` | Finnish Trust Network: Finnish bank credentials or Mobile ID | AES | FTN credentials |
+| `NO_BANKID_BIOMETRIC` | Norwegian BankID | AES | Norwegian BankID |
+| `NO_BANKID_HIGH` | Norwegian BankID, high assurance | AES | Norwegian BankID |
+| `NO_QES` | Norwegian BankID, qualified signature | QES | Norwegian BankID |
+| `NL_IDIN` | Dutch iDIN, through the signer's bank | AES | A Dutch bank that supports iDIN |
+| `MANUAL` | Signed on paper, outside sajn | None in sajn | Nothing. Used for documents imported into the archive. |
 
-| Method | Type | Requirements | User Effort | Best For |
-|--------|------|--------------|-------------|----------|
-| **DRAWING** | SES | None | Medium | Personal touch, visual signatures |
-| **CLICK_TO_SIGN** | SES | None | Very Low | High-volume, low-friction signing |
-| **BANKID** | AES | Swedish SSN | Medium | Legal contracts, identity verification |
-| **MANUAL** | N/A | Physical presence | N/A | In-person signing, legacy documents |
+eID schemes are switched on market by market. A `requiredSignature` that your account can't use yet is rejected with the message `This eID scheme is not yet available`.
 
-Beyond Swedish BankID, sajn supports national eIDs across the Nordics and the
-Netherlands — see [European eID](#european-eid) for the full list and their
-wire values.
+## List the available methods
 
----
-
-## Drawing Signature
-
-<CardGroup cols={2}>
-  <div>
-    ![Drawing Signature](https://placehold.co/600x400/2563EB/white?text=Drawing+Signature)
-  </div>
-  <div>
-    The drawing signature allows signers to create a free-hand signature using their mouse, trackpad, or touchscreen. This provides a personal, traditional feel while remaining fully digital.
-  </div>
-</CardGroup>
-
-### How It Works
-
-1. Signer opens the signing link
-2. Reviews the document content
-3. A signature pad appears with the confirmation: "Härmed bekräftar jag följande:" (I hereby confirm the following:)
-4. Signer draws their signature using mouse or touch
-5. Signature is captured and applied to the document
-
-### Requirements
-
-- No special requirements
-- Works on any device with a browser
-- Touch-enabled devices provide the best experience
-
-### Best For
-
-- Employment contracts
-- Sales agreements
-- Documents where a personal signature touch is desired
-- Mobile-friendly signing flows
-
-### API Configuration
-
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "role": "SIGNER",
-  "deliveryMethod": "EMAIL",
-  "requiredSignature": "DRAWING"
-}
-```
-
-<Note>
-  The signature canvas is responsive: 288px width on desktop, 256px on mobile devices.
-</Note>
-
----
-
-## Click-to-Sign
-
-<CardGroup cols={2}>
-  <div>
-    ![Click to Sign](https://placehold.co/600x400/2563EB/white?text=Click+to+Sign)
-  </div>
-  <div>
-    Click-to-Sign is the fastest signing method, requiring only two clicks to complete. Perfect for high-volume documents where speed matters more than a visual signature.
-  </div>
-</CardGroup>
-
-### How It Works
-
-1. Signer opens the signing link
-2. Reviews the document content
-3. Clicks the "Klicka för att signera" (Click to sign) button
-4. A confirmation dialog appears with a 60-second countdown
-5. Signer clicks "Bekräfta signering" (Confirm signing)
-6. Document is signed
-
-### Requirements
-
-- No special requirements
-- Works on any device with a browser
-- Fastest completion time
-
-### Best For
-
-- Terms of service acceptance
-- NDAs and standard agreements
-- Internal approvals
-- High-volume document workflows
-- Mobile-first experiences
-
-### API Configuration
-
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "role": "SIGNER",
-  "deliveryMethod": "EMAIL",
-  "requiredSignature": "CLICK_TO_SIGN"
-}
-```
-
-<Tip>
-  Click-to-Sign creates detailed audit trail entries for both the initiation click and the confirmation, providing clear evidence of intent.
-</Tip>
-
----
-
-## BankID
-
-<CardGroup cols={2}>
-  <div>
-    ![BankID Signing](https://placehold.co/600x400/2563EB/white?text=BankID+Signing)
-  </div>
-  <div>
-    BankID is Sweden's leading electronic identification system, providing cryptographically verified signatures. This is an Advanced Electronic Signature (AES) with the highest legal standing.
-  </div>
-</CardGroup>
-
-### How It Works
-
-**On Desktop:**
-1. Signer opens the signing link
-2. Reviews the document content
-3. A QR code appears on screen
-4. Signer scans the QR code with their phone's BankID app
-5. Confirms the signing in the BankID app
-6. Document is signed with verified identity
-
-**On Mobile:**
-1. Signer opens the signing link
-2. Reviews the document content
-3. Clicks to open BankID app (or scans QR as fallback)
-4. Confirms the signing in the BankID app
-5. Returns to sajn with completed signature
-
-### Signing States
-
-The BankID flow progresses through these states:
-
-| State | Description |
-|-------|-------------|
-| `checking` | Verifying BankID availability |
-| `ready` | QR code displayed, waiting for scan |
-| `waiting` | QR scanned, waiting for user action in app |
-| `authenticating` | User confirming in BankID app |
-| `verifying` | Validating the signature |
-| `complete` | Signature successfully applied |
-
-### Requirements
-
-- Swedish personal number (SSN) - **required**
-- Signer must have BankID installed on their device
-- Active BankID certificate
-
-### Best For
-
-- Real estate transactions
-- Financial agreements
-- Employment contracts requiring identity verification
-- Any document where verified identity is legally important
-- Swedish market documents
-
-### API Configuration
-
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "ssn": "197001011234",
-  "role": "SIGNER",
-  "deliveryMethod": "EMAIL",
-  "requiredSignature": "BANKID"
-}
-```
-
-<Warning>
-  The SSN field is required for BankID signatures. Without a valid Swedish personal number, the signing will fail.
-</Warning>
-
----
-
-## European eID
-
-Signers outside Sweden authenticate with their own national eID. Each scheme is
-an Advanced Electronic Signature (AES) backed by the country's identity
-infrastructure, so it carries the same legal weight as BankID does in Sweden.
-
-| Wire value | Scheme | Country | Notes |
-|---|---|---|---|
-| `DK_MITID` | MitID | 🇩🇰 Denmark | Personal identity — the default for Danish signers |
-| `DK_MITID_ERHVERV` | MitID Erhverv | 🇩🇰 Denmark | **Organization** identity, not personal — for signing on a company's behalf |
-| `FI_FTN` | FTN (Finnish Trust Network) | 🇫🇮 Finland | Finnish bank credentials and Mobile ID |
-| `NO_BANKID_BIOMETRIC` | BankID (Norge) | 🇳🇴 Norway | The default for Norwegian signers |
-| `NO_BANKID_HIGH` | BankID (Norge, høy sikkerhet) | 🇳🇴 Norway | Higher-assurance tier, where it's required |
-| `NO_QES` | BankID QES (Norge) | 🇳🇴 Norway | **Qualified** signature (QES) — the highest eIDAS tier |
-| `NL_IDIN` | iDIN | 🇳🇱 Netherlands | Dutch bank-issued identity |
-
-<Note>
-  Schemes are switched on market by market. Sending a `requiredSignature` that
-  isn't available yet is rejected with `This eID scheme is not yet available`.
-</Note>
-
-### Building a signature-method picker
-
-Don't hard-code the list — as schemes go live, a static list silently goes
-stale. Call **`GET /api/v1/helpers/signature-methods`** instead. It returns
-exactly the values the API will accept right now, with display labels:
+Build a signature-method picker from [`GET /helpers/signature-methods`](/api-reference/list-selectable-signature-methods) instead of a hard-coded list. It returns the methods you can offer, with display labels:
 
 ```json
 {
   "items": [
-    { "code": "BANKID",           "label": "BankID" },
-    { "code": "DK_MITID",         "label": "MitID" },
-    { "code": "DK_MITID_ERHVERV", "label": "MitID Erhverv" },
-    { "code": "FI_FTN",           "label": "FTN (Finnish Trust Network)" },
-    { "code": "NL_IDIN",          "label": "iDIN" },
-    { "code": "DRAWING",          "label": "Drawn signature" },
-    { "code": "CLICK_TO_SIGN",    "label": "Click to sign" },
-    { "code": "MANUAL",           "label": "Manual (in person)" },
-    { "code": "NONE",             "label": "No signature" }
+    { "code": "SE_BANKID", "label": "BankID" },
+    { "code": "DK_MITID", "label": "MitID" },
+    { "code": "DRAWING", "label": "Drawn signature" },
+    { "code": "CLICK_TO_SIGN", "label": "Click to sign" }
   ]
 }
 ```
 
-It needs only `profile:read`, and the list is driven by the same registry that
-gates the write boundary — so anything it returns is accepted, and anything it
-omits is not.
+The list leaves out `MANUAL`, and `NONE`, which a party gets when its role doesn't sign. Both are still accepted on input.
 
-### How It Works
+## Set the method on a party
 
-1. Signer opens the signing link
-2. Reviews the document content
-3. Chooses (or is routed straight to) their national eID
-4. Authenticates with the provider — app, card reader, or bank credentials, depending on the scheme
-5. Returns to sajn with a verified identity and the signature applied
-
-### API Configuration
-
-Set `requiredSignature` to the wire value, exactly as with `BANKID`:
+Set `requiredSignature` on each party when you add or update it. Parties on the same document can use different methods:
 
 ```json
 {
-  "name": "Mette Hansen",
-  "email": "mette@example.dk",
-  "role": "SIGNER",
-  "deliveryMethod": "EMAIL",
-  "requiredSignature": "DK_MITID"
-}
-```
-
-<Warning>
-  `ssn` is Swedish-specific and only applies to `BANKID`. The other schemes
-  collect and verify identity through their own provider — don't send `ssn` with
-  them.
-</Warning>
-
-### A Note on `BANKID` vs `SE_BANKID`
-
-Internally, Swedish BankID is named `SE_BANKID` alongside its sibling schemes.
-The public API keeps **`BANKID`** as a permanent alias: responses always return
-`BANKID`, and both spellings are accepted on input. Existing integrations need
-no change. The same applies to the verification gate:
-`BANKID_BEFORE_SIGNING` ⇄ `SE_BANKID_BEFORE_SIGNING`.
-
----
-
-## Manual Signing
-
-<CardGroup cols={2}>
-  <div>
-    ![Manual Signing](https://placehold.co/600x400/2563EB/white?text=Manual+Signing)
-  </div>
-  <div>
-    Manual signing is used for in-person or physical signatures. The document organizer marks the signature as complete after collecting the physical signature.
-  </div>
-</CardGroup>
-
-### How It Works
-
-1. Document is created with a signer set to manual signing
-2. The physical signing happens outside of sajn
-3. Organizer accesses the document in sajn
-4. Organizer marks the signer as having signed
-5. Document flow continues with remaining signers
-
-### Requirements
-
-- Physical presence of signer
-- Organizer action to confirm signing
-- No digital signature UI shown to signer
-
-### Best For
-
-- In-person meetings or closings
-- Imported legacy documents
-- Situations where digital signing isn't possible
-- Hybrid workflows mixing digital and physical signatures
-
-### API Configuration
-
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "role": "SIGNER",
-  "deliveryMethod": "NONE",
-  "requiredSignature": "MANUAL"
-}
-```
-
-<Note>
-  Manual signing is typically combined with `deliveryMethod: "NONE"` since the signer doesn't need a digital signing link.
-</Note>
-
----
-
-## Choosing the Right Method
-
-<AccordionGroup>
-  <Accordion title="I need the fastest signing experience">
-    Use **CLICK_TO_SIGN**. It requires only two clicks and works on any device without special requirements.
-  </Accordion>
-
-  <Accordion title="I need verified signer identity">
-    Use **BANKID**. It provides cryptographic identity verification and is an Advanced Electronic Signature (AES).
-  </Accordion>
-
-  <Accordion title="I want a personal, visual signature">
-    Use **DRAWING**. Signers can create their own signature, providing a traditional feel.
-  </Accordion>
-
-  <Accordion title="I'm signing in person">
-    Use **MANUAL**. The organizer marks the document as signed after collecting the physical signature.
-  </Accordion>
-
-  <Accordion title="I have international signers">
-    If they're in Denmark, Finland, Norway or the Netherlands, use their national eID — see [European eID](#european-eid). Anywhere else, use **DRAWING** or **CLICK_TO_SIGN**: `BANKID` only works for signers with a Swedish personal number.
-  </Accordion>
-
-  <Accordion title="A company is signing, not a person">
-    In Denmark, use **DK_MITID_ERHVERV** — it verifies organization identity rather than the individual's.
-  </Accordion>
-</AccordionGroup>
-
-## Comparison by Use Case
-
-| Use Case | Recommended Method | Reason |
-|----------|-------------------|--------|
-| Employment contracts | DRAWING or BANKID | Personal touch or verified identity |
-| Terms acceptance | CLICK_TO_SIGN | Minimal friction |
-| Real estate | BANKID | Legal requirement for identity |
-| Nordic / Dutch signers | DK_MITID, FI_FTN, NO_BANKID_BIOMETRIC, NL_IDIN | Verified identity in the signer's own country |
-| Danish company signing | DK_MITID_ERHVERV | Organization identity rather than personal |
-| Other international agreements | DRAWING | No national eID required |
-| Internal approvals | CLICK_TO_SIGN | Speed and convenience |
-| Notarized documents | MANUAL | Requires physical presence |
-
-## Mixing Methods
-
-You can assign different signing methods to different signers on the same document:
-
-```json
-{
-  "signers": [
+  "parties": [
     {
-      "name": "CEO",
-      "email": "ceo@company.com",
-      "ssn": "197001011234",
-      "requiredSignature": "BANKID",
-      "signingOrder": 1
+      "name": "Alex Lindqvist",
+      "email": "alex@example.com",
+      "role": "SIGNER",
+      "signingOrder": 1,
+      "requiredSignature": "SE_BANKID"
     },
     {
-      "name": "Employee",
-      "email": "employee@company.com",
-      "requiredSignature": "DRAWING",
-      "signingOrder": 2
+      "name": "Mette Hansen",
+      "email": "mette@example.com",
+      "role": "SIGNER",
+      "signingOrder": 2,
+      "requiredSignature": "DK_MITID"
     }
   ]
 }
 ```
 
-This allows you to require stronger verification for key signers while keeping the process simple for others.
+If you leave out `requiredSignature`, the party gets your organization's default method.
 
-## Next Steps
+## Check who signed
+
+An eID verifies the signer's identity, but not that it's the person you intended. To check that, set the party's `nationalId`, such as a Swedish personnummer. sajn compares it with the identity the eID returns. Without a `nationalId`, sajn compares names.
+
+To read the identity that each eID verified, call [`GET /documents/{id}/signatures`](/api-reference/get-verified-signer-identities). It needs the `READ_DOCUMENT` permission, and for OAuth tokens, the `signatures:read` scope.
+
+## Verify before signing
+
+A signature method controls how the party signs. To check the party's identity before the document even opens, set `twoStepVerification`, for example to `SE_BANKID_BEFORE_SIGNING` or `SMS_BEFORE_SIGNING`. You can combine the two: a click-to-sign document behind a BankID check gives you a verified identity with a fast signing step. For the values, see [Parties](/concepts/parties#verification-before-opening).
+
+## Choose a method
+
+<AccordionGroup>
+  <Accordion title="The fastest signing">
+    Use `CLICK_TO_SIGN`. It works in any browser, with no app or credentials.
+  </Accordion>
+  <Accordion title="A visible signature on the document">
+    Use `DRAWING`. The signer draws a signature, which appears in the signed PDF.
+  </Accordion>
+  <Accordion title="Proof of who signed, in Sweden">
+    Use `SE_BANKID`, and set the party's `nationalId`.
+  </Accordion>
+  <Accordion title="Proof of who signed, elsewhere in the Nordics or the Netherlands">
+    Use the signer's national eID: `DK_MITID`, `FI_FTN`, `NO_BANKID_BIOMETRIC`, or `NL_IDIN`. For Norwegian agreements that need a qualified signature, use `NO_QES`.
+  </Accordion>
+  <Accordion title="A company signs, in Denmark">
+    Use `DK_MITID_ERHVERV`. It verifies the company's identity, with its registration number.
+  </Accordion>
+  <Accordion title="Signers in other countries">
+    Use `DRAWING` or `CLICK_TO_SIGN`. `SE_BANKID` works only for people with Swedish BankID.
+  </Accordion>
+  <Accordion title="The signer is in the room with you">
+    Set the party's `deliveryMethod` to `IN_APP`. The party signs in person on your device.
+  </Accordion>
+</AccordionGroup>
+
+## Swedish BankID codes
+
+Swedish BankID is `SE_BANKID`, and its verification check is `SE_BANKID_BEFORE_SIGNING`. API version `2026-10` rejects the older codes `BANKID` and `BANKID_BEFORE_SIGNING`. In API version `2026-09`, the API returns `BANKID` and `BANKID_BEFORE_SIGNING`, and accepts both spellings on input.
+
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Send for Signing" icon="paper-plane" href="/guides/send-for-signing">
-    Learn how to send documents for signing
+  <Card title="Set signing methods" icon="pen-nib" href="/guides/identity/signing-methods">
+    Set the method and verification for each party through the API.
   </Card>
-  <Card title="Identity Verification" icon="shield-check" href="/guides/identity-verification">
-    Add extra verification steps
+  <Card title="Identity verification" icon="shield-check" href="/guides/identity/identity-verification">
+    Add a check before the document opens.
   </Card>
-  <Card title="Signers" icon="users" href="/concepts/signers">
-    Learn more about signer configuration
+  <Card title="Parties" icon="users" href="/concepts/parties">
+    Roles, signing order, delivery, and verification.
   </Card>
-  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
-    Get notified when documents are signed
+  <Card title="Signing certificate" icon="badge-check" href="/concepts/signing-certificate">
+    What the signed PDF records about each signature.
   </Card>
 </CardGroup>

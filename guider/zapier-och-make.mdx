@@ -1,0 +1,126 @@
+---
+title: "Automatisera sajn med Zapier och Make"
+description: "Låt sajn prata med dina andra verktyg utan kod: när något händer i sajn gör Zapier eller Make resten"
+---
+
+Med Zapier och Make bygger du automatiska flöden mellan sajn och tusentals andra appar, utan att skriva kod. Ett flöde har en **utlösare**, något som händer, och en eller flera **åtgärder**, det som ska göras då. När ett avtal är signerat kan till exempel en rad läggas till i ditt kalkylark, ett meddelande gå till kollegorna och den signerade PDF:en sparas i en mapp.
+
+Zapier och Make gör samma sak på lite olika sätt. Zapier kallar flödena *Zaps*, Make kallar dem *scenarier*. Välj det verktyg du redan använder. Har du en utvecklare kan hen också bygga direkt mot sajn med [webhooks](/guider/webhooks).
+
+## Exempel på flöden
+
+- **Signerade avtal i ett kalkylark.** När ett dokument är färdigsignerat läggs en rad till i Google Kalkylark med avtalets namn och parter.
+- **Avtal när affären är vunnen.** När en affär markeras som vunnen i ditt CRM skapas ett dokument från en mall i sajn, fälten fylls i och dokumentet skickas för signering.
+- **Arkivera den signerade filen.** När ett dokument är färdigsignerat laddas den signerade PDF:en ner och sparas i din molnlagring.
+- **Varna när någon avböjer.** När en part avböjer går ett meddelande till säljaren i Slack eller Teams.
+
+## Innan du börjar
+
+- Organisationen har Solo eller högre.
+- Du har ett konto hos Zapier eller Make.
+- Ska ett flöde fylla i fält i sajn behöver fälten i mallen en **nyckel**. Se [Lägg till fält i en mall](/guider/add-fields-to-template).
+
+## Anslut Zapier
+
+<Steps>
+  <Step title="Öppna Zapier från Integrationer">
+    Öppna [Integrationer](https://app.sajn.se/~/integrations) i sajn. Under automation och notifieringar klickar du **Öppna** på raden **Zapier**. Länken tar dig till sajns app i Zapier, där du lägger till den i ditt Zapier-konto.
+
+    {/* TODO screenshot: Sidan Integrationer med raden Zapier och knappen Öppna */}
+  </Step>
+
+  <Step title="Skapa en Zap och välj sajn">
+    Skapa en ny Zap i Zapier. Välj **sajn** som app för utlösaren eller åtgärden. Händelserna heter på engelska i Zapier, till exempel **Document Completed**.
+
+    {/* TODO screenshot: Zapier med appen sajn vald och listan över utlösare */}
+  </Step>
+
+  <Step title="Logga in och välj arbetsyta">
+    Första gången ber Zapier dig ansluta ett konto. Ett fönster från sajn öppnas. Logga in, välj arbetsytan under **Välj arbetsyta** och klicka **Godkänn applikation**.
+
+    Kopplingen gäller bara den arbetsyta du valde. Vill du automatisera flera arbetsytor ansluter du en gång per arbetsyta.
+
+    {/* TODO screenshot: Godkännanderutan i sajn med Välj arbetsyta och knappen Godkänn applikation */}
+  </Step>
+
+  <Step title="Testa och slå på Zapen">
+    Bygg klart flödet, testa det i Zapier och slå på det. När en utlösare från sajn är aktiv skickar sajn händelsen till Zapier direkt när den inträffar.
+  </Step>
+</Steps>
+
+## Anslut Make
+
+<Steps>
+  <Step title="Öppna Make från Integrationer">
+    Klicka **Öppna** på raden **Make** under [Integrationer](https://app.sajn.se/~/integrations). Länken tar dig till sajns app i Make.
+
+    {/* TODO screenshot: Sidan Integrationer med raden Make och knappen Öppna */}
+  </Step>
+
+  <Step title="Lägg till en sajn-modul i ett scenario">
+    Skapa ett scenario i Make och lägg till en modul från appen **sajn**. Utlösarna heter till exempel **Watch Document Completed**, åtgärderna till exempel **Create a Document**.
+
+    {/* TODO screenshot: Make med sajn-modulerna listade */}
+  </Step>
+
+  <Step title="Skapa en anslutning">
+    Klicka **Add** vid anslutningen. Ett fönster från sajn öppnas. Logga in, välj arbetsyta och klicka **Godkänn applikation**. Som i Zapier gäller anslutningen en arbetsyta.
+
+    {/* TODO screenshot: Make-modulen med anslutningen till sajn vald */}
+  </Step>
+
+  <Step title="Slå på scenariot">
+    Testa scenariot och slå på det. När en utlösare från sajn är aktiv skickar sajn händelsen direkt. Stänger du av scenariot slutar sajn skicka händelser till det.
+  </Step>
+</Steps>
+
+## Vad du kan göra
+
+Namnen är på engelska, som de står i Zapier och Make.
+
+**Utlösare** (urval):
+
+- **Document Created**, **Document Sent**, **Document Completed**: dokumentet skapades, skickades eller blev färdigsignerat.
+- **Document Signed** och **Signer Signed**: någon har signerat.
+- **Document Declined** och **Signer Declined**: en part har avböjt.
+- **Document Expired** och **Document Withdrawn**: dokumentet gick ut eller återkallades.
+- **Signer Opened**: en part har öppnat dokumentet.
+- **ID Verified**: en ID-kontroll i sajn ID är klar.
+- **Template Created** och **Contact Created**: en ny mall eller kontakt.
+
+Zapier har fler utlösare än Make, till exempel för påminnelser, kontakter och arbetsytor. I Make heter utlösarna **Watch** följt av händelsen.
+
+**Åtgärder och sökningar**:
+
+| I Zapier | I Make | Vad den gör |
+| --- | --- | --- |
+| **Create Document From Template** | **Create a Document** | Skapar ett dokument från en mall. |
+| **Create Document** | **Create a Document** | Skapar ett dokument. |
+| **Fill a Field** | **Fill a Field** | Fyller i ett fält med hjälp av fältets nyckel. |
+| **Add Signer** | **Add a Signer** | Lägger till en part. |
+| **Send Document** | **Send a Document** | Skickar dokumentet för signering. |
+| **Download Document** | **Download a Document** | Hämtar det signerade dokumentet. |
+| **Update Document** | **Update a Document** | Ändrar ett utkast. |
+| **Add Workspace Member** | **Add a Workspace Member** | Lägger till en medlem i arbetsytan. |
+| **Find Document**, **Find Template** | **Search Documents**, **Search Templates** | Söker efter dokument och mallar. |
+
+## Om något inte fungerar
+
+- **Inget händer när ett dokument signeras.** Kontrollera att Zapen eller scenariot är påslaget och att anslutningen gäller rätt arbetsyta.
+- **Anslutningen avvisas.** Integrationer ingår inte i Basic. Uppgradera under [Fakturering](/guider/settings-subscription).
+- **Ett fält fylls inte i.** Kontrollera att fältet har en nyckel i mallen och att du använder samma nyckel i flödet.
+- **Du vill ta bort kopplingen.** Ta bort anslutningen i Zapier eller Make. Du kan också dra tillbaka åtkomsten under **Personuppgifter**, fliken **Appar**, i sajn.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Webhooks" icon="webhook" href="/guider/webhooks">
+    Bygg direkt mot sajn om du har en utvecklare.
+  </Card>
+  <Card title="API-nycklar och API-version" icon="key" href="/guider/settings-developer-api">
+    Utvecklarinställningarna för arbetsytan.
+  </Card>
+  <Card title="Anslut en integration" icon="link" href="/guider/integrationer">
+    Fler tjänster du kan koppla till sajn.
+  </Card>
+</CardGroup>

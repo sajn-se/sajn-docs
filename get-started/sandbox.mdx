@@ -1,0 +1,126 @@
+---
+title: Sandbox
+description: 'Build and test an integration against a free, non-binding copy of sajn'
+---
+
+A sandbox is a separate sajn organization, linked to your production one, where you can build
+and test an integration without spending money or producing legally binding documents.
+
+It runs the same code and the same API as production. Only the parts that cost money or carry
+legal weight are short-circuited: BankID is mocked, sealed PDFs are watermarked and left
+uncertified, and nothing is billed.
+
+<Note>
+  There is no separate sandbox host. A sandbox uses the same base URL, `https://app.sajn.se`.
+  The API key you send decides which environment you reach.
+</Note>
+
+## Create a sandbox
+
+1. In the sajn app, go to **Inställningar > Utvecklare > Sandbox**.
+1. Click **Skapa sandbox-miljö**.
+1. Open the sandbox, and create an API key in it the same way you do in production. Sandbox keys start with `sajn_dev_`. For more information, see [Authentication](/get-started/authentication).
+
+Creating a sandbox requires the **Manage billing** permission. You can't create a sandbox from
+inside another sandbox.
+
+How many you can keep depends on your plan:
+
+| Plan | Sandboxes |
+|------|-----------|
+| Basic | 1 |
+| Solo, Team, Enterprise | 3 |
+
+If you downgrade, the oldest sandboxes stay active and the surplus is paused. Re-upgrading
+reactivates exactly what was paused. A paused sandbox can't be opened, and its API keys stop
+working.
+
+## What differs from production
+
+| Area | Behavior in a sandbox |
+|------|-----------------------|
+| BankID | Mocked. Every signature completes on the first poll as `Sandbox Testsson`, personal number `190001019999`. The real BankID service is never contacted. |
+| Sealed PDF | Watermarked `SANDBOX` on every page and **not** PAdES-certified, so it is deliberately not binding. |
+| Signing certificate | Generated as usual, and watermarked. |
+| Email | Really sent, so you can click through an invitation, but every subject is prefixed with `[SANDBOX]`. |
+| Billing | Nothing is billed. Signatures, identity checks, and SMS all cost 0. |
+| Identity verification | Unavailable. The identity-check quota is 0. |
+| AI features | Off. The AI budget is 0 and can't be raised. |
+| Document search indexing | Disabled. |
+| Feature gates | Resolve at the highest tier, so you can exercise endpoints your production plan doesn't include. |
+
+<Warning>
+  A document signed in a sandbox is not a valid signed document. It carries no PAdES seal, the
+  BankID identity behind it is fabricated, and every page is watermarked. Never use a sandbox
+  for a real agreement.
+</Warning>
+
+## Limits
+
+A sandbox doesn't inherit your plan's headroom. Its own ceilings apply:
+
+| Limit | Value |
+|-------|-------|
+| Documents sent per calendar month | 100 |
+| Documents created per hour | 50 |
+| Members | 3 |
+| Workspaces | 1 |
+| Storage | 2 GB |
+| API requests per minute | 60 |
+| API requests per day | 2,000 |
+| Identity checks | 0 |
+
+### The 100-document limit
+
+The document limit counts documents **sent** in the current calendar month (UTC), across every
+status a sent document can settle in: pending, completed, expired, cancelled, or rejected.
+Drafts don't count, and neither do documents you delete after sending.
+
+The counter resets at the start of each month. You can't raise it. To start over before the month ends, create a new sandbox.
+
+When the limit is reached, [`POST /api/v1/documents/{id}/send`](/api-reference/send-document-for-signing)
+returns an HTTP `403 Forbidden` status code with the error code `LIMIT_EXCEEDED`:
+
+```json
+{
+  "code": "LIMIT_EXCEEDED",
+  "message": "Monthly limit for sent documents reached",
+  "userMessage": "Du har nått din gräns för max antal dokument att skicka denna månad.",
+  "requestId": "req_V1StGXR8Z5jdHi6BmyT2"
+}
+```
+
+In API version `2026-09`, the status code is `400 Bad Request` and the body holds only the
+Swedish `message`. For every error code, see [Errors](/api-fundamentals/errors).
+
+To keep a test suite well inside the limit, reuse a small set of documents and drive the
+signing flow repeatedly instead of sending a new document for each assertion.
+
+## Tell the environments apart
+
+Webhook deliveries carry an `X-Sajn-Environment` header, set to `sandbox` or `production`. Use
+it when both environments post to the same endpoint. For more information, see [Webhooks](/webhooks/overview).
+
+To check which organization and workspace a key points at, call
+[`GET /api/v1/me`](/api-reference/get-authenticated-user-+-workspace-context).
+
+## Delete a sandbox
+
+In **Inställningar > Utvecklare > Sandbox**, click the delete icon next to the sandbox. sajn permanently deletes everything in it, including documents, templates, contacts, and uploaded files. Deleting a sandbox frees a slot, so deleting and creating one is also how you reset a sandbox to an empty state.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/get-started/authentication">
+    Create an API key in your sandbox
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/get-started/quickstart">
+    Send your first document
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
+    Route sandbox and production deliveries
+  </Card>
+  <Card title="Signing certificate" icon="badge-check" href="/concepts/signing-certificate">
+    What the finished PDF records
+  </Card>
+</CardGroup>

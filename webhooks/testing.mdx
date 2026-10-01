@@ -1,0 +1,121 @@
+---
+title: "Test webhooks locally"
+description: "Receive real sajn webhook deliveries on your own machine while you build"
+---
+
+sajn delivers only to public HTTPS URLs, so it can't reach `localhost` directly. To test on your own machine, expose your local server through a tunnel, point a webhook in a sandbox organization at the tunnel, and trigger or replay events.
+
+## Before you begin
+
+- Run your receiver locally, for example one of the [signature samples](/webhooks/verify-signatures#code-samples) on port 3000.
+- Create a [sandbox](/get-started/sandbox) and an API key in it. A sandbox behaves like production, but BankID is mocked and nothing is billed, so you can send and sign documents quickly. Its deliveries carry `X-Sajn-Environment: sandbox`.
+
+## Expose your local server
+
+Start a tunnel to your local port. Each tool prints a public HTTPS URL that forwards to your machine.
+
+<Tabs>
+  <Tab title="ngrok">
+    ```bash
+    ngrok http 3000
+    ```
+
+    The URL is shown on the `Forwarding` line, such as `https://TUNNEL_ID.ngrok-free.app`.
+  </Tab>
+  <Tab title="cloudflared">
+    ```bash
+    cloudflared tunnel --url http://localhost:3000
+    ```
+
+    The URL is shown in the output, such as `https://TUNNEL_ID.trycloudflare.com`.
+  </Tab>
+</Tabs>
+
+On free plans, the URL changes every time you restart the tunnel. When it changes, [update the webhook's URL](/webhooks/manage-endpoints#update-an-endpoint).
+
+## Create a test endpoint
+
+In the sandbox, create a webhook that points at the tunnel:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/webhooks \
+  -H "Authorization: Bearer SANDBOX_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "webhookUrl": "https://TUNNEL_HOST/webhooks/sajn",
+    "eventTriggers": ["CONTACT_CREATED", "DOCUMENT_COMPLETED"]
+  }'
+```
+
+Replace the following:
+
+- `SANDBOX_API_KEY`: an API key from your sandbox.
+- `TUNNEL_HOST`: the host name that your tunnel printed.
+
+Store the `secret` from the response and start your receiver with it, for example with `SAJN_WEBHOOK_SECRET` set to that value.
+
+### Dashboard save check
+
+When you save a webhook in the dashboard, sajn first sends a `POST` request with the body `{"test": true}` and the user agent `sajn-webhook-validator/1.0` to the URL. This request isn't signed and isn't an event. The save fails if the URL doesn't answer within 5 seconds, redirects, returns `404 Not Found`, or returns a `2xx` HTML page. Any other answer passes, including the `400 Bad Request` that your signature check returns for this unsigned request.
+
+The API runs a lighter check: it sends a `GET` request and only rejects a `2xx` HTML page.
+
+## Trigger an event
+
+The dashboard has no button that sends a sample event, so trigger a real one in the sandbox. Creating a contact is the quickest:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/contacts \
+  -H "Authorization: Bearer SANDBOX_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{"firstName": "Alex", "lastName": "Lind", "email": "alex@example.com"}'
+```
+
+Your receiver gets a `CONTACT_CREATED` delivery within seconds. For the request, see [Create a contact](/api-reference/create-a-new-contact). To test the signing flow, send a document to yourself in the sandbox and sign it with the mocked BankID; the endpoint gets `DOCUMENT_COMPLETED` after sajn seals the PDF.
+
+To test your receiver without sajn, sign a request yourself with the [`openssl` script](/webhooks/verify-signatures#code-samples).
+
+## Replay a real event to your machine
+
+To test with a payload that you saw before, replay the event to your test endpoint. A replay stays in the workspace where the event happened, so to replay a production event, create the tunnel endpoint in that production workspace.
+
+1. Find the event. For example, list recent completions:
+
+   ```bash
+   curl "https://app.sajn.se/api/v1/events?event=DOCUMENT_COMPLETED&perPage=5" \
+     -H "Authorization: Bearer API_KEY" \
+     -H "Sajn-Version: 2026-10"
+   ```
+
+2. Replay it to your test endpoint only:
+
+   ```bash
+   curl -X POST https://app.sajn.se/api/v1/events/EVENT_ID/replay \
+     -H "Authorization: Bearer API_KEY" \
+     -H "Sajn-Version: 2026-10" \
+     -H "Content-Type: application/json" \
+     -d '{"webhookId": "WEBHOOK_ID"}'
+   ```
+
+   Replace the following:
+
+   - `API_KEY`: an API key for the workspace.
+   - `EVENT_ID`: the `id` of the event from the previous step.
+   - `WEBHOOK_ID`: the ID of your tunnel endpoint. It must subscribe to the event's type.
+
+The replay is signed with your test endpoint's secret and uses its API version. Other endpoints don't receive it. For more information, see [Replay an event](/webhooks/replay-and-reconcile#replay-an-event).
+
+## Inspect deliveries
+
+Every attempt, with the request body, your status code, and your response body, appears in **Inställningar > Utvecklare > Loggar** in the workspace, and through [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries). To find the log entry for a request that your receiver logged, match the envelope's `id`, which the log shows in the request body. To send a logged delivery again, open it and click **Sänd om** (Resend).
+
+## Go to production
+
+Before you point a production endpoint at your receiver, check the following:
+
+- The receiver [verifies signatures](/webhooks/verify-signatures) against the raw body with the production endpoint's secret.
+- It deduplicates on `id` and returns `2xx` within 30 seconds. For both, see [How delivery behaves](/webhooks/overview#how-delivery-behaves).
+- It runs on a stable public HTTPS URL, not a tunnel.
+- You deleted the tunnel endpoints that you no longer use, so they don't fail and get [paused](/webhooks/delivery-and-retries#automatic-pausing).

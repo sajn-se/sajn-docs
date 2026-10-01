@@ -3,8 +3,6 @@ title: "Session API"
 description: "Start a BankID login and read the result with two REST calls — no OIDC library required"
 ---
 
-# Session API
-
 The REST alternative to [OpenID Connect](/login/oidc). Two calls: one to start a login, one to
 read the result. Same hosted page, same BankID engine, same claims — only the plumbing differs.
 
@@ -14,7 +12,7 @@ and a custom-scheme redirect drops the user straight back into the app.
 
 <Note>
   Authenticated with your normal sajn API key, scoped `login:write` and `login:read`. See
-  [Authentication](/authentication).
+  [Authentication](/get-started/authentication).
 </Note>
 
 ## 1. Start a login
@@ -67,7 +65,7 @@ curl https://app.sajn.se/api/v1/login/sessions/kZ8f3c… \
 ```json Completed
 {
   "id": "kZ8f3c…",
-  "status": "complete",
+  "status": "COMPLETED",
   "method": "BANKID_SE",
   "completedAt": "2026-07-26T12:03:45.000Z",
   "state": "your-internal-reference",
@@ -84,15 +82,17 @@ curl https://app.sajn.se/api/v1/login/sessions/kZ8f3c… \
 }
 ```
 
-`claims` and `sub` are populated only once `status` is `complete`, and contain exactly what your
+`claims` and `sub` are populated only once `status` is `COMPLETED`, and contain exactly what your
 client is approved for — the same projection the OIDC `id_token` uses.
 
 | `status` | Meaning |
 | --- | --- |
-| `pending` | Still in progress — the user has not finished |
-| `complete` | Authenticated. Read `claims` |
-| `failed` | The user cancelled, or BankID rejected it |
-| `expired` | The session ran out before completion |
+| `PENDING` | Still in progress — the user has not finished |
+| `COMPLETED` | Authenticated. Read `claims` |
+| `FAILED` | The user cancelled, or BankID rejected it |
+| `EXPIRED` | The session ran out before completion |
+
+In API version `2026-09`, `status` is lowercase: `pending`, `complete`, `failed`, or `expired`.
 
 A completed result stays readable for **30 minutes**, which is room for a retry or a brief outage
 on your side. After that it is gone; the authentication itself is still recorded for billing.
@@ -114,7 +114,7 @@ Two ways to cover it:
     Subscribe to `LOGIN_COMPLETED`. It fires whether or not the redirect arrives.
   </Card>
   <Card title="Poll" icon="rotate">
-    `GET` the session until it leaves `pending`. Simple, and fine at low volume.
+    `GET` the session until it leaves `PENDING`. Simple, and fine at low volume.
   </Card>
 </CardGroup>
 
@@ -134,10 +134,10 @@ the browser stops responding, so the result is there when you ask for it.
 ## Reference
 
 <CardGroup cols={2}>
-  <Card title="POST /api/v1/login/sessions" icon="code" href="/api-reference/endpoint/post-api-v1-login-sessions">
+  <Card title="POST /api/v1/login/sessions" icon="code" href="/api-reference/start-a-sajn-login-session">
     Full request and response schema
   </Card>
-  <Card title="GET /api/v1/login/sessions/{id}" icon="code" href="/api-reference/endpoint/get-api-v1-login-sessions-id">
+  <Card title="GET /api/v1/login/sessions/{id}" icon="code" href="/api-reference/read-the-result-of-a-sajn-login-session">
     Full response schema
   </Card>
 </CardGroup>

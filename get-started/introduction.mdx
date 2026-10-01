@@ -1,0 +1,87 @@
+---
+title: "Introduction"
+description: "Create, send, and track legally binding e-signatures from your own code with the sajn REST API"
+---
+
+The sajn API is a REST API for electronic signing. You create a document, add the people who sign it, send it, and get a sealed PDF back when everyone has signed. Every signature is backed by an eIDAS seal, and parties can sign with Swedish BankID, other Nordic eIDs, or a drawn or click-to-sign signature.
+
+## What you can build
+
+<CardGroup cols={2}>
+  <Card title="Contract automation" icon="file-signature">
+    Generate agreements from templates, fill in values from your system, and send them for signing.
+  </Card>
+  <Card title="Signing in your product" icon="window-maximize">
+    Embed the signing flow in your own app or send each party a signing URL.
+  </Card>
+  <Card title="CRM and archive sync" icon="arrows-rotate">
+    Mirror document status into your CRM and store signed PDFs in your own archive.
+  </Card>
+  <Card title="Identity checks" icon="id-card">
+    Verify a person with BankID through sajn ID before you onboard them.
+  </Card>
+</CardGroup>
+
+## Make a request
+
+The base URL for every endpoint is the following:
+
+```text
+https://app.sajn.se/api/v1
+```
+
+Authenticate with an API key in the `Authorization` header, and choose the API version with the `Sajn-Version` header:
+
+```bash
+curl https://app.sajn.se/api/v1/me \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+Replace `API_KEY` with an API key from **Inställningar > Utvecklare > API-nycklar** in your workspace settings. For more information, see [Authentication](/get-started/authentication).
+
+Requests and responses are JSON, and timestamps are ISO 8601 in UTC. A sandbox uses the same base URL; the API key decides which environment you reach. For more information, see [Sandbox](/get-started/sandbox).
+
+## Pin the API version
+
+sajn versions the API by date, in `YYYY-MM` format. The docs describe `2026-10`. We recommend sending `Sajn-Version` on every request, so your integration keeps working the same way when your organization's default version changes. For more information, see [API versioning](/api-fundamentals/versioning).
+
+## Explore the docs
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/get-started/quickstart">
+    Send your first document and download the signed PDF.
+  </Card>
+  <Card title="Core concepts" icon="lightbulb" href="/concepts/documents">
+    Documents, parties, fields, templates, and how they fit together.
+  </Card>
+  <Card title="Guides" icon="book-open" href="/guides/documents/create-document">
+    Task-by-task guides for documents, fields, templates, and embedding.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
+    Get an HTTP request when a document is signed, completed, or rejected.
+  </Card>
+  <Card title="API fundamentals" icon="gear" href="/api-fundamentals/errors">
+    Errors, pagination, rate limits, idempotency, and OAuth.
+  </Card>
+  <Card title="Build with AI" icon="robot" href="/ai/overview">
+    Use these docs and your workspace from an AI assistant.
+  </Card>
+  <Card title="Upgrading" icon="arrow-up-right-dots" href="/upgrading/2026-10">
+    Move an integration from `2026-09` to `2026-10`.
+  </Card>
+  <Card title="sajn Login" icon="fingerprint" href="/login/overview">
+    Log your own users in with BankID.
+  </Card>
+</CardGroup>
+
+## Tools
+
+- **OpenAPI specification:** `https://app.sajn.se/api/v1/openapi`. Use it to generate a typed client.
+- **Postman:** import the [starter collections](/get-started/postman).
+
+## Get developer updates
+
+To hear about new endpoints, breaking changes, and deprecations before they ship, turn on developer updates in the sajn app under **Inställningar > Utvecklare**. Updates go to your account's email address.
+
+For help, contact [dev@sajn.se](mailto:dev@sajn.se).

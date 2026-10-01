@@ -3,8 +3,6 @@ title: "Login webhooks"
 description: "Get notified when a sajn Login authentication completes or fails"
 ---
 
-# Login webhooks
-
 Two events tell you the outcome of a login without waiting for the browser to come back.
 
 | Event | Fires when |
@@ -13,7 +11,7 @@ Two events tell you the outcome of a login without waiting for the browser to co
 | `LOGIN_FAILED` | A login ended in a state the user cannot retry out of |
 
 They use the same webhook system as the rest of sajn — same signing, same retries, same delivery
-log. See [Webhooks](/guides/webhooks) for setup and signature verification.
+log. See [Webhooks](/webhooks/overview) for setup and signature verification.
 
 ## Why you might want them
 
@@ -38,8 +36,11 @@ it.
 
 ```json
 {
+  "id": "evt_123",
   "event": "LOGIN_COMPLETED",
-  "data": {
+  "createdAt": "2026-07-26T12:03:45.000Z",
+  "apiVersion": "2026-10",
+  "payload": {
     "id": "clx9a…",
     "sessionId": "kZ8f3c…",
     "clientId": "clx7b…",
@@ -70,8 +71,11 @@ it.
 
 ```json
 {
+  "id": "evt_124",
   "event": "LOGIN_FAILED",
-  "data": {
+  "createdAt": "2026-07-26T12:08:12.000Z",
+  "apiVersion": "2026-10",
+  "payload": {
     "sessionId": "kZ8f3c…",
     "clientId": "clx7b…",
     "mode": "SESSION",
@@ -97,8 +101,8 @@ under **Inställningar → Utvecklare → Webhooks**.
 Two rules worth repeating:
 
 - **Verify the signature** before acting on a payload.
-- **Expect duplicates.** Deliveries are at-least-once. `data.id` on `LOGIN_COMPLETED` is stable
-  per authentication — use it as an idempotency key.
+- **Expect duplicates.** Deliveries are at-least-once. The envelope `id` is stable per event, and
+  `payload.id` on `LOGIN_COMPLETED` is stable per authentication — use either as an idempotency key.
 
 <Warning>
   Never treat a webhook as an authentication in itself. It says *an* authentication happened; it

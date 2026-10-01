@@ -1,0 +1,237 @@
+---
+title: "Send a document for signing"
+description: "Send a draft to its parties, personalize the invitation, share signing links, and track progress until the document is completed"
+---
+
+In this guide, you send a draft document to its parties. You personalize the invitation, get signing links for parties you reach yourself, track each party's progress, and download the sealed PDF when everyone has signed.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Have a `DRAFT` document with content and at least one party. For more information, see [Create a document](/guides/documents/create-document).
+- Give each party an address for its delivery method: an email address for `EMAIL`, a phone number for `SMS`.
+
+## Send the document
+
+<Steps>
+  <Step title="Send the draft">
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/send`. The optional `customMessage` replaces the invitation message:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/send \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -H "Idempotency-Key: send-hr-2026-0142" \
+      -d '{
+        "customMessage": "Hi {{firstName}},\n\nHere is {{documentName}}. Sign it before {{expirationDate}}.\n\n{{senderFullName}}"
+      }'
+    ```
+
+    ```javascript Node.js
+    const documentId = "DOCUMENT_ID";
+
+    const response = await fetch(
+      `https://app.sajn.se/api/v1/documents/${documentId}/send`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+          "Sajn-Version": "2026-10",
+          "Content-Type": "application/json",
+          "Idempotency-Key": "send-hr-2026-0142",
+        },
+        body: JSON.stringify({
+          customMessage:
+            "Hi {{firstName}},\n\nHere is {{documentName}}. " +
+            "Sign it before {{expirationDate}}.\n\n{{senderFullName}}",
+        }),
+      },
+    );
+    const sent = await response.json();
+    console.log(response.status, sent.status);
+    ```
+
+    ```python Python
+    import os
+
+    import requests
+
+    document_id = "DOCUMENT_ID"
+
+    response = requests.post(
+        f"https://app.sajn.se/api/v1/documents/{document_id}/send",
+        headers={
+            "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+            "Sajn-Version": "2026-10",
+            "Idempotency-Key": "send-hr-2026-0142",
+        },
+        json={
+            "customMessage": (
+                "Hi {{firstName}},\n\nHere is {{documentName}}. "
+                "Sign it before {{expirationDate}}.\n\n{{senderFullName}}"
+            )
+        },
+    )
+    response.raise_for_status()
+    print(response.status_code, response.json()["status"])
+    ```
+
+    </CodeGroup>
+
+    Replace `DOCUMENT_ID` with the ID of your draft. The `Idempotency-Key` header makes a retry of the same request safe: the API replays the first response instead of sending the document twice.
+
+    The response is the document. The following example leaves out `documentMeta`:
+
+    ```json
+    {
+      "id": "cm4k2x9p10001abcd1234efgh",
+      "externalId": "hr-2026-0142",
+      "name": "Employment contract - Alex Andersson",
+      "status": "PENDING",
+      "expiresAt": "2026-10-31T16:00:00.000Z",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:05:00.000Z",
+      "completedAt": null
+    }
+    ```
+
+    The status code tells you what happened:
+
+    - `200`: the document is sent, and its status is `PENDING`. Each party is invited on its own `deliveryMethod`. With `SEQUENTIAL` signing, only the first party in `signingOrder` is invited.
+    - `202`: the document needs approval first, and its status is `PENDING_APPROVAL`. This happens when you send an `approverId` because you lack the permission to send without approval. The approver's decision sends the document.
+  </Step>
+
+  <Step title="Share signing links for parties you reach yourself">
+    A party with `"deliveryMethod": "NONE"` gets no invitation. To show the signing page in your own app or send the link yourself, get the party's `signingUrl`:
+
+    ```bash
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Replace `PARTY_ID` with the party's `id`. The response is the party, including `token` and `signingUrl`:
+
+    ```json
+    {
+      "id": "cm4k2xa3f0002abcd5678ijkl",
+      "documentId": "cm4k2x9p10001abcd1234efgh",
+      "name": "Alex Andersson",
+      "email": "alex@example.com",
+      "role": "SIGNER",
+      "deliveryMethod": "NONE",
+      "signingStatus": "NOT_SIGNED",
+      "token": "K7xq2m9VbN4pR8sT1wY6zA3c",
+      "signingUrl": "https://app.sajn.se/sign/cm4k2x9p10001abcd1234efgh?token=K7xq2m9VbN4pR8sT1wY6zA3c"
+    }
+    ```
+
+    The signing URL works without a login, so treat it as a secret. Every request to this endpoint is recorded in the document's audit log, so fetch the URL only when you're about to use it. To show the signing page inside your app, see [Embedded signing](/guides/embedding/overview).
+  </Step>
+
+  <Step title="Track progress">
+    We recommend subscribing to webhooks instead of polling. The `DOCUMENT_PARTY_SIGNED` event fires when a party signs, and `DOCUMENT_COMPLETED` fires when everyone has signed. For more information, see [Webhooks](/webhooks/overview).
+
+    To check the state at any time, get the document:
+
+    ```bash
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Each party has a `readStatus` of `NOT_OPENED`, `OPENED`, or `READ`, and a `signingStatus` of `NOT_SIGNED`, `SIGNED`, or `REJECTED`. The following example leaves out most fields:
+
+    ```json
+    {
+      "id": "cm4k2x9p10001abcd1234efgh",
+      "status": "PENDING",
+      "parties": [
+        {
+          "id": "cm4k2xa3f0002abcd5678ijkl",
+          "name": "Alex Andersson",
+          "readStatus": "READ",
+          "signingStatus": "SIGNED",
+          "signedAt": "2026-10-02T10:30:00.000Z",
+          "sendStatus": "DELIVERED"
+        }
+      ]
+    }
+    ```
+
+    A `sendStatus` of `BOUNCED` or `FAILED` means the invitation didn't arrive. Correct the address with [Update a party](/api-reference/update-a-party), and then send a reminder.
+  </Step>
+
+  <Step title="Download the sealed PDF">
+    When every signing party has signed, the document's status changes to `COMPLETED` and sajn seals the PDF. Download it with the `SIGNED` file type:
+
+    ```bash
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/download/SIGNED \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    For the response and the other file types, see [Download documents](/guides/documents/downloading-documents).
+  </Step>
+</Steps>
+
+## Personalize the invitation message
+
+`customMessage` supports line breaks as `\n` and the following variables, written as `{{variableName}}`. Each party gets its own copy of the message.
+
+- Recipient: `{{firstName}}`, `{{lastName}}`, `{{fullName}}`, `{{recipientEmail}}`, `{{recipientPhone}}`, `{{recipientCompanyName}}`, `{{recipientCompanyRole}}`, and `{{recipientCompanyOrgNumber}}`. `{{recipientFirstName}}`, `{{recipientLastName}}`, and `{{recipientFullName}}` are the same as the first three.
+- Sender: `{{senderFirstName}}`, `{{senderLastName}}`, `{{senderFullName}}`, `{{senderEmail}}`, `{{senderPhone}}`, and `{{senderCompanyName}}`.
+- Document: `{{documentName}}`, `{{documentId}}`, `{{documentValue}}`, `{{documentCreatedDate}}`, `{{expirationDate}}`, and `{{signUrl}}`.
+- Custom fields: `{{custom.FIELD_SLUG}}`, where `FIELD_SLUG` is the field name in lowercase with hyphens. For example, a field named "Start date" is `{{custom.start-date}}`. Secured custom fields aren't available.
+
+## Remind parties and change the deadline
+
+- To remind parties who haven't signed, send a `POST` request to `/api/v1/documents/DOCUMENT_ID/reminders`. Each party can get one reminder per 24 hours.
+- To move the deadline of a sent document, send a `POST` request to `/api/v1/documents/DOCUMENT_ID/extend-expiration`.
+
+For both, see [Reminders and expiration](/guides/documents/reminders-expiration).
+
+## Withdraw a sent document
+
+To stop the signing, for example to fix the content or the signing order, withdraw the document:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/withdraw \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{ "reason": "The start date was wrong." }'
+```
+
+The document returns to `DRAFT`, existing signatures are removed, and every party who was invited gets an email with the reason. Make your changes, and then send the document again.
+
+## Handle errors
+
+Branch on the error `code`:
+
+- `400 INVALID_STATE`: the document isn't a `DRAFT`. A document in `PENDING_APPROVAL` is sent when the approver approves it.
+- `403 APPROVAL_REQUIRED`: you lack the permission to send without approval. Call [List eligible approvers](/api-reference/list-eligible-approvers), and then send again with an `approverId`.
+- `403 LIMIT_EXCEEDED`: the organization reached its monthly limit of sent documents.
+- `403 PERMISSION_DENIED`: a party's signing method isn't included in the organization's plan. The `userMessage` names the method.
+
+For the error shape and the full list of codes, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Multi-party signing" icon="users" href="/guides/documents/multi-party-signing">
+    Control the signing order and the role of each party.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
+    Get notified when parties sign.
+  </Card>
+  <Card title="Download documents" icon="download" href="/guides/documents/downloading-documents">
+    Get the sealed PDF and the audit trail.
+  </Card>
+  <Card title="Send document for signing" icon="code" href="/api-reference/send-document-for-signing">
+    See the endpoint in the API reference.
+  </Card>
+</CardGroup>

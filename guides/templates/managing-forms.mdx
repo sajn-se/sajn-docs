@@ -1,0 +1,138 @@
+---
+title: "Manage public forms"
+description: "Create a public form, configure its questions and document, publish its link, and sync the responses"
+---
+
+In this guide, you create a public form: a hosted link where visitors answer questions and then sign a document. You configure the questions and the document, publish the link, and sync the responses to your system.
+
+Each form owns its own document base, a template that only the form uses. Every submission creates an ordinary sajn document from it.
+
+## Before you begin
+
+- Get a bearer token for the workspace: an API key, or an OAuth access token. To create an API key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys). Store it in the `SAJN_API_KEY` environment variable.
+- Make sure your workspace role has the permissions for the task: `MANAGE_FORM` to create, edit, and publish forms, `DELETE_FORM` to delete them, and `READ_FORM_SUBMISSIONS` to read responses. To publish, you also need permission to create documents and send them without approval, and the workspace must not require approval before sending.
+
+An OAuth app requests the following scopes. An API key uses its user's workspace permissions instead.
+
+| Scope | Access |
+| --- | --- |
+| `forms:read` | Form configuration, the document base, and statistics. |
+| `forms:write` | Creating and managing forms and their public links. |
+| `forms:delete` | Deleting forms and their submission records permanently. |
+| `forms:submissions:read` | Respondents' contact details and answers. |
+| `documents:write` | Editing and publishing, together with `forms:write`. |
+| `templates:read` | Creating a form from a template. |
+
+## Create and publish a form
+
+<Steps>
+  <Step title="Create a draft">
+    Send a `POST` request to `/api/v1/forms`. To copy an existing template, send its `templateId`. To start with a blank document and one respondent party, send `{}`:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/forms \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -H "Idempotency-Key: create-registration-form-1" \
+      -d '{ "templateId": "TEMPLATE_ID" }'
+    ```
+
+    Replace `TEMPLATE_ID` with the template to copy. The request returns `201` with the form: its `id`, `templateId` (the form's own document base), `respondentPartyId`, `url`, its settings, and `publishIssues`. The copy has new field and party IDs, and later changes to the source template don't affect it.
+  </Step>
+
+  <Step title="Configure the questions and settings">
+    Send a `PATCH` request to `/api/v1/forms/FORM_ID`:
+
+    ```bash
+    curl -X PATCH https://app.sajn.se/api/v1/forms/FORM_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "title": "Registration",
+        "documentExpiresInDays": 30,
+        "maxSubmissions": 500,
+        "questions": [
+          { "id": "name", "kind": "name", "required": true },
+          { "id": "email", "kind": "email", "required": true },
+          { "id": "notes", "kind": "text", "label": "Additional information", "required": false, "multiline": true }
+        ]
+      }'
+    ```
+
+    Replace `FORM_ID` with the form `id`. The request works as follows:
+
+    - Settings you leave out stay unchanged, and `null` clears a nullable setting. For `password`, leaving it out keeps the password, `null` removes it, and a string replaces it. Responses show `hasPassword`, never the password.
+    - `questions` replaces the whole ordered list. The kinds are `name`, `email`, `phone`, `field`, `text`, `heading`, and `paragraph`. The `name` question is always required.
+    - A `field` question writes its answer into the document, through a `key` from the form's `slots`. A `text` answer is stored on the submission only.
+    - `redirectUrl` must be an `http` or `https` URL.
+
+    Saving settings doesn't publish the form, reopen a closed form, or change its sender.
+  </Step>
+
+  <Step title="Edit the document and the respondent">
+    Read `GET /api/v1/forms/FORM_ID/document` for the document's settings, content blocks, and parties. Then change them with the form's document endpoints:
+
+    - `PATCH /api/v1/forms/FORM_ID/document`: change `name` and `templateMeta`, such as `signingOrder`.
+    - `PUT /api/v1/forms/FORM_ID/document/fields`: replace `fields` with the complete ordered list of content blocks. Include the IDs of fields to keep, and leave out IDs for new fields. Fields you leave out are deleted, and existing fields can't change type.
+    - `PUT /api/v1/forms/FORM_ID/document/parties`: replace `parties`. Include the IDs of parties to keep, and leave out IDs for new parties. Properties you leave out on kept parties, including contact links and write-only PINs, stay unchanged. Parties you leave out are deleted.
+    - `PUT /api/v1/forms/FORM_ID/respondent` with `{ "partyId": "PARTY_ID" }`: choose which `SIGNER` party the visitor becomes.
+
+    Existing submissions don't change. An edit to a published form can close it when a readiness check finds a blocker, so read `GET /api/v1/forms/FORM_ID` afterward for `publishIssues` and the bindable `slots`.
+  </Step>
+
+  <Step title="Publish the form">
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/forms/FORM_ID/publish \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Publishing checks the document, the expiry, the capacity, the sender's permissions, the workspace policy, and access to the signing methods. You become the sender of every document the form creates. If the request reports blockers, fix them and publish again. Then share the form's `url`. Visitors answer and sign on the hosted pages; the API can't submit or sign on their behalf.
+
+    To stop new submissions and keep the URL for later, send a `POST` request to `/api/v1/forms/FORM_ID/unpublish`. To replace the link, for example after it leaked, send a `POST` request to `/api/v1/forms/FORM_ID/rotate-token`. The old link stops working, including printed QR codes, but signing links already sent keep working.
+  </Step>
+
+  <Step title="Sync the responses">
+    Subscribe a webhook to `FORM_SUBMITTED` to hear about each submission, and page through the submissions to sync them:
+
+    ```bash
+    curl "https://app.sajn.se/api/v1/forms/FORM_ID/submissions?perPage=100&updatedAfter=2026-10-01T00:00:00Z" \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    The response has `submissions`, `hasNextPage`, and `nextCursor`. To get the next page, pass `nextCursor` as `cursor` with the same filters. Rows are ordered by `updatedAt` and then ID, and a response can change while you page, so upsert each submission by its ID.
+
+    - `updatedAfter` finds status changes since your last sync. `submittedAfter` filters by submission time.
+    - `status` takes `STARTED`, `SUBMITTED`, `COMPLETED`, or `EXPIRED`.
+    - Each submission has the respondent's contact details, the answers, timestamps, and the `documentId` of the document it created. Read the document's content and signing progress through the document endpoints. Submissions don't include IP addresses, user agents, or signing tokens.
+  </Step>
+</Steps>
+
+## Delete a form
+
+`DELETE /api/v1/forms/FORM_ID` permanently removes the form, its document base, and its submission records. Export the responses you need first. Documents the form already created stay as ordinary documents.
+
+## Handle errors
+
+- `400 VALIDATION_FAILED`: a question or a setting is invalid. Read `issues` for the path.
+- An error from `publish`: a readiness check failed. Read `GET /api/v1/forms/FORM_ID` for `publishIssues`, fix each one, and publish again.
+- `403 PERMISSION_DENIED` or `403 INSUFFICIENT_SCOPE`: your role or token lacks a permission or scope from the preceding table.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Templates and forms" icon="lightbulb" href="/concepts/templates-and-forms">
+    Learn how forms differ from templates.
+  </Card>
+  <Card title="Webhook events" icon="webhook" href="/webhooks/events">
+    Handle `FORM_SUBMITTED` and document events.
+  </Card>
+  <Card title="Create a draft form" icon="code" href="/api-reference/create-a-draft-form">
+    See the form endpoints in the API reference.
+  </Card>
+</CardGroup>

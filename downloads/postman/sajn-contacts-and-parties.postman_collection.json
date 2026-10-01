@@ -1,0 +1,326 @@
+{
+  "info": {
+    "_postman_id": "c3475b84-304a-5703-81cc-e42bf1091ac8",
+    "name": "sajn Contacts and Parties",
+    "description": "Starter flow for contact creation, lookup, and document party management.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://app.sajn.se"
+    },
+    {
+      "key": "uploadBaseUrl",
+      "value": "https://upload.sajn.se"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "apiVersion",
+      "value": "2026-10"
+    },
+    {
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "contactId",
+      "value": ""
+    },
+    {
+      "key": "partyId",
+      "value": ""
+    },
+    {
+      "key": "fileType",
+      "value": "SIGNED"
+    },
+    {
+      "key": "fieldId",
+      "value": ""
+    },
+    {
+      "key": "tagId",
+      "value": ""
+    },
+    {
+      "key": "fileId",
+      "value": ""
+    },
+    {
+      "key": "fileKey",
+      "value": ""
+    },
+    {
+      "key": "sajnIdId",
+      "value": ""
+    },
+    {
+      "key": "signingUrl",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Create a new contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Sajn-Version",
+            "value": "{{apiVersion}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contacts",
+        "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n\n**Optional Fields:**\n- `lastName` - Contact's last name (omit or send an empty string for single-name contacts)\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `nationalId` - National identity number, such as a Swedish personnummer, for eID verification\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+46701234567\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.id) { pm.collectionVariables.set('contactId', response.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search contacts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Sajn-Version",
+            "value": "{{apiVersion}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contacts/search?email=john.doe@example.com&phone=string&externalId=string",
+        "description": "Search for contacts by email, phone number, or external ID.\n\n**Query Parameters (at least one required):**\n- `email` - Search by exact email address match\n- `phone` - Search by exact phone number match\n- `externalId` - Search by exact external ID match\n\n**Response:** Returns an array of matching contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update a contact",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Sajn-Version",
+            "value": "{{apiVersion}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contacts/{{documentId}}",
+        "description": "Update contact information. All fields are optional.\n\n**Note:** Updating a contact does not affect existing document signers. Changes only apply to new documents.",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create a new document",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Sajn-Version",
+            "value": "{{apiVersion}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/documents",
+        "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. The template's fields and parties are copied. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on the PDF for the template's parties are removed.\n\n**CRM Link:** Use `integrationLink` to link the document to a CRM record (currently HubSpot deals). When the workspace has a field mapping configured for the integration, mapped custom fields and product-table rows are prefilled from the record, and signing status is written back to it. Explicit `customFields` in the request take precedence over prefilled values.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill in values** by key, all in one request: `PATCH /api/v1/documents/{docId}/field-values`. To list the keys, call `GET /api/v1/documents/{docId}/field-values`.\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, SE_BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill in values by key\nPATCH /api/v1/documents/{docId}/field-values\n{\n  \"values\": [\n    {\"key\": \"name\", \"value\": \"Alex Andersson\"},\n    {\"key\": \"phone\", \"value\": \"+46700000000\"}\n  ]\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document in the same shape as `GET /api/v1/documents/{id}`, without `fields`. To get a party's signing URL, call `GET /api/v1/documents/{id}/parties/{partyId}`.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Employment Contract\",\n  \"type\": \"SIGNABLE\",\n  \"expiresAt\": \"2026-12-31T23:59:59.000Z\",\n  \"parties\": [],\n  \"documentMeta\": {\n    \"subject\": \"Employment Contract\",\n    \"message\": \"Please review and sign this agreement.\",\n    \"signingOrder\": \"PARALLEL\",\n    \"preferredLanguage\": \"en\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.id) { pm.collectionVariables.set('documentId', response.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Add a party to document",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Sajn-Version",
+            "value": "{{apiVersion}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties",
+        "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party. Use GET /documents/:id/parties/:partyId to retrieve the signing URL.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"deliveryMethod\": \"EMAIL\",\n  \"requiredSignature\": \"DRAWING\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.id) { pm.collectionVariables.set('partyId', response.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get a party with signing URL",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Sajn-Version",
+            "value": "{{apiVersion}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties/{{partyId}}",
+        "description": "Retrieve a specific party including their signing URL.\n\n**Security Note:** This endpoint creates an audit log entry each time a signing URL is accessed. Use this endpoint when you need the signing URL to share with the party.\n\n**Response includes:**\n- Party details (name, email, phone, company info)\n- Signing status (NOT_SIGNED, SIGNED, REJECTED)\n- Read status (NOT_OPENED, OPENED, READ)\n- Complete signing URL with token"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "var response = {};",
+              "try {",
+              "  response = pm.response.json();",
+              "} catch (error) {",
+              "  response = {};",
+              "}",
+              "if (response.signingUrl) { pm.collectionVariables.set('signingUrl', response.signingUrl); }"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

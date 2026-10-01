@@ -1,138 +1,188 @@
 ---
-title: "Activity Events"
-description: "All document activity event types returned by the API"
+title: "Activity events"
+description: "Every entry type in a document's activity log, the audit trail behind the signing journal"
 ---
 
-Every action on a document is recorded as an activity event. You can retrieve these events via `GET /api/v1/documents/:id/activity`. Each event has a `type` field with one of the values listed below.
+sajn records everything that happens to a document in its **activity log**: who sent it, who opened it, how each party verified their identity, and when the PDF was sealed. The log is the source of the signing journal and the timestamps on the [signing certificate](/concepts/signing-certificate).
 
-## Delivery Events
+Activity events aren't [webhook events](/webhooks/events). Webhooks notify your server about a smaller set of changes as they happen. The activity log is the complete record, which you read when you need it.
 
-| Event | Description |
-|---|---|
-| `EMAIL_SENT` | Signing invitation email was sent |
-| `SMS_SENT` | Signing invitation SMS was sent |
-| `REMINDER_SENT` | Signing reminder was sent |
-| `DELIVERY_BOUNCED` | Email delivery bounced |
-| `DELIVERY_FAILED` | Email delivery failed |
-| `DELIVERY_DELIVERED` | Email was delivered |
-| `DELIVERY_COMPLAINED` | Email was marked as spam |
+## Read the activity log
 
-## Signer Events
+To read a document's log, call [`GET /documents/{id}/activity`](/api-reference/get-document-activity-log). It needs the `READ_DOCUMENT_AUDIT_LOG` workspace permission. The response lists every event, newest first:
 
-| Event | Description |
-|---|---|
-| `SIGNER_CREATED` | A signer was added to the document |
-| `SIGNER_UPDATED` | A signer's details were updated |
-| `SIGNER_DELETED` | A signer was removed from the document |
+```json
+{
+  "activity": [
+    {
+      "id": "cm4k2x9p90011abcd4567klmn",
+      "createdAt": "2026-10-01T09:41:05.000Z",
+      "type": "DOCUMENT_SIGNED",
+      "data": {},
+      "name": "Kai Berg",
+      "email": "kai@example.com"
+    }
+  ]
+}
+```
 
-## Document Lifecycle Events
+| Field | Description |
+|-------|-------------|
+| `id` | The event ID. |
+| `createdAt` | When the event happened. |
+| `type` | The event type, from the following tables. |
+| `data` | Event-specific details. Its shape depends on `type`. |
+| `name`, `email` | The person who caused the event, when known. |
 
-| Event | Description |
-|---|---|
-| `DOCUMENT_CREATED` | Document was created |
-| `DOCUMENT_SENT` | Document was sent for signing |
-| `DOCUMENT_OPENED` | Document was opened by a signer |
-| `DOCUMENT_READ` | Document was read by a signer |
-| `DOCUMENT_VIEWED` | Document was viewed |
-| `DOCUMENT_SIGNED` | Document was signed by a signer |
-| `DOCUMENT_REJECTED` | Document was rejected by a signer |
-| `DOCUMENT_COMPLETED` | All signers have signed, document is complete |
-| `DOCUMENT_FORCE_COMPLETED` | Document was manually force-completed |
-| `DOCUMENT_CANCELLED` | Document was cancelled |
-| `DOCUMENT_WITHDRAWN` | Document was withdrawn |
-| `DOCUMENT_DELETED` | Document was deleted |
-| `DOCUMENT_RESET` | Document was reset to draft |
-| `DOCUMENT_RECREATED` | Document was recreated |
-| `DOCUMENT_API_ACCESS` | Document was accessed via API |
-| `DOCUMENT_UNAUTHORIZED_ACCESS` | Unauthorized access attempt |
+The response leaves out IP addresses, user agents, and request metadata. Treat `type` as an open list: sajn can add new types without a new API version.
 
-## Document Update Events
+## Delivery
 
-| Event | Description |
-|---|---|
-| `DOCUMENT_TITLE_UPDATED` | Document title was changed |
-| `DOCUMENT_META_UPDATED` | Document metadata was updated |
-| `DOCUMENT_EXTERNAL_ID_UPDATED` | External ID was changed |
-| `DOCUMENT_EXPIRATION_DATE_UPDATED` | Expiration date was changed |
-| `DOCUMENT_SIGNING_ORDER_UPDATED` | Signing order was changed |
-| `DOCUMENT_VALUE_UPDATED` | Document value was updated |
-| `DOCUMENT_RESPONSIBLE_USER_UPDATED` | Responsible user was changed |
-| `DOCUMENT_PREFERRED_LANGUAGE_UPDATED` | Preferred language was changed |
-| `DOCUMENT_CUSTOM_FIELD_VIEWED` | Custom field was viewed |
-| `DOCUMENT_VISIBILITY_UPDATED` | Document visibility was changed |
+| Type | Description |
+|------|-------------|
+| `EMAIL_SENT` | An invitation email was sent to a party. |
+| `SMS_SENT` | An invitation SMS was sent to a party. |
+| `REMINDER_SENT` | A reminder was sent to a party. |
+| `REMINDERS_STOPPED` | Automatic reminders stopped. |
+| `DELIVERY_DELIVERED` | An email was delivered. |
+| `DELIVERY_BOUNCED` | An email bounced. |
+| `DELIVERY_FAILED` | An email couldn't be delivered. |
+| `DELIVERY_COMPLAINED` | The recipient marked an email as spam. |
+| `DELIVERY_SUPPRESSED` | An email wasn't sent, because delivery to the address is suppressed. |
 
-## Archive Events
+## Parties
 
-| Event | Description |
-|---|---|
-| `DOCUMENT_ARCHIVED` | Document was archived |
-| `DOCUMENT_UNARCHIVED` | Document was unarchived |
+The party event types keep their original names, from before the API called participants parties.
 
-## Sealing & Timestamp Events
+| Type | Description |
+|------|-------------|
+| `SIGNER_CREATED` | A party was added. |
+| `SIGNER_UPDATED` | A party's details changed. |
+| `SIGNER_DELETED` | A party was removed. |
+| `SIGNING_URL_ACCESSED` | A party's signing URL was fetched. |
+| `SIGNER_VARIABLES_SUBMITTED` | A party submitted the values they fill in before signing. |
+| `SIGNER_ATTACHMENT_UPLOADED` | A party uploaded an attachment. |
 
-| Event | Description |
-|---|---|
-| `DOCUMENT_SEALED` | Document was sealed |
-| `DOCUMENT_SEALED_PDF_CREATED` | Sealed PDF was generated |
-| `DOCUMENT_TIMESTAMP_REQUESTED` | Timestamp was requested |
-| `DOCUMENT_TIMESTAMP_ADDED` | Timestamp was added |
-| `DOCUMENT_TIMESTAMP_FAILED` | Timestamp failed |
-| `DOCUMENT_TIMESTAMP_SKIPPED` | Timestamp was skipped |
-| `DOCUMENT_RFC3161_DETECTED` | RFC 3161 timestamp detected |
-| `DOCUMENT_SEALED_PDF_PADES_SIGNATURES_APPLIED` | PAdES signatures applied to sealed PDF |
-| `DOCUMENT_SEALED_PDF_PADES_FAILED` | PAdES signature application failed |
+## Document lifecycle
 
-## BankID Events
+| Type | Description |
+|------|-------------|
+| `DOCUMENT_CREATED` | The document was created. |
+| `DOCUMENT_SENT` | The document was sent for signing. |
+| `DOCUMENT_OPENED` | A party opened the document. |
+| `DOCUMENT_READ` | A party read the whole document. |
+| `DOCUMENT_VIEWED` | Someone viewed the document. |
+| `DOCUMENT_SIGNED` | A party signed. |
+| `DOCUMENT_SIGNATURE_MARK_CAPTURED` | A party drew a signature or initials mark. |
+| `DOCUMENT_REJECTED` | A party rejected the document. |
+| `DOCUMENT_COMPLETED` | Every required party signed, and the document completed. |
+| `DOCUMENT_FORCE_COMPLETED` | The document was completed manually. |
+| `DOCUMENT_WITHDRAWN` | The document was withdrawn and returned to draft. |
+| `DOCUMENT_CANCELLED` | The document was cancelled. |
+| `DOCUMENT_RESET` | The document was reset to draft. |
+| `DOCUMENT_RECREATED` | The document was recreated. |
+| `DOCUMENT_EXPIRATION_EXTENDED` | The expiration date of a sent document moved. |
+| `DOCUMENT_DELETED` | The document was moved to the trash. |
+| `DOCUMENT_RESTORED` | The document was restored from the trash. |
+| `DOCUMENT_ARCHIVED` | The document was archived. |
+| `DOCUMENT_UNARCHIVED` | The document was unarchived. |
+| `DOCUMENT_DOWNLOADED` | A file of the document was downloaded. |
+| `DOCUMENT_API_ACCESS` | The document was read through the API. |
+| `DOCUMENT_UNAUTHORIZED_ACCESS` | Someone tried to open the document without access. |
 
-| Event | Description |
-|---|---|
-| `BANKID_AUTH_INITIATED` | BankID authentication started |
-| `BANKID_AUTH_COMPLETED` | BankID authentication completed |
-| `BANKID_AUTH_FAILED` | BankID authentication failed |
-| `BANKID_NAME_VERIFICATION_MATCH` | BankID name verification matched |
-| `BANKID_NAME_VERIFICATION_MISMATCH` | BankID name verification did not match |
-| `BANKID_SSN_VERIFICATION_MATCH` | BankID SSN (personnummer) verification matched |
-| `BANKID_SSN_VERIFICATION_MISMATCH` | BankID SSN (personnummer) verification did not match |
+## Approval
 
-## SMS Verification Events
+| Type | Description |
+|------|-------------|
+| `DOCUMENT_APPROVAL_REQUESTED` | The document was submitted for internal approval. |
+| `DOCUMENT_APPROVAL_APPROVED` | The approver approved the document. |
+| `DOCUMENT_APPROVAL_REJECTED` | The approver rejected the document. |
 
-| Event | Description |
-|---|---|
-| `SMS_VERIFICATION_SENT` | SMS verification code was sent |
-| `SMS_VERIFICATION_COMPLETED` | SMS verification was completed |
-| `SMS_VERIFICATION_FAILED` | SMS verification failed |
-| `SMS_VERIFICATION_RESENT` | SMS verification code was resent |
+## Document changes
 
-## Email Verification Events
+| Type | Description |
+|------|-------------|
+| `DOCUMENT_TITLE_UPDATED` | The name changed. |
+| `DOCUMENT_META_UPDATED` | The settings in `documentMeta` changed. |
+| `DOCUMENT_EXTERNAL_ID_UPDATED` | The `externalId` changed. |
+| `DOCUMENT_EXPIRATION_DATE_UPDATED` | The expiration date changed. |
+| `DOCUMENT_SIGNING_ORDER_UPDATED` | The signing order changed. |
+| `DOCUMENT_VALUE_UPDATED` | The value changed. |
+| `DOCUMENT_RESPONSIBLE_USER_UPDATED` | The responsible user changed. |
+| `DOCUMENT_PREFERRED_LANGUAGE_UPDATED` | The language changed. |
+| `DOCUMENT_VISIBILITY_UPDATED` | The visibility changed. |
+| `DOCUMENT_CUSTOM_FIELD_VIEWED` | Someone viewed a secured custom field value. |
+| `DOCUMENT_LINKED` | The document was linked to another document. |
+| `DOCUMENT_UNLINKED` | A link to another document was removed. |
 
-| Event | Description |
-|---|---|
-| `EMAIL_VERIFICATION_SENT` | Email verification was sent |
-| `EMAIL_VERIFICATION_COMPLETED` | Email verification was completed |
-| `EMAIL_VERIFICATION_FAILED` | Email verification failed |
-| `EMAIL_VERIFICATION_RESENT` | Email verification was resent |
+## Sealing and timestamps
 
-## Click to Sign Events
+| Type | Description |
+|------|-------------|
+| `DOCUMENT_SEALED` | The document was sealed. |
+| `DOCUMENT_SEALED_PDF_CREATED` | The sealed PDF was generated. |
+| `DOCUMENT_SEALED_PDF_PADES_SIGNATURES_APPLIED` | The PAdES signatures were applied to the sealed PDF. |
+| `DOCUMENT_SEALED_PDF_PADES_FAILED` | Applying the PAdES signatures failed. |
+| `DOCUMENT_TIMESTAMP_REQUESTED` | A trusted timestamp was requested. |
+| `DOCUMENT_TIMESTAMP_ADDED` | A trusted timestamp was added. |
+| `DOCUMENT_TIMESTAMP_FAILED` | A trusted timestamp couldn't be added. |
+| `DOCUMENT_TIMESTAMP_SKIPPED` | A trusted timestamp was skipped. |
+| `DOCUMENT_RFC3161_DETECTED` | An RFC 3161 timestamp was found in the PDF. |
 
-| Event | Description |
-|---|---|
-| `CLICK_TO_SIGN_INITIATED` | Click-to-sign was initiated |
-| `CLICK_TO_SIGN_CONFIRMED` | Click-to-sign was confirmed |
-| `CLICK_TO_SIGN_TIMEOUT` | Click-to-sign timed out |
+## Swedish BankID
 
-## Signing URL Events
+| Type | Description |
+|------|-------------|
+| `BANKID_AUTH_INITIATED` | A BankID identification started. |
+| `BANKID_AUTH_COMPLETED` | A BankID identification completed. |
+| `BANKID_AUTH_FAILED` | A BankID identification failed. |
+| `BANKID_NAME_VERIFICATION_MATCH` | The BankID name matched the party's name. |
+| `BANKID_NAME_VERIFICATION_MISMATCH` | The BankID name didn't match the party's name. |
+| `BANKID_SSN_VERIFICATION_MATCH` | The BankID personal number matched the party's `nationalId`. |
+| `BANKID_SSN_VERIFICATION_MISMATCH` | The BankID personal number didn't match the party's `nationalId`. |
+| `BANKID_SSN_VERIFICATION_BLOCKED` | Signing was refused, because the personal number didn't match and the workspace requires a match. |
 
-| Event | Description |
-|---|---|
-| `SIGNING_URL_ACCESSED` | Signing URL was accessed |
+## Other eIDs
 
-## Delegation Events
+| Type | Description |
+|------|-------------|
+| `EID_AUTH_INITIATED` | An eID identification started. |
+| `EID_AUTH_COMPLETED` | An eID identification completed. |
+| `EID_AUTH_FAILED` | An eID identification failed. |
+| `EID_IDENTITY_MATCH` | The eID identity matched the party. |
+| `EID_IDENTITY_MISMATCH` | The eID identity didn't match the party. |
+| `EID_IDENTITY_BLOCKED` | Signing was refused, because the identity didn't match and the workspace requires a match. |
 
-| Event | Description |
-|---|---|
-| `DELEGATION_CREATED` | Signing delegation was created |
-| `DELEGATION_ACCEPTED` | Delegation was accepted |
-| `DELEGATION_DECLINED` | Delegation was declined |
-| `DELEGATION_REVOKED` | Delegation was revoked |
-| `DELEGATION_EXPIRED` | Delegation expired |
-| `DELEGATION_COMPLETED` | Delegation was completed |
+## Verification before opening
+
+| Type | Description |
+|------|-------------|
+| `SMS_VERIFICATION_SENT` | An SMS code was sent. |
+| `SMS_VERIFICATION_RESENT` | An SMS code was sent again. |
+| `SMS_VERIFICATION_COMPLETED` | The party entered the right SMS code. |
+| `SMS_VERIFICATION_FAILED` | The party entered a wrong SMS code. |
+| `EMAIL_VERIFICATION_SENT` | An email code was sent. |
+| `EMAIL_VERIFICATION_RESENT` | An email code was sent again. |
+| `EMAIL_VERIFICATION_COMPLETED` | The party entered the right email code. |
+| `EMAIL_VERIFICATION_FAILED` | The party entered a wrong email code. |
+| `PIN_VERIFICATION_COMPLETED` | The party entered the right PIN. |
+| `PIN_VERIFICATION_FAILED` | The party entered a wrong PIN. |
+
+## Click to sign
+
+| Type | Description |
+|------|-------------|
+| `CLICK_TO_SIGN_INITIATED` | The party clicked to sign. |
+| `CLICK_TO_SIGN_CONFIRMED` | The party confirmed the signature. |
+| `CLICK_TO_SIGN_TIMEOUT` | The party didn't confirm in time. |
+
+## Delegation
+
+| Type | Description |
+|------|-------------|
+| `DELEGATION_CREATED` | A party delegated signing to someone else. |
+| `DELEGATION_ACCEPTED` | The delegate accepted. |
+| `DELEGATION_DECLINED` | The delegate declined. |
+| `DELEGATION_REVOKED` | The delegation was revoked. |
+| `DELEGATION_EXPIRED` | The delegation expired. |
+| `DELEGATION_COMPLETED` | The delegate signed. |

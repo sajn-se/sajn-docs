@@ -1,0 +1,116 @@
+---
+title: "Embed signing in your app"
+description: "Recipe: a server route that prepares a document and returns a signing token, and a page that shows the signing page in an iframe"
+---
+
+In this recipe, you build an Express app where a signed-in user signs an agreement without leaving your site. The server creates and sends the document and returns the party's token. The page shows the signing page with `@sajn/embed-js` and moves on when the user has signed.
+
+## Before you begin
+
+- Embedded signing turned on for your organization, with your domain in the allowlist. For more information, see [Embedded signing](/guides/embedding/overview#turn-on-embedding).
+- Node.js 18 or later, and Express: `npm install express`.
+- An API key in the `SAJN_API_KEY` environment variable. To create one, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- A template for the agreement. Store its ID in `SAJN_TEMPLATE_ID`.
+
+## Build the app
+
+<Steps>
+  <Step title="Prepare the document on the server">
+    Save the following file as `server.js`. The `/api/signing-session` route creates the document with the user as a party whose `deliveryMethod` is `NONE`, sends it, and returns the document ID and the party's token:
+
+    ```javascript
+    // server.js
+    import express from "express";
+
+    const API = "https://app.sajn.se/api/v1";
+    const headers = {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      "Sajn-Version": "2026-10",
+      "Content-Type": "application/json",
+    };
+
+    const sajn = async (method, path, body) => {
+      const response = await fetch(`${API}${path}`, { method, headers, body: body && JSON.stringify(body) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(`${data.code}: ${data.message} (${data.requestId})`);
+      return data;
+    };
+
+    const app = express();
+    app.use(express.static("public"));
+
+    app.post("/api/signing-session", async (req, res) => {
+      // Replace with the signed-in user from your session.
+      const user = { id: "user-42", name: "Alex Andersson", email: "alex@example.com" };
+
+      const document = await sajn("POST", "/documents", {
+        name: `Membership agreement - ${user.name}`,
+        templateId: process.env.SAJN_TEMPLATE_ID,
+        externalId: `membership-${user.id}`,
+        parties: [{ name: user.name, email: user.email, role: "SIGNER", deliveryMethod: "NONE" }],
+      });
+      await sajn("POST", `/documents/${document.id}/send`, {});
+      const party = await sajn("GET", `/documents/${document.id}/parties/${document.parties[0].id}`);
+
+      res.json({ documentId: document.id, token: party.token });
+    });
+
+    app.listen(3000);
+    ```
+
+    The token lets anyone sign as the party, so return it only to that user's session. If the template has signature boxes placed on a PDF, leave out `parties` and update the template's party instead; see [Create documents from templates](/guides/templates/templates-and-forms).
+  </Step>
+
+  <Step title="Show the signing page">
+    Save the following file as `public/index.html`. It asks the server for a session and mounts the signing page:
+
+    ```html
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <title>Sign your membership agreement</title>
+        <style>#signing { height: 90vh; } #signing iframe { width: 100%; height: 100%; border: 0; }</style>
+      </head>
+      <body>
+        <div id="signing"></div>
+        <script src="https://unpkg.com/@sajn/embed-js"></script>
+        <script>
+          (async () => {
+            const response = await fetch("/api/signing-session", { method: "POST" });
+            const { documentId, token } = await response.json();
+
+            sajn.embedSignDocument({
+              element: "#signing",
+              documentId,
+              token,
+              language: "en",
+              onSignerCompleted: () => { window.location.href = "/done.html"; },
+              onDocumentError: ({ code, message }) => { console.error(code, message); },
+            });
+          })();
+        </script>
+      </body>
+    </html>
+    ```
+  </Step>
+
+  <Step title="Confirm the signature on the server">
+    `onSignerCompleted` runs in the browser, so use it to move the user on, not as proof. To confirm the signature, subscribe a webhook to `DOCUMENT_COMPLETED` and match the document by `payload.externalId`. For a complete handler, see [Send a contract from your CRM](/guides/recipes/crm-contract-notifications#build-the-service).
+  </Step>
+</Steps>
+
+## Run it
+
+Start the server with `node server.js` behind a public HTTPS domain that's in the allowlist, such as a tunnel to port 3000, and open the domain in a browser. The signing page loads in the frame, and after signing, the browser opens `/done.html`.
+
+## Handle errors
+
+- A blank frame or a `document-error` event: the domain isn't in the allowlist or isn't served over HTTPS, or the token is wrong.
+- An error from `/api/signing-session`: the message includes the API `code` and `requestId`. For what each code means, see [Errors](/api-fundamentals/errors).
+
+## Related guides
+
+- [Embedded signing](/guides/embedding/overview)
+- [Embed signing with React](/guides/embedding/react)
+- [Add signing to your onboarding](/guides/documents/onboarding-signing-flow)

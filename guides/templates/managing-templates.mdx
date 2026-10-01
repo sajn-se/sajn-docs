@@ -1,0 +1,170 @@
+---
+title: "Manage templates"
+description: "Create a template with fields, default parties, settings, and tags through the API, and keep it up to date"
+---
+
+In this guide, you build a template through the API: its content, its default parties, the settings that documents inherit, and a tag. Then you list, copy, and delete templates.
+
+To create documents from a template and fill in its fields, see [Create documents from templates](/guides/templates/templates-and-forms). Most teams build templates in the sajn editor; use this guide when your code owns the template.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Read [Fields that parties fill in](/guides/fields/signer-fields) for the FORM field format. Template fields use the same format as document fields.
+
+## Build a template
+
+<Steps>
+  <Step title="Create the template with its content">
+    Send a `POST` request to `/api/v1/templates` with a `name` and the fields in `initialFields`:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/templates \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Employment contract",
+        "initialFields": [
+          { "type": "HTML", "position": 0,
+            "fieldMeta": { "type": "HTML", "content": "<h1>Employment contract</h1><p>The terms of employment follow.</p>" } },
+          { "type": "FORM", "position": 1,
+            "fieldMeta": {
+              "type": "FORM",
+              "columns": 2,
+              "fields": [
+                { "id": "employee-name", "key": "employee-name", "row": 0, "column": 0,
+                  "fieldMeta": { "type": "input", "label": "Name", "required": true } },
+                { "id": "start-date", "key": "start-date", "row": 0, "column": 1,
+                  "fieldMeta": { "type": "datepicker", "label": "Start date", "required": true } }
+              ]
+            } }
+        ]
+      }'
+    ```
+
+    The response is the template:
+
+    ```json
+    {
+      "id": "cm4k2xc1r0004abcd3456qrst",
+      "name": "Employment contract",
+      "workspaceId": "cm4k2xy7b0000abcd0000wsxx",
+      "organizationId": "cm4k2xz0a0000abcd0000orgx",
+      "createdById": "cm4k2xw3c0000abcd0000usrx",
+      "isGlobal": false,
+      "templateMeta": null,
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
+    }
+    ```
+
+    Store the template `id`. The subfield keys, `employee-name` and `start-date`, are the keys your code fills in on every document created from the template.
+  </Step>
+
+  <Step title="Add the default parties">
+    Add a placeholder party for each person who signs. A template party has a `name`, a `role`, and its signing settings. Documents created from the template get a copy of each party, which you then update with the real person:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/templates/TEMPLATE_ID/parties \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Employee",
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "deliveryMethod": "EMAIL",
+        "requiredSignature": "SE_BANKID"
+      }'
+    ```
+
+    Replace `TEMPLATE_ID` with the template `id`. For a party who's the same on every document, such as your HR manager, send `contactId` instead of `name`.
+  </Step>
+
+  <Step title="Set the defaults for new documents">
+    `templateMeta` holds the settings that every document created from the template starts with:
+
+    ```bash
+    curl -X PATCH https://app.sajn.se/api/v1/templates/TEMPLATE_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "templateMeta": {
+          "signingOrder": "SEQUENTIAL",
+          "preferredLanguage": "en",
+          "reminderIntervalDays": "3",
+          "forceReadFullDocument": true,
+          "internalRecipients": ["hr@example.com"]
+        }
+      }'
+    ```
+
+    `templateMeta` takes the same settings as `documentMeta` on a document, plus `visibility` and `selectedUserIds`, which control who can see documents created from the template. For every property, see [Update a template](/api-reference/update-a-template).
+  </Step>
+
+  <Step title="Tag the template">
+    Add a tag that has `TEMPLATE` in its `availableFor` list:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/templates/TEMPLATE_ID/tags \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{ "tagId": "TAG_ID" }'
+    ```
+
+    Replace `TAG_ID` with the tag's ID. For more information, see [Organize documents with tags](/guides/documents/organizing-with-tags).
+  </Step>
+
+  <Step title="Create a document from it">
+    The template is ready. To create a document, fill in its values, and send it, see [Create documents from templates](/guides/templates/templates-and-forms).
+  </Step>
+</Steps>
+
+## Find, copy, and delete templates
+
+- List templates with `GET /api/v1/templates`. Filter by name with `query`, and by tag with `tagId`. The list is paginated; for more information, see [Pagination](/api-fundamentals/pagination).
+- Get one template with its `fields`, `parties`, and `tags` with `GET /api/v1/templates/TEMPLATE_ID`.
+- Copy a template with all its fields and parties with `POST /api/v1/templates/TEMPLATE_ID/duplicate`. Use a copy to change a template without affecting the original.
+- Delete a template permanently with `DELETE /api/v1/templates/TEMPLATE_ID`. Documents created from it aren't affected.
+- List the documents created from a template with `GET /api/v1/templates/TEMPLATE_ID/documents`.
+
+## Change fields and parties
+
+The template field and party endpoints work like their document counterparts:
+
+| Task | Endpoint |
+|------|----------|
+| Add fields | `POST /api/v1/templates/TEMPLATE_ID/fields` |
+| Replace a field | `PATCH /api/v1/templates/TEMPLATE_ID/fields/FIELD_ID` |
+| Change a FORM subfield by key | `PATCH /api/v1/templates/TEMPLATE_ID/fields/key:KEY` |
+| Move boxes on a PDF | `PATCH /api/v1/templates/TEMPLATE_ID/fields/FIELD_ID/placed-fields` |
+| Delete a field | `DELETE /api/v1/templates/TEMPLATE_ID/fields/FIELD_ID` |
+| Change a party | `PATCH /api/v1/templates/TEMPLATE_ID/parties/PARTY_ID` |
+| Remove a party | `DELETE /api/v1/templates/TEMPLATE_ID/parties/PARTY_ID` |
+
+A field update by ID replaces the field's `fieldMeta`, so send the whole object. A `key:` update merges into the subfield. A field `DELETE` returns `{ "id": "FIELD_ID", "deleted": true }`; to keep the content, read the field first. For the field formats, see [HTML fields](/guides/fields/html-fields), [Fields that parties fill in](/guides/fields/signer-fields), and [Place fields on a PDF](/guides/fields/pdf-field-placement).
+
+## Handle errors
+
+- `400 VALIDATION_FAILED`: a field or a party is invalid. For example, a role of `ACCEPTOR` fails; send `SIGNER`. Read `issues` for the path.
+- `400 INVALID_STATE`: the template is locked against edits.
+- `404 NOT_FOUND`: the template, the field, or the party doesn't exist in the workspace.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Create documents from templates" icon="file-lines" href="/guides/templates/templates-and-forms">
+    Fill in a template's fields and send the document.
+  </Card>
+  <Card title="Templates and forms" icon="lightbulb" href="/concepts/templates-and-forms">
+    Learn how templates and public forms relate.
+  </Card>
+  <Card title="Create a new template" icon="code" href="/api-reference/create-a-new-template">
+    See the template endpoints in the API reference.
+  </Card>
+</CardGroup>

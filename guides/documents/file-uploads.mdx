@@ -1,0 +1,279 @@
+---
+title: "Upload files"
+description: "Upload a PDF file straight to storage with a presigned URL, and attach it to a document as a PDF field"
+---
+
+In this guide, you upload a PDF file to sajn and attach it to a draft document. The bytes go straight to storage through a presigned URL, so the API server never handles them.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Have a `DRAFT` document. For more information, see [Create a document](/guides/documents/create-document).
+- Have a file of at most 25 MB (26,214,400 bytes) in a supported format. sajn accepts PDF, Word, Excel, and PowerPoint documents; JPEG, PNG, GIF, WebP, and SVG images; and MP4, QuickTime, AVI, and WebM video. For the exact MIME types, see [Create a file](/api-reference/create-a-file-presigned-upload).
+
+## How the upload works
+
+1. You create a file record with the file's name, MIME type, size, and SHA-256 checksum. The response has a `fileId`, a storage `key`, and an `uploadUrl`.
+2. You send the bytes to `uploadUrl` in a `PUT` request. Storage rejects bytes that don't match the checksum.
+3. You confirm the upload. The file's status changes from `PENDING` to `CONFIRMED`.
+4. You reference the storage `key` in a document field.
+
+## Upload a file and attach it
+
+<Steps>
+  <Step title="Compute the checksum">
+    The checksum is the SHA-256 hash of the exact bytes you upload, encoded as base64:
+
+    ```bash
+    FILE="contract.pdf"
+    SIZE=$(wc -c < "$FILE" | tr -d ' ')
+    CHECKSUM=$(openssl dgst -sha256 -binary "$FILE" | base64)
+    ```
+  </Step>
+
+  <Step title="Create the file record">
+    Send a `POST` request to `/api/v1/files`:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/files \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"fileName\": \"$FILE\",
+        \"mimeType\": \"application/pdf\",
+        \"size\": $SIZE,
+        \"checksum\": \"$CHECKSUM\"
+      }"
+    ```
+
+    The response is similar to the following:
+
+    ```json
+    {
+      "fileId": "cm4k2xf3u0007abcd2468cdef",
+      "key": "f/cm4k2xz0a0000abcd0000orgx/cm4k2xf3u0007abcd2468cdef/contract.pdf",
+      "uploadUrl": "https://storage.sajn.se/f/cm4k2xz0a0000abcd0000orgx/cm4k2xf3u0007abcd2468cdef/contract.pdf?X-Amz-Signature=3f9a"
+    }
+    ```
+
+    `uploadUrl` is valid for 15 minutes. `visibility` is optional: `PRIVATE`, the default, serves the file only through short-lived signed URLs, and `PUBLIC` serves it from a permanent URL.
+  </Step>
+
+  <Step title="Upload the bytes">
+    Send the file to `uploadUrl` with the same `Content-Type` and the checksum in the `x-amz-checksum-sha256` header. Don't send your `Authorization` header; the URL is already signed:
+
+    ```bash
+    curl -X PUT "UPLOAD_URL" \
+      -H "Content-Type: application/pdf" \
+      -H "x-amz-checksum-sha256: $CHECKSUM" \
+      --data-binary @"$FILE"
+    ```
+
+    Replace `UPLOAD_URL` with the `uploadUrl` from the previous step. A successful upload returns an empty `200` response.
+  </Step>
+
+  <Step title="Confirm the upload">
+    Confirm the file, so sajn verifies the stored size and checksum before you use it:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/files/FILE_ID/confirm \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Replace `FILE_ID` with the `fileId`. The response is similar to the following:
+
+    ```json
+    {
+      "id": "cm4k2xf3u0007abcd2468cdef",
+      "status": "CONFIRMED",
+      "size": 102400,
+      "checksumVerified": true
+    }
+    ```
+
+    Confirming is idempotent. If you skip it, sajn confirms the file the first time you call [Get file by ID](/api-reference/get-file-by-id).
+  </Step>
+
+  <Step title="Attach the file to the document">
+    Create a `PDF` field whose `fieldMeta.value` is the storage `key`:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "type": "PDF",
+        "position": 0,
+        "fieldMeta": { "type": "PDF", "value": "STORAGE_KEY" }
+      }'
+    ```
+
+    Replace the following:
+
+    - `DOCUMENT_ID`: the ID of the draft document.
+    - `STORAGE_KEY`: the `key` from the file record.
+
+    The response is `{ "fields": [...] }`, with the created field in the same shape as [Get a document field](/api-reference/get-a-document-field). To replace the PDF of an existing field, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID` with the full `fieldMeta`.
+
+    To place signature boxes and input fields on the PDF's pages, see [Place fields on a PDF](/guides/fields/pdf-field-placement).
+  </Step>
+</Steps>
+
+## Complete example
+
+The following programs run the whole flow for `contract.pdf`. Set `SAJN_API_KEY` and `DOCUMENT_ID` in the environment first:
+
+<CodeGroup>
+
+```bash bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+API="https://app.sajn.se/api/v1"
+FILE="contract.pdf"
+SIZE=$(wc -c < "$FILE" | tr -d ' ')
+CHECKSUM=$(openssl dgst -sha256 -binary "$FILE" | base64)
+HEADERS=(-H "Authorization: Bearer $SAJN_API_KEY" -H "Sajn-Version: 2026-10" -H "Content-Type: application/json")
+
+CREATED=$(curl -sf -X POST "$API/files" "${HEADERS[@]}" -d "{
+  \"fileName\": \"$FILE\", \"mimeType\": \"application/pdf\",
+  \"size\": $SIZE, \"checksum\": \"$CHECKSUM\"
+}")
+FILE_ID=$(echo "$CREATED" | jq -r .fileId)
+KEY=$(echo "$CREATED" | jq -r .key)
+
+curl -sf -X PUT "$(echo "$CREATED" | jq -r .uploadUrl)" \
+  -H "Content-Type: application/pdf" \
+  -H "x-amz-checksum-sha256: $CHECKSUM" \
+  --data-binary @"$FILE"
+
+curl -sf -X POST "$API/files/$FILE_ID/confirm" "${HEADERS[@]}"
+
+curl -sf -X POST "$API/documents/$DOCUMENT_ID/fields" "${HEADERS[@]}" -d "{
+  \"type\": \"PDF\", \"position\": 0,
+  \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"$KEY\" }
+}" | jq '.fields[0].id'
+```
+
+```javascript Node.js
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+
+const api = "https://app.sajn.se/api/v1";
+const headers = {
+  Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+  "Sajn-Version": "2026-10",
+  "Content-Type": "application/json",
+};
+
+const post = async (path, body) => {
+  const response = await fetch(`${api}${path}`, { method: "POST", headers, body: JSON.stringify(body) });
+  if (!response.ok) throw new Error(`${path}: ${JSON.stringify(await response.json())}`);
+  return response.json();
+};
+
+const bytes = await readFile("contract.pdf");
+const checksum = createHash("sha256").update(bytes).digest("base64");
+
+const { fileId, key, uploadUrl } = await post("/files", {
+  fileName: "contract.pdf",
+  mimeType: "application/pdf",
+  size: bytes.length,
+  checksum,
+});
+
+const upload = await fetch(uploadUrl, {
+  method: "PUT",
+  headers: { "Content-Type": "application/pdf", "x-amz-checksum-sha256": checksum },
+  body: bytes,
+});
+if (!upload.ok) throw new Error(`Upload failed: ${upload.status}`);
+
+await post(`/files/${fileId}/confirm`);
+
+const { fields } = await post(`/documents/${process.env.DOCUMENT_ID}/fields`, {
+  type: "PDF",
+  position: 0,
+  fieldMeta: { type: "PDF", value: key },
+});
+console.log(fields[0].id);
+```
+
+```python Python
+import base64
+import hashlib
+import os
+
+import requests
+
+API = "https://app.sajn.se/api/v1"
+HEADERS = {
+    "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+    "Sajn-Version": "2026-10",
+}
+
+
+def post(path, body=None):
+    response = requests.post(f"{API}{path}", headers=HEADERS, json=body)
+    response.raise_for_status()
+    return response.json()
+
+
+with open("contract.pdf", "rb") as source:
+    data = source.read()
+checksum = base64.b64encode(hashlib.sha256(data).digest()).decode()
+
+created = post("/files", {
+    "fileName": "contract.pdf",
+    "mimeType": "application/pdf",
+    "size": len(data),
+    "checksum": checksum,
+})
+
+upload = requests.put(
+    created["uploadUrl"],
+    headers={"Content-Type": "application/pdf", "x-amz-checksum-sha256": checksum},
+    data=data,
+)
+upload.raise_for_status()
+
+post(f"/files/{created['fileId']}/confirm")
+
+fields = post(f"/documents/{os.environ['DOCUMENT_ID']}/fields", {
+    "type": "PDF",
+    "position": 0,
+    "fieldMeta": {"type": "PDF", "value": created["key"]},
+})["fields"]
+print(fields[0]["id"])
+```
+
+</CodeGroup>
+
+## Handle errors
+
+- `400 VALIDATION_FAILED` on `POST /api/v1/files`: the `mimeType` isn't supported, or `size` is more than 26,214,400 bytes. The `issues` array names the field.
+- `403` from the `uploadUrl`: the URL expired, or the `Content-Type` doesn't match `mimeType`. Create a new file record.
+- `400` from the `uploadUrl`: the bytes don't match the checksum. Compute the size and the checksum from the same bytes you upload.
+- `401 UNAUTHORIZED` on a sajn endpoint: the `Authorization` header is missing or the key is invalid. The `uploadUrl` doesn't take the header.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Place fields on a PDF" icon="signature" href="/guides/fields/pdf-field-placement">
+    Add signature boxes and inputs to the uploaded PDF.
+  </Card>
+  <Card title="Send for signing" icon="paper-plane" href="/guides/documents/send-for-signing">
+    Send the document to its parties.
+  </Card>
+  <Card title="Create a file" icon="code" href="/api-reference/create-a-file-presigned-upload">
+    See the endpoint in the API reference.
+  </Card>
+  <Card title="Confirm an uploaded file" icon="code" href="/api-reference/confirm-an-uploaded-file">
+    See the endpoint in the API reference.
+  </Card>
+</CardGroup>

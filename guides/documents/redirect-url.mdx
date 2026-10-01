@@ -1,0 +1,139 @@
+---
+title: "Redirect after signing"
+description: "Send a party back to your application after they sign, with the document and party IDs in the URL"
+---
+
+In this guide, you configure a document so that each party lands on a page in your application after signing. The URL can carry the document ID and the party ID, so your page knows who signed.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Have a page in your application that can receive the redirect, such as `https://app.example.com/signed`.
+
+## How the redirect works
+
+When a party finishes signing, the signing page counts down for five seconds and then opens the redirect URL in the same tab. The party can cancel the countdown. The redirect happens in the party's browser, so it isn't proof that the document was signed. To confirm a signature, use the `DOCUMENT_PARTY_SIGNED` and `DOCUMENT_COMPLETED` [webhook events](/webhooks/overview).
+
+The URL can contain the following placeholders. sajn replaces the first occurrence of each:
+
+- `{documentId}`: the document ID.
+- `{signerId}`: the ID of the party who signed, the same value as `id` in the document's `parties`. The placeholder keeps this name in every API version.
+
+## Configure the redirect
+
+<Steps>
+  <Step title="Set the redirect URL on the document">
+    Set `documentMeta.redirectEnabled` to `true` and `documentMeta.redirectUrl` to an `http` or `https` URL. You can send them when you create the document, or update a document you already have:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "documentMeta": {
+          "redirectEnabled": true,
+          "redirectUrl": "https://app.example.com/signed?doc={documentId}&party={signerId}"
+        }
+      }'
+    ```
+
+    ```javascript Node.js
+    const documentId = "DOCUMENT_ID";
+
+    const response = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+        "Sajn-Version": "2026-10",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        documentMeta: {
+          redirectEnabled: true,
+          redirectUrl: "https://app.example.com/signed?doc={documentId}&party={signerId}",
+        },
+      }),
+    });
+    console.log((await response.json()).documentMeta.redirectUrl);
+    ```
+
+    ```python Python
+    import os
+
+    import requests
+
+    document_id = "DOCUMENT_ID"
+
+    response = requests.patch(
+        f"https://app.sajn.se/api/v1/documents/{document_id}",
+        headers={
+            "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+            "Sajn-Version": "2026-10",
+        },
+        json={
+            "documentMeta": {
+                "redirectEnabled": True,
+                "redirectUrl": "https://app.example.com/signed?doc={documentId}&party={signerId}",
+            }
+        },
+    )
+    response.raise_for_status()
+    print(response.json()["documentMeta"]["redirectUrl"])
+    ```
+
+    </CodeGroup>
+
+    Replace `DOCUMENT_ID` with the document ID. The response is the document, with the URL in `documentMeta.redirectUrl`. You can change the redirect after sending, until the document is completed.
+
+    After Alex signs, the browser opens a URL similar to the following:
+
+    ```text
+    https://app.example.com/signed?doc=cm4k2x9p10001abcd1234efgh&party=cm4k2xa3f0002abcd5678ijkl
+    ```
+  </Step>
+
+  <Step title="Handle the redirect in your application">
+    On the redirect page, read the IDs from the query string. To show the current state, get the document from your server, never from the browser, because the request needs your API key:
+
+    ```javascript
+    // Express route on your server.
+    app.get("/signed", async (req, res) => {
+      const { doc, party } = req.query;
+
+      const response = await fetch(`https://app.sajn.se/api/v1/documents/${doc}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+          "Sajn-Version": "2026-10",
+        },
+      });
+      const document = await response.json();
+      const signedParty = document.parties.find((p) => p.id === party);
+
+      res.render("signed", { documentName: document.name, signed: signedParty?.signingStatus === "SIGNED" });
+    });
+    ```
+
+    Treat the query string as untrusted input. Anyone can open the URL with other IDs, so check that the document belongs to the signed-in user before you show it.
+  </Step>
+</Steps>
+
+## Handle errors
+
+- `400 VALIDATION_FAILED`: `redirectUrl` isn't an `http` or `https` URL.
+- `400` after sending: the document is completed or withdrawn, and the redirect can no longer change.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Embedded signing" icon="window" href="/guides/embedding/overview">
+    Show the signing page inside your application.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
+    Confirm signatures server to server.
+  </Card>
+</CardGroup>

@@ -1,210 +1,88 @@
 ---
-title: Contacts
-description: 'Managing contacts and companies in sajn'
+title: "Contacts"
+description: "Reusable records of the people and companies you send documents to"
 ---
 
-# Contacts
+A **contact** is a person you send documents to more than once. A **company** groups contacts who work for the same organization. Both belong to a [workspace](/concepts/workspaces).
 
-Contacts represent individuals that you frequently send documents to. Managing contacts makes it easier to create signers and track signing history.
+When you add a contact to a document, sajn creates a [party](/concepts/parties) from it. The party takes a copy of the contact's details, so a later change to the contact doesn't change documents you already created.
 
-## Creating Contacts
-
-Create a contact with basic information:
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "phone": "+46701234567",
-  "ssn": "197001011234"
-}
+```mermaid
+flowchart LR
+    company["Company<br/>Example AB"] --- contact["Contact<br/>Kai Berg"]
+    contact -- "contactId" --> party1["Party on document 1"]
+    contact -- "contactId" --> party2["Party on document 2"]
 ```
 
-### Contact Fields
+## Contact fields
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `firstName` | Yes | Contact's first name |
-| `lastName` | Yes | Contact's last name |
-| `email` | No | Email address |
-| `phone` | No | Phone number for SMS |
-| `ssn` | No | Swedish personal number |
-| `companyId` | No | Associated company ID |
-| `companyRole` | No | Role within the company |
-| `externalId` | No | Your system's identifier |
+| `firstName` | Yes | First name |
+| `lastName` | No | Last name |
+| `email` | No | Email address, for email delivery |
+| `phone` | No | Phone number, for SMS delivery and SMS verification |
+| `nationalId` | No | National identity number, such as a Swedish personnummer. sajn compares it with the eID at signing. In API version `2026-09`, this field is `ssn`. |
+| `companyId` | No | The company the contact works for |
+| `companyRole` | No | The contact's role at the company, such as `CEO` |
+| `externalId` | No | Your own ID for the contact, such as a CRM record ID |
 
-<Note>
-  At least one of `email` or `phone` is recommended for sending documents.
-</Note>
+The following request body creates a contact:
+
+```json
+{
+  "firstName": "Kai",
+  "lastName": "Berg",
+  "email": "kai@example.com",
+  "phone": "+46705550123",
+  "companyId": "cm4k2x9p70009abcd6789cdef",
+  "companyRole": "CEO",
+  "externalId": "crm-10422"
+}
+```
+
+To create it, send the body to [`POST /contacts`](/api-reference/create-a-new-contact).
 
 ## Companies
 
-Companies allow you to organize contacts by their organizations:
+A company has a `name`, an optional `orgNumber`, and an optional `country`. To link a contact to a company, set the contact's `companyId`. To read a company with its contacts, call [`GET /companies/{id}`](/api-reference/get-a-company-by-id).
+
+To find a company's details in an external business registry by its organization number, call [`GET /companies/lookup`](/api-reference/lookup-company-in-external-registry).
+
+## Use a contact on a document
+
+To add a contact as a party, send its `contactId`, either in `parties` when you create the document, or to [`POST /documents/{id}/parties`](/api-reference/add-a-party-to-document):
 
 ```json
 {
-  "name": "Acme Corporation",
-  "orgNumber": "556123-4567",
-  "country": "Sweden"
-}
-```
-
-### Linking Contacts to Companies
-
-When creating or updating a contact, link them to a company:
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@acme.com",
-  "companyId": "company_123",
-  "companyRole": "CEO"
-}
-```
-
-## Using Contacts as Signers
-
-When adding signers to documents, reference the contact ID:
-
-```json
-{
-  "contactId": "contact_123",
+  "contactId": "cm4k2x9p40006abcd3456qrst",
   "role": "SIGNER",
-  "signingOrder": 1
+  "requiredSignature": "SE_BANKID"
 }
 ```
 
-The signer will automatically inherit information from the contact.
+The party gets the contact's name, email, phone number, national ID, and company. The party's `contactId` links back to the contact.
 
-## Benefits of Using Contacts
+## Find contacts
+
+To list contacts, call [`GET /contacts`](/api-reference/list-all-contacts). Use `query` to search first name, last name, email, phone, and company, and `companyId` or `tagId` to filter. For pagination, see [Pagination](/api-fundamentals/pagination).
+
+Before you create a contact, search for it, so you don't create duplicates. If you sync contacts from another system, store that system's ID in `externalId`.
+
+## Delete a contact
+
+[`DELETE /contacts/{id}`](/api-reference/delete-a-contact) deletes a contact permanently. Parties created from the contact keep their own copy of its details and are unlinked from it, so existing documents don't change.
+
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Consistency" icon="check-double">
-    Ensure consistent information across all documents
+  <Card title="Parties" icon="users" href="/concepts/parties">
+    Roles, signing order, delivery, and verification.
   </Card>
-  <Card title="Quick Setup" icon="bolt">
-    Add signers faster by referencing existing contacts
+  <Card title="Managing contacts" icon="address-book" href="/guides/contacts/managing-contacts">
+    Create, search, and update contacts.
   </Card>
-  <Card title="History" icon="clock-rotate-left">
-    Track all documents a contact has been involved with
-  </Card>
-  <Card title="Updates" icon="pen">
-    Update contact info in one place for future documents
-  </Card>
-</CardGroup>
-
-## Contact Management
-
-### Searching Contacts
-
-Use the API to search and filter contacts:
-
-```bash
-GET /api/v1/contacts?page=1&perPage=20
-```
-
-### Updating Contacts
-
-```bash
-PATCH /api/v1/contacts/{id}
-```
-
-<Info>
-  Updating a contact doesn't affect existing document signers - changes only apply to new documents.
-</Info>
-
-### Deleting Contacts
-
-Soft delete contacts to keep historical data intact:
-
-```bash
-DELETE /api/v1/contacts/{id}
-```
-
-Deleted contacts are hidden from lists but document references remain valid.
-
-## Company Management
-
-### Listing Companies
-
-```bash
-GET /api/v1/companies
-```
-
-### Getting Company Details
-
-Retrieve a company with all associated contacts:
-
-```bash
-GET /api/v1/companies/{id}
-```
-
-Response includes:
-
-```json
-{
-  "company": {
-    "id": "company_123",
-    "name": "Acme Corporation",
-    "orgNumber": "556123-4567",
-    "parties": [
-      {
-        "id": "contact_1",
-        "firstName": "John",
-        "lastName": "Doe"
-      }
-    ]
-  }
-}
-```
-
-## External IDs
-
-Use external IDs to link contacts to records in your own systems:
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "externalId": "customer_456"
-}
-```
-
-This makes it easy to:
-- Sync with your CRM
-- Match contacts with your database records
-- Integrate with existing workflows
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Deduplicate before creating">
-    Check if a contact already exists before creating a new one to avoid duplicates.
-  </Accordion>
-
-  <Accordion title="Keep information current">
-    Regularly update contact information to ensure delivery success.
-  </Accordion>
-
-  <Accordion title="Use companies for B2B">
-    When working with business clients, create companies and link contacts for better organization.
-  </Accordion>
-
-  <Accordion title="External IDs for integration">
-    Always set external IDs when integrating with other systems for easy lookups.
-  </Accordion>
-</AccordionGroup>
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Signers" icon="users" href="/concepts/signers">
-    Learn about adding contacts as signers
-  </Card>
-  <Card title="API Reference" icon="code" href="/api/GET%20/api/v1/contacts">
-    Explore the Contacts API
+  <Card title="Working with companies" icon="building" href="/guides/contacts/working-with-companies">
+    Group contacts by company.
   </Card>
 </CardGroup>

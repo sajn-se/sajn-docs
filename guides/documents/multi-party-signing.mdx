@@ -1,0 +1,204 @@
+---
+title: "Multi-party signing"
+description: "Send one document to several parties and control whether they sign at the same time, one after another, or in groups"
+---
+
+In this guide, you create a document that several parties sign. You choose whether they sign in parallel, in a fixed sequence, or in groups, and you track each party until the document is completed.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Read [Create a document](/guides/documents/create-document) for the basics of creating a draft.
+
+## Choose a signing order
+
+The document's `documentMeta.signingOrder` decides when each party is invited:
+
+- `PARALLEL`: every party is invited when you send the document and can sign in any order. This is the fastest option, and we recommend it when the order doesn't matter.
+- `SEQUENTIAL`: parties are invited in ascending `signingOrder`. Parties with the same `signingOrder` form a group: they're invited together, and the next group is invited when everyone in the group has signed.
+
+With `SEQUENTIAL`, a party hears nothing until it's their turn. In the sajn app, a party who is waiting shows as **Väntar på tur** (Waiting for turn).
+
+## Create a document with a signing sequence
+
+<Steps>
+  <Step title="Create the document with ordered parties">
+    The following request creates a partnership agreement. The two people from Example AB sign first, at the same time. When both have signed, the two people from Sample Oy are invited:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST https://app.sajn.se/api/v1/documents \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Partnership agreement",
+        "templateId": "TEMPLATE_ID",
+        "documentMeta": { "signingOrder": "SEQUENTIAL" },
+        "parties": [
+          { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER", "signingOrder": 1 },
+          { "name": "Kai Berg", "email": "kai@example.com", "role": "SIGNER", "signingOrder": 1 },
+          { "name": "Quinn Virtanen", "email": "quinn@example.net", "role": "SIGNER", "signingOrder": 2 },
+          { "name": "Robin Laine", "email": "robin@example.net", "role": "SIGNER", "signingOrder": 2 }
+        ]
+      }'
+    ```
+
+    ```javascript Node.js
+    const response = await fetch("https://app.sajn.se/api/v1/documents", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+        "Sajn-Version": "2026-10",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Partnership agreement",
+        templateId: "TEMPLATE_ID",
+        documentMeta: { signingOrder: "SEQUENTIAL" },
+        parties: [
+          { name: "Alex Andersson", email: "alex@example.com", role: "SIGNER", signingOrder: 1 },
+          { name: "Kai Berg", email: "kai@example.com", role: "SIGNER", signingOrder: 1 },
+          { name: "Quinn Virtanen", email: "quinn@example.net", role: "SIGNER", signingOrder: 2 },
+          { name: "Robin Laine", email: "robin@example.net", role: "SIGNER", signingOrder: 2 },
+        ],
+      }),
+    });
+    const document = await response.json();
+    console.log(document.id);
+    ```
+
+    ```python Python
+    import os
+
+    import requests
+
+    response = requests.post(
+        "https://app.sajn.se/api/v1/documents",
+        headers={
+            "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+            "Sajn-Version": "2026-10",
+        },
+        json={
+            "name": "Partnership agreement",
+            "templateId": "TEMPLATE_ID",
+            "documentMeta": {"signingOrder": "SEQUENTIAL"},
+            "parties": [
+                {"name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER", "signingOrder": 1},
+                {"name": "Kai Berg", "email": "kai@example.com", "role": "SIGNER", "signingOrder": 1},
+                {"name": "Quinn Virtanen", "email": "quinn@example.net", "role": "SIGNER", "signingOrder": 2},
+                {"name": "Robin Laine", "email": "robin@example.net", "role": "SIGNER", "signingOrder": 2},
+            ],
+        },
+    )
+    response.raise_for_status()
+    print(response.json()["id"])
+    ```
+
+    </CodeGroup>
+
+    Replace `TEMPLATE_ID` with the ID of a template that holds the agreement's content. The response is the document, with one entry in `parties` for each party.
+  </Step>
+
+  <Step title="Send the document">
+    Send the document as usual:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/send \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+    ```
+
+    Replace `DOCUMENT_ID` with the document `id`. Only the parties with `signingOrder` 1 are invited.
+  </Step>
+
+  <Step title="Track the parties">
+    Each signature fires a `DOCUMENT_PARTY_SIGNED` webhook event. Its payload has the whole document in `document` and the party who signed in `party`:
+
+    ```json
+    {
+      "id": "cm4k2xh1w0009abcd4680klmn",
+      "event": "DOCUMENT_PARTY_SIGNED",
+      "createdAt": "2026-10-02T10:30:00.000Z",
+      "apiVersion": "2026-10",
+      "payload": {
+        "document": {
+          "id": "cm4k2x9p10001abcd1234efgh",
+          "name": "Partnership agreement",
+          "status": "PENDING",
+          "parties": [
+            { "id": "cm4k2xa3f0002abcd5678ijkl", "name": "Alex Andersson", "role": "SIGNER", "signingStatus": "SIGNED" },
+            { "id": "cm4k2xa3f0003abcd5678ijkl", "name": "Kai Berg", "role": "SIGNER", "signingStatus": "NOT_SIGNED" }
+          ]
+        },
+        "party": {
+          "id": "cm4k2xa3f0002abcd5678ijkl",
+          "name": "Alex Andersson",
+          "email": "alex@example.com",
+          "externalId": null,
+          "role": "SIGNER",
+          "signingStatus": "SIGNED",
+          "signedAt": "2026-10-02T10:30:00.000Z"
+        }
+      }
+    }
+    ```
+
+    The example leaves out some document and party fields. To count the parties who haven't signed, filter `payload.document.parties` on `signingStatus`. When every signing party has signed, `DOCUMENT_COMPLETED` fires. For every event, see [Webhook events](/webhooks/events).
+
+    To check the state without webhooks, call [Get a document by ID](/api-reference/get-a-document-by-id) and read each party's `signingStatus` and `readStatus`.
+  </Step>
+</Steps>
+
+## Give parties roles that don't sign
+
+Every party has a `role`:
+
+- `SIGNER`: signs the document.
+- `REVIEWER`: reviews the document without signing.
+- `ORGANIZER`: organizes the document without signing.
+
+Only `SIGNER` parties have to sign before the document is completed.
+
+## Common sequences
+
+The following patterns use `"signingOrder": "SEQUENTIAL"` on the document:
+
+- Your company signs first, then the customer: give your signatory `signingOrder` 1 and the customer's signatory 2.
+- Two companies sign, then witnesses: give both companies' signatories 1, and every witness 2.
+- An employee signs, then a manager countersigns: give the employee 1 and the manager 2.
+
+For a board resolution or a document where everyone signs on equal terms, use `PARALLEL` and leave out `signingOrder`.
+
+## Things to plan for
+
+- In a sequence, one party who doesn't sign blocks everyone after them. Set an expiration date and keep automatic reminders on. For more information, see [Reminders and expiration](/guides/documents/reminders-expiration).
+- When a party rejects the document, the document's status becomes `REJECTED` and the `DOCUMENT_PARTY_REJECTED` event fires. To try again, create and send a new document.
+- To change the order of a sent document, [withdraw it](/api-reference/withdraw-a-sent-document), update the parties' `signingOrder`, and send it again. `documentMeta.signingOrder` can't change while the document is sent.
+
+## Handle errors
+
+- `400 VALIDATION_FAILED`: a party is invalid, for example without `email`. Read `issues` for the path, such as `parties.2.email`.
+- `400` on `PATCH /api/v1/documents/DOCUMENT_ID` with a changed `signingOrder` after sending: the field is locked. Withdraw the document first.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Reminders and expiration" icon="clock" href="/guides/documents/reminders-expiration">
+    Keep a long sequence moving.
+  </Card>
+  <Card title="Set the signing method" icon="fingerprint" href="/guides/identity/signing-methods">
+    Use a different signing method for each party.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
+    Track signing progress as it happens.
+  </Card>
+  <Card title="Parties" icon="users" href="/concepts/parties">
+    Learn how parties, roles, and contacts relate.
+  </Card>
+</CardGroup>

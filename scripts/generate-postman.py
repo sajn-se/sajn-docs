@@ -18,8 +18,9 @@ OUTPUT_DIR = ROOT / "downloads" / "postman"
 REFERENCE_FILENAME = "sajn-api-reference.postman_collection.json"
 GETTING_STARTED_FILENAME = "sajn-getting-started.postman_collection.json"
 DOCUMENT_LIFECYCLE_FILENAME = "sajn-document-lifecycle.postman_collection.json"
-CONTACTS_SIGNERS_FILENAME = "sajn-contacts-and-signers.postman_collection.json"
+CONTACTS_PARTIES_FILENAME = "sajn-contacts-and-parties.postman_collection.json"
 ENV_FILENAME = "sajn-local.postman_environment.json"
+API_VERSION = "2026-10"
 
 
 REQUEST_OVERRIDES = {
@@ -35,7 +36,8 @@ REQUEST_OVERRIDES = {
         "body": {
             "name": "Employment Contract",
             "type": "SIGNABLE",
-            "signers": [],
+            "expiresAt": "2026-12-31T23:59:59.000Z",
+            "parties": [],
             "documentMeta": {
                 "subject": "Employment Contract",
                 "message": "Please review and sign this agreement.",
@@ -44,7 +46,7 @@ REQUEST_OVERRIDES = {
             },
         }
     },
-    ("post", "/api/v1/documents/{id}/signers"): {
+    ("post", "/api/v1/documents/{id}/parties"): {
         "body": {
             "contactId": "{{contactId}}",
             "role": "SIGNER",
@@ -88,25 +90,25 @@ CURATED_COLLECTIONS = {
     },
     DOCUMENT_LIFECYCLE_FILENAME: {
         "name": "sajn Document Lifecycle",
-        "description": "Create a document, add a signer, send it for signing, retrieve the signer URL, and download the final document.",
+        "description": "Create a document, add a party, send it for signing, retrieve the signing URL, and download the signed document.",
         "requests": [
             ("post", "/api/v1/documents"),
-            ("post", "/api/v1/documents/{id}/signers"),
+            ("post", "/api/v1/documents/{id}/parties"),
             ("post", "/api/v1/documents/{id}/send"),
-            ("get", "/api/v1/documents/{id}/signers/{signerId}"),
-            ("get", "/api/v1/documents/{id}/download"),
+            ("get", "/api/v1/documents/{id}/parties/{partyId}"),
+            ("get", "/api/v1/documents/{id}/download/{fileType}"),
         ],
     },
-    CONTACTS_SIGNERS_FILENAME: {
-        "name": "sajn Contacts and Signers",
-        "description": "Starter flow for contact creation, lookup, and document signer management.",
+    CONTACTS_PARTIES_FILENAME: {
+        "name": "sajn Contacts and Parties",
+        "description": "Starter flow for contact creation, lookup, and document party management.",
         "requests": [
             ("post", "/api/v1/contacts"),
             ("get", "/api/v1/contacts/search"),
             ("patch", "/api/v1/contacts/{id}"),
             ("post", "/api/v1/documents"),
-            ("post", "/api/v1/documents/{id}/signers"),
-            ("get", "/api/v1/documents/{id}/signers/{signerId}"),
+            ("post", "/api/v1/documents/{id}/parties"),
+            ("get", "/api/v1/documents/{id}/parties/{partyId}"),
         ],
     },
 }
@@ -115,7 +117,7 @@ CURATED_COLLECTIONS = {
 FOLDER_ORDER = [
     "Health",
     "Documents",
-    "Document Signers",
+    "Document Parties",
     "Document Fields",
     "Document Tags",
     "Contacts",
@@ -142,8 +144,8 @@ def write_json(path: Path, payload: dict) -> None:
 def infer_folder(path: str) -> str:
     if path == "/api/v1/health":
         return "Health"
-    if path.startswith("/api/v1/documents/") and "/signers" in path:
-        return "Document Signers"
+    if path.startswith("/api/v1/documents/") and "/parties" in path:
+        return "Document Parties"
     if path.startswith("/api/v1/documents/") and "/fields" in path:
         return "Document Fields"
     if path.startswith("/api/v1/documents/") and "/tags" in path:
@@ -194,6 +196,9 @@ def schema_to_example(schema: dict | None) -> object:
                     continue
                 return schema_to_example(option)
     schema_type = schema.get("type")
+    # OpenAPI 3.1 spells a nullable field as a type array, such as ["string", "null"].
+    if isinstance(schema_type, list):
+        schema_type = next((entry for entry in schema_type if entry != "null"), None)
     if schema_type == "object" or "properties" in schema:
         required = set(schema.get("required", []))
         example = {}
@@ -283,7 +288,7 @@ def query_params_for(operation: dict) -> list[dict]:
 def variable_name_for(path_parameter: str) -> str:
     mapping = {
         "id": "documentId",
-        "signerId": "signerId",
+        "partyId": "partyId",
         "fieldId": "fieldId",
         "tagId": "tagId",
         "key": "fileKey",
@@ -303,11 +308,11 @@ def build_url(path: str, operation: dict) -> str:
 
 
 def build_headers(method: str, body: dict | None) -> list[dict]:
-    if not body:
-        return []
-    if body["mode"] == "raw":
-        return [{"key": "Content-Type", "value": "application/json"}]
-    return []
+    # Pinned so the collections keep working when the API releases a new version.
+    headers = [{"key": "Sajn-Version", "value": "{{apiVersion}}"}]
+    if body and body["mode"] == "raw":
+        headers.append({"key": "Content-Type", "value": "application/json"})
+    return headers
 
 
 def success_status(operation: dict) -> int:
@@ -327,7 +332,7 @@ def curated_test_script(method: str, path: str, operation: dict) -> list[str]:
     capture_map = {
         ("post", "/api/v1/contacts"): ("contactId", "response.id"),
         ("post", "/api/v1/documents"): ("documentId", "response.id"),
-        ("post", "/api/v1/documents/{id}/signers"): ("signerId", "response.id"),
+        ("post", "/api/v1/documents/{id}/parties"): ("partyId", "response.id"),
         ("post", "/api/v1/sajn-id"): ("sajnIdId", "response.id"),
         ("put", "/api/v1/putFile"): ("fileId", "response.id"),
     }
@@ -346,7 +351,7 @@ def curated_test_script(method: str, path: str, operation: dict) -> list[str]:
             ]
         )
 
-    if (method, path) == ("get", "/api/v1/documents/{id}/signers/{signerId}"):
+    if (method, path) == ("get", "/api/v1/documents/{id}/parties/{partyId}"):
         lines.extend(
             [
                 "var response = {};",
@@ -409,9 +414,11 @@ def collection_variables() -> list[dict]:
         {"key": "baseUrl", "value": "https://app.sajn.se"},
         {"key": "uploadBaseUrl", "value": "https://upload.sajn.se"},
         {"key": "apiKey", "value": ""},
+        {"key": "apiVersion", "value": API_VERSION},
         {"key": "documentId", "value": ""},
         {"key": "contactId", "value": ""},
-        {"key": "signerId", "value": ""},
+        {"key": "partyId", "value": ""},
+        {"key": "fileType", "value": "SIGNED"},
         {"key": "fieldId", "value": ""},
         {"key": "tagId", "value": ""},
         {"key": "fileId", "value": ""},
@@ -475,9 +482,11 @@ def build_environment() -> dict:
             {"key": "baseUrl", "value": "https://app.sajn.se", "enabled": True},
             {"key": "uploadBaseUrl", "value": "https://upload.sajn.se", "enabled": True},
             {"key": "apiKey", "value": "", "enabled": True},
+            {"key": "apiVersion", "value": API_VERSION, "enabled": True},
             {"key": "documentId", "value": "", "enabled": True},
             {"key": "contactId", "value": "", "enabled": True},
-            {"key": "signerId", "value": "", "enabled": True},
+            {"key": "partyId", "value": "", "enabled": True},
+            {"key": "fileType", "value": "SIGNED", "enabled": True},
             {"key": "fieldId", "value": "", "enabled": True},
             {"key": "tagId", "value": "", "enabled": True},
             {"key": "fileId", "value": "", "enabled": True},

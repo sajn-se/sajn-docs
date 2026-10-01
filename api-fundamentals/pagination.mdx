@@ -1,0 +1,200 @@
+---
+title: "Pagination"
+description: "Walk any list endpoint with nextCursor and hasNextPage, or jump to a page with page and perPage"
+---
+
+List endpoints return one page of results at a time. Every paginated list returns the same two fields, so one loop walks any of them:
+
+- `hasNextPage`: `true` if another page follows; `false` on the last page.
+- `nextCursor`: an opaque string to pass as the `cursor` query parameter of your next request, or `null` on the last page.
+
+To get the next page, send the same request again with `cursor` set to the `nextCursor` you received, and keep every other query parameter unchanged. Stop when `hasNextPage` is `false`.
+
+Behind that interface, a list is either page-based or cursor-native. The difference matters only when the data changes while you walk it, or when you want to jump to a specific page.
+
+## Walk a list
+
+The following samples list every document in the workspace, 100 at a time:
+
+<CodeGroup>
+
+```bash curl
+#!/usr/bin/env bash
+# Requires jq.
+cursor=""
+
+while true; do
+  args=(--data-urlencode "perPage=100")
+  [ -n "$cursor" ] && args+=(--data-urlencode "cursor=$cursor")
+
+  page=$(curl -sS --fail-with-body -G https://app.sajn.se/api/v1/documents \
+    -H "Authorization: Bearer $SAJN_API_KEY" \
+    -H "Sajn-Version: 2026-10" \
+    "${args[@]}") || { echo "$page" >&2; exit 1; }
+
+  echo "$page" | jq -c '.documents[] | {id, name, status}'
+
+  [ "$(echo "$page" | jq -r '.hasNextPage')" = "true" ] || break
+  cursor=$(echo "$page" | jq -r '.nextCursor')
+done
+```
+
+```javascript Node.js
+// list-documents.mjs. Requires Node.js 18 or later.
+const BASE_URL = 'https://app.sajn.se/api/v1';
+
+async function* listAll(path, key, params = {}) {
+  let cursor = null;
+
+  do {
+    const query = new URLSearchParams({ perPage: '100', ...params });
+    if (cursor) query.set('cursor', cursor);
+
+    const response = await fetch(`${BASE_URL}${path}?${query}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+        'Sajn-Version': '2026-10',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status}: ${await response.text()}`);
+    }
+
+    const page = await response.json();
+    yield* page[key];
+    cursor = page.hasNextPage ? page.nextCursor : null;
+  } while (cursor);
+}
+
+for await (const document of listAll('/documents', 'documents')) {
+  console.log(document.id, document.name, document.status);
+}
+```
+
+```python Python
+# list_documents.py. Requires the requests package.
+import os
+
+import requests
+
+BASE_URL = "https://app.sajn.se/api/v1"
+HEADERS = {
+    "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+    "Sajn-Version": "2026-10",
+}
+
+
+def list_all(path, key, **params):
+    params = {"perPage": 100, **params}
+
+    while True:
+        response = requests.get(f"{BASE_URL}{path}", headers=HEADERS, params=params)
+        response.raise_for_status()
+        page = response.json()
+
+        yield from page[key]
+
+        if not page["hasNextPage"]:
+            return
+        params["cursor"] = page["nextCursor"]
+
+
+for document in list_all("/documents", "documents"):
+    print(document["id"], document["name"], document["status"])
+```
+
+</CodeGroup>
+
+Each sample reads your API key from the `SAJN_API_KEY` environment variable. To walk another list, change the path and the name of the array in the response, such as `/contacts` and `contacts`. Add filters to the first request only; the loops keep them on every page.
+
+A full walk of a large list sends many requests in a short time. To stay within your per-minute limit, see [Rate limits and quotas](/api-fundamentals/rate-limits).
+
+## Page-based lists
+
+Most lists, such as [contacts](/api-reference/list-all-contacts) and [templates](/api-reference/list-all-templates), are page-based. They take the following query parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `page` | The page number, from 1 to 10,000. Default: `1`. |
+| `perPage` | The number of items per page, from 1 to 100. The default is 10, 20, or 25, depending on the endpoint; the API reference lists each one. |
+| `cursor` | The `nextCursor` from the previous response. If you send both `cursor` and `page`, `cursor` wins. |
+
+A page-based response has the following fields next to its array of results:
+
+| Field | Description |
+|-------|-------------|
+| `totalPages` | The number of pages at the current `perPage`. Every page-based list returns it. |
+| `total` | The number of items that match your filters. Returned by the document, contact, company, and template lists, and by the list of documents created from a template. |
+| `hasNextPage` | `true` if another page follows. |
+| `nextCursor` | The cursor for the next page, or `null` on the last page. |
+
+For example, the following request gets the first page of contacts:
+
+```bash
+curl -G https://app.sajn.se/api/v1/contacts \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  --data-urlencode "perPage=20"
+```
+
+The response is similar to the following:
+
+```json
+{
+  "contacts": [],
+  "total": 87,
+  "totalPages": 5,
+  "hasNextPage": true,
+  "nextCursor": "eyJwIjoyfQ"
+}
+```
+
+On a page-based list, `nextCursor` stands for the next page number. If items are added or deleted while you walk the list, items can shift between pages, so a walk can skip or repeat an item. To jump to a specific page, such as for a table in your own UI, send `page` instead of `cursor`.
+
+## Cursor-native lists
+
+The following lists use keyset pagination: the cursor marks the last item you received, not a page number. Items created while you walk never shift the items you haven't read yet, which makes these lists the right choice for syncing data.
+
+| List | Order | `page` |
+|------|-------|--------|
+| [`GET /api/v1/documents`](/api-reference/list-all-documents) | `orderBy` and `orderDirection`. Default: `updatedAt`, newest first. | Accepted. Ignored when you send `cursor`. |
+| [`GET /api/v1/forms`](/api-reference/list-forms) | `updatedAt`, then ID, oldest first. | Not accepted. |
+| [`GET /api/v1/forms/{id}/submissions`](/api-reference/list-form-submissions) | `updatedAt`, then ID, oldest first. | Not accepted. |
+| [`GET /api/v1/events`](/api-reference/list-events) | `createdAt`, then ID, newest first. | Not accepted. |
+
+The forms, submissions, and events lists return no `total` or `totalPages`. The document list returns both.
+
+### Documents
+
+Cursor pagination on the document list requires `orderBy` set to `createdAt` or `updatedAt`. If you sort by `name`, `completedAt`, or `expiresAt`, `nextCursor` is always `null`; use `page` instead, and check `hasNextPage` to find the last page.
+
+A cursor belongs to the sort order it was issued for. Sending a cursor with a different `orderBy` returns `400 VALIDATION_FAILED`.
+
+### Sync changes incrementally
+
+To keep a copy of your documents up to date, sort by the time of the last change, oldest first, and start after the newest change you've stored:
+
+```bash
+curl -G https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  --data-urlencode "updatedAfter=2026-10-01T08:00:00Z" \
+  --data-urlencode "orderBy=updatedAt" \
+  --data-urlencode "orderDirection=asc" \
+  --data-urlencode "perPage=100"
+```
+
+Walk the cursor until `hasNextPage` is `false`, and then store the largest `updatedAt` you received for the next run. A document that changes during the walk moves to the end of the list, so the walk still reaches it. `updatedAfter` includes its boundary, so the next run returns the last document again; deduplicate by `id`.
+
+Forms and submissions are already sorted this way, so pass `updatedAfter` and walk the cursor. To reconcile webhook events you might have missed, see [Replay and reconcile](/webhooks/replay-and-reconcile).
+
+## Invalid cursors
+
+A cursor is opaque. Don't parse it, build it, or store it for later use; pass it back unchanged on the next request. A cursor that the API can't read returns `400 VALIDATION_FAILED`. To start over, send the request without `cursor`.
+
+## Next steps
+
+- [Query parameters](/api-fundamentals/query-parameters): filter formats, such as dates and multi-value filters.
+- [Rate limits and quotas](/api-fundamentals/rate-limits): the per-minute and daily limits that a full walk counts against.
+- [Errors](/api-fundamentals/errors): the error shape and every error code.

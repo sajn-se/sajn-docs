@@ -1,0 +1,254 @@
+---
+title: "Format HTML for JSON"
+description: "Turn an HTML file into the content of an HTML field: extract the body, keep its styles, and escape it as JSON"
+---
+
+In this guide, you turn an HTML file, such as the output of an HTML editor or a template engine, into a valid request body for an [HTML field](/guides/fields/html-fields).
+
+Sending HTML in JSON has the following pitfalls:
+
+- Double quotes in the HTML must be escaped in the JSON string.
+- Editors output a full document with `<html>` and `<body>`, but an HTML field holds a fragment.
+- Styles on `<body>`, such as padding and fonts, are lost unless you move them to a wrapper element.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Have a `DRAFT` document. For more information, see [Create a document](/guides/documents/create-document).
+
+## Send an HTML file
+
+<Steps>
+  <Step title="Extract the body and keep its styles">
+    The following functions return the content of `<body>`, wrapped in a `<div>` with the body's `style` attribute. Content without a `<body>` tag with attributes is returned unchanged:
+
+    <CodeGroup>
+
+    ```typescript TypeScript
+    /**
+     * Formats HTML content for a sajn HTML field.
+     * Extracts body content and preserves body styles.
+     */
+    function formatHtmlFieldPayload(htmlContent: string) {
+      const trimmed = htmlContent.trim();
+    
+      // Check if content has a body tag with attributes
+      const bodyStartMatch = trimmed.match(/<body\s+/i);
+      if (!bodyStartMatch || bodyStartMatch.index === undefined) {
+        // No body tag found, return content as-is
+        return {
+          type: "HTML",
+          fieldMeta: {
+            type: "HTML",
+            content: trimmed,
+          },
+        };
+      }
+    
+      // Find the end of the opening body tag
+      const bodyStartPos = bodyStartMatch.index;
+      const bodyTagEndPos = trimmed.indexOf(">", bodyStartPos);
+      if (bodyTagEndPos === -1) {
+        return {
+          type: "HTML",
+          fieldMeta: { type: "HTML", content: trimmed },
+        };
+      }
+    
+      // Extract the body tag and find closing tag
+      const bodyTag = trimmed.slice(bodyStartPos, bodyTagEndPos + 1);
+      const bodyEndMatch = trimmed.slice(bodyTagEndPos + 1).match(/<\/body>/i);
+    
+      if (!bodyEndMatch || bodyEndMatch.index === undefined) {
+        return {
+          type: "HTML",
+          fieldMeta: { type: "HTML", content: trimmed },
+        };
+      }
+    
+      // Extract body content
+      const bodyContentStart = bodyTagEndPos + 1;
+      const bodyContentEnd = bodyTagEndPos + 1 + bodyEndMatch.index;
+      const bodyContent = trimmed.slice(bodyContentStart, bodyContentEnd).trim();
+    
+      // Extract style attribute from body tag
+      const styleMatch =
+        bodyTag.match(/style\s*=\s*"([^"]*)"/i) ||
+        bodyTag.match(/style\s*=\s*'([^']*)'/i);
+    
+      // Wrap content in div, preserving body styles
+      const processedHtml = styleMatch
+        ? `<div style="${styleMatch[1].trim()}">${bodyContent}</div>`
+        : `<div>${bodyContent}</div>`;
+    
+      return {
+        type: "HTML",
+        fieldMeta: {
+          type: "HTML",
+          content: processedHtml,
+        },
+      };
+    }
+    ```
+
+    ```python Python
+    import re
+
+
+    def process_html_content(html_content: str) -> str:
+        """
+        Formats HTML content for a sajn HTML field.
+        Extracts body content and preserves body styles.
+        """
+        html_content = html_content.strip()
+    
+        # Check if content has a body tag with attributes
+        body_start_match = re.search(r'<body\s+', html_content, re.IGNORECASE)
+        if not body_start_match:
+            return html_content
+    
+        # Find the end of the opening body tag
+        body_start_pos = body_start_match.start()
+        body_tag_end_pos = html_content.find('>', body_start_pos)
+        if body_tag_end_pos == -1:
+            return html_content
+    
+        # Extract the body tag
+        body_tag = html_content[body_start_pos:body_tag_end_pos + 1]
+    
+        # Find closing body tag
+        body_end_match = re.search(
+            r'</body>',
+            html_content[body_tag_end_pos + 1:],
+            re.IGNORECASE
+        )
+        if not body_end_match:
+            return html_content
+    
+        # Extract body content
+        body_content_start = body_tag_end_pos + 1
+        body_content_end = body_tag_end_pos + 1 + body_end_match.start()
+        body_content = html_content[body_content_start:body_content_end].strip()
+    
+        # Extract style attribute from body tag
+        style_match = re.search(
+            r'style\s*=\s*"([^"]*)"',
+            body_tag,
+            re.IGNORECASE | re.DOTALL
+        )
+        if not style_match:
+            style_match = re.search(
+                r"style\s*=\s*'([^']*)'",
+                body_tag,
+                re.IGNORECASE | re.DOTALL
+            )
+    
+        # Wrap content in div, preserving body styles
+        if style_match:
+            body_style = style_match.group(1).strip()
+            processed_html = f'<div style="{body_style}">{body_content}</div>'
+        else:
+            processed_html = f'<div>{body_content}</div>'
+    
+        return processed_html
+    
+    ```
+
+    </CodeGroup>
+
+    For example, the functions turn the following document:
+
+    ```html
+    <html>
+      <head><title>Agreement</title></head>
+      <body style="margin: 0; padding: 30px; font-family: Georgia, serif;">
+        <h1 style="color: #003366;">Service agreement</h1>
+        <p>Effective from 2026-11-01</p>
+      </body>
+    </html>
+    ```
+
+    Into the following fragment:
+
+    ```html
+    <div style="margin: 0; padding: 30px; font-family: Georgia, serif;"><h1 style="color: #003366;">Service agreement</h1>
+        <p>Effective from 2026-11-01</p></div>
+    ```
+  </Step>
+
+  <Step title="Send the fragment as an HTML field">
+    Build the body with your language's JSON serializer, which escapes the quotes for you. Never build the JSON string by hand:
+
+    <CodeGroup>
+
+    ```typescript TypeScript
+    import { readFile } from "node:fs/promises";
+
+    const html = await readFile("document.html", "utf8");
+    const { fieldMeta } = formatHtmlFieldPayload(html);
+
+    const response = await fetch(
+      `https://app.sajn.se/api/v1/documents/${process.env.DOCUMENT_ID}/fields`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+          "Sajn-Version": "2026-10",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type: "HTML", position: 0, fieldMeta }),
+      },
+    );
+    console.log(response.status, await response.json());
+    ```
+
+    ```python Python
+    import os
+
+    import requests
+
+    with open("document.html", encoding="utf-8") as source:
+        content = process_html_content(source.read())
+
+    response = requests.post(
+        f"https://app.sajn.se/api/v1/documents/{os.environ['DOCUMENT_ID']}/fields",
+        headers={
+            "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+            "Sajn-Version": "2026-10",
+        },
+        json={"type": "HTML", "position": 0, "fieldMeta": {"type": "HTML", "content": content}},
+    )
+    print(response.status_code, response.json())
+    ```
+
+    </CodeGroup>
+
+    Set `DOCUMENT_ID` in the environment to the ID of the draft document. The response is `{ "fields": [...] }` with the created field.
+  </Step>
+</Steps>
+
+## Prepare the HTML
+
+- Use inline `style` attributes only. sajn removes `<style>` tags, so styles from a stylesheet or a `<head>` are lost.
+- Split long content into several HTML fields, ordered by `position`, instead of one large block.
+- Host images and reference them by `https` URL instead of inlining them as base64.
+
+For every allowed tag and CSS property, see [HTML fields](/guides/fields/html-fields#allowed-html-tags).
+
+## Handle errors
+
+- `400`: the body isn't valid JSON, usually because of unescaped quotes. Serialize the body with `JSON.stringify` or `json`.
+- `400 VALIDATION_FAILED` on `fieldMeta.type`: `type` and `fieldMeta.type` must both be `HTML`.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="HTML fields" icon="code" href="/guides/fields/html-fields">
+    See the allowed tags and CSS properties.
+  </Card>
+  <Card title="Send for signing" icon="paper-plane" href="/guides/documents/send-for-signing">
+    Send the document to its parties.
+  </Card>
+</CardGroup>

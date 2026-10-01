@@ -1,0 +1,188 @@
+---
+title: "Sync documents"
+description: "Mirror sajn documents into your own system with incremental filters, cursor pagination, and safe retries"
+---
+
+In this guide, you keep a copy of your sajn documents in your own database. You fetch only what changed since the last run, walk the list with a cursor that stays stable while documents change, and retry writes without creating duplicates.
+
+We recommend combining a sync like this with [webhooks](/webhooks/overview): webhooks tell you about changes as they happen, and the sync catches anything a delivery missed.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys). The key sees the documents of its workspace.
+- Have somewhere to store the newest `updatedAt` you've synced, such as a row in your database.
+
+## Run an incremental sync
+
+<Steps>
+  <Step title="Ask for what changed">
+    Filter `GET /api/v1/documents` with `updatedAfter` set to the newest `updatedAt` you've stored, sorted by `updatedAt` in ascending order:
+
+    ```bash
+    curl "https://app.sajn.se/api/v1/documents?updatedAfter=2026-10-01T10:00:00Z&orderBy=updatedAt&orderDirection=asc&perPage=100" \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    `updatedAfter` includes its boundary, so the last document of the previous run comes back again. Write each document as an upsert, and the overlap is harmless. On the first run, leave out `updatedAfter`.
+
+    The response is similar to the following:
+
+    ```json
+    {
+      "documents": [
+        {
+          "id": "cm4k2x9p10001abcd1234efgh",
+          "externalId": "hr-2026-0142",
+          "name": "Employment contract - Alex Andersson",
+          "status": "COMPLETED",
+          "expiresAt": "2026-10-31T16:00:00.000Z",
+          "documentMeta": null,
+          "createdAt": "2026-10-01T09:00:00.000Z",
+          "updatedAt": "2026-10-02T10:31:00.000Z",
+          "completedAt": "2026-10-02T10:31:00.000Z"
+        }
+      ],
+      "total": 4812,
+      "totalPages": 49,
+      "hasNextPage": true,
+      "nextCursor": "eyJjIjoidXBkYXRlZEF0IiwidiI6IjIwMjYtMTAtMDJUMTA6MzE6MDAuMDAwWiJ9"
+    }
+    ```
+
+    The example leaves out `documentMeta` content. List items don't include parties or custom fields; get those from [Get a document by ID](/api-reference/get-a-document-by-id) for the documents you need them for.
+  </Step>
+
+  <Step title="Walk the pages with the cursor">
+    Pass `nextCursor` back as `cursor`, with the same filters and sort, until `hasNextPage` is `false`. The following programs run the whole sync and print the timestamp to store for the next run:
+
+    <CodeGroup>
+
+    ```javascript Node.js
+    const since = process.argv[2]; // The stored updatedAt, or nothing on the first run.
+    const params = new URLSearchParams({ orderBy: "updatedAt", orderDirection: "asc", perPage: "100" });
+    if (since) params.set("updatedAfter", since);
+
+    let newest = since;
+    for (;;) {
+      const response = await fetch(`https://app.sajn.se/api/v1/documents?${params}`, {
+        headers: { Authorization: `Bearer ${process.env.SAJN_API_KEY}`, "Sajn-Version": "2026-10" },
+      });
+      if (!response.ok) throw new Error(JSON.stringify(await response.json()));
+      const page = await response.json();
+
+      for (const document of page.documents) {
+        // Replace with an upsert into your database, keyed on document.id.
+        console.log("upsert", document.id, document.status);
+        newest = document.updatedAt;
+      }
+
+      if (!page.hasNextPage) break;
+      params.set("cursor", page.nextCursor);
+    }
+
+    console.log("next run: updatedAfter =", newest);
+    ```
+
+    ```python Python
+    import os
+    import sys
+
+    import requests
+
+    since = sys.argv[1] if len(sys.argv) > 1 else None
+    params = {"orderBy": "updatedAt", "orderDirection": "asc", "perPage": 100}
+    if since:
+        params["updatedAfter"] = since
+
+    newest = since
+    while True:
+        response = requests.get(
+            "https://app.sajn.se/api/v1/documents",
+            headers={
+                "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+                "Sajn-Version": "2026-10",
+            },
+            params=params,
+        )
+        response.raise_for_status()
+        page = response.json()
+
+        for document in page["documents"]:
+            # Replace with an upsert into your database, keyed on document["id"].
+            print("upsert", document["id"], document["status"])
+            newest = document["updatedAt"]
+
+        if not page["hasNextPage"]:
+            break
+        params["cursor"] = page["nextCursor"]
+
+    print("next run: updatedAfter =", newest)
+    ```
+
+    </CodeGroup>
+
+    Cursor pages stay stable while documents change between requests, which page numbers don't. The cursor follows these rules:
+
+    - It works with `orderBy` set to `createdAt` or `updatedAt`, the default. Other sort fields use `page`.
+    - Keep the same `orderBy`, `orderDirection`, and filters for every request in one walk. A cursor from another sort returns `400`.
+    - `page` is ignored when `cursor` is set.
+    - Cursors are opaque. Don't build or edit them.
+
+    For more information, see [Pagination](/api-fundamentals/pagination).
+  </Step>
+
+  <Step title="Store the timestamp">
+    After the last page, store the newest `updatedAt` you saw. The next run passes it as `updatedAfter`.
+  </Step>
+</Steps>
+
+## Narrow the sync
+
+The list takes the following filters. Send each value as a plain string, not JSON-encoded:
+
+- `completedAfter` and `completedBefore`: the completion time, for syncing signed documents only.
+- `status`: one or more statuses, such as `status=PENDING,COMPLETED`, or a repeated parameter.
+- `externalId`: the document with exactly this `externalId`, case-sensitive. For a partial match, use `query`.
+- `tagId`, `folderId`, and `responsibleUserId`: documents with a tag, in a folder, or with a responsible user.
+- `archived`: `true` for archived documents only. The default, `false`, leaves archived documents out.
+
+Dates take an ISO 8601 date or date-time, and a value without an offset is UTC. An unknown query parameter returns `400 VALIDATION_FAILED` with the issue code `UNRECOGNIZED_KEY`, so a misspelled filter fails instead of returning every document. For more information, see [Query parameters](/api-fundamentals/query-parameters).
+
+## Retry writes safely
+
+A `POST /api/v1/documents` request that times out might have created the document. Send an `Idempotency-Key` header on every write, and a retry with the same key and body replays the first response instead of running again:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Idempotency-Key: 8f6a1c1e-4c1b-4c2a-9a3f-2b7d9e5f1a10" \
+  -H "Content-Type: application/json" \
+  -d '{ "name": "Lease agreement", "templateId": "TEMPLATE_ID" }'
+```
+
+Use one key per logical operation, such as a UUID, and keep it across retries. sajn stores the response for 24 hours. For the full rules, see [Idempotency](/api-fundamentals/idempotency).
+
+## Handle errors
+
+- `400 VALIDATION_FAILED`: an unknown filter, a malformed date, or a cursor from another sort. Read `issues`.
+- `429 RATE_LIMITED`: wait the number of seconds in the `Retry-After` header, and then continue from the same cursor.
+- `400 IDEMPOTENCY_KEY_REUSED`: you sent a key again with a different request. Use a new key.
+- `409 IDEMPOTENCY_KEY_IN_USE`: the first request with the key is still running. Wait and retry.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Sync completed documents nightly" icon="moon" href="/guides/recipes/nightly-sync">
+    Archive every signed PDF on a schedule.
+  </Card>
+  <Card title="Replay and reconcile" icon="rotate" href="/webhooks/replay-and-reconcile">
+    Recover webhook events you missed.
+  </Card>
+  <Card title="Pagination" icon="list" href="/api-fundamentals/pagination">
+    Learn how every list paginates.
+  </Card>
+</CardGroup>

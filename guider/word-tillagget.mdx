@@ -1,0 +1,100 @@
+---
+title: "Skicka för signering direkt från Word"
+description: "Installera sajn-tillägget i Word och skicka dokumentet du skriver för signering utan att lämna Word"
+---
+
+Skriver du avtal i Word behöver du inte spara en PDF och ladda upp den i sajn. Med tillägget **sajn för Microsoft Office** skickar du dokumentet du har öppet direkt från Word. Du lägger till parterna i en sidopanel, väljer hur var och en signerar och följer signeringen därifrån. Den färdiga, förseglade PDF:en laddar du ner i samma panel.
+
+## Innan du börjar
+
+- Du har ett sajn-konto och är medlem i en arbetsyta.
+- Du använder Word för webben, Windows eller Mac.
+- På Basic visar tillägget hur många dokument du har kvar den här månaden, och BankID går inte att välja. BankID kräver en betald plan.
+
+## Installera tillägget
+
+<Steps>
+  <Step title="Öppna tillägget i Microsoft Marketplace">
+    Öppna [Integrationer](https://app.sajn.se/~/integrations) i sajn. Under **Tillägg och appar** klickar du **Installera** på raden **sajn för Microsoft Office**. Länken går till tilläggets sida i Microsoft Marketplace, där du lägger till det i ditt Microsoft-konto.
+
+    {/* TODO screenshot: Avsnittet Tillägg och appar på sidan Integrationer med raden sajn för Microsoft Office och knappen Installera */}
+  </Step>
+
+  <Step title="Hitta knappen i Word">
+    När tillägget är installerat ligger knappen **Skicka för signering** i gruppen **sajn** på fliken **Start** i Word. Klicka på den för att öppna sidopanelen.
+
+    {/* TODO screenshot: Fliken Start i Word med gruppen sajn och knappen Skicka för signering */}
+  </Step>
+
+  <Step title="Logga in med ditt sajn-konto">
+    Första gången visar panelen **Skicka för signering – direkt i Word**. Klicka **Logga in med sajn**. Ett fönster öppnas där du loggar in och väljer vilken arbetsyta tillägget får använda. Klicka **Godkänn applikation**.
+
+    Tillägget har bara åtkomst till arbetsytan du valde. Dokument du skickar från Word hamnar där, med dig som avsändare.
+
+    {/* TODO screenshot: Inloggningsfönstret med rutan Välj arbetsyta och knappen Godkänn applikation */}
+  </Step>
+</Steps>
+
+## Skicka dokumentet
+
+<Steps>
+  <Step title="Lägg till parterna">
+    Klicka **Lägg till part**. Fyll i **Namn** och **E-post**. Under **Företagsinformation (valfritt)** kan du ange **Företag**, **Organisationsnummer** och **Befattning**. Fyller du i företag behöver du också ange organisationsnummer.
+
+    Välj **Roll** och **Signeringsmetod** under **Signering** och klicka **Lägg till part**. Upprepa för varje part.
+
+    {/* TODO screenshot: Rutan Lägg till part med namn, e-post, roll och signeringsmetod ifyllda */}
+  </Step>
+
+  <Step title="Välj signeringsordning">
+    Under **Signeringsordning** väljer du **Alla samtidigt** eller **I tur och ordning**. I tur och ordning flyttar du en part med **Tidigare steg** och **Senare steg**. Parter i samma steg signerar samtidigt.
+  </Step>
+
+  <Step title="Sätt utgångsdatum, språk och meddelande">
+    Välj **Utgångsdatum**. Det måste vara ifyllt för att du ska kunna skicka. Välj **Språk** för signeringen, och skriv gärna ett **Meddelande (valfritt)** till mottagarna.
+
+    Dokumentets namn i sajn blir filnamnet på Word-dokumentet.
+
+    {/* TODO screenshot: Sidopanelen med parter, signeringsordning, utgångsdatum och meddelande ifyllda */}
+  </Step>
+
+  <Step title="Klicka Skicka för signering">
+    Klicka **Skicka för signering**. Tillägget gör en PDF av dokumentet och skickar den till parterna. När utskicket är klart visar panelen **Dokument skickat** och varje parts status.
+
+    {/* TODO screenshot: Vyn Dokument skickat med parternas status */}
+  </Step>
+</Steps>
+
+## Vad händer sedan?
+
+Panelen visar status för varje part: **Väntar**, **Öppnat**, **Signerat** med tidpunkt, eller **Avvisat**. Under **Tidigare utskick** hittar du alla gånger du skickat dokumentet.
+
+- **Öppna i sajn** öppnar dokumentet i sajn, där du påminner, förlänger eller återkallar. Se [Följ upp ett skickat dokument](/guider/folj-upp-dokument).
+- **Ladda ner signerad version** hämtar den förseglade PDF:en när alla har signerat.
+- **Skicka ny version** låter dig skicka dokumentet igen, till exempel efter en ändring i Word.
+
+<Note>
+  Det som skickas är en PDF av dokumentet som det ser ut när du klickar **Skicka för signering**. Ändringar du gör i Word efteråt följer inte med. Skicka en ny version om något ändras.
+</Note>
+
+## Vanliga frågor
+
+**Jag ser inte BankID i listan.** BankID kräver en betald plan. På Basic kan du välja ritad signatur eller klicka för att signera.
+
+**Det står Månadskvoten är slut.** Du har skickat alla dokument som ingår i Basic den här månaden. Uppgradera under [Fakturering](/guider/settings-subscription) för att skicka fler.
+
+**Hur loggar jag ut eller byter arbetsyta?** Öppna **Inställningar** i panelen och klicka **Logga ut**. Logga sedan in igen och välj en annan arbetsyta. Du tar bort tilläggets åtkomst helt under **Personuppgifter**, fliken **Appar**, i sajn. Se [Hantera ditt personliga konto](/guider/settings-user).
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Följ upp ett skickat dokument" icon="list-check" href="/guider/folj-upp-dokument">
+    Se vem som har signerat och vad du gör härnäst.
+  </Card>
+  <Card title="Signaturtyp, leverans och verifiering" icon="signature" href="/guider/signing-methods">
+    Välj rätt signeringsmetod för varje part.
+  </Card>
+  <Card title="Anslut en integration" icon="link" href="/guider/integrationer">
+    Fler tjänster och appar du kan koppla till sajn.
+  </Card>
+</CardGroup>

@@ -1,0 +1,214 @@
+---
+title: "Set the signing method for a party"
+description: "Choose how each party signs and verifies their identity, from drawn signatures to BankID and eID"
+---
+
+In this guide, you choose how each party signs a document and whether they verify their identity first. You list the methods your account can offer, set them per party, and add a verification step for the parties who need one.
+
+Each party has two settings:
+
+- `requiredSignature`: how the party signs, such as with a drawn signature or with BankID.
+- `twoStepVerification`: an optional check the party passes before signing, such as an SMS code.
+
+The document also has `documentMeta.accessVerification`, a check that every party passes before the document opens.
+
+For what each method proves legally, see [Signing methods](/concepts/signing-methods).
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Have a `DRAFT` document with parties. For more information, see [Create a document](/guides/documents/create-document).
+
+## Signing methods
+
+The following values are available for `requiredSignature`:
+
+| Value | Method | The party needs |
+|-------|--------|-----------------|
+| `DRAWING` | Draws a signature with a mouse, trackpad, or finger. | A browser. |
+| `CLICK_TO_SIGN` | Clicks a button to sign. | A browser. |
+| `SE_BANKID` | Signs with Swedish BankID. | Swedish BankID. |
+| `DK_MITID` | Signs with Danish MitID, as a person. | MitID. |
+| `DK_MITID_ERHVERV` | Signs with Danish MitID Erhverv, on behalf of a company. | MitID Erhverv. |
+| `FI_FTN` | Signs with the Finnish Trust Network: Finnish bank credentials or Mobile ID. | FTN credentials. |
+| `NL_IDIN` | Signs with Dutch iDIN, through their bank. | A Dutch bank that supports iDIN. |
+
+`DRAWING` and `CLICK_TO_SIGN` prove that the party intended to sign. The eID methods also prove who signed. With an eID, an optional `nationalId` on the party is matched against the eID; without one, sajn matches the name.
+
+The API accepts the Norwegian BankID values in the schema, such as `NO_BANKID_BIOMETRIC`, but rejects them with the message `This eID scheme is not yet available` until the scheme is switched on. `NONE` and `MANUAL` are derived values: a party gets `NONE` when its role doesn't sign, and `MANUAL` marks a document imported after paper signing.
+
+If you leave out `requiredSignature`, the party gets the workspace's default signing method. Without a workspace default, the party gets the national eID of your organization's country, or `DRAWING` when the country has none.
+
+## Set the methods on a document
+
+<Steps>
+  <Step title="List the methods you can offer">
+    Build your picker from the API instead of a hard-coded list, because eID schemes are switched on market by market:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl https://app.sajn.se/api/v1/helpers/signature-methods \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    ```javascript Node.js
+    const response = await fetch("https://app.sajn.se/api/v1/helpers/signature-methods", {
+      headers: {
+        Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+        "Sajn-Version": "2026-10",
+      },
+    });
+    const { items } = await response.json();
+    console.log(items.map((item) => item.code));
+    ```
+
+    ```python Python
+    import os
+
+    import requests
+
+    response = requests.get(
+        "https://app.sajn.se/api/v1/helpers/signature-methods",
+        headers={
+            "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+            "Sajn-Version": "2026-10",
+        },
+    )
+    response.raise_for_status()
+    print([item["code"] for item in response.json()["items"]])
+    ```
+
+    </CodeGroup>
+
+    The response lists the eID methods first, then the generic ones:
+
+    ```json
+    {
+      "items": [
+        { "code": "SE_BANKID", "label": "BankID" },
+        { "code": "DK_MITID", "label": "MitID" },
+        { "code": "DK_MITID_ERHVERV", "label": "MitID Erhverv" },
+        { "code": "FI_FTN", "label": "FTN (Finnish Trust Network)" },
+        { "code": "NL_IDIN", "label": "iDIN" },
+        { "code": "DRAWING", "label": "Drawn signature" },
+        { "code": "CLICK_TO_SIGN", "label": "Click to sign" }
+      ]
+    }
+    ```
+
+    The list shows which methods sajn offers, not which your plan includes. For the plan rule, see [Plan availability](#plan-availability).
+  </Step>
+
+  <Step title="Set a method per party">
+    Parties on the same document can use different methods. Set `requiredSignature` when you add the party, or update it on a draft:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Supplier agreement",
+        "templateId": "TEMPLATE_ID",
+        "parties": [
+          { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER",
+            "requiredSignature": "SE_BANKID" },
+          { "name": "Robin Laine", "email": "robin@example.net", "role": "SIGNER",
+            "requiredSignature": "FI_FTN", "country": "FIN" },
+          { "name": "Kai Berg", "email": "kai@example.com", "role": "SIGNER",
+            "requiredSignature": "CLICK_TO_SIGN" }
+        ]
+      }'
+    ```
+
+    Replace `TEMPLATE_ID` with the ID of a template. `country` is the party's ISO 3166-1 alpha-3 country code. To change the method later, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` with `requiredSignature` and the party's `role`; an update without `role` sets it to `SIGNER`.
+  </Step>
+
+  <Step title="Optional: Add a verification step">
+    To make a party verify before signing, set `twoStepVerification`. The following update asks Kai for a one-time SMS code. An SMS code needs a phone number on the party:
+
+    ```bash
+    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{ "role": "SIGNER", "phone": "+46700000000", "twoStepVerification": "SMS_BEFORE_SIGNING" }'
+    ```
+
+    To make every party verify before the document even opens, set `documentMeta.accessVerification` on the document instead:
+
+    ```bash
+    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{ "documentMeta": { "accessVerification": "SE_BANKID_BEFORE_SIGNING" } }'
+    ```
+
+    For the values, see the following section.
+  </Step>
+</Steps>
+
+## Verification steps
+
+Both `twoStepVerification` and `accessVerification` take the following values. To list them with labels, call [List selectable verification gates](/api-reference/list-selectable-verification-gates).
+
+| Value | The party | Notes |
+|-------|-----------|-------|
+| `NONE` | Isn't asked to verify. | The default. |
+| `SMS_BEFORE_SIGNING` | Enters a code sent by SMS. | Needs a phone number. |
+| `EMAIL_BEFORE_SIGNING` | Enters a code sent by email. | Needs an email address. |
+| `PIN_BEFORE_SIGNING` | Enters a PIN that you gave them. | Works only as `twoStepVerification`. You set the PIN in the sajn app. |
+| `SE_BANKID_BEFORE_SIGNING` | Identifies with Swedish BankID. | |
+| `DK_MITID_BEFORE_SIGNING` | Identifies with MitID. | |
+| `DK_MITID_ERHVERV_BEFORE_SIGNING` | Identifies with MitID Erhverv. | |
+| `FI_FTN_BEFORE_SIGNING` | Identifies with FTN. | |
+| `NL_IDIN_BEFORE_SIGNING` | Identifies with iDIN. | |
+
+Use `twoStepVerification` to protect the signature of one party, and `accessVerification` to protect the content of the whole document. A party who signs with an eID is already identified, so an eID verification step on top of an eID signature is a second, separately billed eID transaction.
+
+## eID schemes by country
+
+| Country | Signing method | Verification step |
+|---------|----------------|-------------------|
+| Sweden | `SE_BANKID` | `SE_BANKID_BEFORE_SIGNING` |
+| Denmark | `DK_MITID`, and `DK_MITID_ERHVERV` for companies | `DK_MITID_BEFORE_SIGNING`, `DK_MITID_ERHVERV_BEFORE_SIGNING` |
+| Finland | `FI_FTN` | `FI_FTN_BEFORE_SIGNING` |
+| The Netherlands | `NL_IDIN` | `NL_IDIN_BEFORE_SIGNING` |
+
+## Plan availability
+
+Which eID schemes an organization can use depends on its plan:
+
+- On paid plans from Solo upward, every scheme in the preceding table is available.
+- On the free plan, only the national eID with included signatures is available, such as `SE_BANKID` for a Swedish organization.
+- In a [sandbox](/get-started/sandbox) organization, every scheme is available.
+
+sajn checks the plan when you send the document. To see the included signatures and what you've used, call [Get plan limits and usage](/api-reference/get-plan-limits-and-usage).
+
+## Read how a party was verified
+
+After signing, each party has `identityVerified`, which is `true` when an eID verified the party through the signature or a verification step. `identityMismatch` is `true` when the eID identity didn't match the intended party and the signature was still recorded. For the verified identities, call [Get verified signer identities](/api-reference/get-verified-signer-identities).
+
+## Handle errors
+
+- `400 VALIDATION_FAILED` with the message `This eID scheme is not yet available`: the scheme isn't switched on. Pick a method from `/helpers/signature-methods`.
+- `403 PERMISSION_DENIED` on send: a party's signing method or verification step isn't included in your plan. The `userMessage` names the method.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Signing methods" icon="signature" href="/concepts/signing-methods">
+    Learn what each method proves.
+  </Card>
+  <Card title="Verify identity with sajn ID" icon="id-card" href="/guides/identity/identity-verification">
+    Verify a person without a document.
+  </Card>
+  <Card title="Send for signing" icon="paper-plane" href="/guides/documents/send-for-signing">
+    Send the document to its parties.
+  </Card>
+</CardGroup>

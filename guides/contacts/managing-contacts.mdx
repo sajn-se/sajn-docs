@@ -1,0 +1,114 @@
+---
+title: "Manage contacts"
+description: "Keep a contact for each person you send documents to, find it by email or external ID, and add it to documents as a party"
+---
+
+In this guide, you sync people from your system into sajn contacts and add them to documents as parties. A contact holds a person's name, email address, phone number, and company once, so you don't repeat them on every document. A party added from a contact copies its details and keeps a link to it in `contactId`.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+
+## Sync a person and add them to a document
+
+<Steps>
+  <Step title="Look for an existing contact">
+    To avoid duplicates, search by your own ID or by email address before you create a contact. The search matches exactly:
+
+    ```bash
+    curl "https://app.sajn.se/api/v1/contacts/search?externalId=crm-4711" \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    The response is `{ "contacts": [...] }`, empty when nothing matches. The endpoint also takes `email` and `phone`. Encode a leading `+` in a phone number as `%2B`.
+  </Step>
+
+  <Step title="Create the contact">
+    If the search found nothing, send a `POST` request to `/api/v1/contacts`. Only `firstName` is required:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/contacts \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "firstName": "Alex",
+        "lastName": "Andersson",
+        "email": "alex@example.com",
+        "phone": "+46700000000",
+        "externalId": "crm-4711"
+      }'
+    ```
+
+    The response is the contact:
+
+    ```json
+    {
+      "id": "cm4k2xb7q0003abcd9012mnop",
+      "firstName": "Alex",
+      "lastName": "Andersson",
+      "email": "alex@example.com",
+      "phone": "+46700000000",
+      "nationalId": null,
+      "externalId": "crm-4711",
+      "companyRole": null,
+      "company": null,
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
+    }
+    ```
+
+    To link the contact to a company, send `companyId` and `companyRole`. For more information, see [Work with companies](/guides/contacts/working-with-companies). `nationalId`, such as a Swedish personal identity number, lets an eID check the person's identity at signing.
+  </Step>
+
+  <Step title="Add the contact to a document">
+    Reference the contact with `contactId` in a document's `parties`. The party gets the contact's name, email address, phone number, and company:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Service agreement",
+        "templateId": "TEMPLATE_ID",
+        "parties": [
+          { "contactId": "CONTACT_ID", "role": "SIGNER", "deliveryMethod": "SMS", "requiredSignature": "SE_BANKID" }
+        ]
+      }'
+    ```
+
+    Replace `CONTACT_ID` with the contact `id`. Because the contact has a phone number, the party can get the invitation by SMS. To add the contact to an existing draft, send `contactId` to `POST /api/v1/documents/DOCUMENT_ID/parties`.
+  </Step>
+</Steps>
+
+## List, update, and delete contacts
+
+- List contacts with `GET /api/v1/contacts`. `query` searches names, email addresses, phone numbers, and companies, and `companyId` and `tagId` filter. The list is paginated; for more information, see [Pagination](/api-fundamentals/pagination).
+- Update a contact with `PATCH /api/v1/contacts/CONTACT_ID`, sending only the fields to change. Parties already on documents keep the details they were created with.
+- Delete a contact with `DELETE /api/v1/contacts/CONTACT_ID`. The deletion is permanent. Parties created from the contact stay on their documents with their own copy of the details, unlinked from the contact.
+
+## Handle errors
+
+- `400 VALIDATION_FAILED`: `firstName` is missing or `email` isn't a valid address.
+- `404 NOT_FOUND`: no contact in the workspace has the ID, including a `contactId` in a document's `parties`.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Work with companies" icon="building" href="/guides/contacts/working-with-companies">
+    Link contacts to companies and sign on their behalf.
+  </Card>
+  <Card title="Parties" icon="users" href="/concepts/parties">
+    Learn how parties relate to contacts.
+  </Card>
+  <Card title="Contacts" icon="address-book" href="/concepts/contacts">
+    Learn how contacts work.
+  </Card>
+  <Card title="Create a new contact" icon="code" href="/api-reference/create-a-new-contact">
+    See the contact endpoints in the API reference.
+  </Card>
+</CardGroup>

@@ -1,0 +1,223 @@
+---
+title: "Replay and reconcile events"
+description: "Read past events, replay them to your endpoints, and catch up after an outage"
+---
+
+Webhooks are delivered at least once, but only while your endpoint is reachable. If it was down, paused, or rejected deliveries by mistake, use the following tools to catch up:
+
+| Tool | Reaches back | Use it to |
+|------|--------------|-----------|
+| [List events](#read-past-events) | 30 days | Read every event the workspace emitted, whether or not an endpoint subscribed to it. |
+| [Replay an event](#replay-an-event) | 30 days | Send an event again to every subscribed endpoint, or to one. |
+| [Replay a delivery](#replay-a-delivery) | 7 days | Resend one logged delivery with its original body. |
+
+## Read past events
+
+[`GET /api/v1/events`](/api-reference/list-events) returns the workspace's events from the last 30 days, newest first:
+
+```bash
+curl "https://app.sajn.se/api/v1/events?createdAfter=2026-10-01T08:00:00Z&perPage=100" \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+The response is similar to the following:
+
+```json
+{
+  "events": [
+    {
+      "id": "cm4k2x9p10001abcd1234efgh",
+      "event": "DOCUMENT_COMPLETED",
+      "payload": {
+        "id": "cm4k2x9p10002abcd1234efgh",
+        "name": "Employment agreement",
+        "status": "COMPLETED"
+      },
+      "createdAt": "2026-10-01T09:30:00.000Z"
+    }
+  ],
+  "hasNextPage": true,
+  "nextCursor": "eyJjcmVhdGVkQXQiOiIyMDI2LTEwLTAxVDA5OjMwOjAwLjAwMFoifQ"
+}
+```
+
+The `payload` in this example is shortened. Each event has the same `id`, `event`, `createdAt`, and `payload` as the [delivery envelope](/webhooks/overview#delivery-request), so your webhook handler can process it unchanged. The payload has the shape of the API version of the request, set by the `Sajn-Version` header or your organization's default. Send the same version as your endpoint's `apiVersion`.
+
+The endpoint takes the following query parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `createdAfter` | Only events created at or after this ISO 8601 date or date-time. |
+| `createdBefore` | Only events created at or before this ISO 8601 date or date-time. |
+| `event` | Only these event types, comma-separated or repeated, such as `event=DOCUMENT_COMPLETED,DOCUMENT_REJECTED`. |
+| `perPage` | From 1 to 100. Default: 25. |
+| `cursor` | The `nextCursor` from the previous page. |
+
+To get the next page, pass `nextCursor` as `cursor` and keep the other parameters unchanged. The last page has `hasNextPage` set to `false` and `nextCursor` set to `null`. The list uses keyset pagination, so events that arrive while you page don't shift the pages, and a full walk returns every event in the window. For more information, see [Pagination](/api-fundamentals/pagination).
+
+To read one event, pass its ID to [`GET /api/v1/events/{id}`](/api-reference/get-an-event).
+
+The events endpoints need an API key for the workspace, or an OAuth token with the `webhooks:write` scope.
+
+## Reconcile on a schedule
+
+A reconcile job reads recent events and passes each one to the same handler as your webhook endpoint. Because the handler skips IDs it has already processed, the job only fills gaps. Run it after an outage, or on a schedule, such as every hour, as a safety net.
+
+<Steps>
+  <Step title="Store a watermark">
+    Store the time when the last successful run started. On the first run, use the time from which you need events, up to 30 days back.
+  </Step>
+  <Step title="Walk the events">
+    Request events with `createdAfter` set to the watermark minus a few minutes, and follow `nextCursor` until it's `null`. The overlap covers events that were being written while the last run read the list.
+  </Step>
+  <Step title="Process each event">
+    Pass each event to your webhook handler, which deduplicates on `id`.
+  </Step>
+  <Step title="Move the watermark">
+    After the walk completes, store the time when this run started as the new watermark. If the run fails partway, keep the old watermark, so the next run starts over.
+  </Step>
+</Steps>
+
+The following samples implement the loop:
+
+<CodeGroup>
+
+```javascript Node.js
+const API = "https://app.sajn.se/api/v1";
+const OVERLAP_MS = 5 * 60 * 1000;
+
+// Returns the new watermark. Store it and pass it as `since` on the next run.
+async function reconcile(since, handleEvent) {
+  const startedAt = new Date();
+  const createdAfter = new Date(since.getTime() - OVERLAP_MS).toISOString();
+  let cursor = null;
+
+  do {
+    const params = new URLSearchParams({ createdAfter, perPage: "100" });
+    if (cursor) params.set("cursor", cursor);
+
+    const response = await fetch(`${API}/events?${params}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+        "Sajn-Version": "2026-10",
+      },
+    });
+    if (!response.ok) throw new Error(`sajn returned ${response.status}`);
+
+    const page = await response.json();
+    for (const event of page.events) {
+      // The same handler as your webhook endpoint. It skips IDs it has seen.
+      await handleEvent(event);
+    }
+    cursor = page.nextCursor;
+  } while (cursor);
+
+  return startedAt;
+}
+```
+
+```python Python
+import os
+from datetime import datetime, timedelta, timezone
+
+import requests
+
+API = "https://app.sajn.se/api/v1"
+OVERLAP = timedelta(minutes=5)
+
+
+def reconcile(since: datetime, handle_event) -> datetime:
+    """Returns the new watermark. Store it and pass it as `since` next time."""
+    started_at = datetime.now(timezone.utc)
+    params = {"createdAfter": (since - OVERLAP).isoformat(), "perPage": 100}
+    headers = {
+        "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+        "Sajn-Version": "2026-10",
+    }
+
+    while True:
+        response = requests.get(f"{API}/events", params=params, headers=headers)
+        response.raise_for_status()
+        page = response.json()
+        for event in page["events"]:
+            # The same handler as your webhook endpoint. It skips IDs it has seen.
+            handle_event(event)
+        if not page["nextCursor"]:
+            return started_at
+        params["cursor"] = page["nextCursor"]
+```
+
+</CodeGroup>
+
+A large backlog can take many requests. If you get a `429 Too Many Requests` status code, wait for the time in `Retry-After` and continue with the same cursor. For the limits, see [Rate limits](/api-fundamentals/rate-limits).
+
+If you need events older than 30 days, sync the resources themselves instead, for example with [`GET /api/v1/documents`](/api-reference/list-all-documents) and its `updatedAfter` filter. For a full sync pattern, see [Syncing documents](/guides/integrations/syncing-documents).
+
+## Replay an event
+
+To deliver an event again, call [`POST /api/v1/events/{id}/replay`](/api-reference/replay-an-event):
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/events/cm4k2x9p10001abcd1234efgh/replay \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+The response says how many endpoints sajn queued the event to:
+
+```json
+{ "ok": true, "endpoints": 2 }
+```
+
+By default, the replay goes to every enabled endpoint that subscribes to the event type now, which can differ from the endpoints that got it the first time. To target one endpoint, for example after an outage on a single receiver, pass its ID:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/events/cm4k2x9p10001abcd1234efgh/replay \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{"webhookId": "cm4k2x9p10003abcd1234efgh"}'
+```
+
+The request returns a `404 Not Found` status code if that endpoint doesn't subscribe to the event type.
+
+A replayed event keeps its `id` and `createdAt`, so a receiver that deduplicates on `id` ignores it if it already processed the event. It gets a new `X-Sajn-Delivery` value, and its payload uses each endpoint's current API version. To make your receiver process an event again, remove its `id` from your deduplication store first.
+
+## Replay a delivery
+
+To resend one logged delivery exactly as it was sent, call [`POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry`](/api-reference/replay-a-webhook-delivery), where `deliveryId` is the log entry's `id`. In the dashboard, open the delivery in **Inställningar > Utvecklare > Loggar** and click **Sänd om** (Resend).
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/webhooks/cm4k2x9p10003abcd1234efgh/deliveries/cm4k2x9p10019abcd1234efgh/retry \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+The response confirms that sajn queued the replay:
+
+```json
+{ "ok": true, "queuedReplayOf": "cm4k2x9p10019abcd1234efgh" }
+```
+
+The replay differs from an event replay in the following ways:
+
+- It sends the stored body as is, in the API version it was first sent in, even if the endpoint has moved to another version since.
+- It keeps the original `X-Sajn-Delivery` value.
+- It works only for deliveries from the last 7 days, and only while the endpoint is enabled and not paused.
+
+The replay appears in the delivery log as a new entry, with `replayOfId` set to the entry it replays.
+
+## Recover from an outage
+
+<Steps>
+  <Step title="Fix the endpoint">
+    Make sure your endpoint returns `2xx` for a [signed test request](/webhooks/verify-signatures#code-samples).
+  </Step>
+  <Step title="Reactivate it if it's paused">
+    If sajn paused the endpoint, [reactivate it](/webhooks/delivery-and-retries#reactivate-a-paused-endpoint) in the dashboard. Events that arrived during the pause aren't sent automatically.
+  </Step>
+  <Step title="Fill the gap">
+    Run your [reconcile job](#reconcile-on-a-schedule) with `since` set to the start of the outage. To have sajn push the events instead, list them with `createdAfter` and replay each one with `webhookId` set to the endpoint.
+  </Step>
+</Steps>

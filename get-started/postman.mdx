@@ -1,0 +1,70 @@
+---
+title: "Postman"
+description: "Import ready-made Postman collections and an environment for the sajn API"
+---
+
+The Postman starter kit lets you make your first authenticated request, create resources, and explore every endpoint without writing requests by hand.
+
+## Download the files
+
+- [API reference collection](/downloads/postman/sajn-api-reference.postman_collection.json)
+- [Getting started collection](/downloads/postman/sajn-getting-started.postman_collection.json)
+- [Document lifecycle collection](/downloads/postman/sajn-document-lifecycle.postman_collection.json)
+- [Contacts and parties collection](/downloads/postman/sajn-contacts-and-parties.postman_collection.json)
+- [Environment](/downloads/postman/sajn-local.postman_environment.json)
+
+Each link downloads a JSON file.
+
+<CardGroup cols={2}>
+  <Card title="Getting started" icon="rocket">
+    A health check, your first list requests, and creating a contact and a document.
+  </Card>
+  <Card title="Document lifecycle" icon="file-signature">
+    Create a document, add a party, send it, fetch the signing URL, and download the file.
+  </Card>
+  <Card title="Contacts and parties" icon="users">
+    Create, search, and update contacts, and add them to a document as parties.
+  </Card>
+  <Card title="API reference" icon="code">
+    Every endpoint, generated from the OpenAPI specification.
+  </Card>
+</CardGroup>
+
+## Import the collections
+
+1. Download the collections you want and the environment.
+1. In Postman, click **Import** and select the JSON files.
+1. Open the imported **sajn Local** environment.
+1. Set `apiKey` to an API key from **Inställningar > Utvecklare > API-nycklar**. For more information, see [Authentication](/get-started/authentication).
+1. Leave `baseUrl` set to `https://app.sajn.se`. A sandbox key reaches your sandbox through the same URL.
+1. Select **sajn Local** as the active environment.
+
+## Variables
+
+The collections share variables, so one request can use what an earlier request returned:
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `apiKey` | Bearer token for every request | Empty |
+| `apiVersion` | Sent as the `Sajn-Version` header on every request | `2026-10` |
+| `baseUrl` | Base URL of the API | `https://app.sajn.se` |
+| `uploadBaseUrl` | Base URL for file uploads | `https://upload.sajn.se` |
+| `documentId`, `contactId`, `partyId`, `sajnIdId` | IDs that test scripts capture from responses | Empty |
+| `fileType` | File to download: `ORIGINAL`, `SIGNED`, or `JOURNAL` | `SIGNED` |
+
+The workflow collections include test scripts that save IDs from successful responses, so later requests use them automatically.
+
+To test against another API version, change `apiVersion`. For the supported versions, see [API versioning](/api-fundamentals/versioning).
+
+## Run the requests in order
+
+1. In the getting started collection, run **Health check**.
+1. Run **List all documents** or **List all contacts** to confirm that the key works.
+1. Run **Create a new contact**, then **Create a new document**.
+1. In the document lifecycle collection, continue with **Add a party to document** and **Send document for signing**.
+
+A document needs an expiration date before you can send it, so **Create a new document** sets `expiresAt`. Change it to a date that suits your test.
+
+## How the collections stay current
+
+sajn generates the collections from the same OpenAPI specification as the [API reference](/api-reference/list-all-documents). When the API changes, the collections are regenerated, so request URLs, methods, and example bodies match the docs.

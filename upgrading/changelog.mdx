@@ -1,0 +1,57 @@
+---
+title: "API changelog"
+description: "Breaking changes in each version of the sajn API and webhook payloads"
+---
+
+Each entry lists the breaking changes in one version, compared to the version before it. Additive changes, such as new endpoints and new response fields, ship to every supported version and aren't listed. For how versions work, see [API versioning](/api-fundamentals/versioning). To move to the latest version, with before-and-after examples, see [Upgrading to 2026-10](/upgrading/2026-10).
+
+{/* Generated: replace everything after this comment with the output of `pnpm --silent generate:api-changelog /tmp/changelog.md` in sajn-app. Don't edit entries by hand. */}
+
+## 2026-10
+
+Released 2026-10-01. No sunset date.
+
+### Documents and parties
+
+- Removes the deprecated signer aliases. On `POST /api/v1/documents`, send `parties` instead of `signers`. On `POST /api/v1/documents/:id/reminders`, send `partyIds` instead of `signerIds`. The `ACCEPTOR` role is rejected; send `SIGNER` instead. Responses from `POST /api/v1/documents` and `GET /api/v1/documents/:id`, and document webhook payloads, no longer include `signers`; read `parties` instead. The `/api/v1/documents/:id/signers` endpoints are removed; use the `/api/v1/documents/:id/parties` endpoints instead.
+- Returns the full document from `POST /api/v1/documents`, in the same shape as `GET /api/v1/documents/:id`. Read the document ID from `id` instead of `documentId`, and each party ID from `parties[].id` instead of `parties[].signerId`. `GET /api/v1/documents/:id` leaves out `fields` unless you pass `expand=fields`. The `externalId` filter on `GET /api/v1/documents` matches the whole value, case-sensitively; for a partial match, use `query`. `GET /api/v1/documents/:id/download` is removed; use `GET /api/v1/documents/:id/download/:fileType`. `POST /api/v1/documents/:id/parties/:partyId/remind` is removed; use `POST /api/v1/documents/:id/reminders` with `partyIds`, which reports each party's outcome in `results` instead of failing the request.
+
+### Fields
+
+- Returns the field itself from the field endpoints. `POST /api/v1/documents/:id/fields` and `POST /api/v1/templates/:id/fields` return `{ fields }`, each in the shape of `GET /api/v1/documents/:id/fields/:fieldId`; read the document or template ID from each field instead of the top-level `documentId` or `templateId`. A `PATCH` request to a field returns the updated field in that shape, also for a FORM subfield addressed with `key:`, and no longer includes `message`. A `DELETE` request to a field returns `{ id, deleted: true }`; to keep the deleted content, read the field before you delete it.
+- Uses `partyId` and `customFieldId` inside `fieldMeta`, like everywhere else. A box in `placedFields` and the `fieldMeta` of a FORM subfield take `partyId` instead of `signerId`, a PRODUCT_TABLE takes `selectionPartyId` instead of `selectionSignerId`, and `visibilityRule` takes `customFieldId` instead of `customInputId`. This applies to every request and response that carries `fieldMeta`, including `upsert` on the placed-fields endpoints, `initialFields` on `POST /api/v1/templates`, and blocks. `GET /api/v1/documents/:id/field-values` returns `partyId` instead of `signerId`. A request that still sends an old name inside `fieldMeta` or `upsert` fails with `400 VALIDATION_FAILED`.
+
+### Naming
+
+- Renames the Swedish BankID codes to their eID scheme names, like every other scheme: `SE_BANKID` replaces `BANKID` in `requiredSignature`, and `SE_BANKID_BEFORE_SIGNING` replaces `BANKID_BEFORE_SIGNING` in `twoStepVerification` and `accessVerification`. Requests that send the old codes are rejected, and `GET /api/v1/helpers/signature-methods` and `GET /api/v1/helpers/two-step-verifications` return the new ones.
+- Renames the remaining signer fields to party fields. `GET /api/v1/documents/:id/signatures` returns `partyId` and `partyName` instead of `signerId` and `signerName`. The reminder endpoints return `partyId`, `partyEmail`, and `partyName` instead of `signerId`, `signerEmail`, and `signerName`. `GET /api/v1/documents/:id/delegations` returns `originalPartyId`, `delegatePartyId`, `originalParty`, and `delegateParty` instead of `originalSignerId`, `delegateSignerId`, `originalSigner`, and `delegateSigner`. The form endpoints return `respondentPartyId` instead of `respondentSignerId`, and `PUT /api/v1/forms/:id/respondent` takes `partyId` instead of `signerId`.
+- Renames the national identity number from `ssn` to `nationalId` on parties, template parties, and contacts, and in the `POST /api/v1/sajn-id` request. `documentMeta.ssnDisplayMode` and `templateMeta.ssnDisplayMode` become `nationalIdDisplayMode`. In `GET /api/v1/documents/:id/signatures`, `identity.match.method` returns `NATIONAL_ID` instead of `SSN`. The `SECURITY_SIGNATURE_IDENTITY_ACCESSED` webhook payload sends `nationalIdDisplayMode` instead of `ssnDisplayMode`. Requests that still send `ssn` or `ssnDisplayMode` are rejected.
+- Renames custom field IDs to `customFieldId`. On `POST /api/v1/documents` and `PATCH /api/v1/documents/:id`, send `customFields[].customFieldId` instead of `customFields[].customInputId`. `GET /api/v1/document-categories` returns `customFieldIds` instead of `customInputIds`.
+- Uses uppercase enum values everywhere. Workspace members have `status` `ACTIVE` or `INACTIVE`, and the `status` filter on `GET /api/v1/members` takes `ALL`, `ACTIVE`, or `INACTIVE`. Login sessions on `GET /api/v1/login/sessions/:id` have `status` `PENDING`, `COMPLETED`, `FAILED`, or `EXPIRED`. Removes the event types `DOCUMENT_OPENED`, `DOCUMENT_RECREATED`, `WORKFLOW_STARTED`, `WORKFLOW_COMPLETED`, and `WORKFLOW_FAILED`, which sajn never emits, from the events and webhook deliveries endpoints; an `event` filter that names one returns `400`. To track a party opening a document, use `DOCUMENT_PARTY_OPENED`; to track changes to a sent document, use `DOCUMENT_MODIFIED`.
+
+### Query strings and pagination
+
+- Reads query parameters as plain strings: send `externalId=12345` or `archived=false` as is, not JSON-encoded. Booleans take `true` or `false`, dates take an ISO 8601 date or date-time (UTC without an offset), and multi-value filters such as `status`, `tagId`, and `event` take a comma-separated list or a repeated parameter. An unknown query parameter returns `400` instead of being ignored. Renames `search` to `query` on `GET /api/v1/templates`, `limit` to `perPage` on `GET /api/v1/documents/:id/chat`, `since` and `until` to `createdAfter` and `createdBefore` on `GET /api/v1/events`, and `dateFrom` and `dateTo` to `createdAfter` and `createdBefore` on `GET /api/v1/sajn-id`. `createdBefore` includes its boundary, whereas `until` excluded it, and `GET /api/v1/sajn-id` no longer defaults to the last seven days. Every page-based list returns `hasNextPage` and `nextCursor`; to get the next page, pass `nextCursor` as `cursor`. `GET /api/v1/companies` is paginated like `GET /api/v1/contacts`, and `GET /api/v1/companies/:id` returns the company without the `company` wrapper.
+
+### Errors
+
+- Gives every error response the same shape: `code`, `message`, `requestId`, and, where they apply, `userMessage`, `issues`, `requiredScopes`, and `grantedScopes`. `code` is always present and comes from a closed, documented list; branch on it, not on the status or the message. `message` is meant for developers (usually English), and the Swedish text that's safe to show your users moves to `userMessage`. `requestId` replaces `errorId` and matches the `Sajn-Request-Id` response header. Each validation issue gains a `code`. Codes are split or renamed: `INVALID_REQUEST`, `INVALID_BODY`, and `VALIDATION_ERROR` become `VALIDATION_FAILED`; `FORBIDDEN` becomes `PERMISSION_DENIED`, `INSUFFICIENT_SCOPE`, `PLAN_REQUIRED`, or `ACCOUNT_INACTIVE`; `TOO_MANY_REQUESTS` becomes `RATE_LIMITED` or `DAILY_QUOTA_EXCEEDED`; and a reused `Idempotency-Key` returns `IDEMPOTENCY_KEY_REUSED` or `IDEMPOTENCY_KEY_IN_USE`. Some statuses change: sending a document past the monthly limit returns `403 LIMIT_EXCEEDED` instead of `400`, a deactivated user returns `403 ACCOUNT_INACTIVE` instead of `401`, and editing a locked template returns `400 INVALID_STATE` instead of `401`.
+
+### Webhooks
+
+- Removes the `X-Sajn-Secret` header, which carried the endpoint secret in plain text, from webhook deliveries. Verify deliveries with the `X-Sajn-Signature` header instead.
+- Uses the REST API's names in webhook payloads. On document events, the document has `name` instead of `title`, and `SECURITY_DOCUMENT_DOWNLOADED` and `SECURITY_SIGNATURE_IDENTITY_ACCESSED` have `documentName` instead of `documentTitle`. A party without an email address has `email: null` instead of `""`. In `productTables`, on webhooks and on `GET /api/v1/documents/:id`, `selectionPartyId` replaces `selectionSignerId`. Documents add `expiresAt` and `completedAt`, and parties add `role` and `signedAt`. `DOCUMENT_ARCHIVE_UPLOADED` no longer includes `s3Key`, an internal storage key.
+- Gives `DOCUMENT_PARTY_AUTH_FAILED` and `DOCUMENT_PARTY_DELEGATED` the `{ document, party }` payload of every other party event, in place of the flat `documentId`, `documentName`, and `signerId`. `DOCUMENT_PARTY_AUTH_FAILED` keeps `method`, `hintCode`, and `failedAt` next to them, and `method` uses the eID scheme name, such as `SE_BANKID` instead of `BANKID`. `DOCUMENT_PARTY_DELEGATED` moves the delegation into `delegation`, with `id`, `delegate`, `reason`, and `delegatedAt`; read the delegating party from `party` instead of `originalSigner`.
+- Changes the webhook delivery body to `{ id, event, createdAt, apiVersion, payload }`. `id` is the event ID that `GET /api/v1/events/:id` takes, and `createdAt` is when the event happened instead of when the attempt was sent. Both stay the same across retries and replays, so deduplicate on `id`. `webhookEndpoint` is removed.
+- Returns a webhook's `secret` only from `POST /api/v1/webhooks`, and from `PATCH /api/v1/webhooks/:id` when the update sets a new secret. `GET /api/v1/webhooks` and `GET /api/v1/webhooks/:id` no longer return it. Store the secret when you create the webhook; to replace a lost one, send a new `secret` with `PATCH /api/v1/webhooks/:id`.
+
+### Limits
+
+- Removes the deprecated `bankIdSignatures` and `aiTokens` aliases from `GET /api/v1/limits`. Read `signatures.SE_BANKID` instead of `bankIdSignatures`, and `aiBudgetOre`, `aiSpentOre`, and `aiSpentOreSigner` instead of `aiTokens` and `aiTokensSigner`.
+- Removes the cost fields from `GET /api/v1/limits`: `quota.additionalBankidCost`, `quota.smsCost`, and `additionalCosts`. They always returned `0`. To track use beyond the plan, compare `usage` with `quota`; the prepaid credit that pays for it is in `balance`.
+
+## 2026-09
+
+Released 2026-09-01. Deprecated: from 2027-10-01, requests on this version return `400 API_VERSION_SUNSET`.
+
+The first dated version: the v1 API as it was on its release date.

@@ -65,7 +65,7 @@ description: "Concise description for SEO and navigation"
 - Include prerequisites at the start of procedural content
 - Test all code examples before committing
 - Add language tags to all code blocks
-- Use relative paths for internal links (e.g., `/quickstart` not absolute URLs)
+- Use relative paths for internal links (e.g., `/get-started/quickstart` not absolute URLs)
 - Match style and formatting of existing pages
 
 ### Mintlify Components
@@ -93,6 +93,17 @@ When the API changes:
    (`SKIP_MINTLIFY_VALIDATION=1` skips the Mintlify CLI step if it isn't installed.)
 2. Ensure endpoint paths match the navigation structure in docs.json
 3. The format uses HTTP method + path (e.g., `"GET /api/v1/documents"`) in the navigation
+
+The API tab is a version switcher. `api/openapi.json` is the latest version; `api/openapi-2026-09.json` is a
+frozen snapshot of the deprecated `2026-09` version. Never regenerate or edit a frozen snapshot, and delete it
+with its `versions` entry when the version is retired. After replacing `api/openapi.json`, run
+`python3 scripts/wire-api-versions.py`: it rebuilds the API tab's version dropdown at the top of the sidebar and
+puts the deprecation notice on every frozen endpoint page through `x-mint`, without changing the contract. The changelog in `upgrading/changelog.mdx` is the output
+that `pnpm --silent generate:api-changelog /tmp/changelog.md` writes in `sajn-app`.
+
+The API tab's developer pages (`get-started/`, `ai/`, `concepts/`, `guides/`, `webhooks/`, `api-fundamentals/`,
+`login/`, `upgrading/`) are listed in `GUIDE_GROUPS` in `scripts/wire-api-versions.py`. To add or move one, edit
+that list and rerun the script. When you move a page, add a `redirects` entry in `docs.json`.
 
 The generator deliberately injects one path that is **not** in the ts-rest contract:
 `/api/v1/putFile`, the direct upload against `upload.sajn.se`. It is not drift — don't

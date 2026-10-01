@@ -1,0 +1,158 @@
+---
+title: "Verify identity before signing"
+description: "Recipe: verify a new customer with sajn ID, and send the contract only after BankID confirms who they are"
+---
+
+In this recipe, you check a new customer's identity with sajn ID before you send them a contract. The customer identifies with BankID first. When the check succeeds, your service sends the contract, set up so the customer signs with BankID and their identity number is matched again at signing.
+
+Use this flow when you must know who the customer is before they see the contract, such as for a credit agreement. If verifying at signing is enough, set the party's signing method to an eID instead; see [Set the signing method for a party](/guides/identity/signing-methods).
+
+## Before you begin
+
+- Node.js 18 or later, and Express: `npm install express`.
+- An API key in the `SAJN_API_KEY` environment variable. To create one, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- A webhook endpoint subscribed to `ID_VERIFIED`, `ID_FAILED`, and `ID_CANCELED`, with its `secret` in `SAJN_WEBHOOK_SECRET`. For more information, see [Webhooks](/webhooks/overview).
+- A contract template. Store its ID in `SAJN_TEMPLATE_ID`.
+
+## Build the flow
+
+<Steps>
+  <Step title="Start the identity check">
+    When the customer applies, create a sajn ID check. Put your application's ID in `reference`, so the webhook can find it:
+
+    ```javascript
+    // verify.js
+    const headers = {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      "Sajn-Version": "2026-10",
+      "Content-Type": "application/json",
+    };
+
+    export const startCheck = async (application) => {
+      const response = await fetch("https://app.sajn.se/api/v1/sajn-id", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          fullName: application.name,
+          nationalId: application.nationalId,
+          channel: "EMAIL",
+          email: application.email,
+          reference: application.id,
+          locale: "en-US",
+        }),
+      });
+      const check = await response.json();
+      if (!response.ok) throw new Error(`${check.code}: ${check.message}`);
+      return check.id;
+    };
+    ```
+
+    sajn emails the customer a link right away. With `nationalId`, BankID checks that the person has that identity number; without it, BankID checks the name.
+  </Step>
+
+  <Step title="Send the contract when the check succeeds">
+    In your webhook handler, act on the three outcomes. On `ID_VERIFIED`, create the contract with the customer as a party that signs with BankID, and send it:
+
+    ```javascript
+    // server.js
+    import crypto from "node:crypto";
+
+    import express from "express";
+
+    import { findApplication } from "./applications.js"; // Your own lookup.
+
+    const headers = {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      "Sajn-Version": "2026-10",
+      "Content-Type": "application/json",
+    };
+
+    const sajn = async (method, path, body, idempotencyKey) => {
+      const response = await fetch(`https://app.sajn.se/api/v1${path}`, {
+        method,
+        headers: idempotencyKey ? { ...headers, "Idempotency-Key": idempotencyKey } : headers,
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(`${data.code}: ${data.message} (${data.requestId})`);
+      return data;
+    };
+
+    const isSignedBySajn = (header, rawBody) => {
+      const parts = Object.fromEntries(String(header ?? "").split(",").map((part) => part.split("=")));
+      const expected = crypto
+        .createHmac("sha256", process.env.SAJN_WEBHOOK_SECRET)
+        .update(`${parts.t}.${rawBody}`)
+        .digest("hex");
+      return (
+        typeof parts.v1 === "string" &&
+        parts.v1.length === expected.length &&
+        crypto.timingSafeEqual(Buffer.from(parts.v1), Buffer.from(expected))
+      );
+    };
+
+    const app = express();
+
+    app.post("/webhooks/sajn", express.raw({ type: "application/json" }), async (req, res) => {
+      if (!isSignedBySajn(req.headers["x-sajn-signature"], req.body)) return res.status(401).end();
+      res.status(200).end();
+
+      const { event, payload } = JSON.parse(req.body);
+      if (!event.startsWith("ID_")) return;
+
+      const application = await findApplication(payload.reference);
+
+      if (event !== "ID_VERIFIED") {
+        console.log(`Application ${application.id}: identity check ${payload.status}`);
+        return;
+      }
+
+      const document = await sajn("POST", "/documents", {
+        name: `Credit agreement - ${application.name}`,
+        templateId: process.env.SAJN_TEMPLATE_ID,
+        externalId: application.id,
+        parties: [{
+          name: application.name,
+          email: application.email,
+          role: "SIGNER",
+          requiredSignature: "SE_BANKID",
+        }],
+      }, `contract-${application.id}-create`);
+
+      await sajn("PATCH", `/documents/${document.id}/parties/${document.parties[0].id}`, {
+        role: "SIGNER",
+        nationalId: application.nationalId,
+      });
+
+      await sajn("POST", `/documents/${document.id}/send`, {}, `contract-${application.id}-send`);
+      console.log(`Application ${application.id}: contract ${document.id} sent`);
+    });
+
+    app.listen(3000);
+    ```
+
+    The handler uses the following:
+
+    - `payload.reference` is the `reference` you sent, so `findApplication` can look up the application.
+    - The `nationalId` on the party makes BankID match the same identity number again at signing. A party in `POST /api/v1/documents` doesn't take `nationalId`, so the handler sets it with a party update. The update sends `role`, because an update without it sets the role to `SIGNER`.
+    - The idempotency keys make a repeated delivery of the same event replay the first responses instead of sending a second contract.
+  </Step>
+
+  <Step title="Check the party's identity afterward">
+    After the contract is signed, each party has `identityVerified` and `identityMismatch`. `identityMismatch` is `true` when the BankID identity didn't match the intended party and the signature was still recorded. For the verified identities, call `GET /api/v1/documents/DOCUMENT_ID/signatures`.
+  </Step>
+</Steps>
+
+## Handle errors
+
+- `ID_FAILED` or `ID_CANCELED`: the customer didn't pass the check. Ask them to try again, and start a new check if the link expired.
+- `403 PERMISSION_DENIED` on send: BankID signing isn't included in your plan. For the plan rules, see [Set the signing method for a party](/guides/identity/signing-methods#plan-availability).
+- The identity number is personal data. Store it only as long as you need it, and keep it out of your logs.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Related guides
+
+- [Verify identity with sajn ID](/guides/identity/identity-verification)
+- [Set the signing method for a party](/guides/identity/signing-methods)
+- [Verify webhook signatures](/webhooks/verify-signatures)

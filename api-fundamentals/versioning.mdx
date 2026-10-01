@@ -1,0 +1,108 @@
+---
+title: "API versioning"
+description: "How sajn versions the REST API and webhook payloads, and how long each version is supported"
+---
+
+sajn versions the REST API and webhook payloads by date. A version is named after the month it's released, in `YYYY-MM` format, such as `2026-10`.
+
+Within a version, sajn makes only additive changes: new endpoints, new optional request fields, new response fields, and new webhook events. Your integration must ignore fields it doesn't recognize. A change that could break a working integration, such as removing or renaming a field or an endpoint, ships only in a new version.
+
+## Supported versions
+
+| Version | Released | Status | Sunset date |
+|---------|----------|--------|-------------|
+| `2026-10` | 2026-10-01 | Latest | None |
+| `2026-09` | 2026-09-01 | Deprecated | 2027-10-01 |
+
+The guides and the API reference describe the latest version, `2026-10`. To see the `2026-09` endpoints, select `2026-09` in the version switcher of the API reference. For the changes in each version, see the [changelog](/upgrading/changelog).
+
+## Choose a version
+
+To choose the version for a request, send the `Sajn-Version` header:
+
+```bash
+curl https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+Replace `API_KEY` with your API key.
+
+The header takes precedence over your organization's default version. Without the header, the request uses the default.
+
+We recommend sending `Sajn-Version` on every request and keeping it in your code permanently. Your integration then behaves the same no matter what the organization default is, and you upgrade by changing one value after you've tested against the new version.
+
+### Organization default
+
+Each organization has one default version, shared by all its workspaces and API keys. There's no per-key version.
+
+An organization without a default is pinned to the latest version by its first API request that has no `Sajn-Version` header. After that, the default changes only when a member who can manage the organization's settings changes it in the **API-version** section under **Inställningar > Utvecklare** in the [dashboard](https://app.sajn.se). That section also shows how many requests over the last 72 hours used each version, and whether they chose it with the header or relied on the default.
+
+### Response headers
+
+Every response states the version that served it. A response on a deprecated version also tells you when the version stops working:
+
+| Header | Sent | Value |
+|--------|------|-------|
+| `Sajn-Version` | On every response | The version that served the request, for example `2026-10`. |
+| `Deprecation` | On a deprecated version | When the version was deprecated, as `@` followed by a Unix timestamp, for example `@1790812800`. |
+| `Sunset` | On a deprecated version | The date from which requests on the version fail, as an HTTP date, for example `Fri, 01 Oct 2027 00:00:00 GMT`. |
+
+We recommend logging a warning when a response carries `Sunset`, so you notice a deprecated version long before its sunset date.
+
+### Errors
+
+A request with a version problem fails with an HTTP `400 Bad Request` status code before it reaches the endpoint. The message lists the supported versions:
+
+```json
+{
+  "code": "INVALID_API_VERSION",
+  "message": "Unknown API version \"2025-01\". Supported versions: 2026-09, 2026-10.",
+  "requestId": "req_V1StGXR8Z5jdHi6BmyT2"
+}
+```
+
+On `2026-09`, the body has only `message` and `code`. For the error shape and every other code, see [Errors](/api-fundamentals/errors).
+
+| Code | Cause |
+|------|-------|
+| `INVALID_API_VERSION` | The `Sajn-Version` header names a version that doesn't exist. |
+| `API_VERSION_SUNSET` | The requested version is past its sunset date. This applies to the header and to the organization default. |
+
+An endpoint that a version removed returns an HTTP `404 Not Found` status code on that version and every later one. On earlier versions, it keeps working until their sunset date.
+
+## Webhook versions
+
+Each webhook endpoint has its own API version, which sets the shape of the payloads it receives. The endpoint keeps its version when the organization default changes, so you can move the API and your webhook receivers separately.
+
+- To choose the version when you create an endpoint, set `apiVersion` in the [`POST /api/v1/webhooks`](/webhooks/manage-endpoints) request body. Without it, the endpoint gets your organization's default version.
+- To change the version of an existing endpoint, send `apiVersion` in a [`PATCH /api/v1/webhooks/{id}`](/api-reference/update-a-webhook) request. Every delivery after the change uses the new version, including automatic retries and [event replays](/webhooks/replay-and-reconcile) of earlier events. A [manual retry of a single delivery](/api-reference/replay-a-webhook-delivery) resends that delivery's original body, in the version it was first sent in.
+
+Each delivery states its version twice: in the `Sajn-Version` request header and in the `apiVersion` field of the body:
+
+```json
+{
+  "id": "cm9evt1a2b3c4d5e6f7g8h9i0",
+  "event": "DOCUMENT_SIGNED",
+  "createdAt": "2026-10-01T12:00:00.000Z",
+  "apiVersion": "2026-10",
+  "payload": {}
+}
+```
+
+The version also decides the envelope. A `2026-09` delivery has no `id`, uses the attempt time as `createdAt`, and adds `webhookEndpoint`. For the payloads, see [Webhooks](/webhooks/overview).
+
+## Version lifecycle
+
+- sajn releases at most two new versions a year.
+- At most two versions are supported at a time: the latest version and the one before it.
+- When a new version is released, the previous one is deprecated. It keeps working for about 12 months, until the sunset date in the [supported versions](#supported-versions) table.
+- From the sunset date, every request on the version fails with `400 API_VERSION_SUNSET`, including requests that rely on an organization default set to that version. Move your requests, your organization default, and your webhook endpoints to a supported version before then.
+
+To move to `2026-10`, see [Upgrading to 2026-10](/upgrading/2026-10).
+
+## Next steps
+
+- [Errors](/api-fundamentals/errors): the error shape and every error code.
+- [Query parameters](/api-fundamentals/query-parameters): how `2026-10` reads query strings.
+- [Pagination](/api-fundamentals/pagination): walk any list with `nextCursor`.

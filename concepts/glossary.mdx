@@ -1,0 +1,110 @@
+---
+title: "Glossary"
+description: "Short definitions of the terms used across the sajn API and docs"
+---
+
+The terms are in alphabetical order. Each term links to the page that explains it.
+
+### API key
+
+A secret token that authenticates requests to the API for one workspace, acting as the user who created it. Production keys start with `sajn_sk_`, and sandbox keys with `sajn_dev_`. See [Authentication](/get-started/authentication).
+
+### API version
+
+The date-based version of the API and webhook payloads, such as `2026-10`. You choose it per request with the `Sajn-Version` header, and the organization has a default. See [API versioning](/api-fundamentals/versioning).
+
+### Contact
+
+A reusable record of a person you send documents to. A party created from a contact copies its details. See [Contacts](/concepts/contacts).
+
+### Document
+
+One agreement with content, parties, and settings, which moves from `DRAFT` to `COMPLETED` as it's sent and signed. See [Documents](/concepts/documents).
+
+### eIDAS
+
+The EU regulation on electronic identification and trust services. It defines the simple (SES), advanced (AES), and qualified (QES) signature levels. See [Signing methods](/concepts/signing-methods#signature-levels).
+
+### Event
+
+A record of something that happened, such as `DOCUMENT_COMPLETED`, which sajn delivers to your webhook endpoints. Every event has an `id` that stays the same across retries and replays. See [Webhook events](/webhooks/events).
+
+### Field
+
+One content block of a document or template, such as text, an uploaded PDF, a form, or a product table. See [Fields](/concepts/fields).
+
+### Field metadata
+
+The `fieldMeta` object of a field: its type-specific content and settings. Its `type` always equals the field's `type`. See [Fields](/concepts/fields#field-anatomy).
+
+### Form
+
+A public link with questions. Each submission creates a document that the visitor signs. See [Templates and forms](/concepts/templates-and-forms#forms).
+
+### Key
+
+A stable name, such as `customer-name`, on a value in a FORM subfield, a placed field, or a PDF form field. You fill in values by key. See [Fields](/concepts/fields#fill-in-values-by-key).
+
+### Organization
+
+The top-level account for your company. It holds billing, members, and workspaces. See [Organizations](/concepts/organizations).
+
+### Organizer
+
+A party with the role `ORGANIZER`. Organizers follow the document but don't sign. See [Parties](/concepts/parties#roles).
+
+### Party
+
+A person on a document, with a role, a delivery method, and a signature method. See [Parties](/concepts/parties).
+
+### Placed field
+
+A box on a page of a PDF field, such as a signature mark, a text input, or fixed text. Placed fields are in the PDF field's `fieldMeta.placedFields`. See [PDF field placement](/guides/fields/pdf-field-placement).
+
+### Product table
+
+A field that lists products or services with prices, quantities, discounts, and totals. A party can choose rows and quantities. See [Product tables](/guides/fields/product-tables).
+
+### Reviewer
+
+A party with the role `REVIEWER`. Reviewers are invited to review the document but don't sign. See [Parties](/concepts/parties#roles).
+
+### sajn ID
+
+An identity check with Swedish BankID that isn't tied to a document. See [sajn ID](/concepts/sajn-id).
+
+### Sandbox
+
+A separate, linked organization for testing. Nothing is billed, BankID is mocked, and signed PDFs are watermarked. See [Sandbox](/get-started/sandbox).
+
+### Seal
+
+The PAdES electronic seal that sajn applies to every completed PDF, so any later change to the file is detectable. See [Signing certificate](/concepts/signing-certificate).
+
+### Signer
+
+A party with the role `SIGNER`. A document completes when every signer has signed. See [Parties](/concepts/parties#roles).
+
+### Signing certificate
+
+The page that sajn appends to every completed PDF. It records who signed, how they verified their identity, and when. See [Signing certificate](/concepts/signing-certificate).
+
+### Signing order
+
+Whether parties sign at the same time (`PARALLEL`) or one after another (`SEQUENTIAL`), set in `documentMeta.signingOrder`. See [Parties](/concepts/parties#signing-order).
+
+### Signing URL
+
+The personal link a party opens to sign. Get it from `GET /documents/{id}/parties/{partyId}`. See [Parties](/concepts/parties#signing-urls).
+
+### Template
+
+A reusable blueprint of fields, parties, and settings. You create documents from it. See [Templates and forms](/concepts/templates-and-forms#templates).
+
+### Webhook endpoint
+
+A URL on your server that sajn sends events to, with the event types it subscribes to, a signing secret, and an API version. See [Webhooks](/webhooks/overview).
+
+### Workspace
+
+An isolated area of an organization, with its own documents, templates, contacts, members, webhooks, and API keys. See [Workspaces](/concepts/workspaces).
