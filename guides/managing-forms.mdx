@@ -89,7 +89,7 @@ curl 'https://app.sajn.se/api/v1/forms/FORM_ID/submissions?perPage=100&updatedAf
 
 The response contains `submissions`, `hasNextPage` and `nextCursor`. Pass `nextCursor` as `cursor` on the next request with the same filters. Rows are ordered by `updatedAt` and ID ascending. Upsert by submission ID because a response may change during pagination.
 
-Use `updatedAfter` to synchronize status changes and `submittedAfter` to filter by submission time. Optional `status` accepts `STARTED`, `SUBMITTED`, `COMPLETED` or `EXPIRED`. A dedicated form-submission webhook is not currently available.
+Use `updatedAfter` to synchronize status changes and `submittedAfter` to filter by submission time. Optional `status` accepts `STARTED`, `SUBMITTED`, `COMPLETED` or `EXPIRED`. To get each submission as it happens, subscribe a webhook to the `FORM_SUBMITTED` event. For the payload, see [Form Submission Payload](/guides/webhooks#form-submission-payload).
 
 Each submission includes its contact details, answers, timestamps and `documentId`. Read one with `GET /api/v1/forms/FORM_ID/submissions/SUBMISSION_ID`. Retrieve document content or signing progress through the ordinary document endpoints, which separately enforce document scopes and visibility. Submission responses do not include IP addresses, user agents or signing tokens.
 

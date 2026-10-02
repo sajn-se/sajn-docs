@@ -202,6 +202,14 @@ These events fire when contacts are modified. The payload is a [Contact object](
 | `TEMPLATE_DELETED` | A template was moved to trash. |
 | `TEMPLATE_RESTORED` | A template was restored from trash. |
 
+### Form Events
+
+This event fires once per form submission. The payload is a [Form Submission object](#form-submission-payload).
+
+| Event | Description |
+|-------|-------------|
+| `FORM_SUBMITTED` | A respondent submitted a form. |
+
 ### Workspace Events
 
 | Event | Description |
@@ -398,6 +406,43 @@ Used by contact events (`CONTACT_CREATED`, `CONTACT_UPDATED`, `CONTACT_DELETED`)
 | `name` | string or null | Company name. |
 | `orgNumber` | string or null | Organization number. |
 | `country` | string or null | Country code. |
+
+### Form Submission Payload
+
+Used by the form event (`FORM_SUBMITTED`). It has the same fields as the response of [`GET /api/v1/forms/{id}/submissions/{submissionId}`](/guides/managing-forms).
+
+```json
+{
+  "id": "clx7stu...",
+  "formId": "clx8vwx...",
+  "status": "SUBMITTED",
+  "respondentName": "Anna Svensson",
+  "respondentEmail": "anna@example.com",
+  "respondentPhone": "+46701234567",
+  "answers": {
+    "company_name": "Acme AB",
+    "start_date": "2026-05-01"
+  },
+  "documentId": "clx1abc...",
+  "startedAt": "2026-04-16T11:55:00.000Z",
+  "submittedAt": "2026-04-16T12:00:00.000Z",
+  "updatedAt": "2026-04-16T12:00:00.000Z"
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Submission ID. |
+| `formId` | string | The form that received the submission. |
+| `status` | string | `SUBMITTED` when this event fires. The full set is `STARTED`, `SUBMITTED`, `COMPLETED`, `EXPIRED`. |
+| `respondentName` | string or null | The respondent's name. |
+| `respondentEmail` | string or null | The respondent's email address. |
+| `respondentPhone` | string or null | The respondent's phone number. |
+| `answers` | object or null | The respondent's answers, keyed by question or field key. The keys vary per form. |
+| `documentId` | string or null | The document created from the submission. Read it through the document endpoints. |
+| `startedAt` | string (ISO 8601) | When the respondent started the form. |
+| `submittedAt` | string (ISO 8601) or null | When the respondent submitted the form. |
+| `updatedAt` | string (ISO 8601) | When the submission was last updated. |
 
 ---
 
