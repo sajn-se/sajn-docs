@@ -1,11 +1,11 @@
 ---
-title: "Konfigurera attestflöde för ett dokument"
+title: "Kräv godkännande innan ett dokument skickas"
 description: "Låt en kollega godkänna dokumentet internt innan det skickas ut för signering"
 ---
 
-I sajn finns ett inbyggt attestflöde som kräver att en kollega godkänner ett dokument innan det skickas ut för signering. Attesten sätts **per dokument** i panelen **Arbetsflöde**, men den kan också göras obligatorisk för hela arbetsytan. Vem som får *vara* godkännare styrs av arbetsytans rollbehörigheter.
+I sajn kan du kräva att en kollega godkänner ett dokument innan det skickas ut för signering. Kravet sätts **per dokument** i panelen **Arbetsflöde**, men den kan också göras obligatorisk för hela arbetsytan. Vem som får *vara* godkännare styrs av arbetsytans rollbehörigheter.
 
-Den här guiden visar var attesten slås på, hur godkännarkedjan sätts ihop och hur flödet ser ut för avsändare respektive godkännare.
+Den här guiden visar var godkännandet slås på, hur godkännarkedjan sätts ihop och hur flödet ser ut för avsändare respektive godkännare.
 
 ## Innan du börjar
 
@@ -17,7 +17,7 @@ Den här guiden visar var attesten slås på, hur godkännarkedjan sätts ihop o
 
 <Steps>
   <Step title="Öppna panelen Arbetsflöde">
-    Attesten sitter i dokumentets **Arbetsflöde**, inte i **Inställningar**.
+    Godkännandet sitter i dokumentets **Arbetsflöde**, inte i **Inställningar**.
 
     Kedjan visar dokumentets väg från Utkast till Slutfört. Steget **Internt godkännande** ligger mellan Utkast och Skickat och innehåller reglaget **Kräv godkännande**. Så länge det är avslaget går dokumentet direkt till parterna när du skickar.
 
@@ -38,7 +38,7 @@ Den här guiden visar var attesten slås på, hur godkännarkedjan sätts ihop o
       Med flera godkännare kopplar du ihop dem med **och** (båda måste godkänna), **eller** (någon av dem räcker) och **sedan** (de godkänner i tur och ordning). Du kan också välja att dokumentet ska skickas vidare automatiskt så snart alla har godkänt, och skriva ett meddelande till godkännarna. Klicka **Spara** när kedjan är klar.
     </Note>
   </Step>
-  <Step title="Gör attesten obligatorisk för hela arbetsytan">
+  <Step title="Gör godkännande obligatoriskt för hela arbetsytan">
     Under [Inställningar → Preferenser → Allmänt](https://app.sajn.se/~/settings/workspace/preferences) finns **Kräv godkännande innan utskick**. Slår du på den måste varje dokument i arbetsytan godkännas internt innan det skickas, även av den som annars får skicka utan godkännande. Saknar ett dokument godkännare läggs arbetsytans standardkedja till automatiskt.
 
     <Frame>
@@ -63,10 +63,10 @@ Vem som kan väljas som godkännare bestäms av arbetsytans roller. Under [Inst�
   <img src="/images/guider/approval-workflow/25-rollerna.png" alt="Fliken Roller under Team med arbetsytans roller" />
 </Frame>
 
-Klicka på en roll och fäll ut gruppen **Dokumentflöde**. Två behörigheter där styr attesten:
+Klicka på en roll och fäll ut gruppen **Dokumentflöde**. Två behörigheter där styr godkännandet:
 
 - **Godkänna dokument** gör att medlemmen dyker upp som valbar godkännare i dialogen **Internt godkännande**.
-- **Skicka utan godkännande** låter medlemmen skicka dokument direkt, även när arbetsytan kräver godkännande. Ta bort den från roller som alltid ska attestera.
+- **Skicka utan godkännande** låter medlemmen skicka dokument direkt, även när arbetsytan kräver godkännande. Ta bort den från roller vars dokument alltid ska godkännas.
 
 <Frame>
   <img src="/images/guider/approval-workflow/28-dokumentflode.png" alt="Gruppen Dokumentflöde utfälld i en arbetsyteroll" />

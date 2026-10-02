@@ -1,0 +1,123 @@
+---
+title: "Idempotency"
+description: "Retry write requests safely with the Idempotency-Key header, and get the original response instead of a duplicate"
+---
+
+A network error or a timeout doesn't tell you whether a request reached sajn. If you retry a `POST /api/v1/documents` request without protection, you might create the document twice. An idempotency key makes the retry safe: sajn runs the request once, stores the response, and returns the stored response to every retry that uses the same key.
+
+To make a request idempotent, send an `Idempotency-Key` header with a unique value:
+
+- The header works on every method except `GET`, such as `POST`, `PUT`, `PATCH`, and `DELETE`. A `GET` request ignores it, because reading is already safe to repeat.
+- The key is any string of up to 255 characters. We recommend a UUID that you generate for each operation and store with it, so a retry after a crash reuses the same key. A longer key returns `400 VALIDATION_FAILED`.
+- A stored response is kept for 24 hours. After that, the key is free, and a request with it runs again.
+
+## Send an idempotent request
+
+The following samples create a contact with an idempotency key:
+
+<CodeGroup>
+
+```bash curl
+curl https://app.sajn.se/api/v1/contacts \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 5f0c6a2e-8d1b-4c3a-9e7f-2b6d4a1c8e90" \
+  -d '{"firstName": "Alex", "lastName": "Lindqvist", "email": "alex@example.com"}'
+```
+
+```javascript Node.js
+// Requires Node.js 18 or later.
+import { randomUUID } from 'node:crypto';
+
+const idempotencyKey = randomUUID();
+
+const response = await fetch('https://app.sajn.se/api/v1/contacts', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+    'Sajn-Version': '2026-10',
+    'Content-Type': 'application/json',
+    'Idempotency-Key': idempotencyKey,
+  },
+  body: JSON.stringify({
+    firstName: 'Alex',
+    lastName: 'Lindqvist',
+    email: 'alex@example.com',
+  }),
+});
+
+console.log(response.headers.get('Idempotent-Replayed'), await response.json());
+```
+
+```python Python
+# Requires the requests package.
+import os
+import uuid
+
+import requests
+
+idempotency_key = str(uuid.uuid4())
+
+response = requests.post(
+    "https://app.sajn.se/api/v1/contacts",
+    headers={
+        "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+        "Sajn-Version": "2026-10",
+        "Idempotency-Key": idempotency_key,
+    },
+    json={
+        "firstName": "Alex",
+        "lastName": "Lindqvist",
+        "email": "alex@example.com",
+    },
+)
+
+print(response.headers.get("Idempotent-Replayed"), response.json())
+```
+
+</CodeGroup>
+
+To retry, send the same request again with the same key. If the first attempt finished, the retry returns its stored status and body, with the following header:
+
+```http
+Idempotent-Replayed: true
+```
+
+A response without `Idempotent-Replayed` is from a request that ran.
+
+## What a key matches
+
+A key belongs to a workspace, so two API keys or OAuth apps that act in the same workspace share one set of idempotency keys. Generate keys that are unique across all of them, such as UUIDs.
+
+sajn compares a retry with the original by its method, its path, and its JSON body. The query string and the other headers aren't compared.
+
+| Retry | Result |
+|-------|--------|
+| Same key, same method, path, and body, after the first request finished | The stored response, with `Idempotent-Replayed: true`. |
+| Same key, same request, while the first request is still running | `409 IDEMPOTENCY_KEY_IN_USE`, with `Retry-After: 1`. Wait, and then retry with the same key. |
+| Same key, different method, path, or body | `400 IDEMPOTENCY_KEY_REUSED`. Use a new key for a new request. |
+
+## Which responses are stored
+
+sajn stores the response that the request produced, so a retry gets the same answer even when it's an error:
+
+- **`2xx` responses** are stored and replayed.
+- **`4xx` responses** from the request itself, such as `404 NOT_FOUND` or `409 ALREADY_EXISTS`, are stored and replayed. A retry with the same key and body fails the same way, so fix the request and send it with a new key.
+- **`5xx` and `429` responses** aren't stored. sajn releases the key, so a retry with the same key runs the request again.
+
+Some errors happen before sajn starts the request, and aren't stored either: authentication, permission, OAuth scope, rate-limit, and API version errors, and a `400 VALIDATION_FAILED` for a body that doesn't match the endpoint's schema. You can correct the request and retry with the same key.
+
+Every request with a key counts against your [rate limits](/api-fundamentals/rate-limits), including a replay.
+
+When a retry replays a stored error, the `requestId` in its body identifies the original request, and the `Sajn-Request-Id` header identifies the retry. For more information, see [Request IDs](/api-fundamentals/errors#request-ids).
+
+## Errors
+
+| Code | Status | Cause |
+|------|--------|-------|
+| `IDEMPOTENCY_KEY_REUSED` | 400 | The key was already used with a different method, path, or body. |
+| `IDEMPOTENCY_KEY_IN_USE` | 409 | A request with the same key is still running. Retry after the `Retry-After` header's number of seconds. |
+| `VALIDATION_FAILED` | 400 | The key is longer than 255 characters. The issue has the `path` `Idempotency-Key` and the `code` `TOO_BIG`. |
+
+In API version `2026-09`, a reused key returns the code `INVALID_REQUEST`, and a key in use returns `ALREADY_EXISTS`. For every other error code, see [Errors](/api-fundamentals/errors). For a retry loop that honors `Retry-After`, see [Retry with backoff](/api-fundamentals/rate-limits#retry-with-backoff).

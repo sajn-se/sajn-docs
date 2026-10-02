@@ -1,0 +1,143 @@
+---
+title: "Skicka avtal från HubSpot"
+description: "Skapa och skicka avtal direkt från en affär i HubSpot, och få signeringsstatus tillbaka på affären"
+---
+
+Med HubSpot-integrationen skickar du avtal för signering utan att lämna affären. Avtalet skapas i sajn, gärna från en mall, och kan fyllas i med uppgifter från affären och dess företag. När mottagarna signerar skriver sajn tillbaka status på affären.
+
+Uppsättningen har två delar. En administratör ansluter HubSpot till organisationen i sajn och ställer in fältmappningen. Sedan kopplar varje säljare sitt HubSpot-konto till en arbetsyta första gången hen öppnar fliken **sajn Documents** på en affär.
+
+## Innan du börjar
+
+- Organisationen har Solo eller högre.
+- För att ansluta HubSpot och ställa in fältmappningen behöver du behörigheten **Hantera integrationer**.
+- Du behöver ett HubSpot-konto med rätt att godkänna åtkomst för appar.
+- Den som skickar från HubSpot behöver ett sajn-konto med samma e-postadress som i HubSpot, och vara medlem i en arbetsyta i organisationen.
+- Ska avtalet fyllas i från affären behöver arbetsytan [datafält](/guider/settings-custom-fields) för dokument, och en mall som använder dem. Produktrader kräver en mall med en produkttabell.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Anslut HubSpot under Integrationer">
+    Öppna [Integrationer](https://app.sajn.se/~/integrations) i sidomenyn och leta upp HubSpot bland CRM-tjänsterna. Klicka **Anslut**. Du skickas till HubSpot, där du väljer konto och godkänner åtkomsten.
+
+    När du kommer tillbaka ligger HubSpot under **Anslutna**. Kopplingen delas av hela organisationen, så den görs en gång.
+
+    {/* TODO screenshot: Sidan Integrationer med HubSpot-raden och knappen Anslut */}
+  </Step>
+
+  <Step title="Öppna Fältmappning">
+    Klicka **Inställningar** på HubSpot-raden och välj **Fältmappning**. Rutan **Fältmappning för HubSpot** styr vad som hämtas från affären när ett dokument skapas, och vad som skickas tillbaka när det signerats.
+
+    Mappningen gäller arbetsytan du står i. Har organisationen flera arbetsytor ställer du in den i var och en.
+
+    {/* TODO screenshot: Menyn Inställningar på HubSpot-raden med Fältmappning och Koppla från */}
+  </Step>
+
+  <Step title="Koppla datafälten till affärens egenskaper">
+    Under **Datafält** listas arbetsytans datafält för dokument. Välj för varje fält vilken egenskap i HubSpot som ska fylla det. Listan är grupperad i **Affär** och **Företag**, och **Ingen mappning** lämnar fältet tomt.
+
+    Företagsuppgifterna hämtas från det första företaget som är kopplat till affären. Datum skrivs in som år-månad-dag. Är egenskapen tom i HubSpot lämnas datafältet orört.
+
+    {/* TODO screenshot: Avsnittet Datafält med ett par fält kopplade till affärs- och företagsegenskaper */}
+  </Step>
+
+  <Step title="Hämta affärens produktrader">
+    Slå på **Produktrader** för att fylla dokumentets produkttabell med affärens produktrader. Raderna ersätter det som står i mallens första produkttabell.
+
+    Varje rad får namn, beskrivning, pris, antal, rabatt i procent och artikelnummer från HubSpot. Återkommande rader som faktureras månadsvis, kvartalsvis eller årsvis behåller sitt intervall.
+
+    {/* TODO screenshot: Avsnittet Produktrader med reglaget påslaget */}
+  </Step>
+
+  <Step title="Bestäm vad som händer när avtalet är signerat">
+    Under **När dokumentet signerats** väljer du i **Flytta affären till** vilket steg i pipelinen affären ska flyttas till. **Flytta inte** lämnar steget orört.
+
+    **Uppdatera affärens belopp från produkttabellen** skriver över affärens belopp med summan exklusive moms från dokumentets produkttabell. Har mottagaren valt bort rader räknas bara de som är kvar.
+
+    Klicka **Spara**.
+
+    {/* TODO screenshot: Avsnittet När dokumentet signerats med ett valt affärssteg och beloppsreglaget */}
+  </Step>
+
+  <Step title="Koppla ditt HubSpot-konto till en arbetsyta">
+    Öppna en affär i HubSpot och gå till fliken **sajn Documents**. Första gången klickar du **Connect sajn workspace**. Fönstret som öppnas visar vilken e-postadress du är inloggad med. Välj arbetsyta och klicka **Connect**.
+
+    Varje HubSpot-användare gör det här en gång. Dokument du skapar från HubSpot hamnar sedan i den arbetsytan, med dig som avsändare.
+
+    {/* TODO screenshot: Fönstret Connect sajn i HubSpot med arbetsytelistan */}
+  </Step>
+
+  <Step title="Skapa avtalet från affären">
+    Klicka **Create document** på fliken. Fyll i **Document name** och välj mall under **Template**. Det är mallen som får affärens datafält och produktrader. **No template (blank document)** ger ett tomt dokument.
+
+    Välj språk under **Language**. **Message to recipients** följer med i inbjudan, och **Expires in (days)** sätter sista signeringsdag, 1–365 dagar fram. Lämnar du fältet tomt får dokumentet inget utgångsdatum.
+
+    {/* TODO screenshot: Rutan New sajn document med namn, mall, språk och meddelande ifyllda */}
+  </Step>
+
+  <Step title="Lägg till mottagarna">
+    Under **Signers** fyller du i namn, leveranssätt och signeringsmetod för varje mottagare. Med **Email** som leveranssätt krävs e-postadress, med **SMS** krävs telefonnummer. **Add signer** lägger till ytterligare en mottagare.
+
+    {/* TODO screenshot: Avsnittet Signers med två mottagare */}
+  </Step>
+
+  <Step title="Skicka eller spara som utkast">
+    Med **Send for signing immediately** påslaget heter knappen **Create & send**, och avtalet går ut direkt. Slår du av det heter knappen **Create draft**. Utkastet hamnar i listan på affären, och du kan öppna det i sajn för att justera innan du skickar.
+
+    {/* TODO screenshot: Nederkanten av rutan med reglaget Send for signing immediately och knappen Create & send */}
+  </Step>
+</Steps>
+
+## Följ avtalet på affären
+
+Fliken **sajn Documents** listar affärens dokument, det senaste först. Kolumnerna är **Document**, **Status**, **Signers**, **Updated** och **Actions**. Under **Signers** ser du hur många av mottagarna som har signerat, till exempel *1/2 signed*. Klicka **Refresh** för att hämta senaste läget.
+
+Raden har olika åtgärder beroende på status:
+
+- **Send** skickar ett utkast för signering.
+- **Withdraw** återkallar ett skickat dokument. Det går tillbaka till utkast, och mottagarna som fått en inbjudan får ett mejl om att det är återkallat.
+- **View** öppnar dokumentet i sajn.
+
+{/* TODO screenshot: Fliken sajn Documents på en affär med två dokument i tabellen */}
+
+## Det här skrivs tillbaka till HubSpot
+
+När du ansluter HubSpot lägger sajn till fyra egenskaper på affärer, i gruppen **sajn**:
+
+- **Signeringsstatus (sajn)**
+- **Senaste dokument (sajn)**, dokumentets namn
+- **Dokumentlänk (sajn)**, länk till dokumentet i sajn
+- **Senaste händelse (sajn)**, när det senast hände något
+
+Egenskaperna uppdateras när dokumentet skickas, när en mottagare signerar, när alla har signerat och när någon avböjer. Signeringsstatus blir då *Skickat för signering*, *Delvis signerat*, *Färdigsignerat* eller *Avböjt*. Har affären flera dokument visar egenskaperna det som senast hade en händelse.
+
+När dokumentet är färdigsignerat flyttas affären också till steget du valt i fältmappningen, och beloppet uppdateras om du slagit på det.
+
+Utgångna och återkallade dokument skrivs inte tillbaka. Egenskaperna visar då fortfarande den senaste händelsen.
+
+<Note>
+  Egenskaperna fungerar som vilka affärsegenskaper som helst i HubSpot. Du kan visa dem på affären, filtrera på dem och använda dem i arbetsflöden.
+</Note>
+
+## Koppla från
+
+I sajn klickar du **Inställningar** på HubSpot-raden under Integrationer och väljer **Koppla från**. Bekräfta med **Koppla från** i rutan som öppnas. Kopplingen gäller hela organisationen, så det kräver behörigheten Hantera integrationer.
+
+Dokument som redan skapats finns kvar. sajn slutar fylla i nya avtal från affärer och slutar skriva status till HubSpot. Du kan ansluta igen när som helst.
+
+Vill du bara koppla loss ditt eget HubSpot-konto öppnar du appens inställningssida i HubSpot. **Disconnect** tar bort kopplingen till arbetsytan, och **Switch workspace** låter dig välja en annan.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Skapa datafält" icon="input-text" href="/guider/settings-custom-fields">
+    Datafälten är det fältmappningen fyller från affären.
+  </Card>
+  <Card title="Bygg upp produktkatalogen" icon="box" href="/guider/produkter">
+    Så fungerar produkttabellen som affärens produktrader hamnar i.
+  </Card>
+  <Card title="Anslut en integration" icon="link" href="/guider/integrationer">
+    Översikt över alla tjänster du kan koppla till sajn.
+  </Card>
+</CardGroup>

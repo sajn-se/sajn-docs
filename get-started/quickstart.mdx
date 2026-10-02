@@ -1,0 +1,483 @@
+---
+title: "Quickstart"
+description: "Send your first document for signing and download the signed PDF in about five minutes"
+---
+
+In this quickstart, you create a document with one party, send it, sign it yourself, and download the sealed PDF. Every request uses API version `2026-10`.
+
+## Before you begin
+
+You need the following:
+
+- A sajn workspace with API access. API access is included from the Team plan, and in every [sandbox](/get-started/sandbox). We recommend a sandbox for this quickstart: nothing is billed, BankID is mocked, and the signed PDF is watermarked as a test.
+- An email address you can read. sajn sends the signing invitation to it, and rejects addresses on domains that can't receive email.
+- `curl`, Node.js 18 or later, or Python 3 with the `requests` package.
+
+<Steps>
+  <Step title="Create an API key">
+    In the sajn app, open the workspace you want to work in, and go to **Inställningar > Utvecklare > API-nycklar**. Click **Skapa API-nyckel**, enter a name, choose when the key expires, and copy the key. sajn shows the key only once.
+
+    A production key starts with `sajn_sk_`, and a sandbox key starts with `sajn_dev_`. Store the key in an environment variable:
+
+    ```bash
+    export SAJN_API_KEY="API_KEY"
+    ```
+
+    Replace `API_KEY` with the key you copied. For more information about keys, see [Authentication](/get-started/authentication).
+  </Step>
+
+  <Step title="Check the key">
+    Call [`GET /me`](/api-reference/get-authenticated-user-+-workspace-context) to confirm which user, workspace, and organization the key acts as. The Node.js and Python samples define a small `sajn` helper that the later steps reuse. The Node.js samples use top-level `await`, so save them in a file with the `.mjs` extension:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl https://app.sajn.se/api/v1/me \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    ```javascript Node.js
+    const BASE_URL = "https://app.sajn.se/api/v1";
+
+    async function sajn(method, path, body) {
+      const response = await fetch(`${BASE_URL}${path}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+          "Sajn-Version": "2026-10",
+          "Content-Type": "application/json",
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`${data.code}: ${data.message} (${data.requestId})`);
+      }
+      return data;
+    }
+
+    const me = await sajn("GET", "/me");
+    console.log(me.workspace.name, me.organization.name);
+    ```
+
+    ```python Python
+    import os
+    import requests
+
+    BASE_URL = "https://app.sajn.se/api/v1"
+    session = requests.Session()
+    session.headers.update({
+        "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+        "Sajn-Version": "2026-10",
+    })
+
+
+    def sajn(method, path, body=None):
+        response = session.request(method, f"{BASE_URL}{path}", json=body)
+        data = response.json()
+        if not response.ok:
+            raise RuntimeError(
+                f"{data['code']}: {data['message']} ({data['requestId']})"
+            )
+        return data
+
+
+    me = sajn("GET", "/me")
+    print(me["workspace"]["name"], me["organization"]["name"])
+    ```
+
+    </CodeGroup>
+
+    The response is similar to the following:
+
+    ```json
+    {
+      "id": "cm4k2x9p00000abcd0000mnop",
+      "email": "alex@example.com",
+      "name": "Alex Lindqvist",
+      "workspace": {
+        "id": "cm4k2x9p00003abcd0000qrst",
+        "slug": "k3x9p",
+        "name": "Sales"
+      },
+      "organization": {
+        "id": "cm4k2x9p00004abcd0000uvwx",
+        "name": "Example AB"
+      }
+    }
+    ```
+
+    A `401` response with the code `UNAUTHORIZED` means the key is missing, mistyped, expired, or revoked.
+  </Step>
+
+  <Step title="Create a document with a party">
+    [Create a document](/api-reference/create-a-new-document) and add the party in the same request. An inline party takes either a `contactId` or a `name` and an `email`. The party in this example signs with click-to-sign and receives the invitation by email.
+
+    A document must have an expiration date before you can send it, so set `expiresAt`:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl https://app.sajn.se/api/v1/documents \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Consulting agreement",
+        "expiresAt": "2030-01-01T00:00:00Z",
+        "parties": [
+          {
+            "name": "Kai Berg",
+            "email": "SIGNER_EMAIL",
+            "role": "SIGNER",
+            "deliveryMethod": "EMAIL",
+            "requiredSignature": "CLICK_TO_SIGN"
+          }
+        ]
+      }'
+    ```
+
+    ```javascript Node.js
+    const twoWeeks = 14 * 24 * 60 * 60 * 1000;
+
+    const document = await sajn("POST", "/documents", {
+      name: "Consulting agreement",
+      expiresAt: new Date(Date.now() + twoWeeks).toISOString(),
+      parties: [
+        {
+          name: "Kai Berg",
+          email: "SIGNER_EMAIL",
+          role: "SIGNER",
+          deliveryMethod: "EMAIL",
+          requiredSignature: "CLICK_TO_SIGN",
+        },
+      ],
+    });
+
+    const documentId = document.id;
+    const partyId = document.parties[0].id;
+    ```
+
+    ```python Python
+    from datetime import datetime, timedelta, timezone
+
+    expires_at = datetime.now(timezone.utc) + timedelta(days=14)
+
+    document = sajn("POST", "/documents", {
+        "name": "Consulting agreement",
+        "expiresAt": expires_at.isoformat(),
+        "parties": [
+            {
+                "name": "Kai Berg",
+                "email": "SIGNER_EMAIL",
+                "role": "SIGNER",
+                "deliveryMethod": "EMAIL",
+                "requiredSignature": "CLICK_TO_SIGN",
+            }
+        ],
+    })
+
+    document_id = document["id"]
+    party_id = document["parties"][0]["id"]
+    ```
+
+    </CodeGroup>
+
+    Replace `SIGNER_EMAIL` with your own email address.
+
+    The response is the new document, in `DRAFT` status, in the same shape as [`GET /documents/{id}`](/api-reference/get-a-document-by-id). The following excerpt shows the fields you use next:
+
+    ```json
+    {
+      "id": "cm4k2x9p10001abcd1234efgh",
+      "name": "Consulting agreement",
+      "status": "DRAFT",
+      "expiresAt": "2030-01-01T00:00:00.000Z",
+      "parties": [
+        {
+          "id": "cm4k2x9p20002abcd5678ijkl",
+          "name": "Kai Berg",
+          "role": "SIGNER",
+          "signingStatus": "NOT_SIGNED",
+          "readStatus": "NOT_OPENED",
+          "deliveryMethod": "EMAIL",
+          "requiredSignature": "CLICK_TO_SIGN"
+        }
+      ]
+    }
+    ```
+
+    If you use curl, save both IDs:
+
+    ```bash
+    export DOCUMENT_ID="cm4k2x9p10001abcd1234efgh"
+    export PARTY_ID="cm4k2x9p20002abcd5678ijkl"
+    ```
+  </Step>
+
+  <Step title="Add content">
+    A new document has no content. [Add fields](/api-reference/create-document-fields) to it. The request takes a `fields` array, also for one field. This example adds an `HTML` field; for other content types, such as an uploaded PDF, see [Fields](/concepts/fields).
+
+    <CodeGroup>
+
+    ```bash curl
+    curl https://app.sajn.se/api/v1/documents/$DOCUMENT_ID/fields \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "fields": [
+          {
+            "type": "HTML",
+            "position": 0,
+            "fieldMeta": {
+              "type": "HTML",
+              "content": "<h1>Consulting agreement</h1><p>Kai Berg delivers 40 hours of consulting to Example AB.</p>"
+            }
+          }
+        ]
+      }'
+    ```
+
+    ```javascript Node.js
+    await sajn("POST", `/documents/${documentId}/fields`, {
+      fields: [
+        {
+          type: "HTML",
+          position: 0,
+          fieldMeta: {
+            type: "HTML",
+            content:
+              "<h1>Consulting agreement</h1>" +
+              "<p>Kai Berg delivers 40 hours of consulting to Example AB.</p>",
+          },
+        },
+      ],
+    });
+    ```
+
+    ```python Python
+    sajn("POST", f"/documents/{document_id}/fields", {
+        "fields": [
+            {
+                "type": "HTML",
+                "position": 0,
+                "fieldMeta": {
+                    "type": "HTML",
+                    "content": (
+                        "<h1>Consulting agreement</h1>"
+                        "<p>Kai Berg delivers 40 hours of consulting to Example AB.</p>"
+                    ),
+                },
+            }
+        ],
+    })
+    ```
+
+    </CodeGroup>
+
+    The response lists the created fields in `data`.
+  </Step>
+
+  <Step title="Send the document">
+    [Send the document](/api-reference/send-document-for-signing). sajn emails the party an invitation, and the document moves from `DRAFT` to `PENDING`:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST https://app.sajn.se/api/v1/documents/$DOCUMENT_ID/send \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+    ```
+
+    ```javascript Node.js
+    const sent = await sajn("POST", `/documents/${documentId}/send`, {});
+    console.log(sent.status);
+    ```
+
+    ```python Python
+    sent = sajn("POST", f"/documents/{document_id}/send", {})
+    print(sent["status"])
+    ```
+
+    </CodeGroup>
+
+    The response is the document, with `status` set to `PENDING`. If your workspace role can't send without approval, the request fails with `409 APPROVAL_REQUIRED`; [request approval](/api-reference/request-approval-of-a-document) first. For more information, see [Send for signing](/guides/documents/send-for-signing).
+  </Step>
+
+  <Step title="Get the signing URL">
+    The invitation email holds a signing link. To get the same link from the API, for example to show it in your own app, [get the party](/api-reference/get-a-party-with-signing-url):
+
+    <CodeGroup>
+
+    ```bash curl
+    curl https://app.sajn.se/api/v1/documents/$DOCUMENT_ID/parties/$PARTY_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    ```javascript Node.js
+    const party = await sajn("GET", `/documents/${documentId}/parties/${partyId}`);
+    console.log(party.signingUrl);
+    ```
+
+    ```python Python
+    party = sajn("GET", f"/documents/{document_id}/parties/{party_id}")
+    print(party["signingUrl"])
+    ```
+
+    </CodeGroup>
+
+    The response includes `signingUrl`:
+
+    ```json
+    {
+      "id": "cm4k2x9p20002abcd5678ijkl",
+      "name": "Kai Berg",
+      "signingStatus": "NOT_SIGNED",
+      "signingUrl": "https://app.sajn.se/sign/cm4k2x9p10001abcd1234efgh?token=SIGNING_TOKEN"
+    }
+    ```
+
+    Open the URL and sign. Each signing URL belongs to one party, so never publish it. sajn records an audit log entry every time you fetch it.
+  </Step>
+
+  <Step title="Wait for completion">
+    After the last party signs, sajn seals the PDF and the document moves from `PENDING` to `COMPLETED`. Choose how you find out:
+
+    <Tabs>
+      <Tab title="Webhook">
+        [Create a webhook endpoint](/api-reference/create-a-new-webhook) that subscribes to `document.completed`. sajn must reach the URL over the public internet, and rejects a URL that answers with an HTML page. For local development, see [Test webhooks](/webhooks/testing).
+
+        ```bash
+        curl https://app.sajn.se/api/v1/webhooks \
+          -H "Authorization: Bearer $SAJN_API_KEY" \
+          -H "Sajn-Version: 2026-10" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "url": "WEBHOOK_URL",
+            "events": ["document.completed"],
+            "enabled": true,
+            "apiVersion": "2026-10"
+          }'
+        ```
+
+        Replace `WEBHOOK_URL` with your endpoint's HTTPS URL. Store the `secret` from the response, which starts with `whsec_`. sajn returns it only when you create the webhook or rotate its secret, and you use it to [verify signatures](/webhooks/verify-signatures).
+
+        When the document completes, your endpoint receives a `POST` request similar to the following:
+
+        ```json
+        {
+          "id": "cm4k2x9p30005abcd9012mnop",
+          "type": "document.completed",
+          "createdAt": "2026-10-01T09:41:12.000Z",
+          "apiVersion": "2026-10",
+          "workspaceId": "cm4k2x9p00003abcd0000qrst",
+          "environment": "SANDBOX",
+          "actor": null,
+          "data": {
+            "object": {
+              "id": "cm4k2x9p10001abcd1234efgh",
+              "name": "Consulting agreement",
+              "status": "COMPLETED",
+              "completedAt": "2026-10-01T09:41:10.000Z"
+            }
+          }
+        }
+        ```
+
+        `data.object` is the document, in the shape of `GET /documents/{id}`, so `data.object.id` is the document ID. For the full payload, see [Webhook payloads](/webhooks/payloads).
+      </Tab>
+      <Tab title="Polling">
+        [Get the document](/api-reference/get-a-document-by-id) until `status` is `COMPLETED`:
+
+        <CodeGroup>
+
+        ```bash curl
+        curl https://app.sajn.se/api/v1/documents/$DOCUMENT_ID \
+          -H "Authorization: Bearer $SAJN_API_KEY" \
+          -H "Sajn-Version: 2026-10"
+        ```
+
+        ```javascript Node.js
+        let current = await sajn("GET", `/documents/${documentId}`);
+        while (current.status === "PENDING") {
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          current = await sajn("GET", `/documents/${documentId}`);
+        }
+        console.log(current.status);
+        ```
+
+        ```python Python
+        import time
+
+        current = sajn("GET", f"/documents/{document_id}")
+        while current["status"] == "PENDING":
+            time.sleep(5)
+            current = sajn("GET", f"/documents/{document_id}")
+        print(current["status"])
+        ```
+
+        </CodeGroup>
+
+        Polling counts against your [rate limits](/api-fundamentals/rate-limits). In production, we recommend webhooks.
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Download the signed PDF">
+    [Get the `SIGNED` file](/api-reference/get-a-document-file) to get a download URL, then download the PDF. The URL works for 15 minutes:
+
+    <CodeGroup>
+
+    ```bash curl
+    DOWNLOAD_URL=$(curl -s https://app.sajn.se/api/v1/documents/$DOCUMENT_ID/files/SIGNED \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" | jq -r .url)
+
+    curl -o consulting-agreement.pdf "$DOWNLOAD_URL"
+    ```
+
+    ```javascript Node.js
+    import { writeFile } from "node:fs/promises";
+
+    const signed = await sajn("GET", `/documents/${documentId}/files/SIGNED`);
+    const pdf = await fetch(signed.url);
+    await writeFile("consulting-agreement.pdf", Buffer.from(await pdf.arrayBuffer()));
+    ```
+
+    ```python Python
+    signed = sajn("GET", f"/documents/{document_id}/files/SIGNED")
+    pdf = requests.get(signed["url"])
+
+    with open("consulting-agreement.pdf", "wb") as file:
+        file.write(pdf.content)
+    ```
+
+    </CodeGroup>
+
+    The response has the file's `type`, `url`, and `expiresAt`, and the curl sample uses `jq` to read `url`. Until the document is `COMPLETED`, the request returns `409` with the code `INVALID_STATE`.
+
+    The PDF ends with a [signing certificate](/concepts/signing-certificate) that records who signed, how, and when.
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Document lifecycle" icon="diagram-project" href="/concepts/documents">
+    Every status a document passes through, and what moves it.
+  </Card>
+  <Card title="Parties" icon="users" href="/concepts/parties">
+    Roles, signing order, delivery, and verification.
+  </Card>
+  <Card title="Templates and forms" icon="copy" href="/concepts/templates-and-forms">
+    Create documents from a template and fill in values by key.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
+    React to signing events as they happen.
+  </Card>
+</CardGroup>

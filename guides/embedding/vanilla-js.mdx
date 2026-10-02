@@ -1,0 +1,354 @@
+---
+title: "Embed signing with JavaScript"
+description: "Embed the signing page in any web page with the @sajn/embed-js function API or Web Component"
+---
+
+In this guide, you embed the sajn signing page in a web page with the `@sajn/embed-js` package, through its function API or its Web Component. The `@sajn/embed-js` package provides two ways to embed the signing experience: a function API and a Web Component.
+
+## Before you begin
+
+- Turn on embedding for your organization and add your domain to the allowlist. For more information, see [Embedded signing](/guides/embedding/overview#turn-on-embedding).
+- On your server, create the document and read the party's token from the `signingUrl` that `GET /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` returns. For the steps, see [Embed the signing page](/guides/embedding/overview#embed-the-signing-page). Never call the sajn API from the browser, because the request needs your API key.
+
+## Installation
+
+### npm
+
+```bash
+npm install @sajn/embed-js
+```
+
+### CDN
+
+For projects without a build step, use the UMD bundle:
+
+```html
+<script src="https://unpkg.com/@sajn/embed-js"></script>
+```
+
+This exposes the `sajn` global object with all exports.
+
+## Use the function API
+
+The `embedSignDocument` function creates an iframe and handles all communication with the embedded signing interface.
+
+### Import
+
+```javascript
+import { embedSignDocument } from '@sajn/embed-js';
+```
+
+Or with CDN:
+
+```javascript
+const { embedSignDocument } = sajn;
+```
+
+### Options
+
+```typescript
+interface EmbedSignDocumentOptions {
+  // Required
+  element: HTMLElement | string;  // Target element or CSS selector
+  documentId: string;             // Document ID
+  token: string;                  // The party's token
+
+  // Optional
+  host?: string;                  // Default: 'https://app.sajn.se'
+  language?: 'sv' | 'en' | 'no' | 'da' | 'fi' | 'de' | 'is' | 'es' | 'fr' | 'it';
+  className?: string;             // CSS class for iframe
+  cssVars?: CssVars & Record<string, string>;
+  allowDocumentRejection?: boolean;
+  showScrollIndicator?: boolean;  // Default: true
+  signatureInputModes?: ('draw' | 'type' | 'upload')[];  // Default: all
+  showDocumentId?: boolean;  // Default: true
+  additionalProps?: Record<string, string | number | boolean>;
+
+  // Callbacks
+  onDocumentReady?: () => void;
+  onSignerCompleted?: (data: SignerCompletedData) => void;
+  onVariablesSubmitted?: (data: VariablesSubmittedData) => void;
+  onSignerRejected?: (data: SignerRejectedData) => void;
+  onDocumentError?: (data: { code: string; message: string }) => void;
+}
+```
+
+### Return value
+
+```typescript
+interface EmbedSignDocumentInstance {
+  iframe: HTMLIFrameElement;  // The created iframe element
+  destroy: () => void;        // Cleanup function
+}
+```
+
+### Example
+
+```javascript
+import { embedSignDocument } from '@sajn/embed-js';
+
+const instance = embedSignDocument({
+  element: '#signing-container',
+  documentId: 'cm4k2x9p10001abcd1234efgh',
+  token: 'K7xq2m9VbN4pR8sT1wY6zA3c',
+  cssVars: {
+    primary: '#2563eb',
+    background: '#ffffff',
+  },
+  allowDocumentRejection: true,
+  onDocumentReady: () => {
+    console.log('Signing interface loaded');
+  },
+  onSignerCompleted: (data) => {
+    console.log('Document signed!', data);
+    // Redirect or show success message
+  },
+  onSignerRejected: (data) => {
+    console.log('Document rejected:', data.reason);
+  },
+  onDocumentError: (error) => {
+    console.error('Error:', error.code, error.message);
+  },
+});
+
+// Later: cleanup when done
+instance.destroy();
+```
+
+## Use the Web Component
+
+The package also exports a custom element `<sajn-sign-document>` that auto-registers when imported.
+
+### Import
+
+```javascript
+import '@sajn/embed-js';
+```
+
+Or with CDN, the component is automatically registered.
+
+### Attributes
+
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `document-id` | `string` | Yes | Document ID |
+| `token` | `string` | Yes | The party's token |
+| `host` | `string` | No | Custom host URL |
+| `language` | `string` | No | UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
+| `class-name` | `string` | No | CSS class for iframe |
+| `allow-document-rejection` | `boolean` | No | Enable rejection |
+| `show-scroll-indicator` | `boolean` | No | Show scroll indicator (default: true) |
+| `signature-input-modes` | `string` | No | Comma-separated list of `draw`, `type`, `upload` (default: all) |
+| `show-document-id` | `boolean` | No | Show the document ID under the sign button (default: true) |
+
+### Events
+
+The Web Component dispatches standard `CustomEvent`s that you can listen to:
+
+| Event | Detail |
+|-------|--------|
+| `document-ready` | `undefined` |
+| `signer-completed` | `SignerCompletedData` |
+| `variables-submitted` | `VariablesSubmittedData` |
+| `signer-rejected` | `SignerRejectedData` |
+| `document-error` | `DocumentErrorData` |
+
+### Example
+
+```html
+<div id="signing-wrapper" style="width: 100%; height: 600px;">
+  <sajn-sign-document
+    document-id="cm4k2x9p10001abcd1234efgh"
+    token="K7xq2m9VbN4pR8sT1wY6zA3c"
+    allow-document-rejection
+  ></sajn-sign-document>
+</div>
+
+<script type="module">
+  import '@sajn/embed-js';
+
+  const signDocument = document.querySelector('sajn-sign-document');
+
+  signDocument.addEventListener('document-ready', () => {
+    console.log('Ready');
+  });
+
+  signDocument.addEventListener('signer-completed', (event) => {
+    console.log('Signed!', event.detail);
+  });
+
+  signDocument.addEventListener('signer-rejected', (event) => {
+    console.log('Rejected:', event.detail.reason);
+  });
+
+  signDocument.addEventListener('document-error', (event) => {
+    console.error('Error:', event.detail.code);
+  });
+</script>
+```
+
+## Use the CDN bundle
+
+Complete HTML page using the UMD bundle:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Document</title>
+  <style>
+    #signing-container {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="signing-container"></div>
+
+  <script src="https://unpkg.com/@sajn/embed-js"></script>
+  <script>
+    const { embedSignDocument } = sajn;
+
+    const instance = embedSignDocument({
+      element: '#signing-container',
+      documentId: 'cm4k2x9p10001abcd1234efgh',
+      token: 'K7xq2m9VbN4pR8sT1wY6zA3c',
+      onSignerCompleted: (data) => {
+        alert('Document signed successfully!');
+        window.location.href = '/thank-you';
+      },
+      onDocumentError: (error) => {
+        alert('An error occurred: ' + error.message);
+      },
+    });
+  </script>
+</body>
+</html>
+```
+
+## TypeScript types
+
+The package exports all types for TypeScript users:
+
+```typescript
+import type {
+  EmbedSignDocumentOptions,
+  EmbedSignDocumentInstance,
+  EmbedViewDocumentOptions,
+  EmbedViewDocumentInstance,
+  SignerCompletedData,
+  SignerRejectedData,
+  SignatureInputMode,
+  Language,
+  CssVars,
+} from '@sajn/embed-js';
+```
+
+## View a signed document
+
+The package also includes `embedViewDocument` for displaying signed documents in read-only mode.
+
+### Use the function API
+
+```javascript
+import { embedViewDocument } from '@sajn/embed-js';
+```
+
+Or with CDN:
+
+```javascript
+const { embedViewDocument } = sajn;
+```
+
+### Options
+
+```typescript
+interface EmbedViewDocumentOptions {
+  // Required
+  element: HTMLElement | string;  // Target element or CSS selector
+  documentId: string;             // Document ID
+  token: string;                  // The party's token, the same as for signing
+
+  // Optional
+  host?: string;                  // Default: 'https://app.sajn.se'
+  language?: 'sv' | 'en' | 'no' | 'da' | 'fi' | 'de' | 'is' | 'es' | 'fr' | 'it';
+  className?: string;             // CSS class for iframe
+  cssVars?: CssVars & Record<string, string>;
+  showScrollIndicator?: boolean;  // Default: true
+  additionalProps?: Record<string, string | number | boolean>;
+
+  // Callbacks
+  onDocumentReady?: () => void;
+  onDocumentError?: (data: { code: string; message: string }) => void;
+}
+```
+
+### Example
+
+```javascript
+import { embedViewDocument } from '@sajn/embed-js';
+
+const instance = embedViewDocument({
+  element: '#viewer-container',
+  documentId: 'cm4k2x9p10001abcd1234efgh',
+  token: 'K7xq2m9VbN4pR8sT1wY6zA3c',
+  cssVars: {
+    primary: '#2563eb',
+    background: '#ffffff',
+  },
+  onDocumentReady: () => {
+    console.log('Document loaded');
+  },
+  onDocumentError: (error) => {
+    console.error('Error:', error.code, error.message);
+  },
+});
+
+// Later: cleanup when done
+instance.destroy();
+```
+
+### Use the Web Component
+
+The package also exports a custom element `<sajn-view-document>`:
+
+```javascript
+import '@sajn/embed-js';
+```
+
+```html
+<div id="viewer-wrapper" style="width: 100%; height: 600px;">
+  <sajn-view-document
+    document-id="cm4k2x9p10001abcd1234efgh"
+    token="K7xq2m9VbN4pR8sT1wY6zA3c"
+  ></sajn-view-document>
+</div>
+
+<script type="module">
+  import '@sajn/embed-js';
+
+  const viewDocument = document.querySelector('sajn-view-document');
+
+  viewDocument.addEventListener('document-ready', () => {
+    console.log('Ready');
+  });
+
+  viewDocument.addEventListener('document-error', (event) => {
+    console.error('Error:', event.detail.code);
+  });
+</script>
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Embedded signing" icon="window" href="/guides/embedding/overview">
+    See the shared options, events, and security model.
+  </Card>
+  <Card title="Embed signing in your app" icon="code" href="/guides/recipes/embed-signing">
+    Run the whole flow from server to iframe.
+  </Card>
+</CardGroup>

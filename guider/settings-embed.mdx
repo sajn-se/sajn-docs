@@ -3,13 +3,13 @@ title: "Bädda in signering på din egen webbplats"
 description: "Konfigurera vilka domäner som får ladda sajns inbäddade signeringsvy via iframe eller embed-SDK"
 ---
 
-Vill du låta era egna användare signera direkt i ert produktgränssnitt, utan att skickas iväg till sajn? Då kan du bädda in signeringsvyn som en iframe. På sidan **Inbäddning** listar du vilka domäner som får göra det.
+Vill du låta dina egna användare signera direkt i din tjänst, utan att skickas iväg till sajn? Då kan du bädda in signeringsvyn som en iframe. På sidan **Inbäddning** listar du vilka domäner som får göra det.
 
 ## Innan du börjar
 
 - Du är inloggad och har behörighet att hantera arbetsytans inställningar.
 - **Inbäddad signering måste slås på för organisationen av sajn.** Det finns ingen knapp för det i gränssnittet — hör av dig till oss först. Är funktionen avstängd finns fliken *Inbäddning* inte, och de inbäddade vyerna svarar inte.
-- Själva inbäddningen sker från er webbplats, med en iframe eller sajns embed-SDK. Den här sidan styr bara vilka ursprung som får ladda vyn.
+- Själva inbäddningen sker från din webbplats, med en iframe eller sajns embed-SDK. Den här sidan styr bara vilka ursprung som får ladda vyn.
 
 ## Var sidan ligger
 
@@ -32,9 +32,9 @@ Ange domänen utan protokoll, t.ex. `app.exempel.se` eller `kundportal.exempel.s
 
 ## Så fungerar spärren
 
-Sajn sätter en `Content-Security-Policy` med `frame-ancestors` på de inbäddade vyerna `/embed/sign/...` och `/embed/view/...`. Direktivet byggs av er domänlista och jämförs mot `Origin`- eller `Referer`-huvudet på förfrågan. Matchar inget — eller saknas huvudet — faller sajn tillbaka på `frame-ancestors 'self'`, och webbläsaren vägrar visa vyn i er iframe.
+Sajn sätter en `Content-Security-Policy` med `frame-ancestors` på de inbäddade vyerna `/embed/sign/...` och `/embed/view/...`. Direktivet byggs av domänlistan och jämförs mot `Origin`- eller `Referer`-huvudet på förfrågan. Matchar inget — eller saknas huvudet — faller sajn tillbaka på `frame-ancestors 'self'`, och webbläsaren vägrar visa vyn i din iframe.
 
-Spärren avgör alltså **var** vyn får visas. Vem mottagaren är avgörs fortfarande av signeringen, med den metod ni valt per part i dokumentet.
+Spärren avgör alltså **var** vyn får visas. Vem mottagaren är avgörs fortfarande av signeringen, med den metod du valt per part i dokumentet.
 
 ## Nästa steg
 

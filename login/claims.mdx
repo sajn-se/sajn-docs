@@ -3,8 +3,6 @@ title: "Scopes and claims"
 description: "What sajn Login can tell you about a user, and how the pseudonymous subject works"
 ---
 
-# Scopes and claims
-
 Scopes decide what your application learns about a user. Every scope beyond `openid` is reviewed
 before your client is approved, so ask for what you need and no more.
 
@@ -136,7 +134,8 @@ An `id_token` payload with all three scopes:
 
 The same claims appear in the `id_token`, from `/oidc/userinfo`, and in the
 [Session API](/login/session-api) result. There is no channel that reveals more than another, and
-no way to widen the set after approval.
+no way to widen the set after approval. The Session API returns every claim key in `claims`, with
+`null` for a claim your client isn't approved for.
 
 ## Not included
 

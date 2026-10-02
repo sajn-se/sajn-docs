@@ -1,0 +1,13 @@
+/* Mintlify caps prose pages at 576px (max-w-xl); give them a little more room. */
+#content-area.max-w-xl {
+  max-width: 45rem;
+}
+
+/* A page without headings keeps an empty table-of-contents column (and its padding), pushing the content off center. */
+#content-side-layout:has(> #table-of-contents-layout:empty) {
+  display: none !important;
+}
+
+div:has(> #content-side-layout > #table-of-contents-layout:empty) {
+  padding-left: 0 !important;
+}

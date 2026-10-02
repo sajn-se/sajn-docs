@@ -1,0 +1,149 @@
+---
+title: "Bulk-create documents from a template"
+description: "Recipe: create and send one document per row of a CSV file, with each row's values filled in, safely and within the rate limits"
+---
+
+In this recipe, you read a CSV file of employees and send each one a personal agreement created from the same template, with their own values filled in. The script is safe to run again after a failure: it skips rows that already have a document and uses idempotency keys so a retried request never creates a duplicate.
+
+## Before you begin
+
+- Python 3.9 or later, and the `requests` package: `pip install requests`.
+- An API key in the `SAJN_API_KEY` environment variable. To create one, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- A template with a party named `Employee` and FORM fields with the keys `employee-name` and `start-date`. Store its ID in `SAJN_TEMPLATE_ID`. For more information, see [Create documents from templates](/guides/templates/templates-and-forms).
+- A CSV file named `employees.csv` with a header row:
+
+  ```text
+  employee_id,name,email,start_date
+  emp-001,Alex Andersson,alex@example.com,2026-11-01
+  emp-002,Kai Berg,kai@example.com,2026-11-15
+  ```
+
+## Build the script
+
+<Steps>
+  <Step title="Look up the keys once">
+    Every document from the template has the same keys. To check them, create one draft in the sajn app or through the API, and list its values:
+
+    ```bash
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/field-values \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Replace `DOCUMENT_ID` with the draft's ID. The response lists the values in `data`. Use the `key` of each value with `filledBy` set to `SENDER`.
+  </Step>
+
+  <Step title="Write the script">
+    Save the following file as `bulk_send.py`. For each row, it finds an existing document by `externalId`, or creates one, fills in the values, sets the party, and sends it:
+
+    ```python
+    import csv
+    import os
+    import time
+
+    import requests
+
+    API = "https://app.sajn.se/api/v1"
+    SESSION = requests.Session()
+    SESSION.headers.update({
+        "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+        "Sajn-Version": "2026-10",
+    })
+
+
+    def call(method, path, body=None, key=None, params=None):
+        """Sends one request, waiting and retrying on 429 and 5xx."""
+        headers = {"Idempotency-Key": key} if key else {}
+        for attempt in range(5):
+            response = SESSION.request(method, f"{API}{path}", json=body, params=params, headers=headers)
+            if response.status_code == 429 or response.status_code >= 500:
+                time.sleep(int(response.headers.get("Retry-After", 2 ** attempt)))
+                continue
+            data = response.json()
+            if not response.ok:
+                raise RuntimeError(f"{method} {path}: {data['code']} {data['message']} ({data['requestId']})")
+            return data
+        raise RuntimeError(f"{method} {path}: gave up after retries")
+
+
+    def send_agreement(row):
+        external_id = f"agreement-{row['employee_id']}"
+        existing = call("GET", "/documents", params={"externalId": external_id})["data"]
+        if existing and existing[0]["status"] != "DRAFT":
+            return existing[0]["id"], "already sent"
+
+        document = existing[0] if existing else call("POST", "/documents", {
+            "name": f"Employment agreement - {row['name']}",
+            "templateId": os.environ["SAJN_TEMPLATE_ID"],
+            "externalId": external_id,
+        }, key=f"{external_id}-create")
+
+        result = call("PATCH", f"/documents/{document['id']}/field-values", {
+            "values": [
+                {"key": "employee-name", "value": row["name"]},
+                {"key": "start-date", "value": row["start_date"]},
+            ],
+        })
+        failed = [r for r in result["results"] if not r["success"]]
+        if failed:
+            raise RuntimeError(f"values not written: {failed}")
+
+        employee = next(p for p in document["parties"] if p["name"] in ("Employee", row["name"]))
+        call("PATCH", f"/documents/{document['id']}/parties/{employee['id']}", {
+            "name": row["name"],
+            "email": row["email"],
+        })
+
+        call("POST", f"/documents/{document['id']}/send", {}, key=f"{external_id}-send")
+        return document["id"], "sent"
+
+
+    with open("employees.csv", newline="", encoding="utf-8") as source:
+        for row in csv.DictReader(source):
+            try:
+                document_id, outcome = send_agreement(row)
+                print(f"{row['employee_id']}: {outcome} ({document_id})")
+            except RuntimeError as error:
+                print(f"{row['employee_id']}: failed: {error}")
+    ```
+
+    The script works as follows:
+
+    - `externalId` ties each document to a row, so a second run finds the document instead of creating another one. The `externalId` filter matches the whole value.
+    - The create request and each item in the list return the document with its `parties`, so the script finds the employee's party without another request.
+    - The idempotency keys make a retried create or send replay the first response.
+    - A value that isn't written doesn't fail the request. The script checks `success` on each item in `results`.
+    - `call` waits for the number of seconds in `Retry-After` when the API returns `429`.
+  </Step>
+
+  <Step title="Run it">
+    Run the script:
+
+    ```bash
+    python bulk_send.py
+    ```
+
+    The output is similar to the following:
+
+    ```text
+    emp-001: sent (cm4k2x9p10001abcd1234efgh)
+    emp-002: sent (cm4k2x9p10002abcd1234efgh)
+    ```
+
+    Run it again, and every row reports `already sent`.
+  </Step>
+</Steps>
+
+## Handle errors
+
+- `403 LIMIT_EXCEEDED` on create: the organization reached its hourly limit for created documents, or its monthly limit for sent documents. Wait, and run the script again; it continues where it stopped.
+- `429 RATE_LIMITED`: the script waits and retries. For the limits per plan, see [Rate limits and quotas](/api-fundamentals/rate-limits).
+- `values not written`: each failed result has an `error` with a `code`. `NOT_FOUND` means the key doesn't exist on the template, and `VALIDATION_FAILED` means the value doesn't match the field's type. Fix the CSV or the template.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Related guides
+
+- [Create documents from templates](/guides/templates/templates-and-forms)
+- [Idempotency](/api-fundamentals/idempotency)
+- [Send a document for signing](/guides/documents/send-for-signing)

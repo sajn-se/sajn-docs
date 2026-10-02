@@ -1,0 +1,112 @@
+---
+title: "Choosing an authentication method"
+description: "Pick between API keys, OAuth 2.0, sajn Login, and the MCP server before you write any code"
+---
+
+sajn has separate authentication methods for separate problems. They aren't interchangeable, and switching later means rebuilding, so pick one before you write code.
+
+The deciding question is **whose sajn account your integration works with**.
+
+## Pick by what you build
+
+<CardGroup cols={2}>
+  <Card title="Your own backend, your own sajn account" icon="server">
+    A server you control that sends or reads documents in **your own** organization.
+
+    **Use an API key.** No browser step, no token lifecycle, no refresh logic.
+  </Card>
+
+  <Card title="Software other organizations install" icon="puzzle-piece">
+    A product, marketplace app, or integration that connects to **many** sajn customers' accounts.
+
+    **Use OAuth 2.0.** Each customer grants access to their own account and can revoke it.
+  </Card>
+
+  <Card title="Logging your users in with BankID" icon="fingerprint">
+    People sign in to **your** application with Swedish BankID.
+
+    **Use sajn Login.** It's a separate product, and it doesn't grant access to the document API.
+  </Card>
+
+  <Card title="Connecting an AI assistant" icon="robot">
+    Claude, Cursor, or VS Code working with a workspace.
+
+    **Use the sajn MCP server.** The assistant handles consent and token refresh.
+  </Card>
+</CardGroup>
+
+## Build a server integration
+
+If your server works with your own organization's sajn account, for example to send agreements, sync signed documents, or react to webhooks, use an API key. It's a single static credential in the `Authorization` header, with nothing to refresh and no step that needs a person in a browser.
+
+```bash
+curl https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+OAuth isn't more secure in this case. It gives the same access with more moving parts. The `authorization_code` flow exists so that a person can grant a third party access to their account without sharing a password. When your server and the sajn account belong to the same company, there's no third party.
+
+<Note>
+  sajn doesn't support the `client_credentials` grant. For server-to-server access, use an API key. To create one, see [Authentication](/get-started/authentication).
+</Note>
+
+### One key per workspace
+
+An API key is bound to the workspace you create it in, so you never send a workspace ID. If your organization has several workspaces, create one key per workspace. A leaked key then exposes one workspace, not everything its creator can reach.
+
+Before you write data, confirm which workspace a key points at with `GET /me`:
+
+```bash
+curl https://app.sajn.se/api/v1/me \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+The response is similar to the following:
+
+```json
+{
+  "id": "cm4k2x9p00000abcd0000mnop",
+  "email": "integration@example.com",
+  "name": "Example Integration",
+  "workspace": { "id": "cm4k2x9p00003abcd0000qrst", "slug": "k3x9p", "name": "Sales" },
+  "organization": { "id": "cm4k2x9p00004abcd0000uvwx", "name": "Example AB" }
+}
+```
+
+## Build software for many sajn customers
+
+If other organizations install what you build, such as a CRM integration, a marketplace app, or an add-in, use OAuth 2.0. Each customer authorizes your app for their own account, in their own browser, once. They can revoke your access at any time, and you never hold their credentials.
+
+sajn supports the `authorization_code` and `refresh_token` grants. Access tokens are short-lived, and refresh tokens rotate on every use: the refresh token in a refresh response replaces the one you sent. Store the new refresh token before you do anything else with the response. If you lose it, the customer must authorize your app again.
+
+For the requests, scopes, and token lifetimes, see [OAuth 2.0](/api-fundamentals/oauth).
+
+<Warning>
+  Don't ask customers for their API keys. A customer who hands you a key gives you full access to their workspace, with no way to narrow it, no record of what your integration did as opposed to what they did, and no way to revoke you short of finding and deleting the right key. OAuth exists for this case.
+</Warning>
+
+## Methods that aren't the document API
+
+**sajn Login** authenticates your own users with BankID and returns claims about who they are. It's standard OpenID Connect with mandatory PKCE. It issues no refresh tokens, and its tokens don't grant access to documents, templates, or contacts. For more information, see [sajn Login](/login/overview).
+
+**The sajn MCP server** lets AI assistants work with a workspace. Its OAuth flow is built for interactive assistant clients that handle browser consent and token refresh, not for a backend service. For more information, see [Workspace MCP](/ai/workspace-mcp).
+
+## Summary
+
+| You build | Use | Browser step |
+|---|---|---|
+| A backend for your own sajn account | API key | Never |
+| Software that many sajn customers install | OAuth 2.0 (`authorization_code`) | Once per customer |
+| BankID login for your own users | sajn Login (OpenID Connect) | Every login |
+| An AI assistant connection | MCP server with OAuth 2.0 | Once per connection |
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/get-started/authentication">
+    Create an API key and make your first authenticated request.
+  </Card>
+  <Card title="OAuth 2.0" icon="handshake" href="/api-fundamentals/oauth">
+    Authorize, exchange, and refresh tokens for a multi-customer app.
+  </Card>
+</CardGroup>

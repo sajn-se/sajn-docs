@@ -1,0 +1,74 @@
+---
+title: "Återkalla ett skickat dokument"
+description: "Dra tillbaka ett dokument du redan skickat, rätta det och skicka det igen"
+---
+
+Skickade du till fel person, eller hittade du ett fel i priset efter utskicket? Då återkallar du dokumentet. Det blir ett utkast igen, signeringarna nollställs och parterna får ett mejl om att dokumentet har dragits tillbaka. Sedan rättar du det och skickar på nytt.
+
+## Innan du börjar
+
+- Dokumentet har status **Väntande**, **Skickas** eller **Utgången**. Ett signerat, avböjt eller avbrutet dokument går inte att återkalla.
+- Din roll i arbetsytan har behörigheten **Återkalla dokument**.
+
+## Steg för steg
+
+<Steps>
+  <Step title="Öppna dokumentets meny">
+    Gå till [Dokument](https://app.sajn.se/~/documents) och klicka på trepunktsmenyn längst till höger på dokumentets rad. Välj **Återkalla dokument**.
+
+    Har du redan dokumentet öppet hittar du samma val i menyn **Arkiv** överst i redigeraren.
+
+    {/* TODO screenshot: Trepunktsmenyn på en väntande dokumentrad med valen Förläng utgångsdatum och Återkalla dokument */}
+  </Step>
+
+  <Step title="Skriv en anledning">
+    Rutan **Återkalla dokument?** sammanfattar vad som händer. Skriv gärna en kort förklaring i fältet **Anledning (valfritt)**, till exempel *Fel startdatum, ett nytt avtal kommer i dag*. Anledningen står i mejlet till parterna.
+
+    {/* TODO screenshot: Rutan Återkalla dokument? med fältet Anledning ifyllt */}
+  </Step>
+
+  <Step title="Bekräfta">
+    Klicka **Återkalla dokument**. Dokumentet får status **Utkast** och parterna meddelas direkt.
+
+    {/* TODO screenshot: Dokumentlistan där dokumentet nu har status Utkast */}
+  </Step>
+
+  <Step title="Rätta och skicka igen">
+    Öppna utkastet, gör dina ändringar och skicka det som vanligt. Parterna får en ny signeringslänk. Se [Skicka ett dokument för signering](/guider/skicka-dokument).
+  </Step>
+</Steps>
+
+## Vad händer när du återkallar?
+
+- **Dokumentet blir ett utkast.** Du kan redigera innehåll, parter och inställningar igen.
+- **Alla signeringar nollställs.** Även parter som redan hunnit signera behöver signera på nytt efter nästa utskick.
+- **Det som parterna fyllt i töms.** Fält som mottagarna fyllde i under signeringen behöver fyllas i igen.
+- **Schemalagda påminnelser stoppas.**
+- **Parterna får ett mejl** om att dokumentet har återkallats, med din anledning om du skrev en. Parter som bara fått länken delad manuellt, utan e-post, får inget mejl.
+- **Den gamla signeringslänken slutar fungera.** Har en part signeringssidan öppen när du återkallar visas *Dokumentet har återkallats* direkt. När du skickar igen får parterna en ny inbjudan.
+- **Ett utgånget utgångsdatum tas bort.** Har fristen redan passerat sätter du ett nytt datum innan du skickar igen. Ett datum som ligger i framtiden finns kvar.
+
+Händelsen loggas under **Aktivitet** i dokumentets panel **Detaljer**.
+
+## Återkalla flera dokument samtidigt
+
+Markera dokumenten med kryssrutan längst till vänster i [Dokument](https://app.sajn.se/~/documents). Öppna **Åtgärder** ovanför tabellen och välj **Återkalla**. Rutan visar hur många av de markerade dokumenten som kan återkallas. Dokument med en annan status hoppas över. Samma anledning gäller alla dokumenten.
+
+{/* TODO screenshot: Menyn Åtgärder med valet Återkalla, och rutan Återkalla dokument med antalet dokument som återkallas */}
+
+## Behöver du inte återkalla?
+
+- **Bara fristen är fel?** [Förläng utgångsdatumet](/guider/forlang-utgangsdatum) i stället. Signeringarna finns kvar.
+- **Någon har inte signerat än?** [Skicka en påminnelse](/guider/skicka-paminnelse).
+- **Dokumentet ska bort helt?** Välj **Flytta till papperskorg**. Ett dokument som väntar på signering återkallas då automatiskt först, så att parterna meddelas. Se [Flytta ett dokument till papperskorgen](/guider/trash-document).
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Skicka för signering" icon="paper-plane" href="/guider/skicka-dokument">
+    Skicka det rättade dokumentet till parterna igen.
+  </Card>
+  <Card title="Följ upp ett skickat dokument" icon="list-check" href="/guider/folj-upp-dokument">
+    Se vem som har signerat och vad du gör härnäst.
+  </Card>
+</CardGroup>

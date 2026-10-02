@@ -1,166 +1,172 @@
 ---
-title: Documents
-description: 'Understanding documents in sajn'
+title: "Documents"
+description: "What a document is made of, and every status it passes through from draft to sealed PDF"
 ---
 
-# Documents
+A **document** is an agreement that one or more people sign. It combines three things:
 
-Documents are the core of sajn. They represent contracts, agreements, or any other documents that need to be signed.
+- **Content**: an ordered list of [fields](/concepts/fields), such as text, an uploaded PDF, a form, or a product table.
+- **Parties**: the people who sign, review, or organize the document. For more information, see [Parties](/concepts/parties).
+- **Settings**: the expiration date in `expiresAt`, and the signing order, invitation message, language, and other options in `documentMeta`.
 
-## Document Lifecycle
+When every party who must sign has signed, sajn seals the PDF with an eIDAS seal and appends a [signing certificate](/concepts/signing-certificate).
 
-A document goes through several stages:
+## Document lifecycle
+
+A document's `status` tells you where it is. The following diagram shows the transitions:
 
 ```mermaid
-graph LR
-    A[DRAFT] --> B[SENDING]
-    B --> C[PENDING]
-    C --> D[COMPLETED]
-    C --> E[EXPIRED]
-    C --> F[CANCELLED]
+stateDiagram-v2
+    [*] --> DRAFT: create
+    DRAFT --> PENDING: send
+    DRAFT --> PENDING_APPROVAL: request approval
+    PENDING_APPROVAL --> PENDING: approvers approve
+    PENDING_APPROVAL --> DRAFT: approver rejects, or request cancelled
+    PENDING --> COMPLETED: last signer signs, PDF sealed
+    PENDING --> REJECTED: a party rejects
+    PENDING --> EXPIRED: expiration date passes
+    EXPIRED --> PENDING: expiration date moved
+    PENDING --> DRAFT: withdraw
+    COMPLETED --> [*]
+    REJECTED --> [*]
 ```
 
-### Document Statuses
+### Statuses
 
-| Status | Description |
-|--------|-------------|
-| `DRAFT` | Document is being prepared, not yet sent |
-| `SENDING` | Document is being sent to signers |
-| `PENDING` | Document sent, awaiting signatures |
-| `COMPLETED` | All signers have signed |
-| `EXPIRED` | Document expired before all signatures collected |
-| `CANCELLED` | Document was cancelled |
-| `IMPORTED` | Document imported from external archive |
+| Status | Meaning | What you can do |
+|--------|---------|-----------------|
+| `DRAFT` | Being prepared. Nothing has been sent. | Change everything: content, parties, and settings. |
+| `PENDING_APPROVAL` | Submitted for internal approval. The approvers must approve it before sajn sends it. `approvalRequestId` names the [approval request](#internal-approval). | Wait for the approvers, or cancel the approval request. |
+| `PENDING` | Sent. Waiting for signatures. | Add, correct, or remove parties who haven't signed, send reminders, change some settings, or withdraw it. Content is locked. |
+| `COMPLETED` | Every required party signed, and the PDF is sealed. | Download the signed PDF and the signing journal. Nothing can change. |
+| `REJECTED` | A party declined to sign. | Create a new document if the agreement is still needed. |
+| `EXPIRED` | The expiration date passed before everyone signed. | Move the expiration date to reopen it for signing, or withdraw it. |
+| `IMPORTED` | An agreement signed outside sajn, imported into the archive. It's never sent for signing. | Edit its details, content, and parties. |
 
-## Document Types
+Older documents can also have the status `SENDING` or `CANCELLED`. sajn doesn't move documents into these statuses, but we recommend that your code accepts them when it reads older documents.
 
-sajn supports different document types:
+### Transitions
 
-### SIGNABLE (Default)
-Standard documents that require signatures from one or more signers.
+The following table lists what moves a document from one status to another:
+
+| From | To | Trigger | Webhook event |
+|------|----|---------|---------------|
+| None | `DRAFT` | [Create a document](/api-reference/create-a-new-document) | `document.created` |
+| `DRAFT` | `PENDING` | [Send the document](/api-reference/send-document-for-signing). | `document.sent` |
+| `DRAFT` | `PENDING_APPROVAL` | [Request approval](/api-reference/request-approval-of-a-document). | `approval_request.created` |
+| `PENDING_APPROVAL` | `PENDING` | The last required approver approves, and the request has `autoSend` set to `true`. | `approval_request.approved`, `document.sent` |
+| `PENDING_APPROVAL` | `DRAFT` | An approver rejects, or the requester cancels the request. | `approval_request.rejected` or `approval_request.cancelled` |
+| `PENDING` | `COMPLETED` | The last party who must sign signs, and sajn seals the PDF. | `document.fully_signed`, then `document.completed` |
+| `PENDING` | `REJECTED` | A party rejects the document. | `document.rejected` |
+| `PENDING` | `EXPIRED` | The expiration date passes. | `document.expired` |
+| `EXPIRED` | `PENDING` | [Change the expiration date](/api-reference/change-a-sent-documents-expiration-date). | `document.expiration_extended` |
+| `PENDING` | `DRAFT` | [Withdraw the document](/api-reference/withdraw-a-sent-document). sajn removes existing signatures and notifies the parties. | `document.withdrawn` |
+
+Sealing runs in the background after the last signature, so a document can stay `PENDING` for a short time after everyone has signed. `document.fully_signed` fires when the last party signs, and `document.completed` fires when the sealed PDF exists. Wait for `document.completed`, or for `status` to be `COMPLETED`, before you download the signed PDF.
+
+For the events that fire per party, such as `document.party.signed`, see [Webhook events](/webhooks/events).
+
+## Internal approval
+
+When a document needs internal approval, [`POST /documents/{id}/send`](/api-reference/send-document-for-signing) fails with `409 APPROVAL_REQUIRED`. A document needs approval when it has approvers, such as the ones its template adds, when the workspace's approval policy applies, or when your role lacks the `SEND_WITHOUT_APPROVAL` permission. To submit the draft for approval, call [`POST /approval-requests`](/api-reference/request-approval-of-a-document) with its `documentId`:
 
 ```json
 {
-  "name": "Employment Contract",
-  "type": "SIGNABLE"
+  "documentId": "cm4k2x9p10001abcd1234efgh",
+  "approverIds": ["cm4k2x9p00000abcd0000mnop"],
+  "customMessage": "Please review the payment terms."
 }
 ```
 
-### ACCEPTABLE
-Documents that require acceptance rather than a signature, useful for terms of service or policies.
+Leave out `approverIds` to submit the approvers already on the document, such as the ones its template adds. To find members who can approve, call [`GET /members?permission=APPROVE_DOCUMENT`](/api-reference/list-workspace-members).
 
-```json
-{
-  "name": "Terms of Service",
-  "type": "ACCEPTABLE"
-}
-```
+The response is the approval request, with its `status` and each approver's decision. Approvers act on it with [`POST /approval-requests/{id}/approve`](/api-reference/approve-an-approval-request) or [`/reject`](/api-reference/reject-an-approval-request), and the requester can [cancel](/api-reference/cancel-an-approval-request) it. A rejection returns the document to `DRAFT`, so you can edit it and request approval again. When an approved request has `autoSend` set to `false`, the document stays in `PENDING_APPROVAL` until the requester sends it.
 
-### ARCHIVE_IMPORTED
-Documents imported from external systems for archival purposes.
+## Before you send
 
-## Document Metadata
+sajn refuses to send a document, with the code `VALIDATION_FAILED`, until it meets the following conditions:
 
-Documents can have rich metadata to control the signing process:
+- The document has at least one party with the `SIGNER` role.
+- The document has an expiration date in the future. If you don't send `expiresAt`, sajn uses the workspace's default expiration, when the workspace has one.
+- Every party has the contact details its delivery and verification need: an email address for `EMAIL` delivery or email verification, and a phone number for `SMS` delivery or SMS verification.
 
-```json
-{
-  "documentMeta": {
-    "subject": "Please sign the employment contract",
-    "message": "Welcome to the team! Please review and sign.",
-    "signingOrder": "SEQUENTIAL",
-    "forceReadFullDocument": true,
-    "showCommentsToSigners": false,
-    "preferredLanguage": "sv",
-    "validFrom": "2024-01-01T00:00:00Z",
-    "validTo": "2024-12-31T23:59:59Z",
-    "value": "500000"
-  }
-}
-```
+## Change a document after sending
 
-<Note>
-  Delivery method and signature type are configured per-signer. See [Signers](/concepts/signers) for details.
-</Note>
+A `DRAFT` document accepts every change. After you send it, what you can change through [`PATCH /documents/{id}`](/api-reference/update-a-document) depends on the field:
 
-### Key Metadata Fields
+- `name`, `externalId`, `responsibleUserId`, and `value` can always change.
+- Reminders, subject, message, and the redirect URL can change until the document is completed, rejected, or cancelled.
+- `forceReadFullDocument`, `accessVerification`, and `language` can change until someone has signed.
+- `signingMode` can't change. Withdraw the document first.
 
-<AccordionGroup>
-  <Accordion title="signingOrder">
-    **PARALLEL**: All signers can sign simultaneously
-    **SEQUENTIAL**: Signers must sign in order (1, 2, 3, etc.)
-  </Accordion>
+To change the content or settings that are locked, [withdraw](/api-reference/withdraw-a-sent-document) the document, change it, and send it again.
 
-  <Accordion title="forceReadFullDocument">
-    When `true`, signers must scroll through the entire document before signing.
-  </Accordion>
+## Document settings
 
-  <Accordion title="preferredLanguage">
-    Language for the signing interface: `sv` (Swedish), `en` (English), `no` (Norwegian), `da` (Danish), `fi` (Finnish), `de` (German), `is` (Icelandic), `es` (Spanish), `fr` (French), or `it` (Italian).
-  </Accordion>
-</AccordionGroup>
+The `documentMeta` object holds the settings that control signing. The most common are the following:
 
-## Document Fields
+| Field | Description |
+|-------|-------------|
+| `subject`, `message` | Subject line and message of the signing invitation. |
+| `signingMode` | `PARALLEL` lets every party sign at once. `SEQUENTIAL` invites parties one at a time, in their `signingOrder`. |
+| `language` | Language of the signing page and emails: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
+| `forceReadFullDocument` | If `true`, a party must scroll through the whole document before signing. |
+| `reminderIntervalDays` | Days between automatic reminders, as an integer. `0` turns them off, and `null` uses the default of 3 days. |
+| `redirectUrl` | Where to send a party after signing. |
+| `accessVerification` | A verification that every party passes before the document opens. |
+| `value` | The monetary value of the agreement. |
 
-Documents can contain different types of fields:
+For every field, see [Create a document](/api-reference/create-a-new-document).
 
-- **TEXT**: Rich text content sections
-- **HTML**: Raw HTML content with custom styling (API-only, sanitized server-side)
-- **FORM**: Form fields for signers to fill out
-- **PDF**: Embedded PDF files
-- **PRODUCT_TABLE**: Tables with products/services and pricing
-- **TABLE**: Simple tables with custom rows and columns
+## Document types
 
-Learn more in the [Document Fields API reference](/api-reference/create-a-document-field).
+The `type` field sets what kind of document it is:
 
-## Tags and Organization
+| Type | Description |
+|------|-------------|
+| `SIGNABLE` | The default. Parties sign the document. |
+| `ACCEPTABLE` | Parties accept the document instead of signing it, for example terms of service. |
+| `ARCHIVE_IMPORTED` | An agreement imported from another system for archiving. |
 
-Organize documents using:
+## Files
 
-- **Tags**: Categorize documents (e.g., "Contract", "NDA", "Employment")
-- **Custom Fields**: Add structured metadata (e.g., project name, department)
-- **External ID**: Link to your own system's identifiers
+A document has up to three files. [`GET /documents/{id}/files/{type}`](/api-reference/get-a-document-file) returns a download URL for one of them, and [`GET /documents/{id}/files`](/api-reference/list-document-files) lists every file that's ready. A file that isn't ready returns `409 INVALID_STATE`:
 
-## Expiration
+| File type | Contents | Available |
+|-----------|----------|-----------|
+| `ORIGINAL` | The unsigned document | In every status |
+| `SIGNED` | The sealed PDF, with the signing certificate at the end | When the status is `COMPLETED` |
+| `JOURNAL` | The signing journal, the full event log as a PDF | When the status is `COMPLETED` |
 
-Set an expiration date to automatically expire documents that aren't completed in time:
+For more information, see [Downloading signed documents](/guides/documents/downloading-documents).
 
-```json
-{
-  "expiresAt": "2024-12-31T23:59:59Z"
-}
-```
+## Organize documents
 
-When a document expires, its status changes to `EXPIRED` and signers can no longer access it.
+The following fields help you find documents and link them to your own systems:
 
-## Retention and Deletion
+- **`externalId`**: your own ID for the document, such as a deal or order number. Filter the document list by it with `externalId=`, which matches the whole value.
+- **Tags**: labels such as `NDA` or `Employment`. For more information, see [Organizing with tags](/guides/documents/organizing-with-tags).
+- **Custom fields**: structured values such as a project name or cost center. For more information, see [Custom fields](/guides/fields/custom-fields).
 
-Completed documents are stored indefinitely by default. Each workspace can enable a retention policy that moves completed documents to the trash after a set period, with per-document exemptions available. Any document can be deleted regardless of status via [`DELETE /api/v1/documents/{id}`](/api-reference/delete-a-document), which moves it to the trash; permanent deletion is a separate, irreversible operation via `POST /api/v1/documents/{id}/purge`. See the guide on [storage and deletion](/guider/lagring-och-radering) for details.
+## Delete a document
 
-## Best Practices
+[`DELETE /documents/{id}`](/api-reference/delete-a-document) moves a document to the trash, in any status, and returns it with `deletedAt` set. You can restore it from the trash until the workspace's trash period ends.
+
+A workspace can turn on a retention policy that moves completed documents to the trash after a set period, with exemptions per document. To delete a document immediately and permanently, move it to the trash first, and then call [`POST /documents/{id}/purge`](/api-reference/permanently-delete-a-document). Purging can't be undone. The verify link in a sealed PDF keeps working after a purge. For more information, see [storage and deletion](/guider/lagring-och-radering).
+
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Clear Naming" icon="tag">
-    Use descriptive document names that clearly identify the content and purpose.
+  <Card title="Parties" icon="users" href="/concepts/parties">
+    Roles, signing order, delivery, and verification.
   </Card>
-  <Card title="Appropriate Expiration" icon="clock">
-    Set reasonable expiration dates - typically 7-30 days for most documents.
+  <Card title="Fields" icon="table-cells" href="/concepts/fields">
+    The content of a document, and the values parties fill in.
   </Card>
-  <Card title="Sequential When Needed" icon="list-ol">
-    Use sequential signing when the order matters (e.g., manager approval before employee signature).
+  <Card title="Create a document" icon="file-circle-plus" href="/guides/documents/create-document">
+    Create documents from scratch or from a template.
   </Card>
-  <Card title="External IDs" icon="link">
-    Use external IDs to link documents to records in your own systems.
-  </Card>
-</CardGroup>
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Signers" icon="users" href="/concepts/signers">
-    Learn about adding signers to documents
-  </Card>
-  <Card title="Create Document Guide" icon="file-plus" href="/guides/create-document">
-    Detailed guide on creating documents
+  <Card title="Webhook events" icon="webhook" href="/webhooks/events">
+    Every event a document emits.
   </Card>
 </CardGroup>

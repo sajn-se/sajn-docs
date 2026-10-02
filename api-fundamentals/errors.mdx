@@ -1,0 +1,196 @@
+---
+title: "Errors"
+description: "The error response shape, every error code the sajn API returns, which errors you can retry, and how to trace a request"
+---
+
+When a request fails, the API returns an HTTP status code from 400 to 599 and a JSON body with the same shape on every endpoint:
+
+```json
+{
+  "code": "NOT_FOUND",
+  "message": "Document not found",
+  "userMessage": "Dokumentet hittades inte.",
+  "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
+  "resource": "document"
+}
+```
+
+| Field | Type | Present | Description |
+|-------|------|---------|-------------|
+| `code` | string | Always | One of the [error codes](#error-codes). Branch on it, not on the status or the message. |
+| `message` | string | Always | What went wrong, in English, for developers. Its wording can change, so don't parse it. |
+| `userMessage` | string | Always | Text that's safe to show your users, usually in Swedish. |
+| `requestId` | string | Always | Identifies the request. The same value as the `Sajn-Request-Id` response header. |
+| `resource` | string or `null` | On `404 NOT_FOUND` only | The type of the missing resource, such as `document` or `party`, or `null` when the API can't tell. |
+| `issues` | array | On `400 VALIDATION_FAILED` only | Every problem with the request. It always has at least one issue. |
+| `requiredScopes` | array | On `403 INSUFFICIENT_SCOPE` only | The OAuth scopes the endpoint requires. |
+| `grantedScopes` | array | On `403 INSUFFICIENT_SCOPE` only | The OAuth scopes the token was granted. |
+
+<Note>
+  This page describes API version `2026-10`. In `2026-09`, an error body has a `message`, which is the Swedish text when one exists, and most errors add an internal `code` and an `errorId`. Several errors also have a different status. For the differences, see [Upgrading to 2026-10](/upgrading/2026-10#errors).
+</Note>
+
+## Handle an error
+
+We recommend handling an error in the following order:
+
+1. Branch on `code`. The list of codes is closed, so you can handle each code you care about and treat the rest as a failure.
+1. Show `userMessage` to your users, if you show them anything. Don't show `message`, which is written for developers.
+1. Log `requestId` with every failed request.
+
+The following TypeScript sample turns an error response into an exception that carries the code:
+
+```typescript
+type SajnError = {
+  code: string;
+  message: string;
+  userMessage: string;
+  requestId: string;
+  resource?: string | null;
+  issues?: { path: string; code: string; message: string }[];
+};
+
+class SajnApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly body: SajnError,
+  ) {
+    super(`${body.code}: ${body.message} (${body.requestId})`);
+  }
+}
+
+async function sajnFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const response = await fetch(`https://app.sajn.se/api/v1${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      'Sajn-Version': '2026-10',
+      ...init.headers,
+    },
+  });
+
+  if (!response.ok) {
+    throw new SajnApiError(response.status, (await response.json()) as SajnError);
+  }
+
+  return (await response.json()) as T;
+}
+
+try {
+  await sajnFetch('/documents/cm4k2x9p10001abcd1234efgh');
+} catch (error) {
+  if (error instanceof SajnApiError && error.body.code === 'NOT_FOUND') {
+    console.log(`No ${error.body.resource ?? 'resource'} with that ID`);
+  } else {
+    throw error;
+  }
+}
+```
+
+## Validation errors
+
+A request that fails validation returns `400 VALIDATION_FAILED` and lists every problem in `issues`, so you can fix them all at once:
+
+```json
+{
+  "code": "VALIDATION_FAILED",
+  "message": "Invalid email address",
+  "userMessage": "Förfrågan innehåller ogiltiga värden.",
+  "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
+  "issues": [
+    {
+      "path": "parties.0.email",
+      "code": "INVALID_FORMAT",
+      "message": "Invalid email address"
+    }
+  ]
+}
+```
+
+Each issue has the following fields:
+
+- `path`: the dotted path to the invalid value in the body, the query string, or the path parameters, such as `parties.0.email`. For a header, it's the header name, such as `Idempotency-Key`. It's empty for a problem with the whole request, such as an unknown query parameter.
+- `code`: one of `INVALID_TYPE`, `INVALID_FORMAT`, `INVALID_VALUE`, `TOO_SMALL`, `TOO_BIG`, or `UNRECOGNIZED_KEY`.
+- `message`: a description of the problem, in English, for developers.
+
+An unknown query parameter is an `UNRECOGNIZED_KEY` issue, so a misspelled filter fails instead of returning every result. For the rules that query strings follow, see [Query parameters](/api-fundamentals/query-parameters).
+
+## Authentication and permission errors
+
+The status tells you whether the credential or the operation is the problem:
+
+- `401 UNAUTHORIZED` means only that the token is missing, invalid, expired, or revoked. Check the API key, or refresh the OAuth access token. For more information, see [Refresh the access token](/api-fundamentals/oauth#refresh-the-access-token).
+- `403` means that the token is valid, but the operation isn't allowed. The code tells you why:
+  - `PERMISSION_DENIED`: the user's workspace role lacks a permission the operation requires, or the endpoint isn't available to OAuth apps.
+  - `INSUFFICIENT_SCOPE`: the OAuth token wasn't granted a scope the operation requires. The body lists `requiredScopes` and `grantedScopes`. For more information, see [Scopes](/api-fundamentals/oauth#scopes).
+  - `PLAN_REQUIRED`: the organization's plan doesn't include API access or the feature.
+  - `ACCOUNT_INACTIVE`: the organization, the user, or the user's workspace membership is deactivated or suspended.
+  - `ACCOUNT_SETUP_REQUIRED`: the organization must finish its setup first.
+  - `LIMIT_EXCEEDED`: a plan limit was reached, such as the monthly number of sent documents.
+
+A retry doesn't fix a `401` or a `403` error. Change the credential, the role, the scopes, or the plan first.
+
+## Not found errors
+
+A `404` status has one of two codes:
+
+- `NOT_FOUND`: the endpoint exists, but the resource doesn't, or the token can't access it. `resource` names the type of the missing resource, so you can tell a missing document from a missing party on the same path.
+- `ROUTE_NOT_FOUND`: no endpoint matches the method and path in the API version you requested. Check the method and the path. An endpoint that a later version removed also returns `ROUTE_NOT_FOUND` on that version. For more information, see [API versioning](/api-fundamentals/versioning).
+
+## Conflict errors
+
+A `409` status means that the request conflicts with the current state of a resource:
+
+- `INVALID_STATE`: the resource's state doesn't allow the operation, such as editing a document that was already sent, or downloading a file that isn't produced yet. Change the state, or wait for it to change, and then retry.
+- `ALREADY_EXISTS`: a resource with the same unique value, such as `externalId`, already exists.
+- `APPROVAL_REQUIRED`: the operation needs an approval first, such as sending a document that the workspace requires an approval for. To ask for one, see [Request approval of a document](/api-reference/request-approval-of-a-document).
+- `IDEMPOTENCY_KEY_IN_USE`: a request with the same `Idempotency-Key` is still running. For more information, see [Idempotency](/api-fundamentals/idempotency).
+
+## Request IDs
+
+Every response, successful or not, carries a `Sajn-Request-Id` header, such as `Sajn-Request-Id: req_V1StGXR8Z5jdHi6BmyT2`. An error body repeats it as `requestId`. Log it with every failed request, and quote it when you contact support at [dev@sajn.se](mailto:dev@sajn.se).
+
+When a request with an `Idempotency-Key` replays a stored error, the `requestId` in the body identifies the original request, and the `Sajn-Request-Id` header identifies the retry.
+
+## Retry a failed request
+
+Only some errors can succeed when you retry the same request:
+
+- `RATE_LIMITED` and `IDEMPOTENCY_KEY_IN_USE`: wait the number of seconds in the `Retry-After` response header, and then retry. For a sample, see [Retry with backoff](/api-fundamentals/rate-limits#retry-with-backoff).
+- `DAILY_QUOTA_EXCEEDED`: `Retry-After` can be several hours, so stop sending requests and resume after it. For more information, see [Rate limits and quotas](/api-fundamentals/rate-limits).
+- `UPSTREAM_UNAVAILABLE`, `INTERNAL_ERROR`, and network errors: retry with exponential backoff. To make a retried write request safe, send the same `Idempotency-Key` header on every attempt. For more information, see [Idempotency](/api-fundamentals/idempotency).
+- Every other code: the request fails the same way until you change it, or the state it depends on changes, so don't retry it unchanged.
+
+## Error codes
+
+The API returns only the following codes:
+
+| Code | Status | Retry | Meaning |
+|------|--------|-------|---------|
+| `VALIDATION_FAILED` | 400 | No | The request failed validation. `issues` lists every problem. |
+| `INVALID_JSON` | 400 | No | The request body isn't valid JSON. |
+| `EXPIRED` | 400 | No | The link, code, or resource has expired. |
+| `IDEMPOTENCY_KEY_REUSED` | 400 | No | The `Idempotency-Key` was already used with a different request. |
+| `INVALID_API_VERSION` | 400 | No | The `Sajn-Version` header names a version that doesn't exist. |
+| `API_VERSION_SUNSET` | 400 | No | The requested version, or your organization's default, is past its sunset date. |
+| `UNAUTHORIZED` | 401 | No | The API token is missing, invalid, expired, or revoked. |
+| `PERMISSION_DENIED` | 403 | No | The token's user isn't allowed to perform the operation, such as because their workspace role lacks a permission. |
+| `INSUFFICIENT_SCOPE` | 403 | No | The OAuth token wasn't granted a scope the operation requires. See `requiredScopes` and `grantedScopes`. |
+| `PLAN_REQUIRED` | 403 | No | The organization's plan doesn't include API access or the feature. |
+| `ACCOUNT_INACTIVE` | 403 | No | The organization, user, or membership behind the token is deactivated or suspended. |
+| `ACCOUNT_SETUP_REQUIRED` | 403 | No | The organization must finish its setup, such as verifying an accountable person, first. |
+| `LIMIT_EXCEEDED` | 403 | No | A plan limit was reached, such as the monthly number of sent documents. |
+| `NOT_FOUND` | 404 | No | The resource doesn't exist, or the token can't access it. `resource` names its type. |
+| `ROUTE_NOT_FOUND` | 404 | No | No endpoint matches the method and path in the requested API version. |
+| `INVALID_STATE` | 409 | No | The resource's current state doesn't allow the operation. |
+| `ALREADY_EXISTS` | 409 | No | A resource with the same unique value, such as `externalId`, already exists. |
+| `APPROVAL_REQUIRED` | 409 | No | The operation needs an approval first. |
+| `IDEMPOTENCY_KEY_IN_USE` | 409 | After `Retry-After` | A request with the same `Idempotency-Key` is still running. |
+| `RATE_LIMITED` | 429 | After `Retry-After` | The per-minute rate limit was reached. |
+| `DAILY_QUOTA_EXCEEDED` | 429 | After `Retry-After` | The daily request quota was reached. |
+| `INTERNAL_ERROR` | 500 | With backoff | Something went wrong on sajn's side. Quote `requestId` when you contact support. |
+| `UPSTREAM_UNAVAILABLE` | 503 | With backoff | A service the operation depends on, such as an eID provider or a connected integration, failed or is unavailable. |
+
+The version codes are described in [API versioning](/api-fundamentals/versioning#errors), the `429` codes in [Rate limits and quotas](/api-fundamentals/rate-limits), and the `IDEMPOTENCY_KEY_*` codes in [Idempotency](/api-fundamentals/idempotency).
+
+The OAuth endpoints under `/api/oauth`, such as the token endpoint, don't use this shape. They return the standard OAuth 2.0 `error` and `error_description` fields. For more information, see [Token endpoint errors](/api-fundamentals/oauth#token-endpoint-errors).

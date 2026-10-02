@@ -1,0 +1,160 @@
+---
+title: Documentation MCP server
+description: 'Connect AI assistants to sajn documentation using the Model Context Protocol'
+---
+
+<Note>
+Looking to debug your integration (API logs, webhook deliveries) or act on your live workspace data? That's the separate [sajn MCP server](/ai/workspace-mcp) at `https://app.sajn.se/api/mcp` — this page covers the **read-only documentation** MCP only.
+</Note>
+
+The documentation MCP server lets an AI assistant search and read the sajn docs while it works, so its answers follow the current docs instead of a web search.
+
+## What is MCP?
+
+MCP is an open protocol that standardizes how AI applications connect to external data sources. When you connect an AI assistant to sajn's MCP server, it can:
+
+- Search the sajn docs during a conversation
+- Access the latest API reference and guides
+- Provide accurate answers about sajn features and integration
+
+## Server URL
+
+```text
+https://docs.sajn.se/mcp
+```
+
+## Set up your client
+
+<Tabs>
+  <Tab title="Claude Desktop">
+    ### Claude Desktop
+
+    1. Open Claude Desktop
+    2. Go to **Settings** > **Connectors**
+    3. Click **Add Connector**
+    4. Enter the following details:
+       - **Name**: sajn Docs
+       - **URL**: `https://docs.sajn.se/mcp`
+    5. Click **Save**
+
+    Claude searches the sajn docs when you ask a question such as "How do I create a document in sajn?"
+  </Tab>
+
+  <Tab title="Claude Code">
+    ### Claude Code (CLI)
+
+    Add the MCP server using the CLI:
+
+    ```bash
+    claude mcp add --transport http sajn-docs https://docs.sajn.se/mcp
+    ```
+
+    Verify it's connected:
+
+    ```bash
+    claude mcp list
+    ```
+
+    Claude Code searches the sajn docs when you ask it about sajn.
+  </Tab>
+
+  <Tab title="Cursor">
+    ### Cursor
+
+    1. Open the Command Palette (`Cmd+Shift+P` on Mac, `Ctrl+Shift+P` on Windows/Linux)
+    2. Search for **Cursor Settings: Open MCP Config**
+    3. Add the sajn MCP server to your configuration:
+
+    ```json
+    {
+      "mcpServers": {
+        "sajn-docs": {
+          "url": "https://docs.sajn.se/mcp"
+        }
+      }
+    }
+    ```
+
+    4. Save the file and restart Cursor
+
+    Cursor's AI features can read the sajn docs.
+  </Tab>
+
+  <Tab title="VS Code">
+    ### VS Code (Copilot)
+
+    1. Create or open `.vscode/mcp.json` in your project root
+    2. Add the sajn MCP server:
+
+    ```json
+    {
+      "servers": {
+        "sajn-docs": {
+          "type": "http",
+          "url": "https://docs.sajn.se/mcp"
+        }
+      }
+    }
+    ```
+
+    3. Save the file
+
+    GitHub Copilot can read the sajn docs when it answers questions.
+  </Tab>
+
+  <Tab title="Windsurf">
+    ### Windsurf
+
+    1. Open Windsurf Settings
+    2. Navigate to **Cascade** > **MCP Servers**
+    3. Click **Add Server**
+    4. Enter:
+       - **Name**: sajn-docs
+       - **URL**: `https://docs.sajn.se/mcp`
+    5. Save and restart Windsurf
+  </Tab>
+</Tabs>
+
+## Usage tips
+
+After you connect the server, ask your assistant questions about sajn, such as the following:
+
+- "How do I authenticate with the sajn API?"
+- "Show me how to create a document with multiple parties"
+- "What webhook events does sajn support?"
+- "How do I embed the signing experience in my app?"
+
+<Tip>
+For best results, mention "sajn" in your question so the AI knows to search the sajn documentation specifically.
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="MCP server not responding">
+    - Verify the URL is correct: `https://docs.sajn.se/mcp`
+    - Check your internet connection
+    - Try disconnecting and reconnecting the server
+  </Accordion>
+
+  <Accordion title="AI not using sajn documentation">
+    - Make sure to mention "sajn" in your questions
+    - Verify the MCP server is listed as connected in your client's settings
+    - Restart your AI client after adding the MCP server
+  </Accordion>
+
+  <Accordion title="Outdated information">
+    The MCP server always serves the latest documentation. If you're seeing outdated info, the AI might be using its training data instead. Try being more specific: "Search sajn docs for..."
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/get-started/quickstart">
+    Get started with sajn
+  </Card>
+  <Card title="API introduction" icon="code" href="/get-started/introduction">
+    Explore the API
+  </Card>
+</CardGroup>

@@ -1,0 +1,169 @@
+---
+title: "Embedded signing"
+description: "Show the sajn signing page inside your own application in an iframe, with your own theme"
+---
+
+In this guide, you embed the sajn signing page in your application, so a party signs without leaving it. Your server creates the document and gets the party's signing token, and your frontend shows the signing page in an iframe through one of the sajn embedding packages.
+
+sajn has the following packages:
+
+- `@sajn/embed-js`: a function API and a Web Component for any web page. See [JavaScript](/guides/embedding/vanilla-js).
+- `@sajn/embed-react`: a React component for React 18 and later. See [React](/guides/embedding/react).
+- `@sajn/embed-vue`: a Vue component for Vue 3.3 and later. See [Vue](/guides/embedding/vue).
+
+## Before you begin
+
+- Embedded signing is part of the Enterprise plan. If you build on sajn to send documents to your own customers, you also need a partner license. To get started, contact [hej@sajn.se](mailto:hej@sajn.se).
+- Store your API key in the `SAJN_API_KEY` environment variable on your server. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+
+## Turn on embedding
+
+After sajn turns on embedding for your organization, add the domains that can embed the signing page:
+
+1. In the sajn app, go to workspace settings, then **Utvecklare** (Developer) > **Inbäddning** (Embedding).
+2. Enter your domains, separated by commas. A domain can start with a wildcard, such as `*.example.com`.
+
+The list starts empty, and an empty list allows no domains outside sajn. The list accepts only public domains served over HTTPS, so `localhost` doesn't work. To test from your computer, expose your local app on a public HTTPS domain, such as through a tunnel, and add that domain. To test before you go live, use the [sandbox](/get-started/sandbox).
+
+## Embed the signing page
+
+<Steps>
+  <Step title="Create the document on your server">
+    Create the document with the party's `deliveryMethod` set to `NONE`, so sajn doesn't also email an invitation, and send it:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Service agreement",
+        "templateId": "TEMPLATE_ID",
+        "parties": [
+          { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER", "deliveryMethod": "NONE" }
+        ]
+      }'
+
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/send \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+    ```
+
+    The first request returns the document. Replace `DOCUMENT_ID` with its `id`, and note the party's `id` in `parties`.
+  </Step>
+
+  <Step title="Get the party's token on your server">
+    ```bash
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Replace `PARTY_ID` with the party's `id`. The response has the party's `signingUrl`, such as `https://app.sajn.se/sign/DOCUMENT_ID?token=PARTY_TOKEN`. Read the token from its `token` query parameter:
+
+    ```javascript
+    const token = new URL(party.signingUrl).searchParams.get("token");
+    ```
+
+    Return the token and the document ID to your frontend. The token lets anyone sign as the party, so give it only to that person's session.
+  </Step>
+
+  <Step title="Show the signing page">
+    In your frontend, pass the document ID and the token to the embed:
+
+    ```javascript
+    import { embedSignDocument } from "@sajn/embed-js";
+
+    embedSignDocument({
+      element: "#signing",
+      documentId: "DOCUMENT_ID",
+      token: "PARTY_TOKEN",
+      language: "en",
+      onSignerCompleted: ({ documentId }) => {
+        window.location.href = `/signed?doc=${documentId}`;
+      },
+    });
+    ```
+
+    Replace `PARTY_TOKEN` with the token from the previous step. For React and Vue, see the framework pages.
+  </Step>
+
+  <Step title="Confirm the signature on your server">
+    The `signer-completed` event runs in the browser, so treat it as a signal to update the screen, not as proof. Confirm the signature with the `document.party.signed` or `document.completed` [webhook event](/webhooks/events).
+  </Step>
+</Steps>
+
+## Options
+
+Every package takes the same options. The JavaScript package uses the names shown; the React package uses the same names as props, and the Vue package uses kebab-case attributes, such as `document-id`.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `documentId` | `string` | Required | The document ID. |
+| `token` | `string` | Required | The party's token, from the `token` query parameter of its `signingUrl`. |
+| `host` | `string` | `https://app.sajn.se` | The sajn host. |
+| `language` | `string` | `en` | The language of the signing page: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
+| `className` | `string` | None | A CSS class for the iframe. |
+| `allowDocumentRejection` | `boolean` | `false` | If `true`, the party can reject the document. |
+| `showScrollIndicator` | `boolean` | `true` | If `true`, shows a scroll indicator. |
+| `signatureInputModes` | `('draw' \| 'type' \| 'upload')[]` | All | How the party can create a drawn signature. This option can only remove modes that the workspace allows, never add one. |
+| `showDocumentId` | `boolean` | `true` | If `true`, shows the document ID under the sign button. |
+| `cssVars` | `object` | None | Theme colors, described in the following section. |
+| `additionalProps` | `Record<string, string \| number \| boolean>` | None | More options passed to the embed. |
+
+### Theme colors
+
+`cssVars` takes the following colors:
+
+```typescript
+type CssVars = {
+  background?: string;      // Page background
+  primary?: string;         // Buttons and accents
+  foreground?: string;      // Main text
+  mutedForeground?: string; // Secondary text
+};
+```
+
+## Events
+
+Every package emits the following events:
+
+- `document-ready`: the iframe loaded. No data.
+- `signer-completed`: the party finished signing. Data: `token`, `documentId`, `signerId` (the party ID), and `failed`, a reason, when signing failed.
+- `variables-submitted`: the party submitted their form fields. The document isn't signed yet: signing opens when every party with form fields has submitted. Data: `token`, `documentId`, and `signerId`.
+- `signer-rejected`: the party rejected the document, which needs `allowDocumentRejection`. Data: `token`, `documentId`, `signerId`, and `reason`.
+- `document-error`: an error occurred. Data: `code` and `message`.
+
+In the event data, `signerId` is the party's `id`; the embed packages keep this name.
+
+## Security
+
+- Only domains in the workspace's allowlist can embed the signing page.
+- The token is checked on the server before the page renders.
+- If the party verifies with an eID or a camera-based check, the iframe needs the `allow="camera"` attribute.
+- If the document has `accessVerification`, the party passes that check inside the iframe before any content loads, the same as on the hosted page. Your application has usually signed the user in already, so consider leaving `accessVerification` off for embedded documents. A party's own `twoStepVerification` always applies.
+
+## Handle errors
+
+- A `document-error` event: read `code`. A missing or invalid token, or a domain that isn't in the allowlist, stops the page from loading.
+- A blank iframe: check that your domain is in the allowlist and is served over HTTPS.
+
+For errors from the REST API calls on your server, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={3}>
+  <Card title="JavaScript" icon="js" href="/guides/embedding/vanilla-js">
+    Use the function API or the Web Component.
+  </Card>
+  <Card title="React" icon="react" href="/guides/embedding/react">
+    Use the React component.
+  </Card>
+  <Card title="Vue" icon="vuejs" href="/guides/embedding/vue">
+    Use the Vue component.
+  </Card>
+</CardGroup>
+
+To see an embed working, open the [live demo](https://sajn-embedding-demo.vercel.app/), and read its [source code on GitHub](https://github.com/sajn-se/sajn-embedding-demo).

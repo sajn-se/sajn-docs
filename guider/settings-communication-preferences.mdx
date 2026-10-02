@@ -3,13 +3,13 @@ title: "Välj vilka aviseringar du får"
 description: "Styr vilka aviseringar du tar emot från sajn och i vilken kanal — webb, e-post eller mobil"
 ---
 
-På sidan [Kommunikationsinställningar](https://app.sajn.se/~/settings/account/communication-preferences) styr du själv vilka aviseringar du tar emot från sajn – per avisering och per kanal. Inställningarna är **personliga** och gäller dig som inloggad användare, oavsett vilken arbetsyta du jobbar i. Den här guiden går igenom sidan utan att ändra något.
+På sidan [Kommunikationsinställningar](https://app.sajn.se/~/settings/account/communication-preferences) styr du själv vilka aviseringar du tar emot från sajn – per avisering och per kanal. Inställningarna är **personliga** och gäller dig som inloggad användare, oavsett vilken arbetsyta du jobbar i.
 
 ## Innan du börjar
 
 - Du är inloggad på sajn.
 - Inställningarna är personliga – varje användare har sin egen uppsättning.
-- Gruppen **Utvecklare** visas bara om du har behörigheten *Hantera utvecklarinställningar* i organisationen.
+- Gruppen **Utvecklare** visas bara om du har behörigheten *Hantera API-nycklar* eller *Hantera webhooks* i arbetsytan.
 
 ## Steg för steg
 
@@ -39,7 +39,7 @@ På sidan [Kommunikationsinställningar](https://app.sajn.se/~/settings/account/
   <Step title="Samarbete, godkännanden, massutskick och formulär">
     **Samarbete** innehåller aviseringen när någon nämner dig i en kommentar.
 
-    **Godkännanden** täcker begärda, godkända och avvisade attester.
+    **Godkännanden** täcker begärda, godkända och avvisade godkännanden.
 
     **Massutskick** meddelar när ett utskick är klart eller misslyckats, och **Formulär** när ett formulär fått svar.
 
@@ -48,7 +48,7 @@ På sidan [Kommunikationsinställningar](https://app.sajn.se/~/settings/account/
     </Frame>
   </Step>
   <Step title="Konto & säkerhet – kontohändelser och sammanfattningar">
-    Här ligger ny medlem, medlem som lämnat, ovanlig kontoaktivitet, identitet som inte matchar vid signering, klar dataexport, veckosammanfattning, åtgärder att göra, förslag efter signering, och när organisationen närmar sig sin kvot för signaturer, ID-kontroller eller inloggningar.
+    Här ligger ny medlem, medlem som lämnat, ovanlig kontoaktivitet, ändrad arkivering, frånkopplad integration, identitet som inte matchar vid signering, klar dataexport, veckosammanfattning, åtgärder att göra, förslag efter signering, och när organisationen närmar sig sin kvot för signaturer, ID-kontroller eller inloggningar.
 
     Veckosammanfattningen är ett typiskt exempel på en avisering man bara vill ha på e-post: lämna *Webb* och *Mobil* tomma och kryssa bara *E-post*.
 
@@ -57,9 +57,9 @@ På sidan [Kommunikationsinställningar](https://app.sajn.se/~/settings/account/
     </Frame>
   </Step>
   <Step title="Utvecklare – visas bara med utvecklarbehörighet">
-    Gruppen samlar skapad och borttagen API-nyckel, webhookar som inte kunde levereras och nyheter för utvecklare. De här aviseringarna har ingen mobilkolumn, eftersom mobilappen är en app för att skicka dokument och inte ett driftverktyg.
+    Gruppen samlar skapad och borttagen API-nyckel, webhooks som pausats automatiskt och nyheter för utvecklare. De här aviseringarna har ingen mobilkolumn, eftersom mobilappen är en app för att skicka dokument och inte ett driftverktyg.
 
-    En webhook som tyst slutar fungera är svår att felsöka – låt e-postkolumnen stå kvar ikryssad.
+    En webhook som tyst slutar fungera är svår att felsöka. Låt e-post vara markerat för *Webhook pausad*.
 
     Knappen **Spara** längst ner sparar alla ändringar på sidan på en gång.
 
@@ -68,3 +68,14 @@ På sidan [Kommunikationsinställningar](https://app.sajn.se/~/settings/account/
     </Frame>
   </Step>
 </Steps>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Håll koll på aviseringar" icon="bell-ring" href="/guider/notifications">
+    Se var aviseringarna dyker upp och hur du hanterar dem.
+  </Card>
+  <Card title="Hantera ditt personliga konto" icon="gear" href="/guider/settings-user">
+    Namn, språk, lösenord och säkerhet för ditt konto.
+  </Card>
+</CardGroup>

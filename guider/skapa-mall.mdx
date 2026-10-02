@@ -19,23 +19,31 @@ Mallar låter dig spara ett dokuments innehåll, fält och inställningar så at
 ## Steg för steg
 
 <Steps>
-  <Step title="Navigera till Mallar">
-    Klicka på [Mallar](https://app.sajn.se/~/templates) i sidomenyn. Här ser du alla befintliga mallar och kan skapa nya.
+  <Step title="Öppna Mallar">
+    Klicka på [Mallar](https://app.sajn.se/~/templates) i sidomenyn. Här ser du arbetsytans mallar och mappar.
   </Step>
-  <Step title="Skapa ny mall">
-    Klicka på **Skapa mall** och ge mallen ett beskrivande namn, till exempel "Konsultavtal" eller "Offert". Namnet hjälper dig att snabbt hitta rätt mall senare.
+  <Step title="Klicka Skapa ny mall">
+    Klicka **Skapa ny mall** uppe till höger. En tom mall som heter *Ny mall* skapas och öppnas i redigeraren. Har du redan avtalet som PDF väljer du i stället **Från PDF** under nedåtpilen bredvid knappen, se [Skapa en mall från en befintlig PDF](/guider/create-template-from-pdf).
+
+    {/* TODO screenshot: Mallistan med knappen Skapa ny mall och nedåtpilen med valet Från PDF */}
   </Step>
-  <Step title="Lägg till innehåll">
-    Fyll i mallens innehåll precis som du skulle göra med ett vanligt dokument. Du kan lägga till:
-    - **Fritext** - standardtext som ska vara samma i alla dokument
-    - **Fält** - platshållare som fylls i när dokumentet skapas (t.ex. kundnamn, datum, belopp)
-    - **Bilagor** - filer som alltid ska bifogas
+  <Step title="Ge mallen ett namn">
+    Klicka på namnet längst upp till vänster och skriv ett namn som beskriver avtalet, till exempel *Konsultavtal* eller *Offert*. Namnet hjälper dig att hitta rätt mall senare.
   </Step>
-  <Step title="Förkonfigurera inställningar">
-    Du kan ställa in standardvärden för utgångsdatum, påminnelser och andra inställningar. Dessa ärvs av dokument som skapas från mallen men kan ändras per dokument.
+  <Step title="Lägg till innehåll och parter">
+    Bygg mallen precis som ett dokument:
+
+    - **Sektioner** med text som ska vara samma i alla dokument.
+    - **Fält** som fylls i för varje nytt dokument, till exempel kundnamn, datum eller belopp.
+    - **Parter** som roller, till exempel *Kund* och *Leverantör*, utan namn och e-post.
+
+    Se [Lägg till sektioner och fält i en mall](/guider/add-fields-to-template).
   </Step>
-  <Step title="Spara mallen">
-    Spara mallen. Den blir nu tillgänglig att välja när du skapar ett nytt dokument.
+  <Step title="Ställ in standardvärden">
+    I panelen **Inställningar** väljer du utgångsdatum, påminnelser och andra inställningar. Dokument som skapas från mallen får samma inställningar, och du kan ändra dem per dokument.
+  </Step>
+  <Step title="Klart, mallen sparas automatiskt">
+    Allt du ändrar sparas automatiskt. Mallen syns direkt när du skapar ett nytt dokument.
   </Step>
 </Steps>
 
@@ -46,3 +54,14 @@ När du [skapar ett nytt dokument](/guider/skapa-dokument) kan du välja att utg
 <Tip>
   Du kan uppdatera en mall utan att det påverkar dokument som redan skapats från den. Bara nya dokument använder den senaste versionen av mallen.
 </Tip>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Parter och fält i en mall" icon="input-text" href="/guider/add-fields-to-template">
+    Lägg till parter och fält i mallen.
+  </Card>
+  <Card title="Använd en mall" icon="file-import" href="/guider/use-template">
+    Skapa ett dokument från mallen.
+  </Card>
+</CardGroup>

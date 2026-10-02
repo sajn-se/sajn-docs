@@ -1,9 +1,7 @@
 ---
-title: "Login Quickstart"
+title: "Login quickstart"
 description: "Authenticate your first user with Swedish BankID using sajn Login"
 ---
-
-# Login Quickstart
 
 Get a working BankID login in about ten minutes. This guide uses **OpenID Connect**, which is
 what most integrations should use — if you would rather make two REST calls, see the
@@ -194,7 +192,7 @@ unverified token, and never trust the browser redirect on its own.
   </Accordion>
   <Accordion title="The user authenticated but nothing came back">
     If they closed the browser after BankID, the redirect never fired. Subscribe to the
-    [`LOGIN_COMPLETED` webhook](/login/webhooks) to catch that case.
+    [`login.completed` webhook](/login/webhooks) to catch that case.
   </Accordion>
 </AccordionGroup>
 

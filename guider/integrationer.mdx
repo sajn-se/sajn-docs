@@ -17,8 +17,8 @@ Allt sitter på en enda sida: **Integrationer**. Där ser du vad som går att ko
 ## Steg för steg
 
 <Steps>
-  <Step title="Hitta Integrationer via sökrutan">
-    [Integrationer](https://app.sajn.se/~/integrations) har ingen egen rad i sidomenyn. Klicka på förstoringsglaset bredvid arbetsytans namn, eller tryck Cmd+K (Ctrl+K på Windows), och skriv *integration*. Sidan ligger under **Sidor** i träfflistan.
+  <Step title="Öppna Integrationer i sidomenyn">
+    Klicka på [Integrationer](https://app.sajn.se/~/integrations) längst ner i sidomenyn. Du kan också öppna sökrutan med Cmd+K (Ctrl+K på Windows) och skriva *integration*. Sidan ligger under **Sidor** i träfflistan.
 
     <Frame>
       <img src="/images/guider/integrationer/06-hitta-sidan.png" alt="Sökrutan öppen med sökordet integration och träffen Integrationer" />
@@ -42,7 +42,7 @@ Allt sitter på en enda sida: **Integrationer**. Där ser du vad som går att ko
 
     En byggnad betyder att kopplingen **delas av hela organisationen**. Då räcker det att någon med behörigheten Hantera integrationer kopplar tjänsten en gång, och alla i organisationen kan använda den. CRM-systemen, ekonomisystemen och Slack fungerar så.
 
-    Rader märkta *Kommer snart* är inte byggda än. Står det **Öppna** i stället för **Anslut** kopplas tjänsten från sin egen sida, som Zapier och Make.
+    Rader märkta *Kommer snart* är inte byggda än. Står det **Öppna** i stället för **Anslut** kopplas tjänsten från sin egen sida, som Zapier och Make. Se [Automatisera sajn med Zapier och Make](/guider/zapier-och-make).
 
     <Frame>
       <img src="/images/guider/integrationer/08-personlig-eller-delad.png" alt="Katalogens kategorier med personliga och organisationsgemensamma tjänster" />
@@ -72,7 +72,7 @@ Allt sitter på en enda sida: **Integrationer**. Där ser du vad som går att ko
   </Step>
 
   <Step title="Koppla en AI-assistent via MCP-servern">
-    Under **Tillägg och appar** går det åt andra hållet: där lägger du sajn i ett program du redan arbetar i. Word-tillägget, mobilapparna och MCP-servern ligger här.
+    Under **Tillägg och appar** går det åt andra hållet: där lägger du sajn i ett program du redan arbetar i. Word-tillägget, mobilapparna och MCP-servern ligger här. **Installera** på raden för Microsoft Office tar dig till Word-tillägget, se [Skicka för signering direkt från Word](/guider/word-tillagget). Mobilappen hämtar du via **App Store** eller **Google Play** på samma rad.
 
     MCP-servern kopplas med en adress i stället för via katalogen. Klicka **Anslut** på raden, kopiera serveradressen och klistra in den i din AI-klient. Du loggar in med ditt sajn-konto och väljer vilken arbetsyta och vilka behörigheter assistenten får. Assistenten kan aldrig göra mer än du själv får göra.
 
@@ -98,7 +98,7 @@ Var integrationen dyker upp i sajn beror på vad tjänsten kan.
 
 **Molnlagring** (Google Workspace, Dropbox, Box, Microsoft 365). När du skapar ett dokument får uppladdningssteget en flik per kopplad tjänst vid sidan av **Från datorn**. Du bläddrar i dina mappar, väljer filer och skapar dokumentet direkt av dem.
 
-**CRM** (HubSpot, Pipedrive, SuperOffice). Du hämtar mottagare från systemets kontakter i stället för att skriva in dem, och skickar avtal för signering från en affär. Signeringsstatus följer med tillbaka till affären.
+**CRM** (HubSpot, Pipedrive, SuperOffice). Du hämtar mottagare från systemets kontakter i stället för att skriva in dem, och skickar avtal för signering från en affär. Signeringsstatus följer med tillbaka till affären. För HubSpot, se [Skicka avtal från HubSpot](/guider/hubspot).
 
 **Ekonomi** (Fortnox, Bokio, Spiris). Du importerar kunder som kontakter, och hämtar offerter, ordrar och fakturor som signerbara dokument.
 
@@ -115,3 +115,17 @@ En ansluten rad har **Inställningar** i stället för **Anslut**. Menyn innehå
 - **Koppla från**.
 
 När du kopplar från behålls det som redan är importerat. sajn slutar bara hämta ny data från tjänsten, och du kan ansluta igen när som helst. Att koppla från en organisationsgemensam tjänst påverkar alla i organisationen, så det kräver behörigheten Hantera integrationer.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Skicka från Word" icon="file-word" href="/guider/word-tillagget">
+    Skicka för signering direkt från Word.
+  </Card>
+  <Card title="Skicka avtal från HubSpot" icon="handshake" href="/guider/hubspot">
+    Skapa avtal från en affär i HubSpot.
+  </Card>
+  <Card title="Zapier och Make" icon="bolt" href="/guider/zapier-och-make">
+    Automatisera sajn utan kod.
+  </Card>
+</CardGroup>

@@ -1,0 +1,197 @@
+---
+title: "Send a contract from your CRM"
+description: "Recipe: when a deal reaches the contract stage, create and send a contract from a template, and update the deal when it's signed"
+---
+
+In this recipe, you build a small Node.js service that sends a contract when a CRM deal reaches the contract stage, and marks the deal as signed when every party has signed. It combines templates, field values, sending, and webhooks into one flow.
+
+The flow has two parts:
+
+1. Your CRM calls `sendContract(deal)`. The service creates a document from a template, fills in the deal's values, sets the customer as the signing party, and sends the document.
+2. sajn calls your webhook endpoint with `document.completed` when the sealed PDF is ready. The service downloads the PDF and updates the deal.
+
+## Before you begin
+
+- Node.js 18 or later, and Express: `npm install express`.
+- An API key in the `SAJN_API_KEY` environment variable. To create one, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- A template with a party named `Customer` and FORM fields with the keys `customer-name`, `org-number`, and `contract-value`. Store its ID in `SAJN_TEMPLATE_ID`. For more information, see [Create documents from templates](/guides/templates/templates-and-forms).
+- A public HTTPS URL for the webhook endpoint, such as `https://crm.example.com/webhooks/sajn`.
+
+## Build the service
+
+<Steps>
+  <Step title="Subscribe to completed documents">
+    Create the webhook once, and store the `secret` from the response, which starts with `whsec_`, in `SAJN_WEBHOOK_SECRET`. sajn returns the secret only in this response:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/webhooks \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "url": "https://crm.example.com/webhooks/sajn",
+        "events": ["document.completed", "document.rejected", "document.expired"],
+        "enabled": true,
+        "apiVersion": "2026-10"
+      }'
+    ```
+  </Step>
+
+  <Step title="Write a small API client">
+    Save the following file as `sajn.js`. It sends the version header on every request, throws on errors with the `code` and `requestId`, and takes an optional idempotency key:
+
+    ```javascript
+    // sajn.js
+    const API = "https://app.sajn.se/api/v1";
+
+    export const sajn = async (method, path, body, idempotencyKey) => {
+      const response = await fetch(`${API}${path}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+          "Sajn-Version": "2026-10",
+          "Content-Type": "application/json",
+          ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`${method} ${path}: ${data.code} ${data.message} (${data.requestId})`);
+      }
+      return data;
+    };
+    ```
+  </Step>
+
+  <Step title="Create and send the contract">
+    Save the following file as `send-contract.js`. Each request has an idempotency key derived from the deal, so retrying `sendContract` for the same deal doesn't create a second contract:
+
+    ```javascript
+    // send-contract.js
+    import { sajn } from "./sajn.js";
+
+    export const sendContract = async (deal) => {
+      const document = await sajn("POST", "/documents", {
+        name: `Service agreement - ${deal.companyName}`,
+        templateId: process.env.SAJN_TEMPLATE_ID,
+        externalId: deal.id,
+      }, `contract-${deal.id}-create`);
+
+      const { results } = await sajn("PATCH", `/documents/${document.id}/field-values`, {
+        values: [
+          { key: "customer-name", value: deal.companyName },
+          { key: "org-number", value: deal.orgNumber },
+          { key: "contract-value", value: String(deal.value) },
+        ],
+      });
+      const failed = results.filter((result) => !result.success);
+      if (failed.length > 0) {
+        throw new Error(`Values not written: ${failed.map((result) => `${result.key} ${result.error.code}`).join(", ")}`);
+      }
+
+      const customer = document.parties.find((party) => party.name === "Customer");
+      await sajn("PATCH", `/documents/${document.id}/parties/${customer.id}`, {
+        name: deal.contactName,
+        email: deal.contactEmail,
+      });
+
+      await sajn("POST", `/documents/${document.id}/send`, {}, `contract-${deal.id}-send`);
+      return document.id;
+    };
+    ```
+
+    The create request returns the whole document, including its `parties`, so the service finds the customer's party without another request. Store the returned document ID on the deal.
+  </Step>
+
+  <Step title="Handle the webhook">
+    Save the following file as `server.js`. It verifies the Standard Webhooks signature over the raw body, answers right away, and then updates the deal:
+
+    ```javascript
+    // server.js
+    import crypto from "node:crypto";
+    import { writeFile } from "node:fs/promises";
+
+    import express from "express";
+
+    import { sajn } from "./sajn.js";
+
+    const isSignedBySajn = (headers, rawBody) => {
+      const id = headers["webhook-id"];
+      const timestamp = headers["webhook-timestamp"];
+      if (!id || Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+      const key = Buffer.from(process.env.SAJN_WEBHOOK_SECRET.replace(/^whsec_/, ""), "base64");
+      const expected = crypto.createHmac("sha256", key).update(`${id}.${timestamp}.${rawBody}`).digest();
+      return String(headers["webhook-signature"] ?? "")
+        .split(" ")
+        .some((entry) => {
+          const [version, signature = ""] = entry.split(",");
+          const received = Buffer.from(signature, "base64");
+          return version === "v1" && received.length === expected.length && crypto.timingSafeEqual(received, expected);
+        });
+    };
+
+    const handled = new Set(); // Use your database in production.
+
+    const app = express();
+
+    app.post("/webhooks/sajn", express.raw({ type: "application/json" }), async (req, res) => {
+      if (!isSignedBySajn(req.headers, req.body)) return res.status(401).end();
+      res.status(200).end();
+
+      const event = JSON.parse(req.body);
+      if (handled.has(event.id)) return;
+      handled.add(event.id);
+
+      const document = event.data.object;
+      const dealId = document.externalId;
+
+      if (event.type === "document.completed") {
+        const { url } = await sajn("GET", `/documents/${document.id}/files/SIGNED`);
+        const pdf = Buffer.from(await (await fetch(url)).arrayBuffer());
+        await writeFile(`contracts/${dealId}.pdf`, pdf);
+        console.log(`Deal ${dealId}: signed`); // Replace with your CRM update.
+      } else {
+        console.log(`Deal ${dealId}: ${event.type}`); // Rejected or expired.
+      }
+    });
+
+    app.listen(3000);
+    ```
+
+    All three events carry the document in `data.object`, in the shape that `GET /api/v1/documents/:id` returns. The handler deduplicates on the event `id`, which stays the same across retries. The `url` from `GET /api/v1/documents/:id/files/SIGNED` expires at `expiresAt`, so download the file right away. For more information about the signature headers, see [Verify webhook signatures](/webhooks/verify-signatures).
+  </Step>
+</Steps>
+
+## Run it
+
+Start the server with `node server.js`, and call `sendContract` from your CRM's deal-stage hook with a deal object such as the following:
+
+```javascript
+import { sendContract } from "./send-contract.js";
+
+await sendContract({
+  id: "deal-12345",
+  companyName: "Example AB",
+  orgNumber: "556000-0000",
+  value: 120000,
+  contactName: "Kai Berg",
+  contactEmail: "kai@example.com",
+});
+```
+
+Kai gets the invitation by email. When Kai signs, `contracts/deal-12345.pdf` appears and the server logs the deal update.
+
+## Handle errors
+
+- An error thrown by `sajn` includes the `code` and `requestId`. Branch on `code`, and log `requestId` so sajn support can find the request. For what each code means, see [Errors](/api-fundamentals/errors).
+- `409 APPROVAL_REQUIRED` on send: the API key's user needs approval to send. Request it with [`POST /api/v1/approval-requests`](/api-reference/request-approval-of-a-document). When the request is approved, sajn sends the document for signing.
+- `Values not written`: a key doesn't exist on the template (`NOT_FOUND`), or a value doesn't match the field's type (`VALIDATION_FAILED`).
+- If your endpoint is down, sajn retries the delivery. For more information, see [Delivery and retries](/webhooks/delivery-and-retries).
+
+## Related guides
+
+- [Create documents from templates](/guides/templates/templates-and-forms)
+- [CRM field integration](/guides/integrations/crm-field-integration)
+- [Verify webhook signatures](/webhooks/verify-signatures)
+- [Download documents](/guides/documents/downloading-documents)

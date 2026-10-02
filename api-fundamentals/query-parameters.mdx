@@ -1,0 +1,168 @@
+---
+title: "Query parameters"
+description: "How the API reads query strings: plain strings, booleans, dates, multi-value and reference filters, search, expand, and the 400 on unknown parameters"
+---
+
+The API reads every query parameter as a plain string and converts it to the type the endpoint expects. Send each value as you would type it, without quotes or JSON encoding, and let your HTTP library URL-encode it.
+
+This page describes API version `2026-10`. Version `2026-09` JSON-parsed query values and ignored unknown parameters; for the differences, see [Upgrading to 2026-10](/upgrading/2026-10#query-strings).
+
+## Value types
+
+| Type | Format | Example |
+|------|--------|---------|
+| String | The value as is. | `externalId=12345` |
+| Integer | Digits only. | `limit=50` |
+| Boolean | `true` or `false`, in lowercase. Any other value, such as `1` or `True`, returns `400`. | `archived=false` |
+| Date | An ISO 8601 date or date-time. See [Dates](#dates). | `createdAfter=2026-10-01` |
+| Multi-value | A comma-separated list, or the parameter repeated. See [Multi-value filters](#multi-value-filters). | `status=PENDING,COMPLETED` |
+| Enum | One of the values the API reference lists for the parameter, in the case shown there. | `orderDirection=asc` |
+
+`externalId=12345` filters on the string `"12345"`, not the number. Don't wrap a string in quotes: `externalId="12345"` searches for a value that includes the quote characters.
+
+## Dates
+
+Date parameters, such as `createdAfter` and `updatedBefore`, take one of the following formats:
+
+- A date, such as `2026-10-01`. It means midnight UTC at the start of that day.
+- A date-time with `Z` or an offset, such as `2026-10-01T08:00:00Z` or `2026-10-01T10:00:00+02:00`.
+- A date-time without an offset, such as `2026-10-01T08:00:00`. The API reads it as UTC, never as the server's local time.
+
+An invalid date returns `400 VALIDATION_FAILED` with an issue whose message is `Expected an ISO 8601 date, such as 2026-10-01, or a date-time, such as 2026-10-01T08:00:00Z`.
+
+### Date ranges
+
+Lists of resources that change take `createdAfter`, `createdBefore`, `updatedAfter`, and `updatedBefore`. Some lists add ranges of their own, such as `completedAfter` and `completedBefore` on [`GET /api/v1/documents`](/api-reference/list-all-documents). The [event list](/api-reference/list-events) takes only `createdAfter` and `createdBefore`, because events don't change.
+
+Every bound includes its boundary: `createdAfter` matches items created at or after the time, and `createdBefore` matches items created at or before it. Because a date means midnight, `createdBefore=2026-10-01` excludes everything later on October 1. To include the whole day, use `createdBefore=2026-10-01T23:59:59.999Z`.
+
+## Multi-value filters
+
+Filters that accept several values, such as `status` and `tagId` on [`GET /api/v1/documents`](/api-reference/list-all-documents) or `type` on [`GET /api/v1/events`](/api-reference/list-events), take either form:
+
+```text
+status=PENDING,COMPLETED
+status=PENDING&status=COMPLETED
+```
+
+The API trims spaces around each value and ignores empty values, so `status=PENDING,` is the same as `status=PENDING`. A filter with several values matches items that have any of them. Different filters combine, so `status=PENDING&tagId=cm4k2x9p10001abcd1234efgh` matches pending documents that have the tag. The API reference marks each filter that takes several values with "Comma-separated or repeated".
+
+### Reference filters
+
+A filter that references another resource is named after it and ends in `Id`, such as `tagId`, `templateId`, `companyId`, `roleId`, and `createdById`. Most reference filters take several values. `folderId`, `parentFolderId`, and `eventId` take one.
+
+### Leave a filter out to match everything
+
+No filter has an `ALL` value. To match every value, leave the filter out. For example, [`GET /api/v1/members`](/api-reference/list-workspace-members) without `status` returns both active and inactive members.
+
+### Top-level folder items
+
+To get only the documents or templates at the top level, outside every folder, send `folderId=root` on [`GET /api/v1/documents`](/api-reference/list-all-documents) or [`GET /api/v1/templates`](/api-reference/list-all-templates). To get items in any folder, leave out `folderId`.
+
+## Search
+
+Lists that support free-text search take `query`, such as the document, contact, company, template, member, and block lists. `query` matches part of a value across several fields, such as a document's name, `externalId`, and party names and email addresses.
+
+Other text filters match a whole value. For example, `externalId` on [`GET /api/v1/documents`](/api-reference/list-all-documents) and `email` on [`GET /api/v1/contacts`](/api-reference/list-all-contacts) return only items whose value equals yours exactly. For a partial match, use `query`. The API reference describes how each filter matches.
+
+## Sorting
+
+Some lists take `orderBy` and `orderDirection`. For the lists and their sort fields, see [Sort a list](/api-fundamentals/pagination#sort-a-list).
+
+## Expand related data
+
+An endpoint can leave out related data that's expensive to load, and add it when you ask for it with `expand`. `expand` takes a comma-separated list or a repeated parameter. For example, [`GET /api/v1/documents/{id}`](/api-reference/get-a-document-by-id) leaves out the document's content blocks unless you send `expand=fields`:
+
+```bash
+curl -G https://app.sajn.se/api/v1/documents/cm4k2x9p10001abcd1234efgh \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  --data-urlencode "expand=fields"
+```
+
+[`GET /api/v1/templates/{id}`](/api-reference/get-a-template-by-id) takes `expand=fields` too. The API reference lists the values each endpoint accepts.
+
+## Unknown parameters
+
+On every endpoint that takes query parameters, a parameter the endpoint doesn't define returns `400 VALIDATION_FAILED`. A misspelled filter fails instead of being ignored, so it can't return every result by mistake:
+
+```bash
+curl -G https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  --data-urlencode "staus=PENDING"
+```
+
+The response is similar to the following:
+
+```json
+{
+  "code": "VALIDATION_FAILED",
+  "message": "Unrecognized key: \"staus\"",
+  "userMessage": "Förfrågan innehåller ogiltiga värden.",
+  "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
+  "issues": [
+    { "path": "", "code": "UNRECOGNIZED_KEY", "message": "Unrecognized key: \"staus\"" }
+  ]
+}
+```
+
+The `issues` array lists every problem in the query string at once. For the issue codes, see [Validation errors](/api-fundamentals/errors#validation-errors).
+
+## URL encoding
+
+A query string has its own syntax, so some characters change meaning unless you encode them. The following cases cause most problems:
+
+- **A plus sign (`+`)** decodes to a space. A phone number such as `+46701234567` arrives as ` 46701234567` and matches nothing, and an offset such as `+02:00` makes a date invalid. Encode `+` as `%2B`, or use `Z` for UTC.
+- **An ampersand (`&`), a number sign (`#`), or a space** in a free-text search, such as `query`, ends the value or the URL. Encode them as `%26`, `%23`, and `%20`.
+- **A comma (`,`)** separates values in a multi-value filter, so the API reads `tagId=cm4k2x9p10001abcd1234efgh,cm4k2x9p10002abcd1234efgh` as two tag IDs, whether or not you encode the comma.
+
+To avoid these problems, let your HTTP library build the query string instead of concatenating it. The following samples find a contact by phone number:
+
+<CodeGroup>
+
+```bash curl
+curl -G https://app.sajn.se/api/v1/contacts \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  --data-urlencode "phone=+46701234567"
+```
+
+```typescript TypeScript
+const query = new URLSearchParams({ phone: '+46701234567' });
+
+const response = await fetch(`https://app.sajn.se/api/v1/contacts?${query}`, {
+  headers: {
+    Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+    'Sajn-Version': '2026-10',
+  },
+});
+
+console.log(await response.json());
+```
+
+```python Python
+import os
+
+import requests
+
+response = requests.get(
+    "https://app.sajn.se/api/v1/contacts",
+    headers={
+        "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+        "Sajn-Version": "2026-10",
+    },
+    params={"phone": "+46701234567"},
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+`curl -G` with `--data-urlencode`, `URLSearchParams`, and the `params` argument of `requests` each encode `+` as `%2B`.
+
+## Next steps
+
+- [Pagination](/api-fundamentals/pagination): walk a list with `limit`, `cursor`, and `nextCursor`.
+- [Errors](/api-fundamentals/errors): the error shape and every error code.

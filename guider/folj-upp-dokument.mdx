@@ -1,0 +1,98 @@
+---
+title: "Följ upp ett skickat dokument"
+description: "Se var ett skickat dokument står, vem som har signerat och vad du gör härnäst"
+---
+
+När dokumentet är skickat vill du veta två saker: hur långt det har kommit, och om du behöver göra något. Statusen i dokumentlistan svarar på det första. Panelen **Parter** i dokumentet visar var varje mottagare står. Den här guiden visar var du hittar uppgifterna och vad du gör i varje läge.
+
+## Innan du börjar
+
+- Du är inloggad i sajn och har valt en arbetsyta.
+- Du har skickat minst ett dokument. Se [Skicka ett dokument för signering](/guider/skicka-dokument).
+
+## Steg för steg
+
+<Steps>
+  <Step title="Filtrera dokumentlistan på status">
+    Öppna [Dokument](https://app.sajn.se/~/documents) och klicka på **Status** i filterraden. Välj **Väntande** för att se allt som väntar på signering.
+
+    Två andra filter är bra att känna till. Under **Händelser** hittar du **Ej öppnad** och **Ej levererat**, alltså dokument där mottagaren inte har tittat eller inte fått inbjudan. Under **Utgångsdatum** väljer du till exempel **Utgår inom 7 dagar** för att se vad som snart går ut.
+
+    {/* TODO screenshot: Dokumentlistan med statusfiltret öppet och Väntande valt */}
+
+    <Tip>
+      Använder du samma filter ofta sparar du det som ett [bokmärke](/guider/document-bookmarks).
+    </Tip>
+  </Step>
+
+  <Step title="Öppna dokumentet och läs panelen Parter">
+    Klicka på dokumentet. Panelen **Parter** visar varje mottagare med en egen status. Se [Mottagarens status](#mottagarens-status) längre ner.
+
+    {/* TODO screenshot: Panelen Parter i ett väntande dokument med en part märkt Signerat och en märkt Öppnad */}
+  </Step>
+
+  <Step title="Klicka på en part för detaljerna">
+    Klicka på partens namn. Kortet som öppnas visar mer om parten. Har parten avböjt står **Avböjningsanledning** längst ner, med den förklaring parten skrev. Studsade e-postinbjudan står det **Kunde inte levereras** i stället.
+
+    {/* TODO screenshot: Detaljkortet för en part som avböjt, med rutan Avböjningsanledning */}
+  </Step>
+
+  <Step title="Se hela historiken under Detaljer">
+    Panelen **Detaljer** samlar dokumentets historik under **Aktivitet**: när det skickades, öppnades och signerades, och vilka påminnelser som har gått ut.
+
+    {/* TODO screenshot: Panelen Detaljer med aktivitetsloggen */}
+  </Step>
+</Steps>
+
+## Dokumentets status
+
+Statusen syns i dokumentlistan och överst i dokumentet.
+
+| Status | Vad det betyder | Vad du kan göra |
+| --- | --- | --- |
+| **Utkast** | Dokumentet är inte skickat. | Redigera och [skicka](/guider/skicka-dokument). |
+| **Väntar på godkännande** | En kollega behöver godkänna dokumentet innan det skickas. | Vänta på godkännaren. Se [Godkännande före utskick](/guider/approval-workflow). |
+| **Skickas** | sajn håller på att skicka ut dokumentet. | Vänta en stund. Statusen byts till Väntande. |
+| **Väntande** | Dokumentet är skickat och minst en part har inte signerat. | Påminn, förläng eller återkalla. |
+| **Signerat** | Alla parter har signerat och dokumentet är förseglat. | Ladda ner det eller [arkivera](/guider/archive-document) det. |
+| **Avböjt** | En part har avböjt att signera. | Läs anledningen, rätta och skicka ett nytt dokument. |
+| **Utgången** | Sista signeringsdag passerade innan alla signerat. | [Förläng](/guider/forlang-utgangsdatum) eller [återkalla](/guider/aterkalla-dokument). |
+| **Avbruten** | Dokumentet har avbrutits och kan inte längre signeras. | Skapa ett nytt dokument om det behövs. |
+| **Importerat** | Ett redan signerat dokument som lagts in i sajn, till exempel via inkorgen. | Inget, det är arkiverat som det är. |
+
+## Mottagarens status
+
+Varje part i panelen **Parter** har en egen status:
+
+- **Inte skickat**: inbjudan har inte gått ut än.
+- **Väntar på tur**: dokumentet signeras i turordning och det är inte partens tur än. Se [Sekventiell signering](/guider/sekventiell-signering).
+- **Skickat**: inbjudan har gått ut men parten har inte öppnat den.
+- **Ej levererat**: inbjudan studsade eller gick inte fram. Kontrollera adressen.
+- **Öppnad**: parten har öppnat dokumentet.
+- **Läst**: parten har läst dokumentet.
+- **Signerat**: parten har signerat.
+- **Avböjd**: parten har avböjt att signera.
+
+## Vad gör jag nu?
+
+- **Någon har inte signerat.** [Skicka en påminnelse](/guider/skicka-paminnelse). Vill du se hur parten rört sig i dokumentet, öppna [signeringsuppspelningen](/guider/signing-session-replay).
+- **Inbjudan kom inte fram.** Kontrollera e-postadressen eller mobilnumret på parten. Är uppgiften fel behöver du [återkalla dokumentet](/guider/aterkalla-dokument), rätta parten och skicka igen.
+- **Fristen håller på att gå ut.** [Förläng utgångsdatumet](/guider/forlang-utgangsdatum). Signeringarna som redan gjorts finns kvar.
+- **Du har skickat fel innehåll.** [Återkalla dokumentet](/guider/aterkalla-dokument), rätta och skicka igen.
+- **En part kommer inte att signera, men de andra har gjort det.** Välj **Avsluta nu** i menyn **Arkiv** i dokumentet. Dokumentet avslutas och förseglas med de signaturer som finns. Rutan visar vilka som har signerat och vilka som inte har det, och du bekräftar att du förstår det innan du avslutar.
+- **Alla har signerat.** Dokumentet är klart och ligger kvar i dokumentlistan. Ladda ner det, eller [arkivera det](/guider/archive-document) när du vill städa listan.
+
+<Note>
+  Vill du få veta direkt när något händer? Ställ in vilka [aviseringar](/guider/settings-communication-preferences) du får och var. [Kalendern](/guider/kalender) visar när dokument skickades, signerades och går ut.
+</Note>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Skicka en påminnelse" icon="bell-ring" href="/guider/skicka-paminnelse">
+    Påminn en mottagare som inte har signerat.
+  </Card>
+  <Card title="Återkalla ett dokument" icon="rotate-left" href="/guider/aterkalla-dokument">
+    Dra tillbaka, rätta och skicka igen.
+  </Card>
+</CardGroup>

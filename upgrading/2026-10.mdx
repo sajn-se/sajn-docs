@@ -1,0 +1,1216 @@
+---
+title: "Upgrading to 2026-10"
+description: "Move your integration from API version 2026-09 to 2026-10, with before-and-after examples for the changes that affect most integrations"
+---
+
+API version `2026-10` is a clean break from `2026-09`. Every list pages the same way, every error has the same shape, every write returns the object it changed, and a webhook delivers the same object the REST API returns. Version `2026-09` keeps working until its sunset date, October 1, 2027. From that date, requests on `2026-09` fail with `400 API_VERSION_SUNSET`.
+
+You move one piece at a time, and anything you haven't moved yet stays on `2026-09`:
+
+1. [Find what affects you](#find-what-affects-you).
+2. [Send the new version on your requests](#send-the-new-version-on-your-requests).
+3. [Move your webhook endpoints](#move-your-webhook-endpoints).
+4. [Confirm nothing relies on the default](#confirm-nothing-relies-on-the-default).
+5. [Switch the organization default](#switch-the-organization-default).
+
+For how versions work, see [API versioning](/api-fundamentals/versioning). For every change in one list, see the [changelog](/upgrading/changelog).
+
+## Upgrade with an AI assistant
+
+To have a coding assistant such as Claude Code, Cursor, or Codex make the changes, give it the following prompt in your repository. The prompt lists every change an integration can hit, and points the assistant at the Markdown version of this guide for the examples:
+
+<Accordion title="Show the upgrade prompt" icon="sparkles">
+
+```text Upgrade prompt
+Migrate this codebase's sajn integration from API version 2026-09 to 2026-10.
+The guide with before-and-after examples is at
+https://docs.sajn.se/upgrading/2026-10.md, and the complete changelog is at
+https://docs.sajn.se/upgrading/changelog.md. Fetch them if you can. The API
+reference at https://docs.sajn.se is the authority on every request and
+response shape.
+
+Find every place this codebase calls the sajn API (https://app.sajn.se/api/v1)
+or receives sajn webhooks, and apply every rule below that applies. Keep
+behavior the same. Don't guess: if a rule doesn't say how to handle
+something, check the reference, and list what you couldn't resolve.
+
+1. VERSION AND GENERAL RULES
+- Send "Sajn-Version: 2026-10" on every request, from one shared place such
+  as the HTTP client. Keep it pinned in code.
+- Without the header, an API key request uses the organization default,
+  and an OAuth access token request uses the OAuth app's own version,
+  never the organization default.
+- Every response property is always present, null when empty. Update types:
+  optional response fields become "T | null".
+- In a PATCH request, an omitted field is unchanged and null clears it.
+- Every create returns 200 (POST /forms returned 201).
+
+2. LISTS AND PAGINATION (every list endpoint)
+- Request: "limit" (1-100, default 25) and "cursor". "page" and "perPage"
+  are removed and return 400. Add "include=total" only if you need "total";
+  "totalPages" is gone.
+- Response: { data, hasMore, nextCursor } (+ total with include=total).
+  Rename the old array keys (documents, contacts, companies, templates,
+  members, webhooks, sajnIds, chats, events, parties, ...) to "data".
+  "hasNextPage" is now "hasMore". Loop: pass nextCursor as cursor, keep the
+  other parameters, stop when hasMore is false.
+- Now paginated (they returned everything): GET /folders,
+  /document-categories, /workspaces, /companies, /documents/{id}/activity,
+  /documents/{id}/comments. Read every page if you relied on one response.
+- Lists bounded by a parent return every item in one response, as
+  { data, hasMore: false, nextCursor: null }, and take no limit or cursor:
+  a document's parties, fields, signatures, files, links, reminders and
+  delegations, GET /documents/{id}/field-values, a template's parties and
+  fields, /roles, /permissions, /helpers/*.
+- Default order is createdAt descending everywhere, including
+  GET /documents (was updatedAt) and GET /forms and /forms/{id}/submissions
+  (were updatedAt ascending). Pass orderBy and orderDirection to keep an
+  order you depend on.
+- Query values are plain strings, never JSON-encoded: externalId=order-1042,
+  archived=false. Booleans are true/false; dates are ISO 8601 (no offset =
+  UTC). Multi-value filters take a comma-separated list or a repeated
+  parameter. An unknown query parameter returns 400, so remove any the
+  endpoint doesn't document.
+- Filter renames: GET /templates search -> query, createdBy -> createdById;
+  GET /events since/until -> createdAfter/createdBefore and event -> type;
+  GET /identity-checks (was /sajn-id) dateFrom/dateTo ->
+  createdAfter/createdBefore, with no default seven-day window;
+  GET /blocks scope -> visibility (a sajn-curated block is SHARED) and
+  locale -> language.
+  createdBefore and updatedBefore include their boundary.
+- Reference filters end in "Id" and take several values (tagId, templateId,
+  companyId, roleId). "ALL" is no longer a filter value: omit the filter.
+  Top-level documents and templates: folderId=root (not an empty folderId).
+- The GET /documents externalId filter matches the whole value,
+  case-sensitively; use "query" for a partial match.
+
+3. ERRORS
+- Body: { code, message, userMessage, requestId, resource?, issues?,
+  requiredScopes?, grantedScopes? }. Branch on "code" only, never on the
+  HTTP status or "message". "message" is English for developers;
+  "userMessage" is always present and safe to show end users (usually
+  Swedish), so show it where you showed "message" before. Log "requestId"
+  (was "errorId"; equals the Sajn-Request-Id response header).
+- issues[]: { path, code, message }; code is INVALID_TYPE, INVALID_FORMAT,
+  INVALID_VALUE, TOO_SMALL, TOO_BIG or UNRECOGNIZED_KEY. VALIDATION_FAILED
+  always has at least one issue. NOT_FOUND has "resource" (such as
+  "document"). A path with no endpoint returns ROUTE_NOT_FOUND.
+- Code renames: INVALID_REQUEST, INVALID_BODY, VALIDATION_ERROR ->
+  VALIDATION_FAILED; FORBIDDEN -> PERMISSION_DENIED, INSUFFICIENT_SCOPE,
+  PLAN_REQUIRED or ACCOUNT_INACTIVE; TOO_MANY_REQUESTS -> RATE_LIMITED or
+  DAILY_QUOTA_EXCEEDED; DUPLICATE_EXTERNAL_ID -> ALREADY_EXISTS;
+  EXPIRED_CODE -> EXPIRED; RESPONSIBLE_PERSON_REQUIRED, WORKSPACE_REQUIRED ->
+  ACCOUNT_SETUP_REQUIRED; reused Idempotency-Key -> IDEMPOTENCY_KEY_REUSED
+  (400) or IDEMPOTENCY_KEY_IN_USE (409).
+- Status changes: 401 UNAUTHORIZED now means only a missing, invalid,
+  expired or revoked token; a valid token without permission gets
+  403 PERMISSION_DENIED (was 401). State conflicts are 409 INVALID_STATE
+  (were 400), including editing a non-draft document, editing a locked
+  template or its fields or parties (were 401/403), extending the
+  expiration of a document that isn't PENDING or EXPIRED, and fetching a
+  document file that isn't produced yet (was 404). Monthly send limit:
+  403 LIMIT_EXCEEDED (was 400). Deactivated user: 403 ACCOUNT_INACTIVE (was
+  401). Duplicate unique value: 409 ALREADY_EXISTS. A failing external
+  service: 503 UPSTREAM_UNAVAILABLE, retry with backoff (was 500).
+
+4. DOCUMENTS AND PARTIES
+- POST /documents returns the full document, the same shape as
+  GET /documents/{id}: read "id" (not documentId) and parties[].id (not
+  parties[].signerId). PATCH /documents/{id}, POST .../send, .../withdraw,
+  .../extend-expiration, POST /documents/{id}/tags and
+  DELETE /documents/{id}/tags/{tagId} (were { success: true }) also return
+  the document; DELETE /documents/{id} returns it with deletedAt set.
+  "fields" is null unless ?expand=fields.
+- A document adds deletedAt, templateId, folderId, responsibleUserId and,
+  on the full document, approvalRequestId. List items in GET /documents
+  include parties (id, name, email, role, signingStatus, signedAt) and tags.
+- Send "parties", never "signers"; role ACCEPTOR is rejected (use SIGNER).
+  The /documents/{id}/signers endpoints are removed (use .../parties).
+- documentMeta.signingOrder (PARALLEL/SEQUENTIAL) -> documentMeta.signingMode;
+  templateMeta.signingOrder -> templateMeta.signingMode. "signingOrder" now
+  only means a party's numeric position. Sending the old key returns 400.
+- Parties nest the company, on documents and templates alike:
+  company: { name, orgNumber, role } replaces companyName,
+  companyOrgNumber and companyRole (responses add company.id, replacing
+  companyId). company is null for a private individual. This applies to
+  POST /documents, PATCH /documents/{id}/parties/{partyId},
+  POST /templates/{id}/parties, PATCH /templates/{id}/parties/{partyId}
+  and PUT /forms/{id}/template/parties. A request with a flat key returns
+  400. In a PATCH, null clears phone, externalId, nationalId or a company
+  key, and company: null clears the company.
+- A document party has createdAt, when it was added to the document.
+- documentMeta.preferredLanguage and templateMeta.preferredLanguage ->
+  language. Sending preferredLanguage returns 400.
+- documentMeta.reminderIntervalDays and templateMeta.reminderIntervalDays
+  are integers, not strings: 0 turns reminders off, and null uses the
+  default of 3 days.
+- Country codes are ISO 3166-1 alpha-2 everywhere: "SE", not "SWE" (party
+  country on documents, templates and forms, and GET /helpers/countries).
+  Map stored alpha-3 values.
+- PATCH /documents/{id}/parties/{partyId} on a sent document changes name,
+  email and phone of a party who hasn't signed; anything else returns
+  409 INVALID_STATE.
+- GET /documents/{id}/parties/{partyId} no longer returns "token"; use
+  signingUrl.
+- Files: GET /documents/{id}/download and
+  GET /documents/{id}/download/{fileType} are removed. Use
+  GET /documents/{id}/files/{type} (type ORIGINAL, SIGNED or JOURNAL),
+  which returns { type, url, expiresAt } (was { downloadUrl }), or
+  GET /documents/{id}/files for { data: [...] } of every ready file.
+- GET /templates/{id}/documents is removed: GET /documents?templateId={id}.
+- Reminders: POST /documents/{id}/parties/{partyId}/remind is removed. Use
+  POST /documents/{id}/reminders with { partyIds: [...], channel? } and read
+  each party's outcome from results[] (status SENT, SKIPPED or FAILED); a
+  failure no longer fails the request.
+- DELETE /documents/{id}/parties/{partyId}, DELETE /files/{id} and
+  DELETE /documents/{id}/links/{linkId} return { id, deleted: true }.
+  POST /documents/{id}/links returns the link like a list item, with
+  fromDocumentId and toDocumentId.
+- POST /files returns the file object (use "id", not "fileId") with
+  uploadUrl and key. POST /files/{id}/confirm returns the file (no
+  checksumVerified).
+- Sending for approval: see 7. APPROVALS.
+
+5. NAMES AND ENUM VALUES
+- ssn -> nationalId (parties, template parties, contacts, identity checks);
+  ssnDisplayMode -> nationalIdDisplayMode; identity.match.method SSN ->
+  NATIONAL_ID.
+- BANKID -> SE_BANKID (requiredSignature); BANKID_BEFORE_SIGNING ->
+  SE_BANKID_BEFORE_SIGNING (twoStepVerification, accessVerification).
+  Migrate stored values too.
+- customFields[].customInputId -> customFields[].customFieldId on document
+  create and update; document categories return customFieldIds.
+- signerId/signerName/signerEmail -> partyId/partyName/partyEmail
+  (signatures, reminders); originalSigner(Id)/delegateSigner(Id) ->
+  originalParty(Id)/delegateParty(Id) (delegations); respondentSignerId ->
+  respondentPartyId; PUT /forms/{id}/respondent takes { partyId }.
+- Closed enums are uppercase: member status ACTIVE/INACTIVE; login session
+  status PENDING/COMPLETED/FAILED/EXPIRED; form question kind and width,
+  slot type, publishIssues severity; document link origin;
+  documentStyle.theme bodyFont, headingFont, density, textSize; block
+  visibility; on POST /documents, integrationLink.integration HUBSPOT and
+  integrationLink.type DEAL. Document and identity check statuses spell
+  CANCELLED.
+- Custom field "options" is a string array (["Small","Large"]), not a
+  JSON-encoded string, in requests and responses.
+
+6. FIELDS
+- POST /documents/{id}/fields and POST /templates/{id}/fields take
+  { "fields": [ ... ] }, also for one field, and return the created fields
+  in "data"; read the document or template ID from each field. Issue paths
+  start with "fields.".
+- PATCH .../fields/{fieldId} takes a field ID only; the "key:" path prefix
+  is removed. PATCH /documents/{id}/fields (bulk FORM-subfield update by
+  key) is removed. To find a field by key: GET .../fields?key=KEY. PATCH and
+  the placed-fields endpoints return the field. DELETE returns
+  { id, deleted: true }. The ignored "key" property on field create and
+  update bodies is removed.
+- Fill values only with PATCH /documents/{id}/field-values
+  { values: [{ key, value }] }. The response is { results, remaining,
+  data }: the values are in "data" (was "values"), and there is no
+  top-level "success": check results[].success; results[].error is null or
+  { code: NOT_FOUND|INVALID_STATE|VALIDATION_FAILED, message, userMessage }
+  (was a Swedish string). GET /documents/{id}/field-values returns "data"
+  (was "values"), with kind FORM|PDF_ACROFORM|PDF_PLACED, filledBy
+  SENDER|SIGNER and partyId (was signerId).
+- Inside fieldMeta (requests and responses, including placed-fields
+  "upsert", POST /templates initialFields, and blocks): signerId -> partyId,
+  selectionSignerId -> selectionPartyId, visibilityRule.customInputId ->
+  visibilityRule.customFieldId; every enum is uppercase: placed box kind
+  INPUT|STATIC, inputType (SIGNATURE, ...), fillSource (SIGNER, ...),
+  style.align, FORM subfield type and its fieldMeta type (DATEPICKER, ...),
+  attachment allowedTypes, AcroForm formFields[].type, TABLE column type,
+  DURATION durationType and unit, sectionStyle background and padding. An
+  old name or a lowercase value returns 400.
+- Product tables: moms -> vat, pricing.pricesIncludeMoms -> pricesIncludeVat,
+  defaultMomsRate -> defaultVatRate, showMomsBreakdown -> showVatBreakdown
+  (also on columns), the VAT column key is "vat", summaryLabels.moms ->
+  summaryLabels.vat. In productTables on GET /documents/{id} and webhooks:
+  row moms/lineMoms -> vat/lineVat, totals momsAmount -> vatAmount,
+  selectionSignerId -> selectionPartyId. Prices stay decimal amounts.
+- An uploaded attachment in a FORM subfield's fieldMeta.value is
+  { filename, mimeType, size }.
+
+7. APPROVALS
+- POST /documents/{id}/send no longer takes approverId and never returns
+  202. When the caller needs an approval, it returns 409 APPROVAL_REQUIRED.
+  Request one with POST /approval-requests
+  { documentId, approverIds?, customMessage? } (omit approverIds to use the
+  approvers already on the document); the document is sent when approved.
+- GET /approval-requests?documentId=&approverId=&status=,
+  GET /approval-requests/{id}, POST /approval-requests/{id}/approve
+  { comment? }, /reject { comment }, /cancel. Each returns the request:
+  { id, documentId, status, autoSend, customMessage, requestedBy,
+  approvers: [{ user: { id, email, name }, stage, orGroup, status, comment,
+  resolvedAt }], createdAt, updatedAt }.
+- Removed: GET and DELETE /documents/{id}/approval,
+  POST /documents/{id}/approval/approve and /reject, GET /approvers (use
+  GET /members?permission=APPROVE_DOCUMENT, which also lists you).
+
+8. MEMBERS, ROLES AND INVITES
+- A member is { id, email, name, role: { id, name }, status, lastActiveAt,
+  joinedAt }; "id" is the user ID (was userId). POST, GET and PATCH
+  /members return it. No invited, roleId, roleName, workspaceId,
+  organizationId or addedAt.
+- POST /members { email, roleId } only adds an existing organization member
+  (404 otherwise; no sendInvite). To invite someone new:
+  POST /member-invites { email, roleId }, which returns the invitation
+  { id, email, role, status, invitedBy, createdAt, expiresAt }.
+  POST /member-invites/{id}/resend returns the invitation.
+  DELETE /members/{userId} and DELETE /member-invites/{id} return
+  { id, deleted: true }.
+- /workspace-roles -> /roles; /workspace-permissions -> /permissions;
+  DELETE /roles/{id} returns { id, deleted: true }.
+- GET /me returns "id" (was userId).
+- A user reference is { id, email, name } (invitedBy, requestedBy,
+  identity check createdBy, approvers[].user). Templates, folders and
+  blocks return createdBy (was createdById); a form returns sender (was
+  senderUserId); a file's uploadedBy has name (was firstName and
+  lastName); a reminder's triggeredBy adds id and is null for a reminder
+  sajn sent automatically.
+
+9. CONTACTS AND COMPANIES
+- GET /contacts/search is removed: GET /contacts?email=&phone=&externalId=
+  (every filter you pass must match; the search matched any one).
+- GET /companies/search is removed: GET /companies?orgNumber=&name=.
+- GET /companies/lookup?orgNr= -> GET /company-registry/{orgNumber}; read
+  basic.orgNumber (was basic.orgNr).
+- GET /companies/{id} returns the company unwrapped (no { company }) and
+  without "contacts": GET /contacts?companyId={id}. A company has createdAt
+  and updatedAt.
+- A contact has address fields (addressLine1, addressLine2, postalCode,
+  city, state, country), settable on create and update, and "company" as
+  the full company object. postalCode replaces zipCode everywhere,
+  including GET /organization. In PATCH /contacts/{id}, null clears email,
+  phone, nationalId, externalId and companyRole.
+- DELETE /contacts/{id} and DELETE /custom-fields/{id} return
+  { id, deleted: true } (were the deleted object).
+
+10. FORMS, IDENTITY CHECKS, MESSAGES AND LOGIN
+- Form "title" -> "name" (responses and PATCH /forms/{id}).
+  /forms/{id}/document, /document/fields, /document/parties ->
+  /forms/{id}/template, /template/fields, /template/parties.
+  PATCH /forms/{id}/template returns the template (was { success }).
+  POST /forms/{id}/unpublish and /rotate-token return the form (were
+  { success } and { url }). DELETE /forms/{id} returns
+  { id, deleted: true }. publishIssues[] have an English "message" and a
+  Swedish "userMessage".
+- /sajn-id -> /identity-checks. Create takes "language" (ISO 639-1 such as
+  "sv") instead of "locale", and "nationalId" instead of "ssn". A check has
+  language, createdBy { id, email, name }, and status CANCELLED (was
+  CANCELED). The create response no longer returns "token":
+  verificationUrl carries it. In a list, audits, data and verificationUrl
+  are null; get one check by ID for audits and data. An empty-string email
+  or phone returns 400; leave the field out.
+- Document chat: /documents/{id}/chat -> /documents/{id}/messages
+  (GET is a paginated list in "data"). A message's text is "body" (was
+  "content"), in responses and in POST { body, internal }.
+- Messages and comments name their author as
+  author: { type, id, name, email } (a comment had a separate
+  authorType). A comment's author is always present; id, name and email
+  are null for the AI assistant or an author who no longer exists.
+- POST /login/sessions returns the full session (same fields as GET, plus
+  loginUrl and expiresAt). In "claims", a claim your client isn't approved
+  for is null instead of missing. A session's "method" and the login.*
+  webhook "method" are SE_BANKID (was BANKID_SE); the "amr" claim keeps
+  BANKID_SE.
+
+11. MONEY AND LIMITS
+- Money is { amount, currency }, amount in minor units (öre for SEK).
+  GET /limits: balance -> { amount, currency } in the organization's
+  currency; quota.aiBudgetOre -> quota.aiBudget, remaining.aiBudgetOre ->
+  remaining.aiBudget, usage.aiSpentOre -> usage.aiSpent,
+  usage.aiSpentOreSigner -> usage.aiSpentSigner, each { amount, currency:
+  "SEK" } (an unlimited budget stays null). bankIdSignatures ->
+  signatures.SE_BANKID. Removed: aiTokens, aiTokensSigner,
+  quota.additionalBankidCost, quota.smsCost, additionalCosts.
+
+12. WEBHOOKS (only for endpoints you move to 2026-10)
+- Managing: webhookUrl -> url, eventTriggers -> events (dotted types).
+  POST /webhooks { url, events, enabled, apiVersion: "2026-10", secret? }.
+  A webhook adds status (ENABLED|DISABLED|PAUSED), pausedAt and
+  pauseReason; resume a paused one with POST /webhooks/{id}/reactivate.
+  "secret" is returned only by POST /webhooks and
+  POST /webhooks/{id}/rotate-secret (both secrets sign for 24 hours after a
+  rotation); PATCH no longer takes "secret". A secret you pass must be
+  "whsec_" + base64. DELETE /webhooks/{id} returns { id, deleted: true }
+  (was { success: true }).
+- Event types are lowercase and dotted. Mapping: DOCUMENT_X -> document.x
+  (DOCUMENT_SIGNED -> document.fully_signed; DOCUMENT_ARCHIVE_UPLOADED is
+  no longer sent, document.created with data.source covers it);
+  DOCUMENT_PARTY_X -> document.party.x; DOCUMENT_REMINDER_AUTOMATIC and
+  DOCUMENT_REMINDER_MANUAL -> document.party.reminded with data.trigger
+  AUTOMATIC|MANUAL; DOCUMENT_MODIFIED -> document.updated; ID_X ->
+  identity_check.x (ID_CANCELED -> identity_check.cancelled);
+  SECURITY_X -> security.x, except that the workspace membership events
+  drop "workspace_": SECURITY_WORKSPACE_MEMBER_REMOVED ->
+  security.member_removed, SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED ->
+  security.member_role_changed, SECURITY_WORKSPACE_ROLE_UPDATED ->
+  security.role_updated (SECURITY_WORKSPACE_RETENTION_UPDATED ->
+  security.workspace_retention_updated); CONTACT_X,
+  TEMPLATE_X, FORM_SUBMITTED, WORKSPACE_CREATED, MEMBER_ADDED, LOGIN_X ->
+  contact.x, template.x, form.submitted, workspace.created, member.added,
+  login.x. Removed: DOCUMENT_OPENED, DOCUMENT_RECREATED, WORKFLOW_* (use
+  document.party.opened and document.updated).
+- document.completed fires only after sajn seals the signed PDF, also for
+  a document completed early from the dashboard. Use document.fully_signed
+  for "every party signed".
+- Delivery body: { id, type, createdAt, apiVersion, workspaceId,
+  environment: PRODUCTION|SANDBOX, actor: { type: USER|API_KEY|OAUTH_APP|
+  SYSTEM, id } | null, data: { object, ...extras } }. It was { event,
+  payload, createdAt, webhookEndpoint, apiVersion }. "id" is the event ID
+  and "createdAt" the event time; both stay the same across retries, so
+  deduplicate on "id". GET /events and GET /events/{id} return the same
+  object. An event that no 2026-10 endpoint subscribed to when it happened
+  has no snapshot: GET /events builds its data.object from the resource's
+  current state, and leaves the event out (GET /events/{id}: 404) if the
+  resource no longer exists.
+- data.object is the resource as the REST API returns it: a document event
+  carries GET /documents/{id} without fields (was payload, or
+  payload.document on party events; "title" is now "name"); a party event
+  adds data.party (as GET /documents/{id}/parties lists it, with nested
+  company and alpha-2 country); a contact event carries GET /contacts/{id};
+  template events GET /templates/{id}; member.added GET /members/{userId}
+  with data.via (uppercase); identity_check.* the check
+  (identity_check.failed adds data.failureReason). Extras:
+  document.party.auth_failed adds method (SE_BANKID, ...) and hintCode;
+  document.party.delegated adds delegation { id, delegate, reason,
+  delegatedAt }; template.updated and document.expiration_extended have
+  previousAttributes (replacing changedFields and previousExpiresAt).
+  Security events: who acted is in "actor"; users are { id, email, name } in
+  data.object.user and data.object.member; no occurredAt. Payloads never
+  contain national identity numbers.
+- Signatures: Standard Webhooks. The headers webhook-id (the event id),
+  webhook-timestamp (unix seconds) and webhook-signature replace
+  X-Sajn-Signature, X-Sajn-Delivery and X-Sajn-Environment; X-Sajn-Secret
+  is gone. webhook-signature is a space-separated list of "v1,<base64>";
+  each is HMAC-SHA256 over "<webhook-id>.<webhook-timestamp>.<raw body>"
+  with key = base64-decode(secret without "whsec_"). Accept if any entry
+  matches (constant-time compare), and reject old timestamps (for example,
+  older than 5 minutes). Verify against the raw body, before parsing. A
+  Standard Webhooks library (npm or PyPI "standardwebhooks") does this.
+- Deliveries: GET /webhooks/{id}/deliveries lists deliveries (one event to
+  one endpoint), each with eventId, type, status SUCCESS|FAILED|PENDING and
+  attempts[] (with durationMs and headers). Filters: type (was event),
+  eventId, and status, which filters on the delivery's status instead of
+  an attempt's.
+  POST /webhooks/{id}/deliveries/{deliveryId}/retry returns the new
+  delivery. POST /events/{id}/replay is removed: retry the delivery.
+
+WHEN YOU'RE DONE
+- Update types, fixtures, mocks, tests and comments to the new shapes.
+- List every change you made, and everything you couldn't migrate with
+  certainty, such as stored data with old values (BANKID, SWE, signerId,
+  DOCUMENT_* event names) or code that assumed one response held a whole
+  list, which a person must review.
+```
+
+</Accordion>
+
+Review the changes, then run your tests against a sandbox organization with `Sajn-Version: 2026-10` before you switch production traffic.
+
+## Before you begin
+
+- An API key with access to the workspace you integrate with.
+- A test environment, such as a [sandbox](/get-started/sandbox) organization, where you can run your integration against `2026-10`.
+
+## Find what affects you
+
+Go through [What to change in your code](#what-to-change-in-your-code), and list each endpoint, field, query parameter, and webhook event your integration uses that a change affects. The [changelog](/upgrading/changelog) has the complete list.
+
+The following changes affect almost every integration:
+
+- [Lists return `data` and page by cursor](#lists-and-pagination). `page` and `perPage` return `400`.
+- [Errors have one shape](#errors), with `code` from a closed list and `userMessage` for your users.
+- [Writes return the full object](#full-objects-from-writes). `POST /api/v1/documents` returns the document with its ID in `id`.
+- [Parties nest their company](#parties-and-companies), and countries are alpha-2 codes, such as `SE`.
+- [Webhooks deliver an event](#webhooks) with a dotted `type` and the REST object in `data.object`, signed according to Standard Webhooks.
+
+## Send the new version on your requests
+
+1. In your test environment, send `Sajn-Version: 2026-10` on every request:
+
+   ```bash
+   curl https://app.sajn.se/api/v1/documents \
+     -H "Authorization: Bearer API_KEY" \
+     -H "Sajn-Version: 2026-10"
+   ```
+
+   Replace `API_KEY` with your API key.
+
+2. Update your code for each change that affects it, and run your tests against `2026-10`.
+3. Deploy the change to production.
+
+The header takes precedence over the organization default, so your organization default stays on `2026-09` and other integrations on the same organization aren't affected.
+
+If your integration is an OAuth app, a request without the header uses the app's own version, never the organization default. For more information, see [OAuth app version](/api-fundamentals/versioning#oauth-app-version).
+
+We recommend keeping the `Sajn-Version` header in your code permanently. Your integration then never depends on the organization default.
+
+## Move your webhook endpoints
+
+A webhook endpoint keeps its own version, so moving your requests doesn't change your webhook deliveries. A `2026-10` delivery has a new body and new signature headers, so your receiver needs new code for it.
+
+To move an endpoint without dropping events, run a second endpoint next to it:
+
+1. Create a second endpoint for the same URL or a new one, with `"apiVersion": "2026-10"` and the same events:
+
+   ```bash
+   curl -X POST https://app.sajn.se/api/v1/webhooks \
+     -H "Authorization: Bearer API_KEY" \
+     -H "Sajn-Version: 2026-10" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "url": "https://example.com/webhooks/sajn-2026-10",
+       "events": ["document.fully_signed", "document.completed"],
+       "enabled": true,
+       "apiVersion": "2026-10"
+     }'
+   ```
+
+   Store the `secret` from the response. Only this response and `POST /api/v1/webhooks/:id/rotate-secret` return it.
+
+2. Verify that your receiver handles the `2026-10` deliveries. Each delivery carries its version in the `Sajn-Version` header and the `apiVersion` field, so a receiver on one URL can tell the two endpoints' deliveries apart.
+3. Delete the old endpoint with `DELETE /api/v1/webhooks/{id}`.
+
+While both endpoints exist, every event is delivered twice, once per version. A `2026-09` delivery has no event `id`, so make your handler safe to run twice for one event. For example, check the document's current status before you act on it.
+
+If your receiver already accepts both the `2026-09` and the `2026-10` deliveries, you can upgrade the endpoint in place instead. Send `{"apiVersion": "2026-10"}` in a `PATCH /api/v1/webhooks/{id}` request. Every delivery after the change uses `2026-10`, including retries of earlier events. The endpoint keeps its secret, which Standard Webhooks libraries accept. To get a `whsec_` secret, call `POST /api/v1/webhooks/{id}/rotate-secret`.
+
+## Confirm nothing relies on the default
+
+1. In the [dashboard](https://app.sajn.se), go to **Inställningar > Utvecklare**.
+2. In the **API-version** section, check the **Anrop de senaste 72 timmarna** table. The **Vald via** column shows whether requests chose their version with the header (**Header**) or relied on the default (**Organisationens standard**).
+
+A request from an OAuth app without the header also shows as **Organisationens standard**, with the app's version. Switching the organization default doesn't change the version that an OAuth app uses.
+
+The table covers only the last 72 hours. If you have jobs that run less often, check the table again after they've run.
+
+If `2026-09` requests from **Organisationens standard** remain, find the integration that sends them before you continue. Either update it for `2026-10`, or make it send `Sajn-Version: 2026-09` until you do.
+
+## Switch the organization default
+
+In the **API-version** section, select `2026-10` in the version list, and then click **Byt version**. Requests without the `Sajn-Version` header use `2026-10` from then on.
+
+Switching the default doesn't change the version of existing webhook endpoints. A webhook endpoint created through the API without `apiVersion` gets the version of that request, so `Sajn-Version: 2026-10` gives a `2026-10` endpoint.
+
+## What to change in your code
+
+Each section shows a `2026-09` request or response, then the same one on `2026-10`. Examples are shortened to the fields that matter.
+
+Two rules apply to every endpoint:
+
+- Every response property is always present, and `null` when it has no value. In `2026-09`, many were left out.
+- In a `PATCH` request, a field you leave out is unchanged, and `null` clears it.
+
+### Lists and pagination
+
+Every list returns `{ data, hasMore, nextCursor }` and pages by cursor. `page` and `perPage` are removed and return `400 VALIDATION_FAILED`.
+
+In `2026-09`, each list had its own array key and page numbers:
+
+```http
+GET /api/v1/documents?page=2&perPage=50
+```
+
+```json
+{
+  "documents": [],
+  "total": 87,
+  "totalPages": 2,
+  "hasNextPage": false,
+  "nextCursor": null
+}
+```
+
+In `2026-10`, pass `limit` (1 to 100, default 25) and the previous `nextCursor` as `cursor`:
+
+```http
+GET /api/v1/documents?limit=50&cursor=NEXT_CURSOR
+```
+
+```json
+{
+  "data": [],
+  "hasMore": false,
+  "nextCursor": null
+}
+```
+
+To read every page, keep the other parameters unchanged and stop when `hasMore` is `false`:
+
+```typescript
+const listAll = async (path: string, apiKey: string) => {
+    const items = [];
+    let cursor: string | null = null;
+
+    do {
+        const url = new URL(`https://app.sajn.se/api/v1/${path}`);
+        url.searchParams.set('limit', '100');
+        if (cursor) url.searchParams.set('cursor', cursor);
+
+        const res = await fetch(url, {
+            headers: { Authorization: `Bearer ${apiKey}`, 'Sajn-Version': '2026-10' },
+        });
+        const page = await res.json();
+
+        items.push(...page.data);
+        cursor = page.hasMore ? page.nextCursor : null;
+    } while (cursor);
+
+    return items;
+};
+```
+
+Also change the following:
+
+- **`total`**: returned only when you pass `include=total`. `totalPages` is removed.
+- **Lists that returned everything**: `GET /api/v1/folders`, `/document-categories`, `/workspaces`, `/companies`, `/documents/:id/activity`, and `/documents/:id/comments` are paginated. If you read one response, read every page.
+- **Lists bounded by a parent**: a document's parties, fields, signatures, files, links, reminders, and delegations, `GET /api/v1/documents/:id/field-values`, a template's parties and fields, `/roles`, `/permissions`, and the `/helpers` lists return every item in one response, as `{ data, hasMore: false, nextCursor: null }`. They take no `limit` or `cursor`.
+- **Default order**: lists sort by `createdAt`, newest first. `GET /api/v1/documents` sorted by `updatedAt`, and `GET /api/v1/forms` and `/forms/:id/submissions` by `updatedAt` ascending. To keep an order you depend on, pass `orderBy` and `orderDirection`.
+
+#### Query strings
+
+Send query values as plain strings. In `2026-09`, the API JSON-decoded each value, so some clients quoted strings:
+
+```http
+GET /api/v1/documents?externalId=%22order-1042%22&archived=false
+```
+
+In `2026-10`, send the value as is. A quoted value matches the quotes literally:
+
+```http
+GET /api/v1/documents?externalId=order-1042&archived=false
+```
+
+The following rules apply to every query parameter:
+
+- Booleans take `true` or `false`.
+- Dates take an ISO 8601 date, such as `2026-10-01`, or a date-time, such as `2026-10-01T08:00:00Z`. A date-time without an offset is UTC.
+- Filters that take several values, such as `status` and `tagId`, take a comma-separated list (`status=PENDING,COMPLETED`) or a repeated parameter.
+- An unknown query parameter returns `400 VALIDATION_FAILED`, so a misspelled filter fails instead of returning every result.
+- A filter that references another resource ends in `Id` and takes several values: `tagId`, `templateId`, `companyId`, `roleId`, and `createdById`.
+- `ALL` is no longer a filter value. To include every value, leave the filter out.
+- To list top-level documents or templates, pass `folderId=root`.
+- Mutable resources take `createdAfter`, `createdBefore`, `updatedAfter`, and `updatedBefore`. Each includes its boundary.
+
+The following query parameters are renamed:
+
+| Endpoint | `2026-09` | `2026-10` |
+|----------|-----------|-----------|
+| `GET /api/v1/templates` | `search`, `createdBy` | `query`, `createdById` |
+| `GET /api/v1/events` | `since`, `until`, `event` | `createdAfter`, `createdBefore`, `type` |
+| `GET /api/v1/identity-checks` (was `/sajn-id`) | `dateFrom`, `dateTo` | `createdAfter`, `createdBefore` |
+| `GET /api/v1/blocks` | `scope`, `locale` | `visibility`, `language` |
+
+`GET /api/v1/identity-checks` returns every check when you leave out `createdAfter`; in `2026-09`, it returned only the last seven days. The `externalId` filter on `GET /api/v1/documents` matches the whole value, case-sensitively. For a partial match, use `query`.
+
+### Errors
+
+Every error response has the same shape, with `code` from a closed list. For every code, see [Errors](/api-fundamentals/errors).
+
+In `2026-09`, a validation error looks like the following:
+
+```json
+{
+  "message": "Invalid email address",
+  "code": "INVALID_REQUEST",
+  "issues": [{ "path": "parties.0.email", "message": "Invalid email address" }]
+}
+```
+
+In `2026-10`, the same error looks like the following:
+
+```json
+{
+  "code": "VALIDATION_FAILED",
+  "message": "Invalid email address",
+  "userMessage": "Förfrågan innehåller ogiltiga värden.",
+  "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
+  "issues": [
+    { "path": "parties.0.email", "code": "INVALID_FORMAT", "message": "Invalid email address" }
+  ]
+}
+```
+
+To update your error handling, do the following:
+
+- Branch on `code`, never on the status or `message`.
+- Show your users `userMessage`. It's always present, and usually Swedish. `message` is English text for developers.
+- Log `requestId` instead of `errorId`. It matches the `Sajn-Request-Id` response header.
+- On `404 NOT_FOUND`, read `resource` for the type of the missing resource, such as `document`. A path that matches no endpoint returns `ROUTE_NOT_FOUND`.
+- Map the old codes to the new ones:
+
+  | `2026-09` code | `2026-10` code |
+  |----------------|----------------|
+  | `INVALID_REQUEST`, `INVALID_BODY`, `VALIDATION_ERROR` | `VALIDATION_FAILED` |
+  | `FORBIDDEN` | `PERMISSION_DENIED`, `INSUFFICIENT_SCOPE`, `PLAN_REQUIRED`, or `ACCOUNT_INACTIVE` |
+  | `TOO_MANY_REQUESTS` | `RATE_LIMITED` or `DAILY_QUOTA_EXCEEDED` |
+  | `DUPLICATE_EXTERNAL_ID` | `ALREADY_EXISTS` |
+  | `EXPIRED_CODE` | `EXPIRED` |
+  | `RESPONSIBLE_PERSON_REQUIRED`, `WORKSPACE_REQUIRED` | `ACCOUNT_SETUP_REQUIRED` |
+  | A reused `Idempotency-Key` | `IDEMPOTENCY_KEY_REUSED` (`400`) or `IDEMPOTENCY_KEY_IN_USE` (`409`) |
+
+- Expect the following status changes:
+
+  | Situation | `2026-09` | `2026-10` |
+  |-----------|-----------|-----------|
+  | A valid token that isn't allowed to do something | `401` | `403 PERMISSION_DENIED` |
+  | Editing a document that isn't a draft | `400` | `409 INVALID_STATE` |
+  | Editing a locked template, its fields, or its parties | `401` or `403` | `409 INVALID_STATE` |
+  | Extending the expiration of a document that isn't `PENDING` or `EXPIRED` | `400` | `409 INVALID_STATE` |
+  | Fetching a document file that isn't produced yet | `404` | `409 INVALID_STATE` |
+  | Sending a document past the monthly limit | `400` | `403 LIMIT_EXCEEDED` |
+  | A token whose user is deactivated | `401` | `403 ACCOUNT_INACTIVE` |
+  | A failing external service | `500` | `503 UPSTREAM_UNAVAILABLE` |
+
+`401 UNAUTHORIZED` means only that the token is missing, invalid, expired, or revoked. A duplicate unique value returns `409 ALREADY_EXISTS`. Retry `503 UPSTREAM_UNAVAILABLE` with exponential backoff.
+
+### Documents and parties
+
+#### Full objects from writes
+
+Every write returns the object it changed. `POST /api/v1/documents` returns the document in the same shape as `GET /api/v1/documents/:id`. Read the document ID from `id`, and each party ID from `parties[].id`.
+
+In `2026-09`, the response is a summary:
+
+```json
+{
+  "documentId": "cm4k2x9p10001abcd1234efgh",
+  "externalId": "order-1042",
+  "parties": [{ "signerId": "cm4k2x9p10002abcd1234efgh", "name": "Alex Berg" }]
+}
+```
+
+In `2026-10`, the response is the document:
+
+```json
+{
+  "id": "cm4k2x9p10001abcd1234efgh",
+  "name": "Employment contract",
+  "status": "DRAFT",
+  "externalId": "order-1042",
+  "templateId": null,
+  "folderId": null,
+  "responsibleUserId": "cm4k2x9p10009abcd1234efgh",
+  "deletedAt": null,
+  "documentMeta": { "subject": null, "signingMode": "PARALLEL" },
+  "parties": [
+    {
+      "id": "cm4k2x9p10002abcd1234efgh",
+      "name": "Alex Berg",
+      "email": "alex@example.com",
+      "role": "SIGNER",
+      "company": null,
+      "country": "SE",
+      "signingStatus": "NOT_SIGNED",
+      "createdAt": "2026-10-01T09:00:00.000Z"
+    }
+  ],
+  "tags": [],
+  "fields": null,
+  "approvalRequestId": null
+}
+```
+
+`fields` is `null` unless you pass `expand=fields`. The following endpoints also return the document: `PATCH /api/v1/documents/:id`, `POST /api/v1/documents/:id/send`, `/withdraw`, and `/extend-expiration`, `POST /api/v1/documents/:id/tags`, and `DELETE /api/v1/documents/:id/tags/:tagId`. `DELETE /api/v1/documents/:id` returns the document with `deletedAt` set.
+
+Deleting a party, a file, a document link, a contact, a custom field, a member, an invitation, or a role returns `{ "id": "...", "deleted": true }`.
+
+Each document in `GET /api/v1/documents` includes `tags` and `parties`, with each party's `id`, `name`, `email`, `role`, `signingStatus`, and `signedAt`. You can tell who has signed without reading each document.
+
+#### Parties and companies
+
+A party nests its company in `company`, on documents and templates alike, and countries use ISO 3166-1 alpha-2 codes everywhere. The PARALLEL or SEQUENTIAL setting is `documentMeta.signingMode`, so `signingOrder` only means a party's position.
+
+In `2026-09`, a `POST /api/v1/documents` request looks like the following:
+
+```json
+{
+  "name": "Supplier agreement",
+  "documentMeta": { "signingOrder": "SEQUENTIAL" },
+  "parties": [
+    {
+      "name": "Alex Berg",
+      "email": "alex@example.com",
+      "role": "SIGNER",
+      "signingOrder": 1,
+      "companyName": "Example AB",
+      "companyOrgNumber": "5566778899",
+      "companyRole": "CEO",
+      "country": "SWE",
+      "requiredSignature": "BANKID"
+    }
+  ]
+}
+```
+
+In `2026-10`:
+
+```json
+{
+  "name": "Supplier agreement",
+  "documentMeta": { "signingMode": "SEQUENTIAL" },
+  "parties": [
+    {
+      "name": "Alex Berg",
+      "email": "alex@example.com",
+      "role": "SIGNER",
+      "signingOrder": 1,
+      "company": { "name": "Example AB", "orgNumber": "5566778899", "role": "CEO" },
+      "country": "SE",
+      "requiredSignature": "SE_BANKID"
+    }
+  ]
+}
+```
+
+A party in a response has `company` with `id`, `name`, `orgNumber`, and `role`, or `null` for a private individual. `company.id` replaces `companyId`. A request that sends `companyName`, `companyOrgNumber`, `companyRole`, or `documentMeta.signingOrder` fails with `400 VALIDATION_FAILED`. In a `PATCH` request to a party, `"company": null` clears the company.
+
+The same `company` object applies to template parties, on `POST /api/v1/templates/:id/parties`, `PATCH /api/v1/templates/:id/parties/:partyId`, and `PUT /api/v1/forms/:id/template/parties`, and in their responses.
+
+A document party has `createdAt`, the time when the party was added to the document. A template party keeps `createdAt` and `updatedAt`.
+
+On a sent document, `PATCH /api/v1/documents/:id/parties/:partyId` changes the `name`, `email`, and `phone` of a party who hasn't signed. Any other property fails with `409 INVALID_STATE`.
+
+#### Files
+
+`GET /api/v1/documents/:id/download/:fileType` is removed. In `2026-09`:
+
+```http
+GET /api/v1/documents/cm4k2x9p10001abcd1234efgh/download/SIGNED
+```
+
+```json
+{ "downloadUrl": "https://..." }
+```
+
+In `2026-10`, get one file by type (`ORIGINAL`, `SIGNED`, or `JOURNAL`):
+
+```http
+GET /api/v1/documents/cm4k2x9p10001abcd1234efgh/files/SIGNED
+```
+
+```json
+{ "type": "SIGNED", "url": "https://...", "expiresAt": "2026-10-01T13:00:00.000Z" }
+```
+
+To list every file that's ready, call `GET /api/v1/documents/:id/files`, which returns `{ data: [...] }`. A file that isn't produced yet returns `409 INVALID_STATE` instead of `404`.
+
+`POST /api/v1/files` returns the file object, the same as `GET /api/v1/files/:id`, plus `uploadUrl` and `key`. Read the ID from `id` instead of `fileId`. `POST /api/v1/files/:id/confirm` returns the file.
+
+#### Send and approval
+
+`POST /api/v1/documents/:id/send` no longer submits a document for approval. When the caller needs an approval first, it returns `409 APPROVAL_REQUIRED`, never `202`. To request an approval, see [Approvals](#approvals).
+
+#### Other document changes
+
+| `2026-09` | `2026-10` |
+|-----------|-----------|
+| `/api/v1/documents/:id/signers` endpoints | `/api/v1/documents/:id/parties` endpoints |
+| `signers` in requests and responses | `parties` |
+| Role `ACCEPTOR` | `SIGNER` |
+| `POST /api/v1/documents/:id/parties/:partyId/remind` | `POST /api/v1/documents/:id/reminders` with `{ "partyIds": [...] }`, which reports each party's outcome in `results` |
+| `GET /api/v1/templates/:id/documents` | `GET /api/v1/documents?templateId=` |
+| `token` on `GET /api/v1/documents/:id/parties/:partyId` | `signingUrl`, which carries it |
+| `ssn`, `ssnDisplayMode` | `nationalId`, `nationalIdDisplayMode` |
+| `BANKID`, `BANKID_BEFORE_SIGNING` | `SE_BANKID`, `SE_BANKID_BEFORE_SIGNING` |
+| `customFields[].customInputId` | `customFields[].customFieldId` |
+| `signerId`, `signerName`, `signerEmail` on signatures and reminders | `partyId`, `partyName`, `partyEmail` |
+| `originalSigner(Id)`, `delegateSigner(Id)` on delegations | `originalParty(Id)`, `delegateParty(Id)` |
+| `SSN` in `identity.match.method` | `NATIONAL_ID` |
+| Custom field `options` as a JSON-encoded string | A string array, such as `["Small", "Large"]` |
+| `documentMeta.preferredLanguage`, `templateMeta.preferredLanguage` | `documentMeta.language`, `templateMeta.language` |
+| `reminderIntervalDays` as a string, such as `"3"` | An integer, such as `3`. `0` turns reminders off, and `null` uses the default of 3 days. |
+| `integrationLink` with `hubspot` and `deal` on `POST /api/v1/documents` | `HUBSPOT` and `DEAL` |
+
+Closed enums are uppercase everywhere, for example member `status` (`ACTIVE`), login session `status` (`COMPLETED`), form question `kind` (`NAME`), document link `origin` (`MANUAL`), and `documentStyle.theme` fonts (`OPEN_SANS`). Document and identity check statuses spell `CANCELLED`.
+
+### Fields
+
+Fields have one write path for structure and one for values.
+
+To create fields, send `{ "fields": [...] }`, also for one field. In `2026-09`, the body could be a single field:
+
+```json
+{ "type": "TEXT", "position": 0, "fieldMeta": { "type": "TEXT", "content": "<p>Terms</p>" } }
+```
+
+In `2026-10`:
+
+```json
+{
+  "fields": [
+    { "type": "TEXT", "position": 0, "fieldMeta": { "type": "TEXT", "content": "<p>Terms</p>" } }
+  ]
+}
+```
+
+The response has the created fields in `data`, each in the shape of `GET /api/v1/documents/:id/fields/:fieldId`.
+
+To fill in a value, use `PATCH /api/v1/documents/:id/field-values`. In `2026-09`, you could address a FORM subfield by key in the field path:
+
+```http
+PATCH /api/v1/documents/cm4k2x9p10001abcd1234efgh/fields/key:customer_name
+```
+
+In `2026-10`, the field path takes an ID only, and values go through field values:
+
+```http
+PATCH /api/v1/documents/cm4k2x9p10001abcd1234efgh/field-values
+```
+
+```json
+{ "values": [{ "key": "customer_name", "value": "Example AB" }] }
+```
+
+The response reports each value. In `2026-09`, it had a top-level `success`, and an error was a Swedish string. In `2026-10`, each result has `success` and an `error` object or `null`:
+
+```json
+{
+  "results": [
+    { "key": "customer_name", "success": true, "error": null }
+  ],
+  "remaining": [],
+  "data": []
+}
+```
+
+A failed result's `error` is `{ code, message, userMessage }`, with `code` `NOT_FOUND`, `INVALID_STATE`, or `VALIDATION_FAILED`. The field values are in `data` instead of `values`.
+
+Also change the following:
+
+- **Removed**: `PATCH /api/v1/documents/:id/fields`, which updated FORM subfields by key, and the `key` property on field create and update requests. To find the field that holds a key, call `GET /api/v1/documents/:id/fields?key=KEY`.
+- **Field values list**: `GET /api/v1/documents/:id/field-values` returns `data` instead of `values`, with `partyId` instead of `signerId`, `kind` `FORM`, `PDF_ACROFORM`, or `PDF_PLACED`, and `filledBy` `SENDER` or `SIGNER`.
+- **Responses**: `PATCH` on a field and the placed-fields endpoints return the field. `DELETE` on a field returns `{ id, deleted: true }`.
+- **Names inside `fieldMeta`**: `signerId` is `partyId`, `selectionSignerId` is `selectionPartyId`, and `visibilityRule.customInputId` is `visibilityRule.customFieldId`. This includes `upsert` on the placed-fields endpoints, `initialFields` on `POST /api/v1/templates`, and blocks.
+- **Enums inside `fieldMeta`**: every value is uppercase, such as `kind` `INPUT`, `inputType` `SIGNATURE`, `fillSource` `SIGNER`, `style.align` `LEFT`, and a FORM subfield `type` such as `DATEPICKER`. A lowercase value fails with `400 VALIDATION_FAILED`.
+- **VAT in product tables**: `moms` is `vat`, and `pricesIncludeMoms`, `defaultMomsRate`, `showMomsBreakdown`, and `summaryLabels.moms` are `pricesIncludeVat`, `defaultVatRate`, `showVatBreakdown`, and `summaryLabels.vat`. In `productTables` on `GET /api/v1/documents/:id`, a row's `moms` and `lineMoms` are `vat` and `lineVat`, and `momsAmount` is `vatAmount`. Prices stay decimal amounts in the table's currency.
+
+For example, a box in a PDF field's `placedFields` in `2026-09`:
+
+```json
+{ "id": "sign-alex", "kind": "input", "inputType": "signature", "fillSource": "signer", "signerId": "cm4k2x9p10002abcd1234efgh" }
+```
+
+In `2026-10`:
+
+```json
+{ "id": "sign-alex", "kind": "INPUT", "inputType": "SIGNATURE", "fillSource": "SIGNER", "partyId": "cm4k2x9p10002abcd1234efgh" }
+```
+
+### Approvals
+
+Internal approval is its own resource. In `2026-09`, you sent the document with an approver:
+
+```http
+POST /api/v1/documents/cm4k2x9p10001abcd1234efgh/send
+```
+
+```json
+{ "approverId": "cm4k2x9p10009abcd1234efgh" }
+```
+
+The response was `202` with the document in `PENDING_APPROVAL`. In `2026-10`, request the approval:
+
+```http
+POST /api/v1/approval-requests
+```
+
+```json
+{
+  "documentId": "cm4k2x9p10001abcd1234efgh",
+  "approverIds": ["cm4k2x9p10009abcd1234efgh"]
+}
+```
+
+To use the approvers already on the document, leave out `approverIds`. The response is the request:
+
+```json
+{
+  "id": "cm4k2x9p10007abcd1234efgh",
+  "documentId": "cm4k2x9p10001abcd1234efgh",
+  "status": "PENDING",
+  "autoSend": true,
+  "customMessage": null,
+  "requestedBy": { "id": "cm4k2x9p10008abcd1234efgh", "email": "quinn@example.com", "name": "Quinn Ek" },
+  "approvers": [
+    {
+      "user": { "id": "cm4k2x9p10009abcd1234efgh", "email": "kai@example.com", "name": "Kai Lund" },
+      "stage": 1,
+      "orGroup": null,
+      "status": "PENDING",
+      "comment": null,
+      "resolvedAt": null
+    }
+  ],
+  "createdAt": "2026-10-01T09:00:00.000Z",
+  "updatedAt": "2026-10-01T09:00:00.000Z"
+}
+```
+
+The following endpoints replace the old ones. Each action returns the request:
+
+| `2026-09` | `2026-10` |
+|-----------|-----------|
+| `POST /api/v1/documents/:id/send` with `approverId` | `POST /api/v1/approval-requests` |
+| `GET /api/v1/documents/:id/approval` | `GET /api/v1/approval-requests?documentId=`, or `GET /api/v1/approval-requests/:id` |
+| `POST /api/v1/documents/:id/approval/approve` | `POST /api/v1/approval-requests/:id/approve`, with an optional `comment` |
+| `POST /api/v1/documents/:id/approval/reject` | `POST /api/v1/approval-requests/:id/reject`, with a required `comment` |
+| `DELETE /api/v1/documents/:id/approval` | `POST /api/v1/approval-requests/:id/cancel` |
+| `GET /api/v1/approvers` | `GET /api/v1/members?permission=APPROVE_DOCUMENT`, which also lists you |
+
+`GET /api/v1/approval-requests` filters by `documentId`, `approverId`, and `status`. A document has `approvalRequestId`, and the webhook events `approval_request.created`, `approval_request.approved`, `approval_request.rejected`, and `approval_request.cancelled` report changes.
+
+### Members, roles, and invites
+
+A member has one shape everywhere, with the user ID in `id`. Adding a member and inviting someone are separate endpoints.
+
+In `2026-09`, `POST /api/v1/members` with `sendInvite` invited someone new:
+
+```json
+{ "email": "kai@example.com", "roleId": "cm4k2x9p10005abcd1234efgh", "sendInvite": true }
+```
+
+The response had `userId`, `roleId`, `roleName`, `invited`, and `addedAt`. In `2026-10`, `POST /api/v1/members` only adds someone who is already in the organization, and returns `404` for any other email address. To invite someone new, call `POST /api/v1/member-invites`:
+
+```json
+{ "email": "kai@example.com", "roleId": "cm4k2x9p10005abcd1234efgh" }
+```
+
+The response is the invitation:
+
+```json
+{
+  "id": "cm4k2x9p10006abcd1234efgh",
+  "email": "kai@example.com",
+  "role": { "id": "cm4k2x9p10005abcd1234efgh", "name": "Member" },
+  "status": "PENDING",
+  "invitedBy": { "id": "cm4k2x9p10008abcd1234efgh", "email": "quinn@example.com", "name": "Quinn Ek" },
+  "createdAt": "2026-10-01T09:00:00.000Z",
+  "expiresAt": "2026-10-08T09:00:00.000Z"
+}
+```
+
+Also change the following:
+
+- **Member shape**: `POST`, `GET`, and `PATCH` on `/api/v1/members` return `{ id, email, name, role, status, lastActiveAt, joinedAt }`, where `role` is `{ id, name }` and `status` is `ACTIVE` or `INACTIVE`.
+- **Renamed endpoints**: `/api/v1/workspace-roles` is `/api/v1/roles`, and `/api/v1/workspace-permissions` is `/api/v1/permissions`.
+- **Resend**: `POST /api/v1/member-invites/:id/resend` returns the invitation instead of `{ success: true }`.
+- **`GET /api/v1/me`**: returns the user ID as `id` instead of `userId`.
+- **User references**: a user is `{ id, email, name }`, such as `invitedBy`, `requestedBy`, and an identity check's `createdBy`. The following references change shape:
+
+  | `2026-09` | `2026-10` |
+  |-----------|-----------|
+  | `createdById` on templates, folders, and blocks | `createdBy` |
+  | `senderUserId` on forms | `sender` |
+  | `uploadedBy` on files, with `firstName` and `lastName` | `uploadedBy`, with `name` |
+  | `triggeredBy` on reminders, with a null `name` and `email` for an automatic reminder | `triggeredBy` with `id`, or `null` for an automatic reminder |
+
+### Contacts and companies
+
+The search endpoints fold into the lists, where every filter you pass must match. In `2026-09`, a search matched any one filter:
+
+```http
+GET /api/v1/contacts/search?email=alex@example.com
+GET /api/v1/companies/search?orgNumber=5566778899
+GET /api/v1/companies/lookup?orgNr=5566778899
+```
+
+In `2026-10`:
+
+```http
+GET /api/v1/contacts?email=alex@example.com
+GET /api/v1/companies?orgNumber=5566778899
+GET /api/v1/company-registry/5566778899
+```
+
+`GET /api/v1/contacts` filters by `email`, `phone`, `externalId`, `companyId`, `tagId`, and `query`. `GET /api/v1/companies` filters by `orgNumber`, `name`, and `query`. The company registry returns `basic.orgNumber` instead of `basic.orgNr`.
+
+Also change the following:
+
+- **`GET /api/v1/companies/:id`**: returns the company without the `{ company }` wrapper, and without `contacts`. To list a company's contacts, call `GET /api/v1/contacts?companyId=`.
+- **Contact address**: a contact has `addressLine1`, `addressLine2`, `postalCode`, `city`, `state`, and `country`, which you can set when you create or update it. `postalCode` replaces `zipCode`, also on `GET /api/v1/organization`.
+- **Contact company**: a contact's `company` is the full company object, with `createdAt` and `updatedAt`.
+- **Clearing values**: in `PATCH /api/v1/contacts/:id`, `null` clears `email`, `phone`, `nationalId`, `externalId`, and `companyRole`.
+
+### Forms, identity checks, and messages
+
+The following resources move or rename:
+
+| `2026-09` | `2026-10` |
+|-----------|-----------|
+| `/api/v1/sajn-id` | `/api/v1/identity-checks` |
+| `locale` on an identity check, such as `sv-SE` | `language`, an ISO 639-1 code such as `sv` |
+| Identity check `status` `CANCELED` | `CANCELLED` |
+| `/api/v1/documents/:id/chat` | `/api/v1/documents/:id/messages` |
+| Form `title` | `name` |
+| `/api/v1/forms/:id/document`, `/document/fields`, `/document/parties` | `/api/v1/forms/:id/template`, `/template/fields`, `/template/parties` |
+
+For example, creating an identity check in `2026-09`:
+
+```http
+POST /api/v1/sajn-id
+```
+
+```json
+{ "fullName": "Alex Berg", "email": "alex@example.com", "channel": "EMAIL", "locale": "sv-SE", "ssn": "199001011234" }
+```
+
+In `2026-10`:
+
+```http
+POST /api/v1/identity-checks
+```
+
+```json
+{ "fullName": "Alex Berg", "email": "alex@example.com", "channel": "EMAIL", "language": "sv", "nationalId": "199001011234" }
+```
+
+Also change the following:
+
+- **Identity check token**: the create response no longer returns `token`. `verificationUrl` carries it.
+- **Identity check lists**: items have the same fields as a check you get by ID, with `audits`, `data`, and `verificationUrl` set to `null`. `createdBy` is `{ id, email, name }`.
+- **Empty contact details**: a create request that sets `email` or `phone` to an empty string fails with `400 VALIDATION_FAILED`. Leave the field out instead.
+- **Form responses**: `POST /api/v1/forms/:id/unpublish` and `/rotate-token` return the form, `PATCH /api/v1/forms/:id/template` returns the template, and `DELETE /api/v1/forms/:id` returns `{ id, deleted: true }`. `POST /api/v1/forms` returns `200` instead of `201`.
+- **Form publish issues**: `publishIssues[].message` is English, and the Swedish text is in `userMessage`.
+- **Messages and comments**: a message's text is `body` instead of `content`, in responses and in `POST /api/v1/documents/:id/messages`. Messages and comments name their author as `author: { type, id, name, email }`, instead of a comment's separate `authorType`. A comment's `author` is always present, and its `id`, `name`, and `email` are `null` for the AI assistant or an author who no longer exists.
+- **Login sessions**: `POST /api/v1/login/sessions` returns the session with the same fields as `GET /api/v1/login/sessions/:id`, plus `loginUrl` and `expiresAt`. In `claims`, a claim your client isn't approved for is `null`. A session's `method` is `SE_BANKID` instead of `BANKID_SE`, and so is `method` in `login.*` webhook events. The `amr` claim keeps `BANKID_SE`.
+
+### Money and limits
+
+Every amount of money is `{ amount, currency }`, with `amount` in the currency's minor unit, such as öre for `SEK`. In `2026-09`, `GET /api/v1/limits` looks like the following:
+
+```json
+{
+  "balance": 125000,
+  "quota": { "aiBudgetOre": 50000, "bankIdSignatures": 100, "smsCost": 0 },
+  "usage": { "aiSpentOre": 1200, "aiTokens": 1200 }
+}
+```
+
+In `2026-10`:
+
+```json
+{
+  "balance": { "amount": 125000, "currency": "SEK" },
+  "quota": { "aiBudget": { "amount": 50000, "currency": "SEK" }, "signatures": { "SE_BANKID": 100 } },
+  "usage": { "aiSpent": { "amount": 1200, "currency": "SEK" } }
+}
+```
+
+`balance` is in the organization's currency, and the AI budget fields are always in `SEK`. An unlimited AI budget is `null`. `bankIdSignatures` is `signatures.SE_BANKID`. The `aiTokens` aliases and the cost fields `quota.additionalBankidCost`, `quota.smsCost`, and `additionalCosts`, which always returned `0`, are removed.
+
+### Webhooks
+
+The following changes apply to webhook endpoints on `2026-10`. For the full event catalog, see [Events](/webhooks/events).
+
+#### Manage endpoints
+
+| `2026-09` | `2026-10` |
+|-----------|-----------|
+| `webhookUrl` | `url` |
+| `eventTriggers`, such as `DOCUMENT_SIGNED` | `events`, such as `document.fully_signed` |
+| `secret` in `PATCH /api/v1/webhooks/:id` | `POST /api/v1/webhooks/:id/rotate-secret`, which signs with both secrets for 24 hours |
+| `GET /api/v1/webhooks/:id/deliveries` lists attempts | Lists deliveries, each with its `attempts`, `eventId`, and `type` |
+| `event` filter on deliveries, and `status` on an attempt's status | `type` and `eventId` filters, and `status` on the delivery's status |
+| `DELETE /api/v1/webhooks/:id` returns `{ success: true }` | Returns `{ id, deleted: true }` |
+| `POST /api/v1/events/:id/replay` | `POST /api/v1/webhooks/:id/deliveries/:deliveryId/retry`, which returns the new delivery |
+
+A webhook has `status` (`ENABLED`, `DISABLED`, or `PAUSED`), `pausedAt`, and `pauseReason`. To resume a paused webhook, call `POST /api/v1/webhooks/:id/reactivate`. The `secret` is returned only when you create the webhook or rotate its secret. A `secret` you pass on create must be a Standard Webhooks secret: `whsec_` followed by base64.
+
+#### Event types
+
+Event types are lowercase and dotted. Most names follow from the old ones, such as `DOCUMENT_PARTY_SIGNED` to `document.party.signed` and `CONTACT_CREATED` to `contact.created`. The following change more:
+
+| `2026-09` | `2026-10` |
+|-----------|-----------|
+| `DOCUMENT_SIGNED` | `document.fully_signed` |
+| `DOCUMENT_ARCHIVE_UPLOADED` | `document.created`, with `data.source` |
+| `DOCUMENT_REMINDER_AUTOMATIC`, `DOCUMENT_REMINDER_MANUAL` | `document.party.reminded`, with `data.trigger` set to `AUTOMATIC` or `MANUAL` |
+| `ID_CREATED`, `ID_VERIFIED`, and the other `ID_*` events | `identity_check.created`, `identity_check.verified`, and the matching `identity_check.*` events |
+| `ID_CANCELED` | `identity_check.cancelled` |
+| `SECURITY_DOCUMENT_DOWNLOADED` and the other `SECURITY_*` events | `security.document_downloaded` and the matching `security.*` events |
+| `DOCUMENT_MODIFIED` | `document.updated` |
+| `SECURITY_WORKSPACE_MEMBER_REMOVED`, `SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED`, `SECURITY_WORKSPACE_ROLE_UPDATED` | `security.member_removed`, `security.member_role_changed`, `security.role_updated` |
+| `DOCUMENT_OPENED`, `DOCUMENT_RECREATED`, `WORKFLOW_*` | Removed. Use `document.party.opened` and `document.updated`. |
+
+`document.completed` means that the sealed, signed PDF is ready. It fires after sajn seals the PDF, also for a document that a member completes early in the dashboard. To act when every party has signed, before sealing, subscribe to `document.fully_signed`.
+
+#### Envelope
+
+A delivery is the event itself, the same object that `GET /api/v1/events/:id` returns. In `2026-09`, a delivery looks like the following:
+
+```json
+{
+  "event": "DOCUMENT_PARTY_SIGNED",
+  "payload": {
+    "document": { "id": "cm4k2x9p10001abcd1234efgh", "title": "Employment contract" },
+    "party": { "id": "cm4k2x9p10002abcd1234efgh", "name": "Alex Berg" }
+  },
+  "createdAt": "2026-10-01T12:00:04.512Z",
+  "webhookEndpoint": "https://example.com/webhooks/sajn",
+  "apiVersion": "2026-09"
+}
+```
+
+In `2026-10`:
+
+```json
+{
+  "id": "cm4k2x9p10003abcd1234efgh",
+  "type": "document.party.signed",
+  "createdAt": "2026-10-01T12:00:00.000Z",
+  "apiVersion": "2026-10",
+  "workspaceId": "cm4k2x9p10004abcd1234efgh",
+  "environment": "PRODUCTION",
+  "actor": null,
+  "data": {
+    "object": { "id": "cm4k2x9p10001abcd1234efgh", "name": "Employment contract", "status": "PENDING" },
+    "party": { "id": "cm4k2x9p10002abcd1234efgh", "name": "Alex Berg", "company": null, "country": "SE" }
+  }
+}
+```
+
+To update your receiver, do the following:
+
+- Switch on `type` instead of `event`.
+- Read the resource from `data.object`. It's the object the REST API returns, without `expand`: a document event carries the document as `GET /api/v1/documents/:id` returns it, and a party event adds `data.party`.
+- Deduplicate on `id`. It's the event ID, and it stays the same across retries, as does `createdAt`, which is when the event happened.
+- When you read past events from `GET /api/v1/events`, expect `data.object` to show the resource's current state for an event that no `2026-10` endpoint subscribed to when it happened. If that resource no longer exists, the list leaves the event out.
+- Read who caused the event from `actor`: `{ type, id }`, with `type` `USER`, `API_KEY`, `OAUTH_APP`, or `SYSTEM`, or `null`.
+- Read earlier values from `data.previousAttributes` on `template.updated` and `document.expiration_extended`, instead of `changedFields` and `previousExpiresAt`.
+
+For each event's `data`, see [Payloads](/webhooks/payloads).
+
+#### Signatures
+
+Deliveries are signed according to [Standard Webhooks](https://www.standardwebhooks.com). The `webhook-id`, `webhook-timestamp`, and `webhook-signature` headers replace `X-Sajn-Signature`, `X-Sajn-Delivery`, and `X-Sajn-Environment`, and `X-Sajn-Secret` isn't sent. `webhook-id` is the event `id`.
+
+To verify a delivery, use a Standard Webhooks library with your endpoint's secret, or the following code. Pass it the raw request body, before you parse it:
+
+```typescript
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
+const verifySajnWebhook = (rawBody: string, headers: Headers, secret: string) => {
+    const id = headers.get('webhook-id');
+    const timestamp = headers.get('webhook-timestamp');
+    const signatures = headers.get('webhook-signature');
+    if (!id || !timestamp || !signatures) return false;
+
+    // Reject deliveries older than five minutes.
+    if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+
+    const key = Buffer.from(secret.replace(/^whsec_/, ''), 'base64');
+    const expected = createHmac('sha256', key).update(`${id}.${timestamp}.${rawBody}`).digest();
+
+    // During a secret rotation, the header lists one signature per secret.
+    return signatures.split(' ').some((entry) => {
+        const [version, signature] = entry.split(',');
+        const received = Buffer.from(signature ?? '', 'base64');
+        return version === 'v1' && received.length === expected.length && timingSafeEqual(received, expected);
+    });
+};
+```
+
+For more information, see [Verify signatures](/webhooks/verify-signatures).

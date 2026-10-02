@@ -1,0 +1,295 @@
+---
+title: "Manage webhook endpoints"
+description: "Create, update, test, rotate, reactivate, and delete webhook endpoints in the dashboard or through the API"
+---
+
+A webhook endpoint is a URL plus the list of events it subscribes to, its API version, and its signing secret. You can manage endpoints in the dashboard under **Inställningar > Utvecklare > Webhooks**, or through the `/api/v1/webhooks` endpoints with an API key for the workspace. Both act on the same endpoints.
+
+Managing webhooks requires the **Hantera webhooks** (Manage webhooks) permission in the workspace. An OAuth app needs the `webhooks:write` scope for every webhook and event endpoint, including the read-only ones. Endpoints that an integration such as HubSpot or Slack installed don't appear in the API; the integration manages them.
+
+## Create an endpoint
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Go to **Inställningar > Utvecklare > Webhooks**.
+    2. Click **Skapa webhook** (Create webhook).
+    3. Fill in the form:
+       - **Webhook URL**: your endpoint. It must use HTTPS.
+       - **Händelser** (Events): the events to subscribe to.
+       - **API-version**: the version that sets the shape of the events. It defaults to your organization's version.
+       - **E-post vid automatisk paus** (Email on automatic pause): optional; see [Failure notifications](#failure-notifications).
+       - **Hemlighet** (Secret): leave it empty, and sajn generates one.
+    4. Click **Skapa webhook**.
+
+    Before it saves, the dashboard sends a test `POST` request to the URL. For what that request contains, see [Test webhooks locally](/webhooks/testing#dashboard-save-check).
+  </Tab>
+  <Tab title="API">
+    Send a request to [`POST /api/v1/webhooks`](/api-reference/create-a-new-webhook):
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/webhooks \
+      -H "Authorization: Bearer API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "url": "https://example.com/webhooks/sajn",
+        "events": [
+          "document.completed",
+          "document.rejected",
+          "document.party.signed"
+        ],
+        "apiVersion": "2026-10",
+        "failureNotificationEmail": "dev-alerts@example.com"
+      }'
+    ```
+
+    Replace `API_KEY` with an API key for the workspace.
+
+    The response is similar to the following:
+
+    ```json
+    {
+      "id": "cm4k2x9p10013abcd1234efgh",
+      "url": "https://example.com/webhooks/sajn",
+      "secret": "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSwJ8bHq3Xk1Ys=",
+      "enabled": true,
+      "status": "ENABLED",
+      "pausedAt": null,
+      "pauseReason": null,
+      "failureNotificationEmail": "dev-alerts@example.com",
+      "events": [
+        "document.completed",
+        "document.rejected",
+        "document.party.signed"
+      ],
+      "apiVersion": "2026-10",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+The request body takes the following fields:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `url` | Yes | The URL that receives deliveries. It must use HTTPS and resolve to a public address. |
+| `events` | Yes | One or more event types, such as `document.completed`. For the full list, see [Webhook events](/webhooks/events). |
+| `secret` | No | The signing secret, in the Standard Webhooks format: `whsec_` followed by the base64 of 24 to 64 random bytes. If you omit it, sajn generates one. |
+| `enabled` | No | Whether sajn delivers to the endpoint. Default: `true`. |
+| `apiVersion` | No | The API version that sets the shape of the events, such as `2026-10`. Default: the API version of the request that creates the endpoint. A version past its sunset date can't be selected. |
+| `failureNotificationEmail` | No | The address that sajn emails when it pauses the endpoint. Default: `null`. |
+
+sajn checks the URL before it saves the endpoint. It rejects a URL that doesn't use HTTPS, a host that resolves to a private, loopback, or link-local address, and a URL that answers a `GET` request with a `2xx` HTML page, which usually means that a website was entered instead of a receiver. An endpoint that isn't deployed yet passes the check.
+
+### Store the secret
+
+sajn returns `secret` only when you create the endpoint and when you [rotate it](#rotate-the-signing-secret). No other response contains it. Store it when you get it; if you lose it, rotate it.
+
+### Pin the API version
+
+Each endpoint keeps its own `apiVersion`, which sets the shape of the event body and of `data`. The endpoint keeps it when your organization's default version changes, so you can upgrade your API calls and your webhook receivers separately. To move an endpoint to a newer version, update your handler for the new shapes first, then set `apiVersion`:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/webhooks/cm4k2x9p10013abcd1234efgh \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{"apiVersion": "2026-10"}'
+```
+
+Every delivery after the change uses the new version, including retries of events that happened before it. An endpoint that you move from `2026-09` keeps its secret, which the Standard Webhooks signature uses as is. We recommend that you [rotate the secret](#rotate-the-signing-secret) afterward, so that the endpoint gets a `whsec_` secret that every Standard Webhooks library accepts. For the version lifecycle, see [API versioning](/api-fundamentals/versioning).
+
+## List and get endpoints
+
+To list the workspace's endpoints, newest first, call [`GET /api/v1/webhooks`](/api-reference/list-all-webhooks):
+
+```bash
+curl "https://app.sajn.se/api/v1/webhooks?limit=10" \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+The response is similar to the following:
+
+```json
+{
+  "data": [
+    {
+      "id": "cm4k2x9p10013abcd1234efgh",
+      "url": "https://example.com/webhooks/sajn",
+      "enabled": true,
+      "status": "ENABLED",
+      "pausedAt": null,
+      "pauseReason": null,
+      "failureNotificationEmail": "dev-alerts@example.com",
+      "events": ["document.completed", "document.rejected", "document.party.signed"],
+      "apiVersion": "2026-10",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
+    }
+  ],
+  "hasMore": false,
+  "nextCursor": null
+}
+```
+
+To get the next page, pass `nextCursor` as `cursor`; for more information, see [Pagination](/api-fundamentals/pagination). To get one endpoint, call [`GET /api/v1/webhooks/{id}`](/api-reference/get-a-webhook-by-id).
+
+An endpoint's `status` is one of the following:
+
+- `ENABLED`: sajn delivers to it.
+- `DISABLED`: you [turned it off](#turn-an-endpoint-off), and `enabled` is `false`.
+- `PAUSED`: sajn [paused it](/webhooks/delivery-and-retries#automatic-pausing) because it kept failing or answered `410 Gone`. `pausedAt` and `pauseReason` say when and why.
+
+## Update an endpoint
+
+To change an endpoint, send only the fields you want to change to [`PATCH /api/v1/webhooks/{id}`](/api-reference/update-a-webhook). An omitted field keeps its value. In the dashboard, select **Redigera** (Edit) from the endpoint's row menu.
+
+`events` replaces the whole list, so send every event that you want to keep:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/webhooks/cm4k2x9p10013abcd1234efgh \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "events": [
+      "document.completed",
+      "document.rejected",
+      "document.party.signed",
+      "contact.created"
+    ]
+  }'
+```
+
+To move the endpoint to a new URL, send `url`. sajn runs the same checks as on create, except that an endpoint already stored with an `http://` URL can keep using HTTP. `PATCH` doesn't take `secret`; to replace the secret, [rotate it](#rotate-the-signing-secret).
+
+### Turn an endpoint off
+
+To stop deliveries without deleting the endpoint, set `enabled` to `false`:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/webhooks/cm4k2x9p10013abcd1234efgh \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
+```
+
+sajn doesn't queue events for a turned-off endpoint. When you turn it back on, deliveries start with the next event. To catch up on what it missed, see [Replay and reconcile events](/webhooks/replay-and-reconcile).
+
+This is different from an [automatic pause](/webhooks/delivery-and-retries#automatic-pausing), which sajn applies to an endpoint that keeps failing. `enabled` doesn't lift a pause; [reactivate](#reactivate-a-paused-endpoint) the endpoint instead.
+
+## Rotate the signing secret
+
+To replace the secret, for example after it leaked or when you lost it, call [`POST /api/v1/webhooks/{id}/rotate-secret`](/api-reference/rotate-a-webhooks-signing-secret):
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/webhooks/cm4k2x9p10013abcd1234efgh/rotate-secret \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+sajn generates a new `whsec_` secret and returns the webhook with it in `secret`. Store it: no other response returns it.
+
+For 24 hours after the rotation, every delivery carries two signatures in `webhook-signature`, one with the new secret and one with the old one, so you can rotate without rejecting deliveries:
+
+1. Call `rotate-secret` and store the new secret.
+2. Deploy the new secret to your receiver within 24 hours. A receiver that checks every signature in the header, as the Standard Webhooks libraries do, accepts deliveries with either secret.
+3. After 24 hours, sajn signs with the new secret only.
+
+If the old secret leaked, deploy the new one right away; the old secret keeps producing a valid signature for the 24 hours.
+
+<Note>
+  An endpoint on API version `2026-09` gets one `X-Sajn-Signature` signature, with the current secret only, so it has no overlap. Make the receiver accept either secret before you rotate.
+</Note>
+
+## Send a test event
+
+To check that your endpoint receives and verifies deliveries, call [`POST /api/v1/webhooks/{id}/test`](/api-reference/send-a-test-event-to-a-webhook):
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/webhooks/cm4k2x9p10013abcd1234efgh/test \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+sajn sends a `webhook.test` event to this endpoint only, signed and retried like any other event, and returns the delivery with `status: PENDING`. `data.object` is the webhook's `id` and `url`. To see the outcome, pass the delivery's `id` to [`GET /api/v1/webhooks/{id}/deliveries/{deliveryId}`](/api-reference/get-a-single-webhook-delivery). The test event doesn't appear in `GET /api/v1/events`. A disabled or paused endpoint returns `409 INVALID_STATE`.
+
+## Reactivate a paused endpoint
+
+When sajn [pauses an endpoint](/webhooks/delivery-and-retries#automatic-pausing), fix the endpoint first, then reactivate it.
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Go to **Inställningar > Utvecklare > Webhooks**.
+    2. If the URL was wrong, select **Redigera** from the endpoint's row menu, correct **Webhook URL**, and click **Spara**.
+    3. In the endpoint's **Status** column, click **Testa och återaktivera** (Test and reactivate).
+
+    sajn resends the most recent failed delivery from the last 7 days. If your endpoint returns a `2xx` status code, sajn reactivates the endpoint. If it fails, the endpoint stays paused and the dashboard shows the status code. If there's no failed delivery to test with, select **Återaktivera utan test** (Reactivate without testing) from the row menu instead.
+  </Tab>
+  <Tab title="API">
+    Call [`POST /api/v1/webhooks/{id}/reactivate`](/api-reference/reactivate-a-paused-webhook):
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/webhooks/cm4k2x9p10013abcd1234efgh/reactivate \
+      -H "Authorization: Bearer API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    sajn reactivates the endpoint without a test delivery and returns the webhook with `status: ENABLED`. To check the endpoint first, [send a test event](#send-a-test-event) after you reactivate it. A webhook that isn't paused, or that's disabled, returns `409 INVALID_STATE`; to turn on a disabled webhook, set `enabled` to `true`.
+  </Tab>
+</Tabs>
+
+Reactivating doesn't resend the events from the pause. To deliver them, [retry each delivery](/webhooks/replay-and-reconcile#retry-a-delivery) or [reconcile from the events API](/webhooks/replay-and-reconcile#reconcile-on-a-schedule).
+
+## Delete an endpoint
+
+To delete an endpoint, call [`DELETE /api/v1/webhooks/{id}`](/api-reference/delete-a-webhook), or select **Ta bort** (Delete) from its row menu in the dashboard:
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/webhooks/cm4k2x9p10013abcd1234efgh \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+The response is `{ "id": "cm4k2x9p10013abcd1234efgh", "deleted": true }`. Deleting is permanent and also deletes the endpoint's delivery log. Deliveries that are still queued are dropped. To stop deliveries for a while, [turn the endpoint off](#turn-an-endpoint-off) instead.
+
+## Failure notifications
+
+sajn notifies you when it [pauses an endpoint](/webhooks/delivery-and-retries#automatic-pausing), not on every failed delivery:
+
+- An email goes to the endpoint's `failureNotificationEmail`. If it's empty, the email goes to the organization owner, if the owner's notification settings allow it.
+- An in-app notification goes to the workspace members who can manage webhooks, and to the organization owner, if they turned on webhook failure notifications.
+
+To see individual failures before an endpoint is paused, watch the delivery log or the [deliveries endpoint](/api-reference/list-webhook-deliveries).
+
+## Use one endpoint per environment
+
+Production and sandbox are separate organizations with separate API keys, so they have separate endpoints. Create one in each, with its own secret:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/webhooks \
+  -H "Authorization: Bearer SANDBOX_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://staging.example.com/webhooks/sajn",
+    "events": ["document.fully_signed", "document.completed"]
+  }'
+```
+
+Replace `SANDBOX_API_KEY` with an API key from your [sandbox](/get-started/sandbox). If both environments post to the same URL, keep a secret for each and accept a delivery that verifies with either. Then branch on the event's `environment`, which is `SANDBOX` or `PRODUCTION`.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Webhook events" icon="list" href="/webhooks/events">
+    Choose which events to subscribe to.
+  </Card>
+  <Card title="Delivery and retries" icon="rotate" href="/webhooks/delivery-and-retries">
+    Retries, timeouts, and automatic pausing.
+  </Card>
+</CardGroup>

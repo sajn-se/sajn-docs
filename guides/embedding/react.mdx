@@ -1,0 +1,345 @@
+---
+title: "Embed signing with React"
+description: "Embed the signing page in a React or Next.js app with the @sajn/embed-react component"
+---
+
+In this guide, you embed the sajn signing page in a React app with the `@sajn/embed-react` package. The `@sajn/embed-react` package provides a React component for embedding the signing experience.
+
+## Before you begin
+
+- Turn on embedding for your organization and add your domain to the allowlist. For more information, see [Embedded signing](/guides/embedding/overview#turn-on-embedding).
+- On your server, create the document and read the party's token from the `signingUrl` that `GET /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` returns. For the steps, see [Embed the signing page](/guides/embedding/overview#embed-the-signing-page). Never call the sajn API from the browser, because the request needs your API key.
+
+## Demo
+
+- [Live Demo](https://sajn-embedding-demo.vercel.app/)
+- [Demo Source Code](https://github.com/sajn-se/sajn-embedding-demo)
+
+## Requirements
+
+- React 18.0+ or React 19.0+
+
+## Installation
+
+```bash
+npm install @sajn/embed-react
+```
+
+## Component
+
+### Import
+
+```tsx
+import { EmbedSignDocument } from '@sajn/embed-react';
+```
+
+### Props
+
+```typescript
+type EmbedSignDocumentProps = {
+  // Required
+  token: string;
+  documentId: string;
+
+  // Optional styling
+  className?: string;
+  cssVars?: CssVars & Record<string, string>;
+
+  // Configuration
+  host?: string;  // Default: 'https://app.sajn.se'
+  language?: 'sv' | 'en' | 'no' | 'da' | 'fi' | 'de' | 'is' | 'es' | 'fr' | 'it';
+  allowDocumentRejection?: boolean;
+  showScrollIndicator?: boolean;  // Default: true
+  signatureInputModes?: ('draw' | 'type' | 'upload')[];  // Default: all
+  showDocumentId?: boolean;  // Default: true
+  additionalProps?: Record<string, string | number | boolean>;
+
+  // Callbacks
+  onDocumentReady?: () => void;
+  onSignerCompleted?: (data: SignerCompletedData) => void;
+  onVariablesSubmitted?: (data: VariablesSubmittedData) => void;
+  onSignerRejected?: (data: SignerRejectedData) => void;
+  onDocumentError?: (data: { code: string; message: string }) => void;
+}
+```
+
+### Basic example
+
+```tsx
+import { EmbedSignDocument } from '@sajn/embed-react';
+
+export function SigningPage({ documentId, token }) {
+  return (
+    <div style={{ width: '100%', height: '100vh' }}>
+      <EmbedSignDocument
+        documentId={documentId}
+        token={token}
+        onSignerCompleted={(data) => {
+          console.log('Document signed!', data);
+        }}
+      />
+    </div>
+  );
+}
+```
+
+### Example with every prop
+
+```tsx
+import { EmbedSignDocument } from '@sajn/embed-react';
+import type { SignerCompletedData, SignerRejectedData } from '@sajn/embed-react';
+
+export function SigningPage({ documentId, token }: { documentId: string; token: string }) {
+  const handleReady = () => {
+    console.log('Signing interface loaded');
+  };
+
+  const handleComplete = (data: SignerCompletedData) => {
+    if (data.failed) {
+      console.error('Signing failed:', data.failed);
+      return;
+    }
+    console.log('Document signed successfully!');
+    // Redirect to success page
+  };
+
+  const handleRejected = (data: SignerRejectedData) => {
+    console.log('Document rejected:', data.reason);
+    // Handle rejection
+  };
+
+  const handleError = (error: { code: string; message: string }) => {
+    console.error('Error:', error.code, error.message);
+    // Show error UI
+  };
+
+  return (
+    <div className="signing-container">
+      <EmbedSignDocument
+        documentId={documentId}
+        token={token}
+        className="signing-iframe"
+        cssVars={{
+          primary: '#2563eb',
+          background: '#ffffff',
+          foreground: '#1f2937',
+          mutedForeground: '#6b7280',
+        }}
+        allowDocumentRejection={true}
+        onDocumentReady={handleReady}
+        onSignerCompleted={handleComplete}
+        onSignerRejected={handleRejected}
+        onDocumentError={handleError}
+      />
+    </div>
+  );
+}
+```
+
+## TypeScript types
+
+The package exports all types:
+
+```typescript
+import type {
+  EmbedSignDocumentProps,
+  EmbedViewDocumentProps,
+  SignerCompletedData,
+  SignerRejectedData,
+  SignatureInputMode,
+  Language,
+  CssVars,
+} from '@sajn/embed-react';
+```
+
+### SignerCompletedData
+
+```typescript
+interface SignerCompletedData {
+  token: string;
+  documentId: string;
+  signerId: string;
+  failed?: string;  // Present if signing failed
+}
+```
+
+### SignerRejectedData
+
+```typescript
+interface SignerRejectedData {
+  token: string;
+  documentId: string;
+  signerId: string;
+  reason: string;
+}
+```
+
+### CssVars
+
+```typescript
+type CssVars = {
+  background?: string;
+  primary?: string;
+  foreground?: string;
+  mutedForeground?: string;
+}
+```
+
+## Next.js
+
+The component is marked with `"use client"`. In the App Router, get the token in a server component and pass it to a client component that renders the embed:
+
+```tsx
+// app/sign/[id]/page.tsx
+import { SigningFrame } from "./signing-frame";
+
+export default async function SignPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  // Replace with your own server-side lookup of the party's token.
+  const token = await getSigningToken(id);
+
+  return (
+    <main style={{ height: "100vh" }}>
+      <SigningFrame documentId={id} token={token} />
+    </main>
+  );
+}
+```
+
+```tsx
+// app/sign/[id]/signing-frame.tsx
+"use client";
+
+import { useRouter } from "next/navigation";
+import { EmbedSignDocument } from "@sajn/embed-react";
+
+export function SigningFrame({ documentId, token }: { documentId: string; token: string }) {
+  const router = useRouter();
+
+  return (
+    <EmbedSignDocument
+      documentId={documentId}
+      token={token}
+      onSignerCompleted={() => router.push("/signed")}
+    />
+  );
+}
+```
+
+<Note>
+  If you're using the Pages Router, the component works without any additional configuration.
+</Note>
+
+## Styling
+
+The component renders an iframe that fills its container. Set dimensions on the parent element:
+
+```css
+.signing-container {
+  width: 100%;
+  height: 600px;
+  /* or */
+  height: 100vh;
+}
+```
+
+The iframe has no border by default and is set to `width: 100%` and `height: 100%`.
+
+## View a signed document
+
+The package also includes `EmbedViewDocument` for displaying signed documents in read-only mode.
+
+### Import
+
+```tsx
+import { EmbedViewDocument } from '@sajn/embed-react';
+```
+
+### Props
+
+```typescript
+type EmbedViewDocumentProps = {
+  // Required
+  token: string;
+  documentId: string;
+
+  // Optional styling
+  className?: string;
+  cssVars?: CssVars & Record<string, string>;
+
+  // Configuration
+  host?: string;  // Default: 'https://app.sajn.se'
+  language?: 'sv' | 'en' | 'no' | 'da' | 'fi' | 'de' | 'is' | 'es' | 'fr' | 'it';
+  showScrollIndicator?: boolean;  // Default: true
+  additionalProps?: Record<string, string | number | boolean>;
+
+  // Callbacks
+  onDocumentReady?: () => void;
+  onDocumentError?: (data: { code: string; message: string }) => void;
+}
+```
+
+### Basic example
+
+```tsx
+import { EmbedViewDocument } from '@sajn/embed-react';
+
+export function ViewPage({ documentId, token }) {
+  return (
+    <div style={{ width: '100%', height: '100vh' }}>
+      <EmbedViewDocument
+        documentId={documentId}
+        token={token}
+        onDocumentReady={() => {
+          console.log('Document loaded');
+        }}
+      />
+    </div>
+  );
+}
+```
+
+### Example with every prop
+
+```tsx
+import { EmbedViewDocument } from '@sajn/embed-react';
+
+export function ViewPage({ documentId, token }: { documentId: string; token: string }) {
+  const handleReady = () => {
+    console.log('Document viewer loaded');
+  };
+
+  const handleError = (error: { code: string; message: string }) => {
+    console.error('Error:', error.code, error.message);
+  };
+
+  return (
+    <div className="viewer-container">
+      <EmbedViewDocument
+        documentId={documentId}
+        token={token}
+        className="viewer-iframe"
+        cssVars={{
+          primary: '#2563eb',
+          background: '#ffffff',
+          foreground: '#1f2937',
+          mutedForeground: '#6b7280',
+        }}
+        onDocumentReady={handleReady}
+        onDocumentError={handleError}
+      />
+    </div>
+  );
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Embedded signing" icon="window" href="/guides/embedding/overview">
+    See the shared options, events, and security model.
+  </Card>
+  <Card title="Embed signing in your app" icon="code" href="/guides/recipes/embed-signing">
+    Run the whole flow from server to iframe.
+  </Card>
+</CardGroup>

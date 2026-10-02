@@ -1,0 +1,195 @@
+---
+title: "CRM field integration"
+description: "Fill documents from CRM records, keep the values in sync until sending, and write the signing status back to the CRM"
+---
+
+In this guide, you connect documents to records in your CRM. You fill a document from a CRM deal, update the values while the deal changes, and write the signing status back to the deal when the document is signed.
+
+sajn offers two ways to do this:
+
+- For HubSpot, use the built-in integration: send `integrationLink` when you create the document, and sajn prefills mapped custom fields and product tables from the deal and writes the signing status back to it.
+- For any other CRM, map CRM properties to the keys of the template's form fields, and fill them in through the API.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Create a template whose FORM fields have keys that match your CRM properties, such as `customer-name` and `contract-value`. For more information, see [Create documents from templates](/guides/templates/templates-and-forms).
+- For HubSpot, connect HubSpot and configure the field mapping in the sajn app under **Integrationer** (Integrations).
+
+## Use the HubSpot integration
+
+Send `integrationLink` with the deal's ID when you create the document:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Service agreement - Example AB",
+    "templateId": "TEMPLATE_ID",
+    "integrationLink": { "integration": "HUBSPOT", "type": "DEAL", "id": "HUBSPOT_DEAL_ID" }
+  }'
+```
+
+Replace `HUBSPOT_DEAL_ID` with the HubSpot deal ID. sajn prefills the custom fields and product-table rows that the workspace's field mapping covers, and writes the signing status back to the deal. Values you send in `customFields` take precedence over prefilled ones. `hubspot` deals are the only supported record type.
+
+## Connect another CRM
+
+<Steps>
+  <Step title="Create the document and link it to the record">
+    Create the document from the template, with the CRM record's ID in `externalId`:
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST https://app.sajn.se/api/v1/documents \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Service agreement - Example AB",
+        "templateId": "TEMPLATE_ID",
+        "externalId": "deal-12345"
+      }'
+    ```
+
+    ```javascript Node.js
+    const response = await fetch("https://app.sajn.se/api/v1/documents", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+        "Sajn-Version": "2026-10",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Service agreement - Example AB",
+        templateId: "TEMPLATE_ID",
+        externalId: "deal-12345",
+      }),
+    });
+    const document = await response.json();
+    // Store document.id on the CRM deal.
+    console.log(document.id);
+    ```
+
+    ```python Python
+    import os
+
+    import requests
+
+    response = requests.post(
+        "https://app.sajn.se/api/v1/documents",
+        headers={
+            "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
+            "Sajn-Version": "2026-10",
+        },
+        json={
+            "name": "Service agreement - Example AB",
+            "templateId": "TEMPLATE_ID",
+            "externalId": "deal-12345",
+        },
+    )
+    response.raise_for_status()
+    # Store the document ID on the CRM deal.
+    print(response.json()["id"])
+    ```
+
+    </CodeGroup>
+
+    Store the document `id` on the CRM record. With `externalId`, you can also find the document from the record: `GET /api/v1/documents?externalId=deal-12345` matches the value exactly.
+  </Step>
+
+  <Step title="Map CRM properties to field keys">
+    Keep the mapping in your code, from CRM property to field key. Keys stay the same for every document created from the template, and they survive edits to the text around the fields:
+
+    ```javascript
+    const fieldMapping = {
+      customerName: "customer-name",
+      customerEmail: "customer-email",
+      contractValue: "contract-value",
+      startDate: "start-date",
+    };
+    ```
+
+    To list the keys on a document, call `GET /api/v1/documents/DOCUMENT_ID/field-values`.
+  </Step>
+
+  <Step title="Write the values, and rewrite them when the deal changes">
+    Send every value in one request. Call the same code whenever the deal changes before the document is sent:
+
+    ```javascript
+    const syncDealToDocument = async (documentId, deal) => {
+      const values = Object.entries(fieldMapping)
+        .filter(([property]) => deal[property] != null)
+        .map(([property, key]) => ({ key, value: String(deal[property]) }));
+
+      const response = await fetch(
+        `https://app.sajn.se/api/v1/documents/${documentId}/field-values`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+            "Sajn-Version": "2026-10",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ values }),
+        },
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        // Branch on result.code; INVALID_STATE means the document is no longer a draft.
+        throw new Error(`${result.code}: ${result.message} (request ${result.requestId})`);
+      }
+
+      for (const failed of result.results.filter((r) => !r.success)) {
+        console.warn(`Couldn't write ${failed.key}: ${failed.error.code} ${failed.error.message}`);
+      }
+      return result.remaining;
+    };
+    ```
+
+    The function returns `remaining`, the required values that are still empty. Values can change only while the document is a `DRAFT`, so stop syncing after you send it.
+
+    The keys address form values. To replace a whole text section, such as the terms, update that `TEXT` or `HTML` field by its `id` with `PATCH /api/v1/documents/DOCUMENT_ID/fields/FIELD_ID`. Find the ID in `GET /api/v1/documents/DOCUMENT_ID/fields`.
+  </Step>
+
+  <Step title="Write the signing status back to the CRM">
+    Subscribe a webhook endpoint to `document.completed`, and the party events you want to show in the CRM, such as `document.party.signed`. The event's `data.object` is the document, so find the deal by its `externalId`:
+
+    ```javascript
+    // Inside your webhook handler, after you verify the signature.
+    const document = event.data.object;
+    if (event.type === "document.completed") {
+      await crm.updateDeal(document.externalId, { contractStatus: "signed" });
+    }
+    if (event.type === "document.party.signed") {
+      await crm.addNote(document.externalId, `${event.data.party.name} signed`);
+    }
+    ```
+
+    `crm` stands for your CRM's client. `document.completed` fires after the signed PDF is ready. To verify the signature, see [Verify webhook signatures](/webhooks/verify-signatures). For a complete flow, see [Send a contract from your CRM](/guides/recipes/crm-contract-notifications).
+  </Step>
+</Steps>
+
+## Handle errors
+
+- `results[].success: false` from `field-values`: the key doesn't exist on the document, or the value doesn't match the field's type or options. Read `error.code` and `error.message`; the other values are written.
+- `409 INVALID_STATE`: the document isn't a `DRAFT`. Stop syncing values to a sent document.
+- Empty custom fields after creating with `integrationLink`: the prefill failed, for example because HubSpot isn't connected or the deal doesn't exist. A failed prefill doesn't block creating the document, so check the values before you send it.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Send a contract from your CRM" icon="paper-plane" href="/guides/recipes/crm-contract-notifications">
+    Run the whole flow from deal to signed PDF.
+  </Card>
+  <Card title="Custom fields" icon="input-text" href="/guides/fields/custom-fields">
+    Store CRM values as document metadata.
+  </Card>
+  <Card title="Sync documents" icon="arrows-rotate" href="/guides/integrations/syncing-documents">
+    Mirror documents into your system.
+  </Card>
+</CardGroup>

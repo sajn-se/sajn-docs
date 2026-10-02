@@ -1,125 +1,68 @@
 ---
-title: Organizations
-description: 'Your account structure in sajn'
+title: "Organizations"
+description: "The top-level account that owns billing, members, and every workspace"
 ---
 
-# Organizations
+An **organization** is your company's sajn account. It holds the subscription, the members, and one or more [workspaces](/concepts/workspaces). The workspaces hold the actual work: documents, templates, contacts, webhooks, and API keys.
 
-An organization is your top-level account in sajn. It represents your company or entity and contains everything you do in sajn.
-
-## Organizations vs Workspaces
-
-Understanding the hierarchy is simple:
-
-```
-Organization (your company)
-├── Workspace A (e.g., Sales)
-│   ├── Documents
-│   ├── Contacts
-│   └── Templates
-├── Workspace B (e.g., HR)
-│   ├── Documents
-│   ├── Contacts
-│   └── Templates
-└── Workspace C (e.g., Legal)
-    ├── Documents
-    ├── Contacts
-    └── Templates
+```mermaid
+flowchart TD
+    org["Organization: Example AB<br/>billing, members, API version"]
+    org --> sales["Workspace: Sales"]
+    org --> hr["Workspace: HR"]
+    org --> sandbox["Sandbox organization<br/>linked, for testing"]
+    sales --> s1["Documents, templates, forms"]
+    sales --> s2["Contacts and companies"]
+    sales --> s3["API keys and webhooks"]
+    hr --> h1["Documents, templates, forms"]
+    hr --> h2["Contacts and companies"]
+    hr --> h3["API keys and webhooks"]
 ```
 
-<CardGroup cols={2}>
-  <Card title="Organization" icon="building">
-    **Your company account**
+## What belongs to the organization
 
-    - One per company
-    - Contains all workspaces
-    - Manages billing and subscription
-    - Controls organization-wide settings
-    - Manages team members
-  </Card>
-  <Card title="Workspace" icon="folder">
-    **A project or department**
+The organization owns what applies to the whole company:
 
-    - Multiple per organization
-    - Contains documents and contacts
-    - Has its own templates and tags
-    - Separate API tokens
-    - Isolated data
-  </Card>
-</CardGroup>
+- **Subscription and billing.** The plan, its quotas, and usage. Read them with [`GET /limits`](/api-reference/get-plan-limits-and-usage).
+- **Members.** People are members of the organization, and get access to individual workspaces.
+- **Organization roles.** Permission sets for organization-wide tasks, such as managing billing or OAuth apps.
+- **Single sign-on**, for organizations that sign in through their own identity provider.
+- **The organization audit log**, which records security-relevant actions such as API key changes.
+- **The default API version.** Every workspace and API key in the organization shares it. For more information, see [API versioning](/api-fundamentals/versioning).
+- **Sandboxes.** Each [sandbox](/get-started/sandbox) is a separate organization linked to yours.
 
-## What Belongs Where?
+Everything else, including every document, belongs to a workspace. For the full list, see [Workspaces](/concepts/workspaces#what-belongs-to-a-workspace).
 
-| Organization Level | Workspace Level |
-|-------------------|-----------------|
-| Team members | Documents |
-| Billing & subscription | Contacts |
-| Organization name & branding | Templates |
-| SSO settings | Tags |
-| Audit logs | Files |
-| | Webhooks |
-| | API tokens |
+## Members and roles
 
-<Note>
-  Team members are invited at the organization level, then given access to specific workspaces.
-</Note>
+A person joins the organization once, and then gets access to workspaces. Two kinds of role control what they can do:
 
-## How It Works in Practice
+| Role | Scope | Controls |
+|------|-------|----------|
+| Organization role | The whole organization | Organization-wide tasks, such as billing and OAuth apps |
+| Workspace role | One workspace | What the member can do with that workspace's documents, templates, contacts, and settings |
 
-### Example: Marketing Agency
+A member can have a different workspace role in each workspace. Every workspace has five built-in roles: **Läsare**, **Medarbetare**, **Säljare**, **Godkännare**, and **Avdelningsansvarig**. They range from **Läsare**, with the fewest permissions, to **Avdelningsansvarig**, with the most. You can also create custom roles. For more information, see [Workspaces](/concepts/workspaces#members-and-roles).
 
-A marketing agency called "Creative Co" might set up sajn like this:
+## Organizations in the API
 
-**Organization:** Creative Co
-- **Workspace:** Client A — contracts and NDAs for Client A
-- **Workspace:** Client B — agreements for Client B
-- **Workspace:** Internal — employee contracts and policies
+An API key or OAuth token always acts in one workspace, so you rarely work with the organization directly. To read the organization a key belongs to, call [`GET /me`](/api-reference/get-authenticated-user-+-workspace-context): the response has an `organization` object with its `id` and `name`.
 
-Each client's documents stay separate, but the agency manages billing and team members in one place.
+To read the organization's details, such as its address, `language`, and `currency`, call [`GET /organization`](/api-reference/get-the-authenticated-organization).
 
-### Example: Growing Startup
+Every webhook event carries `workspaceId`, so an endpoint that receives events from several workspaces or organizations can tell them apart.
 
-A startup might start simple and grow:
+## When you need more than one organization
 
-1. **Day 1:** One organization, one workspace (default)
-2. **Month 6:** Add a "Sales" workspace for customer contracts
-3. **Year 1:** Add "HR" workspace for employee documents
+Most companies need one organization with several workspaces. Create a separate organization only for a separate legal entity with its own billing. For testing, use a [sandbox](/get-started/sandbox) instead.
 
-## Managing Your Organization
-
-### Organization Settings
-
-Access organization settings to:
-- Update company name and branding
-- Manage subscription and billing
-- View organization-wide audit logs
-- Configure SSO (Enterprise plans)
-
-### Team Members
-
-Invite team members at the organization level, then assign them to workspaces:
-
-| Role | Description |
-|------|-------------|
-| **Owner** | Full access to everything, including billing |
-| **Admin** | Can manage workspaces and members |
-| **Member** | Access to assigned workspaces only |
-
-## One Organization, Multiple Workspaces
-
-Most companies need just **one organization** with **multiple workspaces**:
-
-<Tip>
-  You only need multiple organizations if you're managing completely separate legal entities with separate billing.
-</Tip>
-
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
   <Card title="Workspaces" icon="folder" href="/concepts/workspaces">
-    Learn more about organizing with workspaces
+    How workspaces isolate data, members, and credentials.
   </Card>
   <Card title="Documents" icon="file-contract" href="/concepts/documents">
-    Start creating documents
+    The document lifecycle, from draft to sealed PDF.
   </Card>
 </CardGroup>

@@ -1,9 +1,9 @@
 ---
-title: "Utforska arkivet"
-description: "Lär dig hur du hittar och hanterar signerade och arkiverade dokument"
+title: "Hitta dokument i arkivet"
+description: "Hitta, ladda ner och återställ dokument som du har arkiverat"
 ---
 
-Arkivet samlar alla dina signerade och avslutade dokument på ett ställe. Här kan du söka, filtrera och ladda ner dokument när du behöver dem. I den här guiden visar vi hur du arbetar med arkivet.
+I arkivet ligger dokument som du har flyttat bort från dokumentlistan för att hålla den ren. Inget arkiveras automatiskt: du arkiverar själv, när du vill och oavsett status. Hur du arkiverar ett dokument står i [Arkivera ett färdigsignerat dokument](/guider/archive-document). Här söker du, laddar ner och återställer dokumenten.
 
 ## Videogenomgång
 
@@ -20,25 +20,32 @@ Arkivet samlar alla dina signerade och avslutade dokument på ett ställe. Här 
 
 <Steps>
   <Step title="Öppna arkivet">
-    Klicka på [Arkiv](https://app.sajn.se/~/archive) i sidomenyn. Du ser en lista över alla dokument som har signerats, avbrutits eller utgått.
+    Klicka på [Arkiv](https://app.sajn.se/~/archive) i sidomenyn. Sidan **Arkiverade dokument** listar allt som har arkiverats i arbetsytan.
+
+    {/* TODO screenshot: Sidan Arkiverade dokument med några dokument i listan */}
   </Step>
   <Step title="Sök och filtrera">
-    Använd sökfältet för att hitta dokument efter titel eller partens namn. Du kan också filtrera på:
-    - **Status** - signerade, avbrutna eller utgångna dokument
-    - **Datum** - filtrera på tidsperiod
-    - **Taggar** - om du har taggat dina dokument
+    Sökfältet och filtren fungerar som i dokumentlistan. Du kan till exempel filtrera på **Status**, **Taggar** eller **Mall**.
   </Step>
-  <Step title="Visa dokumentdetaljer">
-    Klicka på ett dokument för att se detaljerad information, inklusive:
-    - Vilka parter som signerat och när
-    - Dokumentets fullständiga aktivitetshistorik
-    - Bilagor och filer kopplade till dokumentet
+  <Step title="Öppna eller ladda ner dokumentet">
+    Klicka på ett dokument för att öppna det, med parter, historik och filer. Ett signerat dokument laddar du ner som PDF med signeringscertifikatet, som visar vilka som har signerat och när.
   </Step>
-  <Step title="Ladda ner dokument">
-    Ladda ner det signerade dokumentet som PDF. Det nedladdade dokumentet innehåller en signeringscertifiering som verifierar att alla parter har signerat.
+  <Step title="Återställ ett dokument">
+    Vill du ha tillbaka ett dokument i dokumentlistan väljer du **Återställ från arkiv**. Dokumentet försvinner då från arkivet.
   </Step>
 </Steps>
 
-<Note>
-  Dokument i arkivet kan inte redigeras eller skickas på nytt. Om du behöver skicka ett liknande dokument igen, skapa ett nytt dokument (gärna från en mall).
-</Note>
+<Tip>
+  Knappen **Importera** på sidan lägger in avtal som redan är signerade utanför sajn. De blir sökbara i arkivet men går inte att signera.
+</Tip>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Verifiera ett dokument" icon="badge-check" href="/guider/verifiera-dokument">
+    Kontrollera att ett signerat dokument är äkta.
+  </Card>
+  <Card title="Arkivera ett dokument" icon="box-archive" href="/guider/archive-document">
+    Flytta färdiga dokument till arkivet.
+  </Card>
+</CardGroup>

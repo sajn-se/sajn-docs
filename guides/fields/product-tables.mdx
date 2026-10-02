@@ -1,0 +1,353 @@
+---
+title: "Product tables"
+description: "Add pricing tables with products, quantities, discounts, and recipient choices to your documents"
+---
+
+A product table presents products or services with pricing inside a document. Use one for quotes, order forms, service agreements, and any document where the party needs to see what they're paying for.
+
+A product table can also ask a party to choose. Mark rows as optional, group alternatives so that the party picks one, or let the party set a quantity. sajn recalculates the totals from what the party chose and seals those amounts into the signed PDF file.
+
+## How a product table is structured
+
+A product table is a document field of type `PRODUCT_TABLE`. The field's `fieldMeta` object holds the whole table:
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `type` | string | Yes | Always `PRODUCT_TABLE`. Must match the field's `type`. |
+| `name` | string | Yes | The table's name. Shown above the table when `enableName` is `true`. |
+| `columns` | object | Yes | The columns to render, keyed by column key. See [Columns](#columns). |
+| `products` | array | Yes | The rows. See [Product rows](#product-rows). |
+| `enableName` | boolean | No | If `true`, renders `name` as a heading. Default: `false`. |
+| `pricing` | object | No | VAT settings for the table. See [Pricing and VAT](#pricing-and-vat). |
+| `discount` | object | No | A table-level discount. See [Discounts](#discounts). |
+| `sections` | array | No | Row groups, including pick-one groups. See [Group rows into sections](#group-rows-into-sections). |
+| `allowSelection` | boolean | No | If `true`, the party in `selectionPartyId` chooses which optional rows to include. |
+| `selectionPartyId` | string | No | The ID of the party who makes the choice. |
+| `selectionRequired` | boolean | No | If `true`, the party must choose before signing. |
+| `recipientChoice` | object | No | What the party chose. Written at signing time. See [Recipient choices](#recipient-choices). |
+| `summaryLabels` | object | No | Labels for the summary rows: `subtotal`, `vat`, and `total`, and optionally `payable`. |
+| `currency` | string | No | An ISO 4217 code, such as `SEK`. Without it, the price column's `pricePrefix` and `priceSuffix` control the rendering. |
+| `language` | string | No | The table's wording: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. Default: `sv`. |
+| `style` | object | No | `border` and `rounded` booleans. Both default to `true`. |
+| `locked` | boolean | No | If `true`, the editor can't change the table. |
+| `hidden` | boolean | No | If `true`, the table doesn't render. |
+| `visibilityRule` | object | No | Renders the table only when the rule matches. |
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Have a `DRAFT` document. For more information, see [Create a document](/guides/documents/create-document).
+
+## Create a product table
+
+<Steps>
+  <Step title="Add the table to the document">
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields` with a `PRODUCT_TABLE` field in the `fields` array:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "fields": [
+          {
+            "type": "PRODUCT_TABLE",
+            "position": 1,
+            "fieldMeta": {
+              "type": "PRODUCT_TABLE",
+              "name": "Offert",
+              "columns": {
+                "name": { "name": "Produkt", "originalName": "Produkt", "key": "name", "enabled": true, "settings": {} },
+                "description": { "name": "Beskrivning", "originalName": "Beskrivning", "key": "description", "enabled": true, "settings": {} },
+                "quantity": { "name": "Antal", "originalName": "Antal", "key": "quantity", "enabled": true, "settings": { "decimalPlaces": 0 } },
+                "price": { "name": "Pris", "originalName": "Pris", "key": "price", "enabled": true, "settings": { "decimalPlaces": 2 } },
+                "vat": { "name": "Moms", "originalName": "Moms", "key": "vat", "enabled": true, "settings": {} },
+                "lineTotal": { "name": "Summa", "originalName": "Summa", "key": "lineTotal", "enabled": true, "settings": {} }
+              },
+              "pricing": { "pricesIncludeVat": false, "defaultVatRate": 25, "showVatBreakdown": true },
+              "currency": "SEK",
+              "products": [
+                {
+                  "id": "discovery",
+                  "name": "Förstudie",
+                  "description": "Kravinsamling och projektplanering",
+                  "quantity": 1,
+                  "price": 15000,
+                  "vat": 25
+                },
+                {
+                  "id": "design",
+                  "name": "Design",
+                  "description": "Gränssnitt och användarupplevelse",
+                  "quantity": 1,
+                  "price": 35000,
+                  "vat": 25
+                },
+                {
+                  "id": "support",
+                  "name": "Support",
+                  "quantity": 10,
+                  "price": 950,
+                  "unit": "tim",
+                  "vat": 25
+                }
+              ]
+            }
+          }
+        ]
+      }'
+    ```
+
+
+    Replace `DOCUMENT_ID` with the document ID. The response has the created field in `data`. Store its `id` to update the table later.
+
+    `price` is a decimal amount in the table's `currency`, such as `1499.5`, not minor units, and `vat` is a rate in percent. `position` is the field's 0-based place among the document's content blocks, not a coordinate. To create several fields in one request, add more entries to the `fields` array.
+  </Step>
+
+  <Step title="Check the totals">
+    Get the document. Its `productTables` array has every table with its rows and the totals that sajn calculated:
+
+    ```bash
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Each row has `selected`, `quantity`, `vat`, `lineTotal`, `lineNet`, and `lineVat`, and each table has `totals` with `subtotal`, `discountAmount`, `vatAmount`, `total`, and `payable`. Amounts are decimal amounts in the table's currency. After signing, the rows carry the party's final choices. Document webhook events carry the same `productTables` array in `data.object`, for example `document.party.signed`, `document.fully_signed`, and `document.completed`. For more information, see [Webhook payloads](/webhooks/payloads).
+  </Step>
+</Steps>
+
+You can add and change fields only while the document is a `DRAFT`. A request against a sent document returns `409 INVALID_STATE`.
+
+## Product rows
+
+Each entry in `products` is one row. Only `id` and `name` are required, but a row without a `price` value contributes nothing to the totals.
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | string | Identifies the row. Must be unique within the table. Sections and recipient choices reference it. |
+| `name` | string | The product or service name. |
+| `description` | string | A longer explanation of the row. |
+| `price` | number | The price per unit, as a decimal amount in the table's currency, in the basis set by `pricing.pricesIncludeVat`. |
+| `quantity` | number | The number of units. Default: `1`. |
+| `unit` | string | The unit label, such as `tim` or `st`. |
+| `vat` | number | The VAT rate as a percentage. Falls back to `pricing.defaultVatRate`. |
+| `discount` | object | A row discount. See [Discounts](#discounts). |
+| `billing` | string | `ONE_TIME`, `MONTHLY`, `QUARTERLY`, or `YEARLY`. Default: `ONE_TIME`. |
+| `sectionId` | string | The section this row belongs to. |
+| `optional` | boolean | If `true`, the party chooses whether to include the row. Requires `allowSelection`. |
+| `defaultSelected` | boolean | The row's starting state. See [Recipient choices](#recipient-choices). |
+| `quantityEditable` | boolean | If `true`, the party sets the quantity. |
+| `quantityMin` | number | The lowest quantity the party can set. Default: `1`. |
+| `quantityMax` | number | The highest quantity the party can set. |
+| `productType` | string | `GOODS`, `SERVICE`, `ROT`, or `RUT`. See [ROT and RUT deductions](#rot-and-rut-deductions). |
+| `sku` | string | The article number, copied from the product library. |
+| `productId` | string | The library product this row came from. Informational only. |
+
+## Columns
+
+The `columns` object decides which columns render and what they're called. Each key maps to an object with `name`, `originalName`, `key`, `enabled`, and `settings`.
+
+The `key` value must be a product property or `lineTotal`, which is calculated rather than stored. To hide a column without deleting it, set `enabled` to `false`. The `originalName` value keeps the column's original label so that sajn can retranslate a column you haven't renamed.
+
+The VAT column is keyed `vat`. The `settings` object accepts `decimalPlaces`, `pricePrefix`, and `priceSuffix`. The price and VAT columns also accept `pricesIncludeVat`, `defaultVatRate`, and `showVatBreakdown`, but set those through `pricing` instead. sajn reads the column settings only for tables authored before `pricing` existed.
+
+## Pricing and VAT
+
+The `pricing` object controls how sajn reads your prices:
+
+| Property | Type | Description |
+|---|---|---|
+| `pricesIncludeVat` | boolean | If `true`, every `price` value includes VAT. If `false`, prices exclude VAT. Default: `false`. |
+| `defaultVatRate` | number | The VAT rate for rows without their own `vat` value. Default: `25`. |
+| `showVatBreakdown` | boolean | If `true`, the summary shows VAT as its own row. Default: `true`. |
+
+A request that uses a 2026-09 name, such as `moms` or `pricesIncludeMoms`, fails with `400 VALIDATION_FAILED`. Set `pricesIncludeVat` before you enter prices. It changes what every `price` value means, so switching it later changes every total in the table.
+
+## Discounts
+
+A discount is an object with a `type` of `PERCENT` or `AMOUNT` and a numeric `value`. A `PERCENT` discount takes that percentage off; an `AMOUNT` discount takes that many currency units off. sajn never discounts below zero.
+
+Set `discount` on a product row to reduce that row, or on the table to reduce the whole table. A table discount also accepts a `label` string, which replaces the default summary label.
+
+An `AMOUNT` discount is measured in the basis you entered prices in. On a table with `pricesIncludeVat` set to `true`, a 500 kr discount takes 500 kr off the total the party pays. On a table with prices excluding VAT, the same discount takes 500 kr off the subtotal, and VAT is charged on what's left.
+
+## How totals are calculated
+
+sajn calculates each included row, then applies the table discount:
+
+```
+gross     = price × quantity
+net       = gross − row discount
+lineTotal = net
+```
+
+When prices exclude VAT, `net` is the row's amount excluding VAT, and VAT is `net × vatRate / 100`. When prices include VAT, sajn divides the VAT back out: the amount excluding VAT is `net / (1 + vatRate / 100)`, and VAT is the remainder.
+
+The table's `subtotal` value is the sum of every row excluding VAT. sajn then applies the table discount and scales VAT by the same proportion:
+
+```
+total = subtotal − table discount + vat
+```
+
+For the three rows in [Create a product table](#create-a-product-table), with prices excluding VAT and a 10% table discount:
+
+| Product | Quantity | Price | Line total |
+|---|---|---|---|
+| Förstudie | 1 | 15,000 SEK | 15,000 SEK |
+| Design | 1 | 35,000 SEK | 35,000 SEK |
+| Support | 10 | 950 SEK | 9,500 SEK |
+
+| Summary row | Amount |
+|---|---|
+| Subtotal | 59,500 SEK |
+| Discount (10%) | −5,950 SEK |
+| VAT (25%) | 13,387.50 SEK |
+| Total | 66,937.50 SEK |
+
+## Let a recipient choose
+
+To turn a fixed price list into an offer that a party responds to, set `allowSelection` to `true` and name the party's ID in `selectionPartyId`. Mark the rows you want to offer with `optional`. The party fills in their choice before they sign, and the totals follow it.
+
+To block signing until the party has chosen, set `selectionRequired` to `true`. A table where nothing is selectable counts as answered, so `selectionRequired` never blocks a party on a fixed price list.
+
+To let the party set a quantity, set `quantityEditable` on the row and bound it with `quantityMin` and `quantityMax`. sajn clamps whatever the party enters to that range.
+
+```json
+{
+  "allowSelection": true,
+  "selectionPartyId": "PARTY_ID",
+  "selectionRequired": true,
+  "products": [
+    { "id": "licens", "name": "Licens", "price": 1250, "vat": 25, "billing": "MONTHLY" },
+    {
+      "id": "onboarding",
+      "name": "Onboarding",
+      "price": 8000,
+      "vat": 25,
+      "optional": true,
+      "defaultSelected": true,
+      "quantityEditable": true,
+      "quantityMin": 1,
+      "quantityMax": 5
+    }
+  ]
+}
+```
+
+Replace `PARTY_ID` with the ID of the party who makes the choice.
+
+<Note>In API version `2026-09`, this property is `selectionSignerId`. For every change, see [Upgrading to 2026-10](/upgrading/2026-10).</Note>
+
+### Recipient choices
+
+The `recipientChoice` object records what the party chose:
+
+```json
+{
+  "recipientChoice": {
+    "selectedIds": ["onboarding"],
+    "quantities": { "onboarding": 3 }
+  }
+}
+```
+
+sajn writes this object when the party fills in the document, and reads it back when it calculates the totals and renders the signed PDF file. You can read it through the API, but you can't submit a choice on the party's behalf. Before the party answers, `defaultSelected` decides which optional rows count.
+
+## Group rows into sections
+
+A section groups rows under a heading. Each entry in `sections` needs an `id` and a `name`, and each row joins a section through `sectionId`.
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | string | Identifies the section. Rows reference it through `sectionId`. |
+| `name` | string | The heading above the group. |
+| `pickOne` | boolean | If `true`, at most one row in the section is included. |
+| `showSubtotal` | boolean | If `true`, the section shows its own subtotal. |
+
+A section with `pickOne` set to `true` presents its rows as alternatives. Give one row `defaultSelected` so that the section has an answer before the party responds:
+
+```json
+{
+  "sections": [
+    { "id": "plan", "name": "Välj ett alternativ", "pickOne": true, "showSubtotal": true }
+  ],
+  "products": [
+    { "id": "bas", "name": "Bas", "price": 1250, "vat": 25, "sectionId": "plan", "defaultSelected": true },
+    { "id": "plus", "name": "Plus", "price": 2100, "vat": 25, "sectionId": "plan" }
+  ]
+}
+```
+
+<Note>
+  Pick-one applies whether or not `allowSelection` is set. A pick-one section with no chosen row and no `defaultSelected` row contributes nothing to the document, so always mark a default.
+</Note>
+
+## Bill on an interval
+
+Set `billing` on a row to `MONTHLY`, `QUARTERLY`, or `YEARLY` to charge it on that interval. Rows without a `billing` value are one-time charges.
+
+As soon as one row is recurring, the summary adds a total per interval alongside the grand total, so the party sees what they pay once and what they pay each period.
+
+## ROT and RUT deductions
+
+Set a row's `productType` to `ROT` or `RUT` to mark labor that qualifies for the Swedish tax deduction. sajn deducts 30% of a `ROT` row and 50% of a `RUT` row, both measured including VAT, and reports the result as the payable amount.
+
+The deduction is per row. Mark the labor rows and leave materials as `GOODS`, because materials don't qualify.
+
+## Update a product table
+
+To change a table, send a `PATCH` request with the complete `fieldMeta` object. The request replaces the metadata rather than merging into it, so include every property you want to keep:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldMeta": {
+      "type": "PRODUCT_TABLE",
+      "name": "Offert",
+      "columns": { "name": { "name": "Produkt", "originalName": "Produkt", "key": "name", "enabled": true, "settings": {} } },
+      "products": [
+        { "id": "support", "name": "Support", "quantity": 20, "price": 950, "vat": 25 }
+      ]
+    }
+  }'
+```
+
+Replace the following:
+
+- `DOCUMENT_ID`: the document ID.
+- `FIELD_ID`: the product table field's `id`.
+
+The response is the updated field.
+
+## Handle errors
+
+Each error response has a `code`. A `VALIDATION_FAILED` error lists every problem in `issues`, each with the `path` of the property that failed. On a `POST` request, each path starts with `fields.N.`, where `N` is the field's index in the request. For every code, see [Errors](/api-fundamentals/errors).
+
+| Code | Issue path | Cause |
+|---|---|---|
+| `VALIDATION_FAILED` | `fieldMeta` | The request omitted `fieldMeta`. Product tables always need it. |
+| `VALIDATION_FAILED` | `fieldMeta.type` | The `fieldMeta.type` value doesn't match the field's `type` value. Both must be `PRODUCT_TABLE`. |
+| `VALIDATION_FAILED` | Under `fieldMeta` | The metadata failed validation. Check that `name`, `columns`, and `products` are present, that every column's `key` value names a product property or `lineTotal`, and that no property uses a 2026-09 name such as `moms` or `selectionSignerId`. |
+| `INVALID_STATE` | None | The document was already sent. Fields change only in `DRAFT` status. |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Create a document" icon="file-plus" href="/guides/documents/create-document">
+    Create the document that holds the table.
+  </Card>
+  <Card title="Templates and forms" icon="file-lines" href="/guides/templates/templates-and-forms">
+    Reuse a product table across documents.
+  </Card>
+  <Card title="Document fields API" icon="code" href="/api-reference/create-document-fields">
+    Read the full field reference.
+  </Card>
+  <Card title="Send for signing" icon="paper-plane" href="/guides/documents/send-for-signing">
+    Send the document to its parties.
+  </Card>
+</CardGroup>

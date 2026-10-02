@@ -1,0 +1,126 @@
+---
+title: "Delivery and retries"
+description: "How sajn delivers webhooks, retries failed attempts for about three days, logs every attempt, and pauses endpoints that keep failing"
+---
+
+sajn records every event before it delivers it, then queues one delivery for each endpoint that subscribes to the event type. A delivery is one event sent to one endpoint, and it's made of one or more attempts. Deliveries usually leave within seconds of the event. If queueing fails, a background sweep picks the event up again within about a minute, so an event isn't lost because of a problem on the sajn side.
+
+## Successful and failed attempts
+
+An attempt succeeds when your endpoint returns a `2xx` status code within 30 seconds. Anything else fails, and sajn retries it:
+
+| Response | Result |
+|----------|--------|
+| `2xx` | Success. sajn stops sending this delivery. |
+| `410 Gone` | Failure. sajn stops retrying and [pauses the endpoint](#automatic-pausing). |
+| `429 Too Many Requests` | Failure. sajn retries after the time in `Retry-After`; see [Slow sajn down](#slow-sajn-down). |
+| Any other status code, including `3xx` and other `4xx` codes | Failure. sajn retries. sajn doesn't follow redirects. |
+| A network error: a timeout after 30 seconds, a refused connection, or a DNS or TLS failure | Failure. sajn retries. |
+
+sajn retries `4xx` codes because a receiver that's being deployed often answers `404 Not Found` or `401 Unauthorized` for a few minutes. To tell sajn that the endpoint is gone for good, return `410 Gone`. To move an endpoint, [update its URL](/webhooks/manage-endpoints#update-an-endpoint) instead of redirecting. sajn also checks the URL's address before each attempt; a host that has started to resolve to a private address fails as a network error.
+
+## Retry schedule
+
+sajn makes up to 12 attempts over about three days. The wait between attempts grows sixfold each time, up to 12 hours:
+
+| Attempt | Wait before the attempt | Time after the first attempt |
+|---------|-------------------------|------------------------------|
+| 1 | None | 0 |
+| 2 | 6 seconds | About 6 seconds |
+| 3 | 36 seconds | About 42 seconds |
+| 4 | About 4 minutes | About 4 minutes |
+| 5 | About 22 minutes | About 26 minutes |
+| 6 | About 2 hours | About 2.6 hours |
+| 7 to 12 | 12 hours each | About 15 hours to about 3.1 days |
+
+Every attempt carries the same event `id` in the body and in `webhook-id`, so a receiver that [deduplicates on it](/webhooks/overview#how-delivery-behaves) processes the event once. Each attempt has its own `webhook-timestamp` and signature. Each attempt also uses the endpoint's API version and signing secret at the time of the attempt, so if you change `apiVersion` while a delivery is being retried, the next attempt has the new shape.
+
+After the last attempt, the delivery is `FAILED`. To send it again, [retry it](/webhooks/replay-and-reconcile#retry-a-delivery) within 7 days.
+
+### Slow sajn down
+
+To slow sajn down, return `429 Too Many Requests` with a `Retry-After` header, in seconds or as an HTTP date. sajn holds back every delivery to that endpoint until that time, and then sends them. Without a valid `Retry-After` header, sajn waits 60 seconds. The `429` response uses up one attempt of that delivery; the deliveries that sajn holds back don't use up attempts.
+
+### Errors on the sajn side
+
+If a delivery can't run because of a problem on the sajn side, sajn reschedules it every 5 minutes for up to 24 hours. These reschedules don't use up attempts.
+
+## Ordering and duplicates
+
+sajn doesn't deliver events in order. Deliveries run in parallel, and a retried delivery can arrive after an event that happened later. To decide which update is newest, compare the events' `createdAt`, or read the resource from the API when the order matters. For example, store `createdAt` with each record that an event updates, and skip an event whose `createdAt` is older.
+
+Delivery is at least once, so the same event can arrive more than once, for example when your endpoint processed it but timed out before it answered. Store each event `id` that you've processed, for at least as long as the retry window, and skip the ones you've seen.
+
+## Delivery log
+
+sajn logs every delivery with all its attempts, and keeps the log for 7 days. Read it in the dashboard under **Inställningar > Utvecklare > Loggar**, or through the API:
+
+- [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries) lists an endpoint's deliveries, newest first. Filter with `type`, such as `type=document.completed`, or with `eventId` to see what happened to one event.
+- [`GET /api/v1/webhooks/{id}/deliveries/{deliveryId}`](/api-reference/get-a-single-webhook-delivery) returns one delivery.
+
+A delivery is similar to the following:
+
+```json
+{
+  "id": "cm4k2x9p10015abcd1234efgh",
+  "webhookId": "cm4k2x9p10013abcd1234efgh",
+  "eventId": "cm4k2x9p10014abcd1234efgh",
+  "type": "document.completed",
+  "status": "SUCCESS",
+  "url": "https://example.com/webhooks/sajn",
+  "replayOfId": null,
+  "requestBody": { "id": "cm4k2x9p10014abcd1234efgh", "type": "document.completed" },
+  "attempts": [
+    {
+      "id": "cm4k2x9p10016abcd1234efgh",
+      "attempt": 1,
+      "status": "FAILED",
+      "responseCode": 503,
+      "durationMs": 212,
+      "requestHeaders": { "webhook-id": "cm4k2x9p10014abcd1234efgh" },
+      "responseHeaders": { "content-type": "text/plain" },
+      "responseBody": "Service Unavailable",
+      "createdAt": "2026-10-01T09:30:01.000Z"
+    },
+    {
+      "id": "cm4k2x9p10017abcd1234efgh",
+      "attempt": 2,
+      "status": "SUCCESS",
+      "responseCode": 200,
+      "durationMs": 87,
+      "requestHeaders": { "webhook-id": "cm4k2x9p10014abcd1234efgh" },
+      "responseHeaders": { "content-type": "application/json" },
+      "responseBody": { "received": true },
+      "createdAt": "2026-10-01T09:30:07.000Z"
+    }
+  ],
+  "createdAt": "2026-10-01T09:30:01.000Z"
+}
+```
+
+The request body and headers in this example are shortened. A delivery has the following fields:
+
+| Field | Description |
+|-------|-------------|
+| `id` | The delivery ID. Pass it as `deliveryId` to the delivery endpoints. |
+| `eventId` | The event ID, the same value as `webhook-id`. |
+| `type` | The event type. |
+| `status` | `PENDING` while attempts remain, `SUCCESS` after an attempt got a `2xx` status code, and `FAILED` after sajn stopped retrying. |
+| `replayOfId` | For a [retried delivery](/webhooks/replay-and-reconcile#retry-a-delivery), the delivery it retries. Otherwise `null`. |
+| `requestBody` | The body that sajn sent, in the endpoint's API version. |
+| `attempts` | Every attempt, with its `attempt` number, `status`, `responseCode`, `durationMs`, the `requestHeaders` that sajn sent, and your endpoint's `responseHeaders` and `responseBody`. `responseCode` is `0` when no response arrived. |
+
+sajn ignores your response body; it only stores it for the log, up to 64 KB, and cuts a response that isn't JSON to its first 1,000 characters. Keep your responses short.
+
+## Automatic pausing
+
+When an endpoint keeps failing, sajn pauses it and stops sending to it. sajn pauses an endpoint in either of the following cases:
+
+- The endpoint returns `410 Gone`.
+- Every attempt to the endpoint has failed for 72 hours, with at least 5 failed attempts in a row. This is about when the first delivery of the streak runs out of attempts.
+
+One successful attempt ends the streak, so an endpoint that answers some events with `2xx` and fails others isn't paused. Endpoints that an integration installed are never paused, because the integration manages its own endpoint.
+
+While an endpoint is paused, its `status` is `PAUSED`, `pausedAt` is the time of the pause, and `pauseReason` is the last answer, such as `HTTP_410` or `NETWORK_ERROR`. sajn doesn't send it anything. Each new event appears in the delivery log as a `FAILED` delivery with one attempt numbered `0`, and stays there for 7 days. sajn also [notifies you](/webhooks/manage-endpoints#failure-notifications).
+
+To resume deliveries, fix your endpoint and then [reactivate it](/webhooks/manage-endpoints#reactivate-a-paused-endpoint). Reactivating doesn't resend the events from the pause. To deliver them, [retry each delivery](/webhooks/replay-and-reconcile#retry-a-delivery), or process them from the events API, as [Replay and reconcile events](/webhooks/replay-and-reconcile) describes.

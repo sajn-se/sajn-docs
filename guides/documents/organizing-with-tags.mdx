@@ -1,0 +1,130 @@
+---
+title: "Organize documents with tags"
+description: "Create tags, add them to documents, and filter the document list by tag"
+---
+
+In this guide, you create a tag, add it to a document, and list the documents that have it. Tags are shared across the workspace, so a tag you create through the API also appears in the sajn app.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
+- Have a document to tag. For more information, see [Create a document](/guides/documents/create-document).
+
+## Tag a document
+
+<Steps>
+  <Step title="Create the tag">
+    Send a `POST` request to `/api/v1/tags` with a `name` and the resources the tag is for in `availableFor`: one or more of `DOCUMENT`, `TEMPLATE`, and `CONTACT`. `color` is an optional hex color:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/tags \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Employment",
+        "color": "#22C55E",
+        "availableFor": ["DOCUMENT", "TEMPLATE"]
+      }'
+    ```
+
+    The response is the tag:
+
+    ```json
+    {
+      "id": "cm4k2xj5y0010abcd5791opqr",
+      "name": "Employment",
+      "color": "#22C55E",
+      "availableFor": ["DOCUMENT", "TEMPLATE"],
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
+    }
+    ```
+
+    sajn doesn't stop you from creating two tags with the same name. To reuse an existing tag instead, find its ID with [List all tags](/api-reference/list-all-tags).
+  </Step>
+
+  <Step title="Add the tag to a document">
+    `POST /api/v1/documents` doesn't take tags. After you create the document, add each tag:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/tags \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{ "tagId": "TAG_ID" }'
+    ```
+
+    Replace the following:
+
+    - `DOCUMENT_ID`: the document ID.
+    - `TAG_ID`: the tag `id` from the previous step.
+
+    The response is the document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id) without `fields`, and its `tags` array lists the tag. To tag a template, send the same request to `/api/v1/templates/TEMPLATE_ID/tags`, which returns the template.
+  </Step>
+
+  <Step title="List the documents with the tag">
+    Filter the document list with `tagId`:
+
+    ```bash
+    curl "https://app.sajn.se/api/v1/documents?tagId=TAG_ID&limit=50" \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    To filter by several tags, send a comma-separated list, such as `tagId=TAG_ID_1,TAG_ID_2`, or repeat the parameter. The list includes documents that have any of the tags.
+
+    The response returns the documents in `data`, each with its `tags` and `parties`. When `hasMore` is `true`, pass `nextCursor` as `cursor` to get the next page. For more information, see [Pagination](/api-fundamentals/pagination).
+  </Step>
+</Steps>
+
+## Rename a tag or remove it from a document
+
+To change a tag's name or color, send a `PATCH` request. The change shows on every document that has the tag:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/tags/TAG_ID \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{ "name": "Employment contracts", "color": "#16A34A" }'
+```
+
+To remove a tag from a document, send a `DELETE` request:
+
+```bash
+curl -X DELETE https://app.sajn.se/api/v1/documents/DOCUMENT_ID/tags/TAG_ID \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+The response is the document, without the tag in `tags`.
+
+## Choose a tagging scheme
+
+We recommend a small set of tags that everyone applies the same way, such as one tag per document type (Employment, NDA, Vendor) or per department (HR, Legal, Sales). For structured values, such as a cost center or a contract value, use [custom fields](/guides/fields/custom-fields) instead. For a hierarchy, use folders.
+
+## Handle errors
+
+- `400 VALIDATION_FAILED`: `name` or `availableFor` is missing, or `availableFor` has an unknown value.
+- `404 NOT_FOUND`: the document or the tag doesn't exist in the workspace.
+- `409 ALREADY_EXISTS`: the document already has the tag. Read the document's `tags` first, or treat the error as success.
+
+For the error shape and every code, see [Errors](/api-fundamentals/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Custom fields" icon="input-text" href="/guides/fields/custom-fields">
+    Store structured values on documents.
+  </Card>
+  <Card title="Sync documents" icon="arrows-rotate" href="/guides/integrations/syncing-documents">
+    Mirror tagged documents into your system.
+  </Card>
+  <Card title="List all tags" icon="code" href="/api-reference/list-all-tags">
+    See the tags endpoints in the API reference.
+  </Card>
+  <Card title="Add tag to document" icon="code" href="/api-reference/add-tag-to-document">
+    See the endpoint in the API reference.
+  </Card>
+</CardGroup>

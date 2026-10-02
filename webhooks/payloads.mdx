@@ -1,0 +1,385 @@
+---
+title: "Webhook payloads"
+description: "What the data object of each webhook event contains, with API version 2026-10 examples"
+---
+
+The `data` field of an [event](/webhooks/overview#the-event) holds the event data. `data.object` is always the resource that the event is about, in the same shape that the REST API returns for it, without `expand`. If you already parse the REST response, you can parse the webhook with the same code, and a field that sajn adds to the REST object also appears in the event. Some events add fields next to `object`, such as `data.party` on party events.
+
+`data.object` is a snapshot of the resource when the event happened, if a `2026-10` endpoint subscribed to the event type at that time. The snapshot doesn't change across retries. An event without a snapshot gets `data.object` from the resource's current state when [`GET /api/v1/events`](/api-reference/list-events) reads it. If the resource no longer exists, the list leaves the event out, and [`GET /api/v1/events/{id}`](/api-reference/get-an-event) returns `404 NOT_FOUND`. Dates are ISO 8601 strings in UTC, and fields without a value are `null`, not missing. Events gain fields over time, so ignore fields that you don't recognize. No event carries a national identity number; `nationalId` is always `null`.
+
+The following table lists what `data` holds for each group of events:
+
+| Events | `data.object` | Added fields |
+|--------|---------------|--------------|
+| `document.*` | The document, as [`GET /api/v1/documents/{id}`](/api-reference/get-a-document-by-id) returns it | `source` on `document.created`, `previousAttributes` on `document.expiration_extended` |
+| `document.party.*` | The document | `party`, plus extras on some events; see [Party events](#party-events) |
+| `document.comment.created` | The comment, as an item of `messages` in [`GET /api/v1/documents/{id}/comments/{threadId}`](/api-reference/get-a-comment-thread) | `thread` |
+| `approval_request.*` | The approval request, as [`GET /api/v1/approval-requests/{id}`](/api-reference/get-an-approval-request) returns it | None |
+| `identity_check.*` | The identity check, as [`GET /api/v1/identity-checks`](/api-reference/list-identity-checks) lists it | `failureReason` on `identity_check.failed` |
+| `contact.*` | The contact, as [`GET /api/v1/contacts/{id}`](/api-reference/get-a-contact-by-id) returns it | None |
+| `company.*` | The company, as [`GET /api/v1/companies/{id}`](/api-reference/get-a-company-by-id) returns it | None |
+| `template.*` | The template, as [`GET /api/v1/templates/{id}`](/api-reference/get-a-template-by-id) returns it | `previousAttributes` on `template.updated` |
+| `form.submitted` | The submission, as [`GET /api/v1/forms/{id}/submissions/{submissionId}`](/api-reference/get-a-form-submission) returns it | None |
+| `member.added` | The member, as [`GET /api/v1/members/{userId}`](/api-reference/get-a-workspace-member) returns it | `via` |
+| `member.invited`, `member.invite_accepted` | The invitation, as [`GET /api/v1/member-invites`](/api-reference/list-pending-workspace-invitations) lists it | None |
+| `workspace.created` | The [workspace](#workspace-created) | None |
+| `usage.limit_reached` | The [quota](#usage-limit-reached) that was reached | None |
+| `security.*` | The [details of the action](#security-events) | None |
+| `login.*` | See [Login webhooks](/login/webhooks) | None |
+| `webhook.test` | The webhook's `id` and `url` | None |
+
+Each event also has a reference page with its full schema, such as [`document.completed`](/api-reference/webhook-events/documentcompleted).
+
+## Document events
+
+`data.object` is the document. It has the same fields as `GET /api/v1/documents/{id}` without `expand`, so `fields` is `null`, and `productTables` holds the product tables with the recipient's selection and quantities:
+
+```json
+{
+  "object": {
+    "id": "cm4k2x9p10003abcd1234efgh",
+    "externalId": "hr-offer-2026-114",
+    "name": "Anställningsavtal – Kai Lindqvist",
+    "status": "COMPLETED",
+    "documentMeta": {
+      "subject": "Ditt anställningsavtal från Exempelbolaget AB",
+      "signingMode": "PARALLEL",
+      "language": "sv",
+      "documentCategoryId": null
+    },
+    "createdAt": "2026-09-28T09:12:00.000Z",
+    "updatedAt": "2026-09-29T07:42:00.000Z",
+    "expiresAt": "2026-10-28T22:00:00.000Z",
+    "completedAt": "2026-09-29T07:42:00.000Z",
+    "deletedAt": null,
+    "templateId": "cm4k2x9p10008abcd1234efgh",
+    "folderId": null,
+    "responsibleUserId": "cm4k2x9p10002abcd1234efgh",
+    "approvalRequestId": null,
+    "parties": [
+      {
+        "id": "cm4k2x9p10004abcd1234efgh",
+        "documentId": "cm4k2x9p10003abcd1234efgh",
+        "name": "Kai Lindqvist",
+        "email": "kai@example.com",
+        "phone": null,
+        "externalId": "hr-candidate-4821",
+        "type": "INDIVIDUAL",
+        "company": null,
+        "country": "SE",
+        "nationalId": null,
+        "role": "SIGNER",
+        "signingOrder": 1,
+        "signingStatus": "SIGNED",
+        "signedAt": "2026-09-29T07:41:00.000Z",
+        "requiredSignature": "SE_BANKID",
+        "createdAt": "2026-09-28T09:12:00.000Z"
+      }
+    ],
+    "tags": [],
+    "customFields": [],
+    "fields": null,
+    "productTables": []
+  }
+}
+```
+
+The `documentMeta` and the party in this example are shortened. For every field, see [`GET /api/v1/documents/{id}`](/api-reference/get-a-document-by-id).
+
+`document.created` adds `source`, which says how the document was created. It's `null` for a document created in the dashboard or through the API. For a document created from an attachment emailed to the workspace inbox, it's the following object:
+
+```json
+{
+  "object": { "id": "cm4k2x9p10007abcd1234efgh", "status": "IMPORTED" },
+  "source": {
+    "type": "EMAIL_INBOX",
+    "senderEmail": "quinn@example.com",
+    "inboxType": "ARCHIVE"
+  }
+}
+```
+
+`inboxType` is `ARCHIVE` when sajn imported the attachment as an archived document with status `IMPORTED`, and `CREATE` when it became a `DRAFT` document.
+
+`document.expiration_extended` adds `previousAttributes` with the earlier `expiresAt`, which is `null` if the document had none. Compare it with `object.expiresAt`; the new date can also be earlier than the previous one.
+
+```json
+{
+  "object": { "id": "cm4k2x9p10003abcd1234efgh", "expiresAt": "2026-11-30T22:00:00.000Z" },
+  "previousAttributes": { "expiresAt": "2026-10-28T22:00:00.000Z" }
+}
+```
+
+### Comment created
+
+`document.comment.created` carries the new comment in `object` and its thread, without its messages, in `thread`. A thread's `visibility` is `SHARED` when every party sees it and `INTERNAL` when only the workspace does; both fire the event.
+
+```json
+{
+  "object": {
+    "id": "cm4k2x9p10019abcd1234efgh",
+    "threadId": "cm4k2x9p10018abcd1234efgh",
+    "parentId": null,
+    "body": "Kan vi ändra startdatumet till den 1 december?",
+    "mentions": [],
+    "createdAt": "2026-09-28T14:03:00.000Z",
+    "editedAt": null,
+    "deletedAt": null,
+    "author": { "type": "SIGNER", "id": "cm4k2x9p10004abcd1234efgh", "name": "Kai Lindqvist", "email": "kai@example.com" }
+  },
+  "thread": {
+    "id": "cm4k2x9p10018abcd1234efgh",
+    "documentId": "cm4k2x9p10003abcd1234efgh",
+    "status": "OPEN",
+    "visibility": "SHARED",
+    "excerpt": "Anställningen börjar den 1 november 2026.",
+    "createdAt": "2026-09-28T14:03:00.000Z",
+    "updatedAt": "2026-09-28T14:03:00.000Z",
+    "resolvedAt": null,
+    "createdBy": { "id": "cm4k2x9p10004abcd1234efgh", "name": "Kai Lindqvist", "email": "kai@example.com" },
+    "resolvedBy": null
+  }
+}
+```
+
+## Party events
+
+Every `document.party.*` event carries the document in `object` and the party that the event is about in `party`, in the shape that [`GET /api/v1/documents/{id}/parties`](/api-reference/list-all-parties-for-a-document) lists it:
+
+```json
+{
+  "object": { "id": "cm4k2x9p10003abcd1234efgh", "status": "PENDING" },
+  "party": {
+    "id": "cm4k2x9p10004abcd1234efgh",
+    "documentId": "cm4k2x9p10003abcd1234efgh",
+    "name": "Kai Lindqvist",
+    "email": "kai@example.com",
+    "phone": "+46701740605",
+    "role": "SIGNER",
+    "signingStatus": "SIGNED",
+    "signedAt": "2026-09-29T07:41:00.000Z"
+  }
+}
+```
+
+`object` and `party` in this example are shortened. On `document.party.removed`, `party` is the party as it was before removal, and `object.parties` no longer lists it.
+
+Some party events add fields:
+
+| Event | Added fields |
+|-------|--------------|
+| `document.party.verified` | `method`, which is `SMS_OTP`, `EMAIL_OTP`, `PIN`, `ACCOUNT` for a party who signed in to their sajn account, or an eID scheme such as `SE_BANKID`. `purpose`, which is `ACCESS` for the verification that opens the document and `SIGN` for the one before signing. |
+| `document.party.auth_failed` | `method`, which is `SMS_OTP`, `EMAIL_OTP`, `PIN`, or an eID scheme such as `SE_BANKID`. `hintCode`, why the verification failed as the method reports it, such as `invalid_code` or `too_many_attempts`. |
+| `document.party.updated` | `previousAttributes`, the earlier values of the fields that changed: `name`, `email`, or `phone`. Only the changed fields are present. |
+| `document.party.delegated` | `delegation`, with `id`, `delegate` (`name`, `email`, and `phone`), `reason`, and `delegatedAt`. `party` is the party who delegated. |
+| `document.party.reminded` | `trigger`, which is `AUTOMATIC` for a scheduled reminder and `MANUAL` for one that someone sent from the dashboard or the API. |
+
+For example, a `document.party.updated` event after an email correction carries the following extra field:
+
+```json
+{
+  "previousAttributes": { "email": "kai@example.com" }
+}
+```
+
+## Approval request events
+
+`data.object` is the approval request. An approver is `{ user, stage, orGroup, status, comment, resolvedAt }`, where `user` is `{ id, email, name }`:
+
+```json
+{
+  "object": {
+    "id": "cm4k2x9p10029abcd1234efgh",
+    "documentId": "cm4k2x9p10003abcd1234efgh",
+    "status": "APPROVED",
+    "autoSend": true,
+    "customMessage": null,
+    "requestedBy": { "id": "cm4k2x9p10002abcd1234efgh", "email": "alex@example.com", "name": "Alex Berg" },
+    "approvers": [
+      {
+        "user": { "id": "cm4k2x9p10041abcd1234efgh", "email": "quinn@example.com", "name": "Quinn Holm" },
+        "stage": 0,
+        "orGroup": null,
+        "status": "APPROVED",
+        "comment": "Godkänt enligt lönepolicyn.",
+        "resolvedAt": "2026-09-28T14:03:00.000Z"
+      }
+    ],
+    "createdAt": "2026-09-28T09:12:00.000Z",
+    "updatedAt": "2026-09-28T09:12:00.000Z"
+  }
+}
+```
+
+On `approval_request.cancelled`, `status` is `CANCELLED`. sajn deletes a cancelled request, so this event is the last place where it appears.
+
+## Identity check events
+
+`data.object` is the identity check, with `verificationUrl`, `audits`, and `data` set to `null`, as in the list response. `identity_check.failed` adds `failureReason`, the reason that the eID provider reports, such as `expiredTransaction`:
+
+```json
+{
+  "object": {
+    "id": "cm4k2x9p10025abcd1234efgh",
+    "fullName": "Kai Lindqvist",
+    "email": "kai@example.com",
+    "channel": "EMAIL",
+    "status": "FAILED",
+    "reference": "hr-candidate-4821",
+    "language": "sv"
+  },
+  "failureReason": "expiredTransaction"
+}
+```
+
+`object` in this example is shortened. To read the verified identity, call [`GET /api/v1/identity-checks/{id}`](/api-reference/get-an-identity-check).
+
+## Contact and company events
+
+`data.object` is the contact or the company. On `contact.deleted` and `company.deleted`, it's the resource as it was before deletion.
+
+```json
+{
+  "object": {
+    "id": "cm4k2x9p10007abcd1234efgh",
+    "name": "Nordljus AB",
+    "orgNumber": "5560000000",
+    "country": "SE",
+    "createdAt": "2026-09-28T09:12:00.000Z",
+    "updatedAt": "2026-09-28T09:12:00.000Z"
+  }
+}
+```
+
+## Template events
+
+`data.object` is the template, with `fields` set to `null`. `template.updated` adds `previousAttributes`, with the earlier values of the fields of `object` that changed. A change to a setting outside `object` sends it empty:
+
+```json
+{
+  "object": { "id": "cm4k2x9p10008abcd1234efgh", "name": "Anställningsavtal 2026" },
+  "previousAttributes": { "name": "Anställningsavtal 2025" }
+}
+```
+
+sajn sends at most one `template.updated` event per template per minute and drops the others, so `previousAttributes` covers only the change that fired the event.
+
+## Member events
+
+`member.added` carries the member and adds `via`, which is `INVITE` when the user accepted an invitation, `ADMIN` when an administrator added them, and `SELF` when they joined on their own:
+
+```json
+{
+  "object": {
+    "id": "cm4k2x9p10002abcd1234efgh",
+    "email": "alex@example.com",
+    "name": "Alex Berg",
+    "role": { "id": "cm4k2x9p10026abcd1234efgh", "name": "Rekryterare" },
+    "status": "ACTIVE",
+    "lastActiveAt": null,
+    "joinedAt": "2026-09-28T09:12:00.000Z"
+  },
+  "via": "INVITE"
+}
+```
+
+`member.invited` and `member.invite_accepted` carry the invitation:
+
+```json
+{
+  "object": {
+    "id": "cm4k2x9p10027abcd1234efgh",
+    "email": "robin@example.com",
+    "role": { "id": "cm4k2x9p10026abcd1234efgh", "name": "Rekryterare" },
+    "status": "PENDING",
+    "invitedBy": { "id": "cm4k2x9p10002abcd1234efgh", "email": "alex@example.com", "name": "Alex Berg" },
+    "createdAt": "2026-09-28T09:12:00.000Z",
+    "expiresAt": "2026-09-30T09:12:00.000Z"
+  }
+}
+```
+
+## Workspace created
+
+`workspace.created` carries the new workspace. `createdBy` is the ID of the user who created it.
+
+```json
+{
+  "object": {
+    "id": "cm4k2x9p10001abcd1234efgh",
+    "slug": "hr",
+    "name": "HR",
+    "organizationId": "cm4k2x9p10000abcd1234efgh",
+    "createdBy": "cm4k2x9p10002abcd1234efgh",
+    "createdAt": "2026-09-28T09:12:00.000Z"
+  }
+}
+```
+
+## Usage limit reached
+
+`usage.limit_reached` carries the quota that the organization reached:
+
+```json
+{
+  "object": {
+    "organizationId": "cm4k2x9p10000abcd1234efgh",
+    "resource": "SIGNATURES",
+    "scheme": "SE_BANKID",
+    "quota": 100,
+    "used": 100,
+    "periodStart": "2026-10-01T00:00:00.000Z"
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `resource` | `DOCUMENTS` for the monthly document quota, `SIGNATURES` for an eID signature quota. |
+| `scheme` | The eID scheme whose quota was reached, such as `SE_BANKID`. `null` for `DOCUMENTS`. |
+| `quota` | The quota for the period. |
+| `used` | What the organization had used in the period when it reached the quota. |
+| `periodStart` | The start of the period that the quota covers. |
+
+For the current usage, call [`GET /api/v1/limits`](/api-reference/get-plan-limits-and-usage).
+
+## Security events
+
+Every `security.*` event carries the details of the action in `data.object`, and the envelope's `actor` says whether a user, an API key, or an OAuth app acted. Every object has the following fields:
+
+| Field | Description |
+|-------|-------------|
+| `user` | The user who acted, or the owner of the API key or OAuth connection that did, as `{ id, email, name }`. `null` when sajn itself acted. |
+| `ipAddress` | The caller's IP address. `null` when no HTTP request was involved, such as in a background job. Treat `null` as unknown, not as internal. |
+| `userAgent` | The caller's user agent, or `null`. |
+
+For example, a `security.document_downloaded` event carries the following data:
+
+```json
+{
+  "object": {
+    "ipAddress": "192.0.2.24",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_6)",
+    "documentId": "cm4k2x9p10003abcd1234efgh",
+    "documentName": "Anställningsavtal – Kai Lindqvist",
+    "fileType": "SIGNED",
+    "user": { "id": "cm4k2x9p10002abcd1234efgh", "email": "alex@example.com", "name": "Alex Berg" }
+  }
+}
+```
+
+Each event adds its own fields:
+
+| Event | Added fields |
+|-------|--------------|
+| `security.document_downloaded` | `documentId`, `documentName`, and `fileType`, which is `ORIGINAL`, `SIGNED`, or `JOURNAL`. |
+| `security.documents_exported` | `documentCount` and `fileCount`, `scope` (`SELECTION` or `FOLDER`), and `folderId` and `folderName`, which are `null` for a selection. The event doesn't list the documents. |
+| `security.signature_identity_accessed` | `documentId`, `documentName`, `signatureCount`, `identityCount`, and `nationalIdDisplayMode`. The event never contains the identity data itself. |
+| `security.member_removed` | `member`, the removed member as `{ id, email, name }`, and `reassignedDocumentCount`, a number or `null` when the removal doesn't reassign documents. |
+| `security.member_role_changed` | `member`, `previousRoleId` (or `null`), and `roleId`. |
+| `security.role_updated` | `roleId`, `roleName`, and `permissions`, the role's full list of permission keys after the change, such as `MANAGE_WEBHOOKS`. |
+| `security.workspace_retention_updated` | `workspaceName`, plus `previousCompletedRetentionDays`, `previousTrashRetentionDays`, `completedRetentionDays`, and `trashRetentionDays`, each a number of days. A `null` completed retention means that sajn keeps completed documents until someone deletes them. |
+
+## Payloads in API version 2026-09
+
+An endpoint on `2026-09` gets the event data in `payload` instead of `data`, in the earlier shapes: a document has `title` instead of `name` and a `signers` array, party events carry `{ document, party }`, and security events carry the actor inside the payload. For every difference, see [Upgrading to 2026-10](/upgrading/2026-10).

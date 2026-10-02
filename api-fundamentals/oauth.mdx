@@ -1,0 +1,384 @@
+---
+title: "OAuth 2.0"
+description: "Register an OAuth app, run the authorization code flow with PKCE, refresh and revoke tokens, and choose scopes"
+---
+
+OAuth 2.0 lets a person grant your app access to their sajn workspace without sharing a password or an API key. They approve the access once, in their browser, and can revoke it at any time.
+
+Use OAuth when you build software that other organizations connect to their sajn accounts. If your server works with your own organization's account, an API key does the same job with less setup; see [Choosing an authentication method](/get-started/choosing-authentication).
+
+sajn supports the authorization code grant, with optional PKCE, and the refresh token grant. It doesn't support the client credentials, implicit, password, or device code grants.
+
+## How it works
+
+1. You register your app with sajn and get a client ID and a client secret.
+1. Your app sends the person to sajn's authorize URL.
+1. The person signs in, selects an organization and a workspace, and approves the scopes your app asks for.
+1. sajn redirects back to your app with an authorization code.
+1. Your server exchanges the code for an access token and a refresh token.
+1. Your server calls the API with the access token, and refreshes it when it expires.
+
+Each access token is bound to the one workspace the person selected, like an API key. Your app never sends a workspace ID.
+
+## Endpoints
+
+| Endpoint | URL |
+|----------|-----|
+| Authorize | `https://app.sajn.se/api/oauth/authorize` |
+| Token | `https://app.sajn.se/api/oauth/token` |
+| Revoke | `https://app.sajn.se/api/oauth/revoke` |
+| Server metadata ([RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414)) | `https://app.sajn.se/.well-known/oauth-authorization-server` |
+
+The `scopes_supported` list in the server metadata covers only the scopes available to AI assistants that register themselves; the [scope table](#scopes) on this page is the full list.
+
+## Register your app
+
+App registration is open to sajn platform partners. If your organization isn't a partner, the dashboard doesn't let you create an app; contact [hej@sajn.se](mailto:hej@sajn.se) about the partner program.
+
+<Warning>
+  An app registered in the dashboard belongs to the organization that registered it, and only members of that organization can authorize it. To let other organizations connect your app, contact [dev@sajn.se](mailto:dev@sajn.se).
+</Warning>
+
+To register an app, a member who can manage the organization's OAuth apps does the following:
+
+1. In the [sajn dashboard](https://app.sajn.se), go to **Inställningar > Utvecklare > OAuth-appar**.
+1. Create an app, and enter its name and logo. People see both on the consent screen.
+1. Add every redirect URI your app uses.
+1. Select the scopes your app can request.
+1. Copy the client ID and the client secret. The secret is shown only once; store it in a secret manager.
+
+A redirect URI must use HTTPS, except on a loopback host (`localhost`, `127.0.0.1`, or `[::1]`), where HTTP is allowed. A private-use scheme, such as `com.example.app://callback`, is also allowed. A redirect URI can't have a fragment. At authorization time, sajn matches the URI exactly, except that it ignores the port of a loopback URI.
+
+AI assistants that connect to the [workspace MCP server](/ai/workspace-mcp) register themselves instead, through dynamic client registration or a client ID metadata document. This page covers apps that you register.
+
+## Send the person to sajn
+
+To start the flow, redirect the person's browser to the authorize URL with the following query parameters:
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `response_type` | Yes | Must be `code`. |
+| `client_id` | Yes | Your app's client ID. |
+| `redirect_uri` | Yes | One of your app's registered redirect URIs. |
+| `scope` | Yes | The scopes your app asks for, separated by spaces. Every scope must be one you selected when you registered the app, or the request fails. |
+| `state` | Recommended | A random value that you store in the person's session. sajn returns it unchanged, so you can reject a callback that your app didn't start. |
+| `code_challenge` | Recommended | The PKCE code challenge. See [Use PKCE](#use-pkce). |
+| `code_challenge_method` | With `code_challenge` | Must be `S256`. sajn rejects `plain`. |
+
+The following URL is an example:
+
+```text
+https://app.sajn.se/api/oauth/authorize?response_type=code&client_id=CLIENT_ID&redirect_uri=https%3A%2F%2Fapp.example.com%2Foauth%2Fcallback&scope=profile%3Aread%20documents%3Aread%20documents%3Awrite&state=STATE&code_challenge=CODE_CHALLENGE&code_challenge_method=S256
+```
+
+Replace the following:
+
+- `CLIENT_ID`: your app's client ID.
+- `STATE`: the random value you stored in the person's session.
+- `CODE_CHALLENGE`: the code challenge you derived from your code verifier.
+
+If the person isn't signed in, sajn asks them to sign in first. On the consent screen, they select an organization and one of their workspaces in it. To approve, they need the **Ansluta OAuth-appar** permission in that workspace, which every member has by default. An administrator can remove it from a role to stop its members from connecting apps.
+
+If the request itself is invalid, such as an unknown client ID, a redirect URI that isn't registered, or a scope your app can't request, sajn shows an error page and doesn't redirect.
+
+### Use PKCE
+
+PKCE ([RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636)) binds the authorization code to the app that started the flow, so a code that leaks can't be exchanged by anyone else. An app registered in the dashboard is confidential, so PKCE is optional for it, but we recommend it.
+
+Before you redirect, create a random code verifier and derive the challenge from it with SHA-256:
+
+<CodeGroup>
+
+```javascript Node.js
+import { createHash, randomBytes } from 'node:crypto';
+
+const codeVerifier = randomBytes(32).toString('base64url');
+const codeChallenge = createHash('sha256')
+  .update(codeVerifier)
+  .digest('base64url');
+```
+
+```python Python
+import base64
+import hashlib
+import secrets
+
+code_verifier = secrets.token_urlsafe(32)
+code_challenge = (
+    base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest())
+    .rstrip(b"=")
+    .decode()
+)
+```
+
+</CodeGroup>
+
+Store the code verifier in the person's session, and send the code challenge in the authorize URL.
+
+## Handle the callback
+
+When the person approves, sajn redirects to your `redirect_uri` with the code and your `state`:
+
+```text
+https://app.example.com/oauth/callback?code=AUTHORIZATION_CODE&state=STATE
+```
+
+When the person denies access, the redirect carries an error instead:
+
+```text
+https://app.example.com/oauth/callback?error=access_denied&state=STATE
+```
+
+Check that `state` matches the value in the person's session before you continue. The authorization code expires after 10 minutes and works only once.
+
+## Exchange the code for tokens
+
+To get tokens, send a `POST` request to the token endpoint from your server. The body can be form-encoded (`application/x-www-form-urlencoded`) or JSON, and has the following fields:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `grant_type` | Yes | `authorization_code`. |
+| `code` | Yes | The code from the callback. |
+| `redirect_uri` | Yes | The same redirect URI you sent to the authorize URL. |
+| `client_id` | Yes | Your app's client ID. |
+| `client_secret` | Yes | Your app's client secret. sajn reads it from the body only; HTTP Basic authentication isn't supported. |
+| `code_verifier` | With PKCE | The code verifier you created before the redirect. |
+
+<CodeGroup>
+
+```bash curl
+curl https://app.sajn.se/api/oauth/token \
+  -d grant_type=authorization_code \
+  -d code=AUTHORIZATION_CODE \
+  --data-urlencode redirect_uri=https://app.example.com/oauth/callback \
+  -d client_id=CLIENT_ID \
+  -d client_secret=CLIENT_SECRET \
+  -d code_verifier=CODE_VERIFIER
+```
+
+```javascript Node.js
+const response = await fetch('https://app.sajn.se/api/oauth/token', {
+  method: 'POST',
+  body: new URLSearchParams({
+    grant_type: 'authorization_code',
+    code: authorizationCode,
+    redirect_uri: 'https://app.example.com/oauth/callback',
+    client_id: process.env.SAJN_CLIENT_ID,
+    client_secret: process.env.SAJN_CLIENT_SECRET,
+    code_verifier: codeVerifier,
+  }),
+});
+
+const tokens = await response.json();
+```
+
+```python Python
+import os
+
+import requests
+
+response = requests.post(
+    "https://app.sajn.se/api/oauth/token",
+    data={
+        "grant_type": "authorization_code",
+        "code": authorization_code,
+        "redirect_uri": "https://app.example.com/oauth/callback",
+        "client_id": os.environ["SAJN_CLIENT_ID"],
+        "client_secret": os.environ["SAJN_CLIENT_SECRET"],
+        "code_verifier": code_verifier,
+    },
+)
+
+tokens = response.json()
+```
+
+</CodeGroup>
+
+In the curl sample, replace `AUTHORIZATION_CODE`, `CLIENT_ID`, `CLIENT_SECRET`, and `CODE_VERIFIER` with your values. Without PKCE, leave out `code_verifier`.
+
+The response is similar to the following:
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzIn0.c2lnbmF0dXJl",
+  "token_type": "Bearer",
+  "expires_in": 900,
+  "refresh_token": "3f6c1a9e-2b7d-4e8f-a1c5-9d0b6e4f2a7c",
+  "scope": "profile:read documents:read documents:write"
+}
+```
+
+- `access_token`: the token for API requests. It expires after `expires_in` seconds, which is 15 minutes.
+- `refresh_token`: the token that gets you a new access token. Store it encrypted, together with the organization and workspace it belongs to.
+- `scope`: the scopes the person granted, separated by spaces.
+
+## Call the API
+
+Send the access token in the `Authorization` header, as you would an API key:
+
+```bash
+curl https://app.sajn.se/api/v1/me \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Sajn-Version: 2026-10"
+```
+
+Your app has its own API version, set to the latest version when you create the app. A request without the `Sajn-Version` header uses the app's version, never the default of the organization that connected the app. We recommend sending the header on every request. For more information, see [OAuth app version](/api-fundamentals/versioning#oauth-app-version).
+
+[`GET /api/v1/me`](/api-reference/get-authenticated-user-+-workspace-context) returns the person, the workspace, and the organization the token is bound to. It requires the `profile:read` scope.
+
+A request with an OAuth token can do only what both of the following allow:
+
+- The person's role in the workspace. If the role lacks a permission, the request fails with `403 PERMISSION_DENIED`.
+- The scopes the person granted. If a scope is missing, the request fails with `403 INSUFFICIENT_SCOPE`, and the body lists `requiredScopes` and `grantedScopes`.
+
+An endpoint that no scope covers isn't available to OAuth apps, and returns `403 PERMISSION_DENIED`. The connecting organization needs a plan that includes the API, Team or above, or requests fail with `403 PLAN_REQUIRED`. Requests count against the organization's [rate limits](/api-fundamentals/rate-limits), shared with its API keys.
+
+To work in another workspace, send the person through the authorize URL again and let them select it. Each authorization gives you a separate pair of tokens.
+
+## Refresh the access token
+
+When the access token expires, API requests fail with `401 UNAUTHORIZED`. To get a new one, send the refresh token to the token endpoint:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `grant_type` | Yes | `refresh_token`. |
+| `refresh_token` | Yes | Your current refresh token. |
+| `client_id` | Yes | Your app's client ID. |
+| `client_secret` | Yes | Your app's client secret. |
+
+<CodeGroup>
+
+```bash curl
+curl https://app.sajn.se/api/oauth/token \
+  -d grant_type=refresh_token \
+  -d refresh_token=REFRESH_TOKEN \
+  -d client_id=CLIENT_ID \
+  -d client_secret=CLIENT_SECRET
+```
+
+```javascript Node.js
+const response = await fetch('https://app.sajn.se/api/oauth/token', {
+  method: 'POST',
+  body: new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: storedRefreshToken,
+    client_id: process.env.SAJN_CLIENT_ID,
+    client_secret: process.env.SAJN_CLIENT_SECRET,
+  }),
+});
+
+const tokens = await response.json();
+// Store tokens.refresh_token before you use tokens.access_token.
+```
+
+```python Python
+import os
+
+import requests
+
+response = requests.post(
+    "https://app.sajn.se/api/oauth/token",
+    data={
+        "grant_type": "refresh_token",
+        "refresh_token": stored_refresh_token,
+        "client_id": os.environ["SAJN_CLIENT_ID"],
+        "client_secret": os.environ["SAJN_CLIENT_SECRET"],
+    },
+)
+
+tokens = response.json()
+# Store tokens["refresh_token"] before you use tokens["access_token"].
+```
+
+</CodeGroup>
+
+The response has the same fields as the code exchange, including a new refresh token.
+
+### Rotation
+
+Refresh tokens rotate: every refresh returns a new refresh token, and the one you sent stops working at once. There's no grace period, so follow these rules:
+
+- **Store the new refresh token before you do anything else with the response.** If you lose it, the person has to authorize your app again.
+- **Refresh from one place at a time.** If two refreshes with the same token run at the same time, one succeeds and the other fails with `invalid_grant`. Serialize refreshes per token, for example with a lock.
+- **Refresh when you need to, not on every request.** The previous access token keeps working until it expires, so you can refresh when a request returns `401` or shortly before `expires_in` runs out.
+
+A refresh token expires 180 days after it was issued. Each refresh issues a new one with a new 180 days, so an app that refreshes at least that often keeps its access until the person or an administrator revokes it.
+
+## Revoke access
+
+To disconnect your app, such as when a customer uninstalls it, send the refresh token to the revoke endpoint ([RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009)):
+
+```bash
+curl https://app.sajn.se/api/oauth/revoke \
+  -d token=REFRESH_TOKEN \
+  -d client_id=CLIENT_ID \
+  -d client_secret=CLIENT_SECRET
+```
+
+The endpoint revokes the authorization the refresh token belongs to, and every access token issued from it stops working immediately. It accepts only refresh tokens: an access token in `token` revokes nothing. The response is always `200 OK` with an empty body, even for an unknown token, so it never reveals whether a token exists.
+
+People can also revoke your app themselves, under **Inställningar > Appar** in the dashboard, and organization members with permission to revoke app access can revoke any app connected to the organization, under **Inställningar > Utvecklare > OAuth-appar**. After a revocation, API requests return `401 UNAUTHORIZED` and refreshes fail with `invalid_grant`. Send the person through the authorize URL to reconnect.
+
+## Token endpoint errors
+
+The token endpoint returns OAuth 2.0 errors, not the [error shape](/api-fundamentals/errors) of the REST API:
+
+```json
+{
+  "error": "invalid_grant",
+  "error_description": "Authorization code expired"
+}
+```
+
+| `error` | Status | Cause |
+|---------|--------|-------|
+| `invalid_request` | 400 | A required field is missing, `grant_type` isn't supported, or the body can't be parsed. |
+| `invalid_client` | 401 | The client secret is wrong, or the code was issued to another client. |
+| `invalid_grant` | 400 | The code is invalid, expired, or already used; `redirect_uri` doesn't match; the code verifier doesn't match; or the refresh token is invalid, expired, or revoked. |
+| `invalid_request` | 429 | Too many token requests. Wait the number of seconds in the `Retry-After` header, and then retry. |
+| `server_error` | 500 | Something went wrong on sajn's side. |
+
+The token endpoint allows 60 requests per minute from one IP address and 600 per minute for one client.
+
+## Scopes
+
+A scope limits what a token can do, on top of the person's role. Request only the scopes your app needs; the consent screen lists each one. Scopes don't include each other: `documents:write` doesn't grant `documents:read`, so request both if you need both. Each endpoint's page in the API reference lists the scopes it requires.
+
+| Scope | Grants |
+|-------|--------|
+| `profile:read` | Read the user's profile, including name, phone number and email address. |
+| `documents:read` | Read documents. |
+| `documents:write` | Create documents and edit the documents the user created. |
+| `documents:delete` | Delete documents, files, folders, custom fields and comment threads. |
+| `forms:read` | Read forms and their settings. |
+| `forms:write` | Create, edit and publish forms. |
+| `forms:delete` | Permanently delete forms and their submissions. |
+| `forms:submissions:read` | Read form submissions and the respondents' contact details. |
+| `templates:read` | Read templates. |
+| `templates:write` | Create and edit templates. |
+| `contacts:read` | Read contacts. |
+| `contacts:write` | Create and edit contacts. |
+| `contacts:delete` | Delete contacts. |
+| `organization:read` | Read information about the organization. |
+| `audit:read` | Read document activity and event logs. |
+| `signatures:read` | Read the identity the eID verified at signing, including the national identity number. |
+| `sajnid:read` | Read sajn ID verifications. |
+| `sajnid:write` | Create sajn ID verifications. |
+| `login:read` | Read the result of sajn Login sessions. |
+| `login:write` | Start sajn Login sessions. |
+| `webhooks:read` | Read webhooks and their deliveries. |
+| `webhooks:write` | Create, edit and delete webhooks. |
+| `actions:read` | Read suggested actions and what each one does. |
+| `actions:write` | Approve, dismiss and snooze suggested actions. An approval can send reminders to counterparties, terminate agreements and create follow-ups. |
+| `members:read` | Read the workspace's members. |
+| `members:write` | Invite and manage workspace members. |
+| `roles:read` | Read the workspace's roles and permissions. |
+| `roles:write` | Create, edit and delete workspace roles. |
+
+`signatures:read` exposes national identity numbers, such as Swedish personnummer. Request it only if your app needs to know who signed, and handle the data as personal data.
+
+## Next steps
+
+- [Errors](/api-fundamentals/errors): the error shape of the REST API, including `INSUFFICIENT_SCOPE`.
+- [Rate limits and quotas](/api-fundamentals/rate-limits): the limits your app shares with the organization's API keys.
+- [Webhooks](/webhooks/overview): get notified of changes instead of polling.
