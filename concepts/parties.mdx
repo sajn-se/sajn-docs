@@ -27,7 +27,24 @@ A document completes when every `SIGNER` has signed. A document needs at least o
 
 ## Individuals and companies
 
-A party's `type` is `COMPANY` when it has a company name and organization number, and `INDIVIDUAL` otherwise. A company party is a person who signs on behalf of the company. Send `companyName` and `companyOrgNumber` together, and optionally `companyRole`, such as `CEO`.
+A party's `type` is `COMPANY` when it has a company, and `INDIVIDUAL` otherwise. A company party is a person who signs on behalf of the company. The party's `company` object holds the company, and is `null` for a private individual. The following excerpt shows a company party:
+
+```json
+{
+  "name": "Quinn Holm",
+  "email": "quinn@example.com",
+  "role": "SIGNER",
+  "country": "SE",
+  "company": {
+    "id": "cm4k2x9p50007abcd7890uvwx",
+    "name": "Example AB",
+    "orgNumber": "556677-8899",
+    "role": "CEO"
+  }
+}
+```
+
+To add a company party by name, send `company` with `name`, `orgNumber`, and optionally `role`. To make a party a private individual, [update the party](/api-reference/update-a-party) with `company: null`. A party's `country` is an ISO 3166-1 alpha-2 code, such as `SE`.
 
 ## Add a party
 
@@ -44,7 +61,7 @@ The following request creates a document with two parties, one from a contact an
 {
   "name": "Partnership agreement",
   "expiresAt": "2030-01-01T00:00:00Z",
-  "documentMeta": { "signingOrder": "SEQUENTIAL" },
+  "documentMeta": { "signingMode": "SEQUENTIAL" },
   "parties": [
     {
       "contactId": "cm4k2x9p40006abcd3456qrst",
@@ -67,7 +84,7 @@ To set a phone number or national ID on a party you added by name, [update the p
 
 ## Signing order
 
-The document's `documentMeta.signingOrder` decides whether parties sign at the same time:
+The document's `documentMeta.signingMode` decides whether parties sign at the same time:
 
 ```mermaid
 flowchart LR
@@ -170,9 +187,9 @@ Only this endpoint returns `signingUrl`. The party list and the document leave i
 
 ## Change a party
 
-You can [update](/api-reference/update-a-party) or [remove](/api-reference/remove-a-party-from-document) a party until they sign, also after the document is sent. After a party signs, their details can't change.
+On a draft, you can [update](/api-reference/update-a-party) every property of a party, and `null` clears `phone`, `externalId`, `nationalId`, or a key of `company`. You can [remove](/api-reference/remove-a-party-from-document) a party who hasn't signed, from a draft or a sent document.
 
-Include `role` in every update request. If you leave it out, the party's role is set to `SIGNER`.
+After you send the document, you can correct the `name`, `email`, and `phone` of a party who hasn't signed. Any other property returns `409 INVALID_STATE`; to change it, withdraw the document first. After a party signs, their details can't change.
 
 ## Next steps
 

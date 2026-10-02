@@ -44,7 +44,7 @@ client, bouncing the user anywhere would make the endpoint an open redirector.
 ## BankID hint codes
 
 When a login fails on the BankID side, the reason appears as a hint code — on the login page, and
-in the `reason` field of a [`LOGIN_FAILED` webhook](/login/webhooks).
+in `data.object.reason` of a [`login.failed` webhook](/login/webhooks).
 
 | Hint code | Meaning | Recoverable |
 | --- | --- | --- |
@@ -60,17 +60,22 @@ and notifying on every mistyped cancel would flood your endpoint.
 
 ## Session API errors
 
-| HTTP | Meaning |
-| --- | --- |
-| `400` | `redirectUri` is not registered on the client, or the body is malformed |
-| `401` | Missing or invalid API key |
-| `403` | The organization does not have sajn Login enabled |
-| `404` | Unknown session, expired result, **or a session belonging to another workspace** |
-| `429` | Rate limited — see [Rate limits](/api-fundamentals/rate-limits) |
+The Session API returns the same error body as the rest of the sajn API: branch on `code`, show
+`userMessage` to your users, and log `requestId`. For the full shape, see
+[Errors](/api-fundamentals/errors).
+
+| HTTP | `code` | Cause |
+| --- | --- | --- |
+| `400` | `VALIDATION_FAILED` | `redirectUri` isn't registered on the client, or the body is malformed |
+| `401` | `UNAUTHORIZED` | The API key is missing, invalid, expired, or revoked |
+| `403` | `PERMISSION_DENIED` | The client isn't approved, or the organization doesn't have sajn Login enabled or isn't active |
+| `403` | `INSUFFICIENT_SCOPE` | An OAuth token lacks `login:write` (start) or `login:read` (read) |
+| `404` | `NOT_FOUND` | `resource` is `client`: the `clientId` is unknown or belongs to another workspace. `resource` is `login_session`: the session is unknown, expired, or belongs to another workspace |
+| `429` | `RATE_LIMITED` | Too many requests. See [Rate limits](/api-fundamentals/rate-limits) |
 
 <Note>
-  A session from another workspace answers `404`, not `403`. "Exists but isn't yours" is itself
-  information, so we do not confirm it.
+  A session or client from another workspace answers `404`, not `403`. "Exists but isn't yours"
+  is itself information, so sajn doesn't confirm it.
 </Note>
 
 ## Diagnosing by symptom
@@ -85,7 +90,7 @@ and notifying on every mistyped cancel would flood your endpoint.
   <Accordion title="The user says they logged in but nothing happened">
     Classic abandoned-browser case: they completed BankID and closed the in-app browser before the
     redirect. The authentication succeeded on our side. Subscribe to
-    [`LOGIN_COMPLETED`](/login/webhooks) to see it.
+    [`login.completed`](/login/webhooks) to see it.
   </Accordion>
 
   <Accordion title="id_token signature verification fails">

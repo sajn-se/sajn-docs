@@ -60,8 +60,8 @@ If you leave out `requiredSignature`, the party gets the workspace's default sig
         "Sajn-Version": "2026-10",
       },
     });
-    const { items } = await response.json();
-    console.log(items.map((item) => item.code));
+    const { data } = await response.json();
+    console.log(data.map((method) => method.code));
     ```
 
     ```python Python
@@ -77,7 +77,7 @@ If you leave out `requiredSignature`, the party gets the workspace's default sig
         },
     )
     response.raise_for_status()
-    print([item["code"] for item in response.json()["items"]])
+    print([method["code"] for method in response.json()["data"]])
     ```
 
     </CodeGroup>
@@ -86,7 +86,7 @@ If you leave out `requiredSignature`, the party gets the workspace's default sig
 
     ```json
     {
-      "items": [
+      "data": [
         { "code": "SE_BANKID", "label": "BankID" },
         { "code": "DK_MITID", "label": "MitID" },
         { "code": "DK_MITID_ERHVERV", "label": "MitID Erhverv" },
@@ -116,14 +116,14 @@ If you leave out `requiredSignature`, the party gets the workspace's default sig
           { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER",
             "requiredSignature": "SE_BANKID" },
           { "name": "Robin Laine", "email": "robin@example.net", "role": "SIGNER",
-            "requiredSignature": "FI_FTN", "country": "FIN" },
+            "requiredSignature": "FI_FTN", "country": "FI" },
           { "name": "Kai Berg", "email": "kai@example.com", "role": "SIGNER",
             "requiredSignature": "CLICK_TO_SIGN" }
         ]
       }'
     ```
 
-    Replace `TEMPLATE_ID` with the ID of a template. `country` is the party's ISO 3166-1 alpha-3 country code. To change the method later, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` with `requiredSignature` and the party's `role`; an update without `role` sets it to `SIGNER`.
+    Replace `TEMPLATE_ID` with the ID of a template. `country` is the party's ISO 3166-1 alpha-2 country code. To change the method later, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` with `requiredSignature`.
   </Step>
 
   <Step title="Optional: Add a verification step">
@@ -134,7 +134,7 @@ If you leave out `requiredSignature`, the party gets the workspace's default sig
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
-      -d '{ "role": "SIGNER", "phone": "+46700000000", "twoStepVerification": "SMS_BEFORE_SIGNING" }'
+      -d '{ "phone": "+46700000000", "twoStepVerification": "SMS_BEFORE_SIGNING" }'
     ```
 
     To make every party verify before the document even opens, set `documentMeta.accessVerification` on the document instead:

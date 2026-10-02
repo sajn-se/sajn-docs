@@ -8,7 +8,7 @@ In this guide, you embed the sajn signing page in a React app with the `@sajn/em
 ## Before you begin
 
 - Turn on embedding for your organization and add your domain to the allowlist. For more information, see [Embedded signing](/guides/embedding/overview#turn-on-embedding).
-- On your server, create the document and get the party's `token` from `GET /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID`. Never call the sajn API from the browser, because the request needs your API key.
+- On your server, create the document and read the party's token from the `signingUrl` that `GET /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` returns. For the steps, see [Embed the signing page](/guides/embedding/overview#embed-the-signing-page). Never call the sajn API from the browser, because the request needs your API key.
 
 ## Demo
 

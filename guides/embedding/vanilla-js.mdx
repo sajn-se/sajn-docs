@@ -8,7 +8,7 @@ In this guide, you embed the sajn signing page in a web page with the `@sajn/emb
 ## Before you begin
 
 - Turn on embedding for your organization and add your domain to the allowlist. For more information, see [Embedded signing](/guides/embedding/overview#turn-on-embedding).
-- On your server, create the document and get the party's `token` from `GET /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID`. Never call the sajn API from the browser, because the request needs your API key.
+- On your server, create the document and read the party's token from the `signingUrl` that `GET /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` returns. For the steps, see [Embed the signing page](/guides/embedding/overview#embed-the-signing-page). Never call the sajn API from the browser, because the request needs your API key.
 
 ## Installation
 
@@ -132,7 +132,7 @@ Or with CDN, the component is automatically registered.
 | Attribute | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `document-id` | `string` | Yes | Document ID |
-| `token` | `string` | Yes | The party's `token` |
+| `token` | `string` | Yes | The party's token |
 | `host` | `string` | No | Custom host URL |
 | `language` | `string` | No | UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
 | `class-name` | `string` | No | CSS class for iframe |
@@ -270,7 +270,7 @@ interface EmbedViewDocumentOptions {
   // Required
   element: HTMLElement | string;  // Target element or CSS selector
   documentId: string;             // Document ID
-  token: string;                  // The party's `token`, the same as for signing
+  token: string;                  // The party's token, the same as for signing
 
   // Optional
   host?: string;                  // Default: 'https://app.sajn.se'

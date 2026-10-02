@@ -66,8 +66,8 @@ check, and that all times are Swedish time.
 
 The signing certificate is a summary, not the full record. Two other artifacts carry the detail:
 
-- **The signing journal.** A separate PDF with the complete event log. Download it with
-  `fileType=JOURNAL`. See [Downloading signed documents](/guides/documents/downloading-documents).
+- **The signing journal.** A separate PDF with the complete event log. Get it with
+  `GET /documents/{id}/files/JOURNAL`. See [Downloading signed documents](/guides/documents/downloading-documents).
 - **Embedded evidence files.** The sealed PDF carries two attachments inside the PAdES
   ByteRange: `audit-trail.html`, the event log up to sealing, and `evidence.json`,
   machine-readable evidence data for independent verification. The eID artifacts themselves —

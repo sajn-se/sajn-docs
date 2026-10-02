@@ -222,6 +222,8 @@ curl https://app.sajn.se/api/v1/me \
   -H "Sajn-Version: 2026-10"
 ```
 
+Your app has its own API version, set to the latest version when you create the app. A request without the `Sajn-Version` header uses the app's version, never the default of the organization that connected the app. We recommend sending the header on every request. For more information, see [OAuth app version](/api-fundamentals/versioning#oauth-app-version).
+
 [`GET /api/v1/me`](/api-reference/get-authenticated-user-+-workspace-context) returns the person, the workspace, and the organization the token is bound to. It requires the `profile:read` scope.
 
 A request with an OAuth token can do only what both of the following allow:

@@ -5,7 +5,7 @@ description: "Create a public form, configure its questions and document, publis
 
 In this guide, you create a public form: a hosted link where visitors answer questions and then sign a document. You configure the questions and the document, publish the link, and sync the responses to your system.
 
-Each form owns its own document base, a template that only the form uses. Every submission creates an ordinary sajn document from it.
+Each form owns its own template, which only the form uses. Every submission creates an ordinary sajn document from it.
 
 ## Before you begin
 
@@ -16,7 +16,7 @@ An OAuth app requests the following scopes. An API key uses its user's workspace
 
 | Scope | Access |
 | --- | --- |
-| `forms:read` | Form configuration, the document base, and statistics. |
+| `forms:read` | Form configuration, the form's template, and statistics. |
 | `forms:write` | Creating and managing forms and their public links. |
 | `forms:delete` | Deleting forms and their submission records permanently. |
 | `forms:submissions:read` | Respondents' contact details and answers. |
@@ -38,7 +38,7 @@ An OAuth app requests the following scopes. An API key uses its user's workspace
       -d '{ "templateId": "TEMPLATE_ID" }'
     ```
 
-    Replace `TEMPLATE_ID` with the template to copy. The request returns `201` with the form: its `id`, `templateId` (the form's own document base), `respondentPartyId`, `url`, its settings, and `publishIssues`. The copy has new field and party IDs, and later changes to the source template don't affect it.
+    Replace `TEMPLATE_ID` with the template to copy. The response is the form: its `id`, `templateId` (the form's own template), `respondentPartyId`, `url`, its settings, and `publishIssues`. The copy has new field and party IDs, and later changes to the source template don't affect it.
   </Step>
 
   <Step title="Configure the questions and settings">
@@ -50,13 +50,13 @@ An OAuth app requests the following scopes. An API key uses its user's workspace
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "title": "Registration",
+        "name": "Registration",
         "documentExpiresInDays": 30,
         "maxSubmissions": 500,
         "questions": [
-          { "id": "name", "kind": "name", "required": true },
-          { "id": "email", "kind": "email", "required": true },
-          { "id": "notes", "kind": "text", "label": "Additional information", "required": false, "multiline": true }
+          { "id": "name", "kind": "NAME", "required": true },
+          { "id": "email", "kind": "EMAIL", "required": true },
+          { "id": "notes", "kind": "TEXT", "label": "Additional information", "required": false, "multiline": true }
         ]
       }'
     ```
@@ -64,19 +64,19 @@ An OAuth app requests the following scopes. An API key uses its user's workspace
     Replace `FORM_ID` with the form `id`. The request works as follows:
 
     - Settings you leave out stay unchanged, and `null` clears a nullable setting. For `password`, leaving it out keeps the password, `null` removes it, and a string replaces it. Responses show `hasPassword`, never the password.
-    - `questions` replaces the whole ordered list. The kinds are `name`, `email`, `phone`, `field`, `text`, `heading`, and `paragraph`. The `name` question is always required.
-    - A `field` question writes its answer into the document, through a `key` from the form's `slots`. A `text` answer is stored on the submission only.
+    - `questions` replaces the whole ordered list. The kinds are `NAME`, `EMAIL`, `PHONE`, `FIELD`, `TEXT`, `HEADING`, and `PARAGRAPH`. The `NAME` question is always required.
+    - A `FIELD` question writes its answer into the document, through a `key` from the form's `slots`. A `TEXT` answer is stored on the submission only.
     - `redirectUrl` must be an `http` or `https` URL.
 
     Saving settings doesn't publish the form, reopen a closed form, or change its sender.
   </Step>
 
-  <Step title="Edit the document and the respondent">
-    Read `GET /api/v1/forms/FORM_ID/document` for the document's settings, content blocks, and parties. Then change them with the form's document endpoints:
+  <Step title="Edit the template and the respondent">
+    Read `GET /api/v1/forms/FORM_ID/template` for the template's settings, content blocks, and parties. Then change them with the form's template endpoints:
 
-    - `PATCH /api/v1/forms/FORM_ID/document`: change `name` and `templateMeta`, such as `signingOrder`.
-    - `PUT /api/v1/forms/FORM_ID/document/fields`: replace `fields` with the complete ordered list of content blocks. Include the IDs of fields to keep, and leave out IDs for new fields. Fields you leave out are deleted, and existing fields can't change type.
-    - `PUT /api/v1/forms/FORM_ID/document/parties`: replace `parties`. Include the IDs of parties to keep, and leave out IDs for new parties. Properties you leave out on kept parties, including contact links and write-only PINs, stay unchanged. Parties you leave out are deleted.
+    - `PATCH /api/v1/forms/FORM_ID/template`: change `name` and `templateMeta`, such as `signingMode`. The response is the template.
+    - `PUT /api/v1/forms/FORM_ID/template/fields`: replace `fields` with the complete ordered list of content blocks. Include the IDs of fields to keep, and leave out IDs for new fields. Fields you leave out are deleted, and existing fields can't change type.
+    - `PUT /api/v1/forms/FORM_ID/template/parties`: replace `parties`. Include the IDs of parties to keep, and leave out IDs for new parties. Properties you leave out on kept parties, including contact links and write-only PINs, stay unchanged, and `null` clears a property. Parties you leave out are deleted. Like other parties, these nest their company in `company`, with `name`, `orgNumber`, and `role`.
     - `PUT /api/v1/forms/FORM_ID/respondent` with `{ "partyId": "PARTY_ID" }`: choose which `SIGNER` party the visitor becomes.
 
     Existing submissions don't change. An edit to a published form can close it when a readiness check finds a blocker, so read `GET /api/v1/forms/FORM_ID` afterward for `publishIssues` and the bindable `slots`.
@@ -91,19 +91,19 @@ An OAuth app requests the following scopes. An API key uses its user's workspace
 
     Publishing checks the document, the expiry, the capacity, the sender's permissions, the workspace policy, and access to the signing methods. You become the sender of every document the form creates. If the request reports blockers, fix them and publish again. Then share the form's `url`. Visitors answer and sign on the hosted pages; the API can't submit or sign on their behalf.
 
-    To stop new submissions and keep the URL for later, send a `POST` request to `/api/v1/forms/FORM_ID/unpublish`. To replace the link, for example after it leaked, send a `POST` request to `/api/v1/forms/FORM_ID/rotate-token`. The old link stops working, including printed QR codes, but signing links already sent keep working.
+    To stop new submissions and keep the URL for later, send a `POST` request to `/api/v1/forms/FORM_ID/unpublish`. To replace the link, for example after it leaked, send a `POST` request to `/api/v1/forms/FORM_ID/rotate-token`; the response is the form with the new `url`. The old link stops working, including printed QR codes, but signing links already sent keep working.
   </Step>
 
   <Step title="Sync the responses">
-    Subscribe a webhook to `FORM_SUBMITTED` to hear about each submission, and page through the submissions to sync them:
+    Subscribe a webhook to `form.submitted` to hear about each submission; the event's `data.object` is the submission. To sync the submissions, page through the ones that changed since your last sync, oldest change first:
 
     ```bash
-    curl "https://app.sajn.se/api/v1/forms/FORM_ID/submissions?perPage=100&updatedAfter=2026-10-01T00:00:00Z" \
+    curl "https://app.sajn.se/api/v1/forms/FORM_ID/submissions?limit=100&updatedAfter=2026-10-01T00:00:00Z&orderBy=updatedAt&orderDirection=asc" \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
 
-    The response has `submissions`, `hasNextPage`, and `nextCursor`. To get the next page, pass `nextCursor` as `cursor` with the same filters. Rows are ordered by `updatedAt` and then ID, and a response can change while you page, so upsert each submission by its ID.
+    The response has the submissions in `data`, plus `hasMore` and `nextCursor`. While `hasMore` is `true`, pass `nextCursor` as `cursor` with the same filters and sort. A submission can change while you page, so upsert each one by its ID.
 
     - `updatedAfter` finds status changes since your last sync. `submittedAfter` filters by submission time.
     - `status` takes `STARTED`, `SUBMITTED`, `COMPLETED`, or `EXPIRED`.
@@ -113,7 +113,7 @@ An OAuth app requests the following scopes. An API key uses its user's workspace
 
 ## Delete a form
 
-`DELETE /api/v1/forms/FORM_ID` permanently removes the form, its document base, and its submission records. Export the responses you need first. Documents the form already created stay as ordinary documents.
+`DELETE /api/v1/forms/FORM_ID` permanently removes the form, its template, and its submission records, and returns `{ "id": "FORM_ID", "deleted": true }`. Export the responses you need first. Documents the form already created stay as ordinary documents.
 
 ## Handle errors
 
@@ -130,7 +130,7 @@ For the error shape and every code, see [Errors](/api-fundamentals/errors).
     Learn how forms differ from templates.
   </Card>
   <Card title="Webhook events" icon="webhook" href="/webhooks/events">
-    Handle `FORM_SUBMITTED` and document events.
+    Handle `form.submitted` and document events.
   </Card>
   <Card title="Create a draft form" icon="code" href="/api-reference/create-a-draft-form">
     See the form endpoints in the API reference.

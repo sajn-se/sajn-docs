@@ -98,8 +98,8 @@ signing flow repeatedly instead of sending a new document for each assertion.
 
 ## Tell the environments apart
 
-Webhook deliveries carry an `X-Sajn-Environment` header, set to `sandbox` or `production`. Use
-it when both environments post to the same endpoint. For more information, see [Webhooks](/webhooks/overview).
+Every webhook event has an `environment` property, set to `SANDBOX` or `PRODUCTION`. Use it
+when both environments post to the same endpoint. For more information, see [Webhook payloads](/webhooks/payloads).
 
 To check which organization and workspace a key points at, call
 [`GET /api/v1/me`](/api-reference/get-authenticated-user-+-workspace-context).

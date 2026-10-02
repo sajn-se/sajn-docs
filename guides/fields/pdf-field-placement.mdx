@@ -28,17 +28,17 @@ If your own model uses fractions measured from the top-left corner, convert them
 
 Each box has an `id` that's unique in the field, and a `kind`:
 
-- `input` with `inputType` `signature` or `initials`: a mark that the party in `partyId` draws when signing. sajn seals the mark into the PDF at this position. The party must have the `SIGNER` role.
-- `input` with `inputType` `text`, `date`, `checkbox`, or `select`: a value that the party in `partyId` fills in before signing. Add `options` for `select` and `"multiline": true` for long text. If `required` is `true`, the party can't sign until it's filled in. Without a `partyId`, you fill the box in yourself.
-- `static`: fixed text that you stamp on the page. `content` is HTML, and `style` takes `fontSize` (6 to 72), `color` (hex), `bold`, `italic`, and `align`.
+- `INPUT` with `inputType` `SIGNATURE` or `INITIALS`: a mark that the party in `partyId` draws when signing. sajn seals the mark into the PDF at this position. The party must have the `SIGNER` role.
+- `INPUT` with `inputType` `TEXT`, `DATE`, `CHECKBOX`, or `SELECT`: a value that the party in `partyId` fills in before signing. Add `options` for `SELECT` and `"multiline": true` for long text. If `required` is `true`, the party can't sign until it's filled in. Without a `partyId`, you fill the box in yourself.
+- `STATIC`: fixed text that you stamp on the page. `content` is HTML, and `style` takes `fontSize` (6 to 72), `color` (hex), `bold`, `italic`, and `align` (`LEFT`, `CENTER`, or `RIGHT`).
 
-To fill in an `input` box through the API, give it a `key`. Keys can contain lowercase letters, digits, hyphens, and underscores.
+Every enum value in a box is uppercase; a lowercase value, such as `input`, fails with `400 VALIDATION_FAILED`. To fill in an `INPUT` box through the API, give it a `key`. Keys can contain lowercase letters, digits, hyphens, and underscores.
 
 ## Place the boxes
 
 <Steps>
   <Step title="Create the PDF field with its boxes">
-    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields`. The following request places a signature on page 3, a start-date input on page 1, and a reference number in the top-right corner of page 1:
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields` with the PDF field in a `fields` array. The following request places a signature on page 3, a start-date input on page 1, and a reference number in the top-right corner of page 1:
 
     <CodeGroup>
 
@@ -48,24 +48,28 @@ To fill in an `input` box through the API, give it a `key`. Keys can contain low
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "type": "PDF",
-        "position": 0,
-        "fieldMeta": {
-          "type": "PDF",
-          "value": "STORAGE_KEY",
-          "placedFields": [
-            { "id": "signature", "kind": "input", "inputType": "signature",
-              "page": 2, "rect": { "x": 72, "y": 96, "width": 200, "height": 48 },
-              "partyId": "PARTY_ID", "required": true },
-            { "id": "start-date", "key": "start-date", "kind": "input", "inputType": "date",
-              "label": "Start date", "page": 0,
-              "rect": { "x": 320, "y": 640, "width": 140, "height": 22 },
-              "partyId": "PARTY_ID", "required": true },
-            { "id": "reference", "kind": "static", "content": "<p>Ref: HR-2026-0142</p>",
-              "page": 0, "rect": { "x": 400, "y": 780, "width": 150, "height": 18 },
-              "style": { "fontSize": 9, "align": "right" } }
-          ]
-        }
+        "fields": [
+          {
+            "type": "PDF",
+            "position": 0,
+            "fieldMeta": {
+              "type": "PDF",
+              "value": "STORAGE_KEY",
+              "placedFields": [
+                { "id": "signature", "kind": "INPUT", "inputType": "SIGNATURE",
+                  "page": 2, "rect": { "x": 72, "y": 96, "width": 200, "height": 48 },
+                  "partyId": "PARTY_ID", "required": true },
+                { "id": "start-date", "key": "start-date", "kind": "INPUT", "inputType": "DATE",
+                  "label": "Start date", "page": 0,
+                  "rect": { "x": 320, "y": 640, "width": 140, "height": 22 },
+                  "partyId": "PARTY_ID", "required": true },
+                { "id": "reference", "kind": "STATIC", "content": "<p>Ref: HR-2026-0142</p>",
+                  "page": 0, "rect": { "x": 400, "y": 780, "width": 150, "height": 18 },
+                  "style": { "fontSize": 9, "align": "RIGHT" } }
+              ]
+            }
+          }
+        ]
       }'
     ```
 
@@ -81,29 +85,37 @@ To fill in an `input` box through the API, give it a `key`. Keys can contain low
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        type: "PDF",
-        position: 0,
-        fieldMeta: {
-          type: "PDF",
-          value: "STORAGE_KEY",
-          placedFields: [
-            { id: "signature", kind: "input", inputType: "signature",
-              page: 2, rect: { x: 72, y: 96, width: 200, height: 48 },
-              partyId, required: true },
-            { id: "start-date", key: "start-date", kind: "input", inputType: "date",
-              label: "Start date", page: 0,
-              rect: { x: 320, y: 640, width: 140, height: 22 },
-              partyId, required: true },
-            { id: "reference", kind: "static", content: "<p>Ref: HR-2026-0142</p>",
-              page: 0, rect: { x: 400, y: 780, width: 150, height: 18 },
-              style: { fontSize: 9, align: "right" } },
-          ],
-        },
+        fields: [
+          {
+            type: "PDF",
+            position: 0,
+            fieldMeta: {
+              type: "PDF",
+              value: "STORAGE_KEY",
+              placedFields: [
+                { id: "signature", kind: "INPUT", inputType: "SIGNATURE",
+                  page: 2, rect: { x: 72, y: 96, width: 200, height: 48 },
+                  partyId, required: true },
+                { id: "start-date", key: "start-date", kind: "INPUT", inputType: "DATE",
+                  label: "Start date", page: 0,
+                  rect: { x: 320, y: 640, width: 140, height: 22 },
+                  partyId, required: true },
+                { id: "reference", kind: "STATIC", content: "<p>Ref: HR-2026-0142</p>",
+                  page: 0, rect: { x: 400, y: 780, width: 150, height: 18 },
+                  style: { fontSize: 9, align: "RIGHT" } },
+              ],
+            },
+          },
+        ],
       }),
     });
     const body = await response.json();
-    if (!response.ok) throw new Error(JSON.stringify(body.issues ?? body));
-    console.log(body.fields[0].id);
+    if (!response.ok) {
+      // VALIDATION_FAILED lists every invalid box in `issues`.
+      console.error(body.code, body.requestId, body.issues);
+      throw new Error(body.message);
+    }
+    console.log(body.data[0].id);
     ```
 
     ```python Python
@@ -121,30 +133,38 @@ To fill in an `input` box through the API, give it a `key`. Keys can contain low
             "Sajn-Version": "2026-10",
         },
         json={
-            "type": "PDF",
-            "position": 0,
-            "fieldMeta": {
-                "type": "PDF",
-                "value": "STORAGE_KEY",
-                "placedFields": [
-                    {"id": "signature", "kind": "input", "inputType": "signature",
-                     "page": 2, "rect": {"x": 72, "y": 96, "width": 200, "height": 48},
-                     "partyId": party_id, "required": True},
-                    {"id": "start-date", "key": "start-date", "kind": "input", "inputType": "date",
-                     "label": "Start date", "page": 0,
-                     "rect": {"x": 320, "y": 640, "width": 140, "height": 22},
-                     "partyId": party_id, "required": True},
-                    {"id": "reference", "kind": "static", "content": "<p>Ref: HR-2026-0142</p>",
-                     "page": 0, "rect": {"x": 400, "y": 780, "width": 150, "height": 18},
-                     "style": {"fontSize": 9, "align": "right"}},
-                ],
-            },
+            "fields": [
+                {
+                    "type": "PDF",
+                    "position": 0,
+                    "fieldMeta": {
+                        "type": "PDF",
+                        "value": "STORAGE_KEY",
+                        "placedFields": [
+                            {"id": "signature", "kind": "INPUT", "inputType": "SIGNATURE",
+                             "page": 2,
+                             "rect": {"x": 72, "y": 96, "width": 200, "height": 48},
+                             "partyId": party_id, "required": True},
+                            {"id": "start-date", "key": "start-date", "kind": "INPUT",
+                             "inputType": "DATE", "label": "Start date", "page": 0,
+                             "rect": {"x": 320, "y": 640, "width": 140, "height": 22},
+                             "partyId": party_id, "required": True},
+                            {"id": "reference", "kind": "STATIC",
+                             "content": "<p>Ref: HR-2026-0142</p>", "page": 0,
+                             "rect": {"x": 400, "y": 780, "width": 150, "height": 18},
+                             "style": {"fontSize": 9, "align": "RIGHT"}},
+                        ],
+                    },
+                },
+            ],
         },
     )
     body = response.json()
     if not response.ok:
-        raise RuntimeError(body.get("issues", body))
-    print(body["fields"][0]["id"])
+        # VALIDATION_FAILED lists every invalid box in `issues`.
+        print(body["code"], body["requestId"], body.get("issues"))
+        raise RuntimeError(body["message"])
+    print(body["data"][0]["id"])
     ```
 
     </CodeGroup>
@@ -155,7 +175,7 @@ To fill in an `input` box through the API, give it a `key`. Keys can contain low
     - `STORAGE_KEY`: the `key` from the file upload.
     - `PARTY_ID`: the `id` of the signing party.
 
-    The response is `{ "fields": [...] }` with the created PDF field. Store its `id` for the next step.
+    The response has the created PDF field in `data`. Store its `id` for the next step.
 
     sajn checks every box before it writes anything. The request fails with `400 VALIDATION_FAILED`, and writes nothing, when a box's `page` doesn't exist, its `rect` doesn't fit on the page, its `partyId` isn't a party on the document, or it's a signature or initials box for a party without the `SIGNER` role.
   </Step>
@@ -170,7 +190,7 @@ To fill in an `input` box through the API, give it a `key`. Keys can contain low
       -H "Content-Type: application/json" \
       -d '{
         "upsert": [
-          { "id": "signature", "kind": "input", "inputType": "signature",
+          { "id": "signature", "kind": "INPUT", "inputType": "SIGNATURE",
             "page": 3, "rect": { "x": 72, "y": 120, "width": 200, "height": 48 },
             "partyId": "PARTY_ID" }
         ],
@@ -196,11 +216,11 @@ To fill in an `input` box through the API, give it a `key`. Keys can contain low
       -H "Sajn-Version: 2026-10"
     ```
 
-    The response lists every field in position order, and the PDF field has the `placedFields` you sent, with `pageWidth`, `pageHeight`, and `pageRotation` filled in. The following example leaves out most boxes:
+    The response lists every field in position order in `data`, and the PDF field has the `placedFields` you sent, with `pageWidth`, `pageHeight`, and `pageRotation` filled in. The following example leaves out most boxes:
 
     ```json
     {
-      "fields": [
+      "data": [
         {
           "id": "cm4k2xd5s0005abcd7890uvwx",
           "documentId": "cm4k2x9p10001abcd1234efgh",
@@ -214,8 +234,8 @@ To fill in an `input` box through the API, give it a `key`. Keys can contain low
             "placedFields": [
               {
                 "id": "signature",
-                "kind": "input",
-                "inputType": "signature",
+                "kind": "INPUT",
+                "inputType": "SIGNATURE",
                 "page": 3,
                 "rect": { "x": 72, "y": 120, "width": 200, "height": 48 },
                 "pageWidth": 595.28,
@@ -231,13 +251,13 @@ To fill in an `input` box through the API, give it a `key`. Keys can contain low
     }
     ```
 
-    `GET /api/v1/documents/DOCUMENT_ID?expand=fields` returns the same `fields` array as part of the document.
+    `GET /api/v1/documents/DOCUMENT_ID?expand=fields` returns the same fields in the document's `fields` array.
   </Step>
 </Steps>
 
 ## Fill in boxes and PDF form fields
 
-To fill in an `input` box that has no `partyId`, use [Fill in values on a document](/api-reference/fill-in-values-on-a-document) with the box's `key`. The same endpoint fills in the uploaded PDF's own form fields (AcroForm fields), which sajn lists in `fieldMeta.formFields`. To see every fillable key, call `GET /api/v1/documents/DOCUMENT_ID/field-values`. Values with `kind` set to `pdf-placed` are boxes, and values with `kind` set to `pdf-acroform` are the PDF's own form fields.
+To fill in an `INPUT` box that has no `partyId`, use [Fill in values on a document](/api-reference/fill-in-values-on-a-document) with the box's `key`. The same endpoint fills in the uploaded PDF's own form fields (AcroForm fields), which sajn lists in `fieldMeta.formFields` with an uppercase `type`: `TEXT`, `CHECKBOX`, `DROPDOWN`, or `RADIO`. To see every fillable key, call [List the fillable values on a document](/api-reference/list-the-fillable-values-on-a-document). The values are in `data`: values with `kind` set to `PDF_PLACED` are boxes, and values with `kind` set to `PDF_ACROFORM` are the PDF's own form fields.
 
 ## Use placements on templates
 
@@ -251,10 +271,11 @@ A placement error lists every invalid box in `issues`, with its path:
 {
   "code": "VALIDATION_FAILED",
   "message": "The box must fit on the 595.28 × 841.89 pt page, measured from its bottom-left corner, but it spans x 500 to 700 and y 96 to 144.",
+  "userMessage": "Förfrågan innehåller ogiltiga värden.",
   "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
   "issues": [
     {
-      "path": "fieldMeta.placedFields.0.rect",
+      "path": "fields.0.fieldMeta.placedFields.0.rect",
       "code": "INVALID_VALUE",
       "message": "The box must fit on the 595.28 × 841.89 pt page, measured from its bottom-left corner, but it spans x 500 to 700 and y 96 to 144."
     }
@@ -262,8 +283,8 @@ A placement error lists every invalid box in `issues`, with its path:
 }
 ```
 
-- `400 VALIDATION_FAILED`: a box is invalid, or `fieldMeta` uses a 2026-09 name such as `signerId` instead of `partyId`.
-- `400 INVALID_STATE`: the document isn't a `DRAFT`, or another edit changed the field while the request ran. In the second case, send the request again.
+- `400 VALIDATION_FAILED`: a box is invalid, uses a lowercase enum value such as `signature`, or uses a 2026-09 name such as `signerId` instead of `partyId`.
+- `409 INVALID_STATE`: the document isn't a `DRAFT`, or another edit changed the field while the request ran. In the second case, send the request again.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

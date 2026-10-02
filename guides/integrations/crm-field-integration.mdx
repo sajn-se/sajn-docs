@@ -28,7 +28,7 @@ curl -X POST https://app.sajn.se/api/v1/documents \
   -d '{
     "name": "Service agreement - Example AB",
     "templateId": "TEMPLATE_ID",
-    "integrationLink": { "integration": "hubspot", "type": "deal", "id": "HUBSPOT_DEAL_ID" }
+    "integrationLink": { "integration": "HUBSPOT", "type": "DEAL", "id": "HUBSPOT_DEAL_ID" }
   }'
 ```
 
@@ -137,10 +137,13 @@ Replace `HUBSPOT_DEAL_ID` with the HubSpot deal ID. sajn prefills the custom fie
         },
       );
       const result = await response.json();
-      if (!response.ok) throw new Error(`${result.code}: ${result.message}`);
+      if (!response.ok) {
+        // Branch on result.code; INVALID_STATE means the document is no longer a draft.
+        throw new Error(`${result.code}: ${result.message} (request ${result.requestId})`);
+      }
 
       for (const failed of result.results.filter((r) => !r.success)) {
-        console.warn(`Couldn't write ${failed.key}: ${failed.error}`);
+        console.warn(`Couldn't write ${failed.key}: ${failed.error.code} ${failed.error.message}`);
       }
       return result.remaining;
     };
@@ -152,26 +155,27 @@ Replace `HUBSPOT_DEAL_ID` with the HubSpot deal ID. sajn prefills the custom fie
   </Step>
 
   <Step title="Write the signing status back to the CRM">
-    Subscribe a webhook endpoint to `DOCUMENT_COMPLETED`, and the party events you want to show in the CRM, such as `DOCUMENT_PARTY_SIGNED`. Find the deal by the payload's `externalId`:
+    Subscribe a webhook endpoint to `document.completed`, and the party events you want to show in the CRM, such as `document.party.signed`. The event's `data.object` is the document, so find the deal by its `externalId`:
 
     ```javascript
-    // Inside your verified webhook handler.
-    if (event.event === "DOCUMENT_COMPLETED") {
-      await crm.updateDeal(event.payload.externalId, { contractStatus: "signed" });
+    // Inside your webhook handler, after you verify the signature.
+    const document = event.data.object;
+    if (event.type === "document.completed") {
+      await crm.updateDeal(document.externalId, { contractStatus: "signed" });
     }
-    if (event.event === "DOCUMENT_PARTY_SIGNED") {
-      await crm.addNote(event.payload.document.externalId, `${event.payload.party.name} signed`);
+    if (event.type === "document.party.signed") {
+      await crm.addNote(document.externalId, `${event.data.party.name} signed`);
     }
     ```
 
-    `crm` stands for your CRM's client. For a complete handler with signature verification, see [Send a contract from your CRM](/guides/recipes/crm-contract-notifications).
+    `crm` stands for your CRM's client. `document.completed` fires after the signed PDF is ready. To verify the signature, see [Verify webhook signatures](/webhooks/verify-signatures). For a complete flow, see [Send a contract from your CRM](/guides/recipes/crm-contract-notifications).
   </Step>
 </Steps>
 
 ## Handle errors
 
-- `results[].success: false` from `field-values`: the key doesn't exist on the document, or the value doesn't match the field's type or options. Read `error`; the other values are written.
-- `400 INVALID_STATE`: the document isn't a `DRAFT`. Stop syncing values to a sent document.
+- `results[].success: false` from `field-values`: the key doesn't exist on the document, or the value doesn't match the field's type or options. Read `error.code` and `error.message`; the other values are written.
+- `409 INVALID_STATE`: the document isn't a `DRAFT`. Stop syncing values to a sent document.
 - Empty custom fields after creating with `integrationLink`: the prefill failed, for example because HubSpot isn't connected or the deal doesn't exist. A failed prefill doesn't block creating the document, so check the values before you send it.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).

@@ -118,6 +118,6 @@ When a retry replays a stored error, the `requestId` in its body identifies the 
 |------|--------|-------|
 | `IDEMPOTENCY_KEY_REUSED` | 400 | The key was already used with a different method, path, or body. |
 | `IDEMPOTENCY_KEY_IN_USE` | 409 | A request with the same key is still running. Retry after the `Retry-After` header's number of seconds. |
-| `VALIDATION_FAILED` | 400 | The key is longer than 255 characters. |
+| `VALIDATION_FAILED` | 400 | The key is longer than 255 characters. The issue has the `path` `Idempotency-Key` and the `code` `TOO_BIG`. |
 
-For every other error code, see [Errors](/api-fundamentals/errors). For a retry loop that honors `Retry-After`, see [Retry with backoff](/api-fundamentals/rate-limits#retry-with-backoff).
+In API version `2026-09`, a reused key returns the code `INVALID_REQUEST`, and a key in use returns `ALREADY_EXISTS`. For every other error code, see [Errors](/api-fundamentals/errors). For a retry loop that honors `Retry-After`, see [Retry with backoff](/api-fundamentals/rate-limits#retry-with-backoff).

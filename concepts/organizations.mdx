@@ -48,7 +48,9 @@ A member can have a different workspace role in each workspace. Every workspace 
 
 An API key or OAuth token always acts in one workspace, so you rarely work with the organization directly. To read the organization a key belongs to, call [`GET /me`](/api-reference/get-authenticated-user-+-workspace-context): the response has an `organization` object with its `id` and `name`.
 
-Webhook payloads carry `organizationId`, so an endpoint that receives events from several organizations can tell them apart.
+To read the organization's details, such as its address, `language`, and `currency`, call [`GET /organization`](/api-reference/get-the-authenticated-organization).
+
+Every webhook event carries `workspaceId`, so an endpoint that receives events from several workspaces or organizations can tell them apart.
 
 ## When you need more than one organization
 

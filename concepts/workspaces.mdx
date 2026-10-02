@@ -51,10 +51,26 @@ You can manage members and roles through the API:
 
 | Resource | Endpoints | Required permission |
 |----------|-----------|---------------------|
-| Members | [List](/api-reference/list-workspace-members), add, update the role of, and remove members | `MANAGE_WORKSPACE_MEMBERS` |
-| Invitations | [List pending invitations](/api-reference/list-pending-workspace-invitations), resend, and revoke | `MANAGE_WORKSPACE_MEMBERS` |
-| Roles | [List](/api-reference/list-workspace-roles), create, update, and delete roles | `MANAGE_WORKSPACE_ROLES` |
-| Permissions | [List the permissions you can assign](/api-reference/list-assignable-workspace-permissions) | `MANAGE_WORKSPACE_ROLES` |
+| Members, at `/members` | [List](/api-reference/list-workspace-members), [add](/api-reference/add-a-member-to-the-workspace), update the role of, and remove members | `MANAGE_WORKSPACE_MEMBERS` |
+| Invitations, at `/member-invites` | [Invite someone](/api-reference/invite-someone-to-the-workspace), list pending invitations, resend, and revoke | `MANAGE_WORKSPACE_MEMBERS` |
+| Roles, at `/roles` | [List](/api-reference/list-roles), create, update, and delete roles | `MANAGE_WORKSPACE_ROLES` |
+| Permissions, at `/permissions` | [List the permissions you can assign](/api-reference/list-permissions) | `MANAGE_WORKSPACE_ROLES` |
+
+A member's `id` is the user ID, and the `/members/{userId}` endpoints take it. A member has the following shape:
+
+```json
+{
+  "id": "cm4k2x9p00000abcd0000mnop",
+  "email": "alex@example.com",
+  "name": "Alex Lindqvist",
+  "role": { "id": "cm4k2x9p60008abcd2345yzab", "name": "Säljare" },
+  "status": "ACTIVE",
+  "lastActiveAt": "2026-10-01T08:12:00.000Z",
+  "joinedAt": "2026-03-14T09:00:00.000Z"
+}
+```
+
+[`POST /members`](/api-reference/add-a-member-to-the-workspace) with `email` and `roleId` adds someone who is already a member of the organization. For any other email address, it returns `404`, unless the address is on a domain that your organization manages through SSO. To invite someone new, call [`POST /member-invites`](/api-reference/invite-someone-to-the-workspace) with the same body. The response is the invitation, with its `status` and `expiresAt`.
 
 ## Workspace limits
 

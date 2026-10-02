@@ -60,19 +60,21 @@ In this guide, you create a tag, add it to a document, and list the documents th
     - `DOCUMENT_ID`: the document ID.
     - `TAG_ID`: the tag `id` from the previous step.
 
-    The response is `{ "success": true }`. The document's `tags` array lists the tag from now on. To tag a template, send the same request to `/api/v1/templates/TEMPLATE_ID/tags`.
+    The response is the document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id) without `fields`, and its `tags` array lists the tag. To tag a template, send the same request to `/api/v1/templates/TEMPLATE_ID/tags`, which returns the template.
   </Step>
 
   <Step title="List the documents with the tag">
     Filter the document list with `tagId`:
 
     ```bash
-    curl "https://app.sajn.se/api/v1/documents?tagId=TAG_ID&perPage=50" \
+    curl "https://app.sajn.se/api/v1/documents?tagId=TAG_ID&limit=50" \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
 
-    To filter by several tags, send a comma-separated list, such as `tagId=TAG_ID_1,TAG_ID_2`, or repeat the parameter. The list includes documents that have any of the tags. To page through the results, see [Pagination](/api-fundamentals/pagination).
+    To filter by several tags, send a comma-separated list, such as `tagId=TAG_ID_1,TAG_ID_2`, or repeat the parameter. The list includes documents that have any of the tags.
+
+    The response returns the documents in `data`, each with its `tags` and `parties`. When `hasMore` is `true`, pass `nextCursor` as `cursor` to get the next page. For more information, see [Pagination](/api-fundamentals/pagination).
   </Step>
 </Steps>
 
@@ -96,6 +98,8 @@ curl -X DELETE https://app.sajn.se/api/v1/documents/DOCUMENT_ID/tags/TAG_ID \
   -H "Sajn-Version: 2026-10"
 ```
 
+The response is the document, without the tag in `tags`.
+
 ## Choose a tagging scheme
 
 We recommend a small set of tags that everyone applies the same way, such as one tag per document type (Employment, NDA, Vendor) or per department (HR, Legal, Sales). For structured values, such as a cost center or a contract value, use [custom fields](/guides/fields/custom-fields) instead. For a hierarchy, use folders.
@@ -104,7 +108,7 @@ We recommend a small set of tags that everyone applies the same way, such as one
 
 - `400 VALIDATION_FAILED`: `name` or `availableFor` is missing, or `availableFor` has an unknown value.
 - `404 NOT_FOUND`: the document or the tag doesn't exist in the workspace.
-- An error when you add a tag the document already has. Read the document's `tags` first, or treat the error as success.
+- `409 ALREADY_EXISTS`: the document already has the tag. Read the document's `tags` first, or treat the error as success.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

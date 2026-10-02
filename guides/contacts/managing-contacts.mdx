@@ -13,19 +13,19 @@ In this guide, you sync people from your system into sajn contacts and add them 
 
 <Steps>
   <Step title="Look for an existing contact">
-    To avoid duplicates, search by your own ID or by email address before you create a contact. The search matches exactly:
+    To avoid duplicates, filter the contact list by your own ID or by email address before you create a contact. These filters match exactly:
 
     ```bash
-    curl "https://app.sajn.se/api/v1/contacts/search?externalId=crm-4711" \
+    curl "https://app.sajn.se/api/v1/contacts?externalId=crm-4711" \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
 
-    The response is `{ "contacts": [...] }`, empty when nothing matches. The endpoint also takes `email` and `phone`. Encode a leading `+` in a phone number as `%2B`.
+    The response has the matching contacts in `data`, which is empty when nothing matches. The list also takes `email` and `phone`. When you pass several filters, a contact must match all of them. Encode a leading `+` in a phone number as `%2B`.
   </Step>
 
   <Step title="Create the contact">
-    If the search found nothing, send a `POST` request to `/api/v1/contacts`. Only `firstName` is required:
+    If no contact matched, send a `POST` request to `/api/v1/contacts`. Only `firstName` is required:
 
     ```bash
     curl -X POST https://app.sajn.se/api/v1/contacts \
@@ -52,14 +52,20 @@ In this guide, you sync people from your system into sajn contacts and add them 
       "phone": "+46700000000",
       "nationalId": null,
       "externalId": "crm-4711",
-      "companyRole": null,
-      "company": null,
+      "addressLine1": null,
+      "addressLine2": null,
+      "postalCode": null,
+      "city": null,
+      "state": null,
+      "country": null,
       "createdAt": "2026-10-01T09:00:00.000Z",
-      "updatedAt": "2026-10-01T09:00:00.000Z"
+      "updatedAt": "2026-10-01T09:00:00.000Z",
+      "companyRole": null,
+      "company": null
     }
     ```
 
-    To link the contact to a company, send `companyId` and `companyRole`. For more information, see [Work with companies](/guides/contacts/working-with-companies). `nationalId`, such as a Swedish personal identity number, lets an eID check the person's identity at signing.
+    To store the person's address, send `addressLine1`, `addressLine2`, `postalCode`, `city`, `state`, and `country`. To link the contact to a company, send `companyId` and `companyRole`. For more information, see [Work with companies](/guides/contacts/working-with-companies). `nationalId`, such as a Swedish personal identity number, lets an eID check the person's identity at signing.
   </Step>
 
   <Step title="Add the contact to a document">
@@ -85,9 +91,9 @@ In this guide, you sync people from your system into sajn contacts and add them 
 
 ## List, update, and delete contacts
 
-- List contacts with `GET /api/v1/contacts`. `query` searches names, email addresses, phone numbers, and companies, and `companyId` and `tagId` filter. The list is paginated; for more information, see [Pagination](/api-fundamentals/pagination).
-- Update a contact with `PATCH /api/v1/contacts/CONTACT_ID`, sending only the fields to change. Parties already on documents keep the details they were created with.
-- Delete a contact with `DELETE /api/v1/contacts/CONTACT_ID`. The deletion is permanent. Parties created from the contact stay on their documents with their own copy of the details, unlinked from the contact.
+- List contacts with `GET /api/v1/contacts`. `query` searches names, email addresses, phone numbers, and companies. `email`, `phone`, `externalId`, `companyId`, and `tagId` filter, and every filter you pass must match. To sync changes, pass `updatedAfter`. The response has the contacts in `data`; while `hasMore` is `true`, pass `nextCursor` as `cursor` to get the next page. For more information, see [Pagination](/api-fundamentals/pagination).
+- Update a contact with `PATCH /api/v1/contacts/CONTACT_ID`, sending only the fields to change. `null` clears `email`, `phone`, `nationalId`, `externalId`, or `companyRole`. Parties already on documents keep the details they were created with.
+- Delete a contact with `DELETE /api/v1/contacts/CONTACT_ID`. The deletion is permanent, and the response is `{ "id": "CONTACT_ID", "deleted": true }`. Parties created from the contact stay on their documents with their own copy of the details, unlinked from the contact.
 
 ## Handle errors
 

@@ -16,7 +16,7 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
 
 <Steps>
   <Step title="Create the FORM field">
-    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields`. Each subfield has an `id` that's unique in the form, a `row` and `column` in the grid, and its own `fieldMeta`. The following form has two values you fill in and two inputs for the party:
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields` with the FORM field in a `fields` array. Each subfield has an `id` that's unique in the form, a `row` and `column` in the grid, and its own `fieldMeta`. The following form has two values you fill in and two inputs for the party:
 
     <CodeGroup>
 
@@ -26,22 +26,26 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "type": "FORM",
-        "position": 1,
-        "fieldMeta": {
-          "type": "FORM",
-          "columns": 2,
-          "fields": [
-            { "id": "company", "key": "company", "row": 0, "column": 0,
-              "fieldMeta": { "type": "input", "label": "Company", "value": "Example AB" } },
-            { "id": "role", "key": "role", "row": 0, "column": 1,
-              "fieldMeta": { "type": "input", "label": "Role", "value": "Developer" } },
-            { "id": "address", "key": "address", "row": 1, "column": 0,
-              "fieldMeta": { "type": "input", "label": "Home address", "partyId": "PARTY_ID", "required": true } },
-            { "id": "start-date", "key": "start-date", "row": 1, "column": 1,
-              "fieldMeta": { "type": "datepicker", "label": "Preferred start date", "partyId": "PARTY_ID" } }
-          ]
-        }
+        "fields": [
+          {
+            "type": "FORM",
+            "position": 1,
+            "fieldMeta": {
+              "type": "FORM",
+              "columns": 2,
+              "fields": [
+                { "id": "company", "key": "company", "row": 0, "column": 0,
+                  "fieldMeta": { "type": "INPUT", "label": "Company", "value": "Example AB" } },
+                { "id": "role", "key": "role", "row": 0, "column": 1,
+                  "fieldMeta": { "type": "INPUT", "label": "Role", "value": "Developer" } },
+                { "id": "address", "key": "address", "row": 1, "column": 0,
+                  "fieldMeta": { "type": "INPUT", "label": "Home address", "partyId": "PARTY_ID", "required": true } },
+                { "id": "start-date", "key": "start-date", "row": 1, "column": 1,
+                  "fieldMeta": { "type": "DATEPICKER", "label": "Preferred start date", "partyId": "PARTY_ID" } }
+              ]
+            }
+          }
+        ]
       }'
     ```
 
@@ -57,26 +61,33 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        type: "FORM",
-        position: 1,
-        fieldMeta: {
-          type: "FORM",
-          columns: 2,
-          fields: [
-            { id: "company", key: "company", row: 0, column: 0,
-              fieldMeta: { type: "input", label: "Company", value: "Example AB" } },
-            { id: "role", key: "role", row: 0, column: 1,
-              fieldMeta: { type: "input", label: "Role", value: "Developer" } },
-            { id: "address", key: "address", row: 1, column: 0,
-              fieldMeta: { type: "input", label: "Home address", partyId, required: true } },
-            { id: "start-date", key: "start-date", row: 1, column: 1,
-              fieldMeta: { type: "datepicker", label: "Preferred start date", partyId } },
-          ],
-        },
+        fields: [
+          {
+            type: "FORM",
+            position: 1,
+            fieldMeta: {
+              type: "FORM",
+              columns: 2,
+              fields: [
+                { id: "company", key: "company", row: 0, column: 0,
+                  fieldMeta: { type: "INPUT", label: "Company", value: "Example AB" } },
+                { id: "role", key: "role", row: 0, column: 1,
+                  fieldMeta: { type: "INPUT", label: "Role", value: "Developer" } },
+                { id: "address", key: "address", row: 1, column: 0,
+                  fieldMeta: { type: "INPUT", label: "Home address", partyId, required: true } },
+                { id: "start-date", key: "start-date", row: 1, column: 1,
+                  fieldMeta: { type: "DATEPICKER", label: "Preferred start date", partyId } },
+              ],
+            },
+          },
+        ],
       }),
     });
-    const { fields } = await response.json();
-    console.log(fields[0].id);
+    const body = await response.json();
+    if (!response.ok) {
+      throw new Error(`${body.code}: ${body.message} (request ${body.requestId})`);
+    }
+    console.log(body.data[0].id);
     ```
 
     ```python Python
@@ -94,28 +105,37 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
             "Sajn-Version": "2026-10",
         },
         json={
-            "type": "FORM",
-            "position": 1,
-            "fieldMeta": {
-                "type": "FORM",
-                "columns": 2,
-                "fields": [
-                    {"id": "company", "key": "company", "row": 0, "column": 0,
-                     "fieldMeta": {"type": "input", "label": "Company", "value": "Example AB"}},
-                    {"id": "role", "key": "role", "row": 0, "column": 1,
-                     "fieldMeta": {"type": "input", "label": "Role", "value": "Developer"}},
-                    {"id": "address", "key": "address", "row": 1, "column": 0,
-                     "fieldMeta": {"type": "input", "label": "Home address",
-                                   "partyId": party_id, "required": True}},
-                    {"id": "start-date", "key": "start-date", "row": 1, "column": 1,
-                     "fieldMeta": {"type": "datepicker", "label": "Preferred start date",
-                                   "partyId": party_id}},
-                ],
-            },
+            "fields": [
+                {
+                    "type": "FORM",
+                    "position": 1,
+                    "fieldMeta": {
+                        "type": "FORM",
+                        "columns": 2,
+                        "fields": [
+                            {"id": "company", "key": "company", "row": 0, "column": 0,
+                             "fieldMeta": {"type": "INPUT", "label": "Company",
+                                           "value": "Example AB"}},
+                            {"id": "role", "key": "role", "row": 0, "column": 1,
+                             "fieldMeta": {"type": "INPUT", "label": "Role",
+                                           "value": "Developer"}},
+                            {"id": "address", "key": "address", "row": 1, "column": 0,
+                             "fieldMeta": {"type": "INPUT", "label": "Home address",
+                                           "partyId": party_id, "required": True}},
+                            {"id": "start-date", "key": "start-date", "row": 1, "column": 1,
+                             "fieldMeta": {"type": "DATEPICKER",
+                                           "label": "Preferred start date",
+                                           "partyId": party_id}},
+                        ],
+                    },
+                },
+            ],
         },
     )
-    response.raise_for_status()
-    print(response.json()["fields"][0]["id"])
+    body = response.json()
+    if not response.ok:
+        raise RuntimeError(f"{body['code']}: {body['message']} (request {body['requestId']})")
+    print(body["data"][0]["id"])
     ```
 
     </CodeGroup>
@@ -125,7 +145,7 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
     - `DOCUMENT_ID`: the ID of the draft document.
     - `PARTY_ID`: the `id` of the party who fills in the inputs.
 
-    The response is `{ "fields": [...] }` with the created FORM field. `position` is the field's 0-based place among the document's content blocks.
+    The response has the created FORM field in `data`. `position` is the field's 0-based place among the document's content blocks.
 
     A subfield's `key` lets you fill it in later without knowing the field ID. Keys can contain lowercase letters, digits, hyphens, and underscores.
   </Step>
@@ -141,28 +161,30 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
       -d '{ "values": [ { "key": "role", "value": "Senior developer" } ] }'
     ```
 
-    A value that the party fills in, such as `address`, is read-only through this endpoint: its result has `success: false`.
+    The response lists the outcome for each key in `results`. A value that the party fills in, such as `address`, is read-only through this endpoint: its result has `success` set to `false` and an `error` with the code `INVALID_STATE`. The other values in the request are still written.
   </Step>
 
   <Step title="Send the document">
     Send the document as usual. On the signing page, the party sees `Company` and `Role` as text, and `Home address` and `Preferred start date` as inputs. The party can't sign until every `required` input is filled in.
 
-    After signing, the values are on the document. Read them with `GET /api/v1/documents/DOCUMENT_ID/field-values`, where each value has `filledBy` set to `signer` and the `partyId` of the party who filled it in.
+    After signing, the values are on the document. Read them with [List the fillable values on a document](/api-reference/list-the-fillable-values-on-a-document). The values are in `data`, and each value the party filled in has `filledBy` set to `SIGNER` and the `partyId` of that party.
   </Step>
 </Steps>
 
 ## Subfield types
 
-Every subfield type takes `label`, `placeholder`, `description`, `partyId`, and `required`:
+The subfield type is `fieldMeta.type`, in uppercase. Every type takes `label`, `placeholder`, `description`, `partyId`, and `required`:
 
-- `input`: a single-line text input. The value is in `value`.
-- `text`: a text area. `rows` sets its height, from 2 to 20.
-- `number`: a number input.
-- `datepicker`: a date picker.
-- `select`: a drop-down list. Set `options` to a list such as `[{ "value": "Engineering" }, { "value": "Sales" }]`, and optionally `defaultValue`.
-- `radio`: one choice from `options`.
-- `checkbox`: any number of choices from `options`. The selected values are in `values`.
-- `attachment`: a file that the party uploads. `allowedTypes` takes `pdf` and `image`.
+- `INPUT`: a single-line text input. The value is in `value`.
+- `TEXT`: a text area. `rows` sets its height, from 2 to 20.
+- `NUMBER`: a number input.
+- `DATEPICKER`: a date picker.
+- `SELECT`: a drop-down list. Set `options` to a list such as `[{ "value": "Engineering" }, { "value": "Sales" }]`, and optionally `defaultValue`.
+- `RADIO`: one choice from `options`.
+- `CHECKBOX`: any number of choices from `options`. The selected values are in `values`.
+- `ATTACHMENT`: a file that the party uploads. `allowedTypes` takes `PDF` and `IMAGE`. After the upload, `value` is `{ filename, mimeType, size }`.
+
+A lowercase type, such as `input`, fails with `400 VALIDATION_FAILED`.
 
 ## Give each party their own inputs
 
@@ -170,23 +192,42 @@ When a document has several signing parties, set each subfield's `partyId` to th
 
 ## Change who fills in a subfield
 
-To move a subfield to another party, or back to yourself, update it by key. Pass the subfield's `fieldMeta`; sajn merges it into the existing subfield and keeps the other properties, such as `label`:
+To move a subfield to another party, or back to yourself, update the FORM field that holds it. A `PATCH` request replaces the field's whole `fieldMeta`, so start from the stored one:
+
+1. To find the FORM field by the subfield's key, call `GET /api/v1/documents/DOCUMENT_ID/fields?key=address`. The field is in `data`.
+2. In its `fieldMeta.fields`, change the subfield's `partyId`. To fill the subfield in yourself, set `partyId` to `null` and set `value`.
+3. Send the whole `fieldMeta` to [Update a document field](/api-reference/update-a-document-field):
 
 ```bash
-curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/key:address \
+curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID \
   -H "Authorization: Bearer $SAJN_API_KEY" \
   -H "Sajn-Version: 2026-10" \
   -H "Content-Type: application/json" \
-  -d '{ "fieldMeta": { "type": "input", "partyId": null, "value": "Storgatan 1, Stockholm" } }'
+  -d '{
+    "fieldMeta": {
+      "type": "FORM",
+      "columns": 2,
+      "fields": [
+        { "id": "company", "key": "company", "row": 0, "column": 0,
+          "fieldMeta": { "type": "INPUT", "label": "Company", "value": "Example AB" } },
+        { "id": "role", "key": "role", "row": 0, "column": 1,
+          "fieldMeta": { "type": "INPUT", "label": "Role", "value": "Developer" } },
+        { "id": "address", "key": "address", "row": 1, "column": 0,
+          "fieldMeta": { "type": "INPUT", "label": "Home address", "partyId": null, "value": "Storgatan 1, Stockholm" } },
+        { "id": "start-date", "key": "start-date", "row": 1, "column": 1,
+          "fieldMeta": { "type": "DATEPICKER", "label": "Preferred start date", "partyId": "PARTY_ID" } }
+      ]
+    }
+  }'
 ```
 
-The response is the whole FORM field that holds the subfield. To update several subfields, send them in one request to `PATCH /api/v1/documents/DOCUMENT_ID/fields` with an `updates` array. Separate concurrent `key:` requests to the same form overwrite each other.
+Replace `FIELD_ID` with the FORM field's `id`. The response is the updated FORM field. A field is addressed by its ID only; to change a value without changing who fills it in, use [Fill in values on a document](/api-reference/fill-in-values-on-a-document) instead.
 
 ## Handle errors
 
-- `400 VALIDATION_FAILED`: a subfield is invalid, for example without `row` or with an unknown `type`. Read `issues` for the path.
-- `400 INVALID_STATE`: the document isn't a `DRAFT`. Fields can change only before sending.
-- `404 NOT_FOUND` on a `key:` update: no subfield has the key.
+- `400 VALIDATION_FAILED`: a subfield is invalid, for example without `row`, with an unknown or lowercase `type`, or with `signerId` instead of `partyId`. Read `issues` for the path.
+- `409 INVALID_STATE`: the document isn't a `DRAFT`. Fields can change only before sending.
+- `404 NOT_FOUND`: no field on the document has the ID.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 
@@ -202,7 +243,7 @@ For the error shape and every code, see [Errors](/api-fundamentals/errors).
   <Card title="Fields" icon="lightbulb" href="/concepts/fields">
     Learn how the field model works.
   </Card>
-  <Card title="Create a document field" icon="code" href="/api-reference/create-a-document-field">
+  <Card title="Create document fields" icon="code" href="/api-reference/create-document-fields">
     See every field type in the API reference.
   </Card>
 </CardGroup>

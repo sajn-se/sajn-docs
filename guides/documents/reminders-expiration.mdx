@@ -13,10 +13,10 @@ In this guide, you set a deadline on a document, configure the automatic reminde
 ## How reminders and expiration work
 
 - `expiresAt` is the signing deadline. If you don't set it, the document gets the workspace's default expiration, if the workspace has one.
-- `documentMeta.reminderIntervalDays` is the number of days between automatic reminders, as a string. The default is `"3"`. `"0"` turns off the recurring reminders. The sajn app offers `"1"`, `"2"`, `"3"`, and `"5"`.
+- `documentMeta.reminderIntervalDays` is the number of days between automatic reminders, as an integer. `null` uses the default of 3 days, and `0` turns off the recurring reminders. The sajn app offers `1`, `2`, `3`, and `5`.
 - Automatic reminders need a deadline. A document without `expiresAt` gets no automatic reminders.
 - Each party's first reminder comes `reminderIntervalDays` days after the party is invited. In a sequential document, that's when it becomes the party's turn. If the deadline is more than 90 days away, the reminders start 90 days before it.
-- A final reminder goes out the day before the deadline. It's sent even when `reminderIntervalDays` is `"0"`.
+- A final reminder goes out the day before the deadline. It's sent even when `reminderIntervalDays` is `0`.
 - A party gets at most five recurring reminders. Reminders stop when the party signs, when an address bounces, and at the deadline.
 - Automatic reminders go out between 08:00 and 10:00 Swedish time.
 
@@ -37,7 +37,7 @@ In this guide, you set a deadline on a document, configure the automatic reminde
         "name": "Quote - Website project",
         "templateId": "TEMPLATE_ID",
         "expiresAt": "2026-10-31T16:00:00Z",
-        "documentMeta": { "reminderIntervalDays": "5" },
+        "documentMeta": { "reminderIntervalDays": 5 },
         "parties": [
           { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER" }
         ]
@@ -56,7 +56,7 @@ In this guide, you set a deadline on a document, configure the automatic reminde
         name: "Quote - Website project",
         templateId: "TEMPLATE_ID",
         expiresAt: "2026-10-31T16:00:00Z",
-        documentMeta: { reminderIntervalDays: "5" },
+        documentMeta: { reminderIntervalDays: 5 },
         parties: [{ name: "Alex Andersson", email: "alex@example.com", role: "SIGNER" }],
       }),
     });
@@ -79,7 +79,7 @@ In this guide, you set a deadline on a document, configure the automatic reminde
             "name": "Quote - Website project",
             "templateId": "TEMPLATE_ID",
             "expiresAt": "2026-10-31T16:00:00Z",
-            "documentMeta": {"reminderIntervalDays": "5"},
+            "documentMeta": {"reminderIntervalDays": 5},
             "parties": [{"name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER"}],
         },
     )
@@ -105,7 +105,7 @@ In this guide, you set a deadline on a document, configure the automatic reminde
       -H "Content-Type: application/json" \
       -d '{
         "expiresAt": "2026-11-15T16:00:00Z",
-        "documentMeta": { "reminderIntervalDays": "0" }
+        "documentMeta": { "reminderIntervalDays": 0 }
       }'
     ```
 
@@ -210,31 +210,32 @@ curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/extend-expiration 
   -d '{ "expiresAt": "2026-11-30T16:00:00Z" }'
 ```
 
-The new date must be at least 24 hours in the future, and it can be earlier or later than the current one. sajn updates `expiresAt`, records the change in the audit log, and emails every party who can still be notified that the deadline moved. An `EXPIRED` document returns to `PENDING`. The request needs the `EDIT_DOCUMENT` workspace permission.
+The new date must be at least 24 hours in the future, and it can be earlier or later than the current one. sajn updates `expiresAt`, records the change in the audit log, and emails every party who can still be notified that the deadline moved. An `EXPIRED` document returns to `PENDING`. The response is the document, and the request needs the `EDIT_DOCUMENT` workspace permission.
 
 ## What happens at the deadline
 
-When the deadline passes, the document's status changes from `PENDING` to `EXPIRED`, parties can no longer sign, and the `DOCUMENT_EXPIRED` webhook event fires.
+When the deadline passes, the document's status changes from `PENDING` to `EXPIRED`, parties can no longer sign, and the `document.expired` webhook event fires.
 
-To keep a document signable after its deadline, set `documentMeta.signableAfterExpired` to `true`. The document then stays `PENDING`, and `DOCUMENT_EXPIRED` still fires. Automatic reminders stop at the deadline either way.
+To keep a document signable after its deadline, set `documentMeta.signableAfterExpired` to `true`. The document then stays `PENDING`, and `document.expired` still fires. Automatic reminders stop at the deadline either way.
 
-To react to an expired document, handle the `DOCUMENT_EXPIRED` event. Its payload is the document, so you can find the parties who didn't sign:
+To react to an expired document, handle the `document.expired` event. Its `data.object` is the document, so you can find the parties who didn't sign:
 
 ```javascript
-if (event.event === "DOCUMENT_EXPIRED") {
-  const unsigned = event.payload.parties.filter(
+if (event.type === "document.expired") {
+  const document = event.data.object;
+  const unsigned = document.parties.filter(
     (party) => party.role === "SIGNER" && party.signingStatus === "NOT_SIGNED",
   );
-  console.log(`${event.payload.name} expired; ${unsigned.length} unsigned`);
+  console.log(`${document.name} expired; ${unsigned.length} unsigned`);
 }
 ```
 
-For the payload, see [Webhook payloads](/webhooks/payloads).
+Verify the signature before you handle the event, as described in [Verify signatures](/webhooks/verify-signatures). For the payload, see [Webhook payloads](/webhooks/payloads).
 
 ## Handle errors
 
 - `400 VALIDATION_FAILED` on `extend-expiration`: the new date is less than 24 hours away, or the document isn't `PENDING` or `EXPIRED`. For a `DRAFT`, use `PATCH` instead.
-- `401 UNAUTHORIZED` on `extend-expiration`: you lack the `EDIT_DOCUMENT` permission.
+- `403 PERMISSION_DENIED` on `extend-expiration`: you lack the `EDIT_DOCUMENT` permission.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

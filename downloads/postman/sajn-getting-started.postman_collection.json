@@ -15,64 +15,6 @@
       }
     ]
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "https://app.sajn.se"
-    },
-    {
-      "key": "uploadBaseUrl",
-      "value": "https://upload.sajn.se"
-    },
-    {
-      "key": "apiKey",
-      "value": ""
-    },
-    {
-      "key": "apiVersion",
-      "value": "2026-10"
-    },
-    {
-      "key": "documentId",
-      "value": ""
-    },
-    {
-      "key": "contactId",
-      "value": ""
-    },
-    {
-      "key": "partyId",
-      "value": ""
-    },
-    {
-      "key": "fileType",
-      "value": "SIGNED"
-    },
-    {
-      "key": "fieldId",
-      "value": ""
-    },
-    {
-      "key": "tagId",
-      "value": ""
-    },
-    {
-      "key": "fileId",
-      "value": ""
-    },
-    {
-      "key": "fileKey",
-      "value": ""
-    },
-    {
-      "key": "sajnIdId",
-      "value": ""
-    },
-    {
-      "key": "signingUrl",
-      "value": ""
-    }
-  ],
   "item": [
     {
       "name": "Health check",
@@ -84,7 +26,17 @@
             "value": "{{apiVersion}}"
           }
         ],
-        "url": "{{baseUrl}}/api/v1/health",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "health"
+          ]
+        },
         "description": "Check API health status and get version information. This endpoint does not require authentication.",
         "auth": {
           "type": "noauth"
@@ -115,8 +67,134 @@
             "value": "{{apiVersion}}"
           }
         ],
-        "url": "{{baseUrl}}/api/v1/documents?page=1&perPage=10&status=['DRAFT']&tagId=['string']&folderId=string&externalId=string&responsibleUserId=['string']&createdAfter=string&createdBefore=string&updatedAfter=string&updatedBefore=string&completedAfter=string&completedBefore=string&cursor=string&query=string&archived=True&orderBy=updatedAt&orderDirection=desc",
-        "description": "Retrieve a paginated list of all documents in your workspace.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including parties and fields.\n\n**Page-based pagination:** `page` and `perPage` (max 100). The response carries `total` and `totalPages`.\n\n**Cursor pagination (recommended for sync):** pass `nextCursor` from the previous response as `cursor`. Cursor pages are stable while documents change underneath, which page numbers are not. Requires `orderBy` createdAt or updatedAt (the default). `page` is ignored when `cursor` is set.\n\n**Incremental sync:** filter with `updatedAfter` set to the newest `updatedAt` you have stored, order by updatedAt ascending, and walk the cursor until `hasNextPage` is false."
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/documents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "documents"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "25",
+              "description": "Maximum number of items to return, from 1 to 100. Default: 25.",
+              "disabled": true
+            },
+            {
+              "key": "cursor",
+              "value": "",
+              "description": "The `nextCursor` from the previous response, to get the next page. Keep the other parameters unchanged.",
+              "disabled": true
+            },
+            {
+              "key": "include",
+              "value": "total",
+              "description": "`total` adds the number of items that match the filters. Counting takes time, so ask for it only when you need it.",
+              "disabled": true
+            },
+            {
+              "key": "status",
+              "value": "DRAFT",
+              "description": "Filter by document status. Comma-separated or repeated.",
+              "disabled": true
+            },
+            {
+              "key": "tagId",
+              "value": "",
+              "description": "Filter by one or more tag IDs. Comma-separated or repeated.",
+              "disabled": true
+            },
+            {
+              "key": "folderId",
+              "value": "",
+              "description": "Filter by folder ID. Pass `root` to include only top-level documents.",
+              "disabled": true
+            },
+            {
+              "key": "templateId",
+              "value": "",
+              "description": "Filter by the IDs of the templates the documents were created from. Comma-separated or repeated.",
+              "disabled": true
+            },
+            {
+              "key": "externalId",
+              "value": "",
+              "description": "Returns only the document whose `externalId` equals this value exactly. For partial matches, use `query`.",
+              "disabled": true
+            },
+            {
+              "key": "responsibleUserId",
+              "value": "",
+              "description": "Filter by responsible user IDs. Comma-separated or repeated.",
+              "disabled": true
+            },
+            {
+              "key": "createdAfter",
+              "value": "",
+              "description": "Only documents created at or after this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "createdBefore",
+              "value": "",
+              "description": "Only documents created at or before this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "updatedAfter",
+              "value": "",
+              "description": "Only documents updated at or after this ISO 8601 date or date-time. Use this for incremental sync.",
+              "disabled": true
+            },
+            {
+              "key": "updatedBefore",
+              "value": "",
+              "description": "Only documents updated at or before this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "completedAfter",
+              "value": "",
+              "description": "Only documents completed at or after this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "completedBefore",
+              "value": "",
+              "description": "Only documents completed at or before this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "query",
+              "value": "",
+              "description": "Free-text search across name, externalId, signer name, and signer email",
+              "disabled": true
+            },
+            {
+              "key": "archived",
+              "value": "true",
+              "description": "If `true`, returns only archived documents. If `false`, returns only documents that aren't archived. Default: `false`.",
+              "disabled": true
+            },
+            {
+              "key": "orderBy",
+              "value": "createdAt",
+              "description": "The field to sort by. Default: `createdAt`.",
+              "disabled": true
+            },
+            {
+              "key": "orderDirection",
+              "value": "desc",
+              "description": "The sort direction. Default: `desc`.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Retrieve a paginated list of all documents in your workspace.\n\nDocuments can be filtered and sorted. The response includes basic document information and metadata. Use the 'getDocument' endpoint to retrieve full document details including parties and fields.\n\n**Pagination:** Pass `nextCursor` from the previous response as `cursor` until `hasMore` is false. Pages are keyset-based on every `orderBy`, so they stay stable while documents change. Documents without a `completedAt` or `expiresAt` come last when you sort by that field.\n\n**Incremental sync:** Filter with `updatedAfter` set to the newest `updatedAt` you have stored, sort by `updatedAt` ascending, and follow the cursor until `hasMore` is false."
       },
       "response": [],
       "event": [
@@ -143,8 +221,98 @@
             "value": "{{apiVersion}}"
           }
         ],
-        "url": "{{baseUrl}}/api/v1/contacts?page=1&perPage=10&cursor=string&query=string&companyId=string&tagId=string",
-        "description": "Retrieve a paginated list of all contacts in your organization.\n\nContacts are individuals that can be added as signers to documents. Each contact can optionally be associated with a company.\n\n**Pagination:** Use `page` and `perPage`, or pass `nextCursor` from the previous response as `cursor`."
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contacts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "contacts"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "25",
+              "description": "Maximum number of items to return, from 1 to 100. Default: 25.",
+              "disabled": true
+            },
+            {
+              "key": "cursor",
+              "value": "",
+              "description": "The `nextCursor` from the previous response, to get the next page. Keep the other parameters unchanged.",
+              "disabled": true
+            },
+            {
+              "key": "include",
+              "value": "total",
+              "description": "`total` adds the number of items that match the filters. Counting takes time, so ask for it only when you need it.",
+              "disabled": true
+            },
+            {
+              "key": "query",
+              "value": "",
+              "description": "Free-text search across first name, last name, email, phone, and company",
+              "disabled": true
+            },
+            {
+              "key": "email",
+              "value": "",
+              "description": "Returns only contacts whose email address equals this value exactly.",
+              "disabled": true
+            },
+            {
+              "key": "phone",
+              "value": "",
+              "description": "Returns only contacts whose phone number equals this value exactly. Encode a leading `+` as `%2B`.",
+              "disabled": true
+            },
+            {
+              "key": "externalId",
+              "value": "",
+              "description": "Returns only the contact whose `externalId` equals this value exactly.",
+              "disabled": true
+            },
+            {
+              "key": "companyId",
+              "value": "",
+              "description": "Filter by one or more company IDs. Comma-separated or repeated.",
+              "disabled": true
+            },
+            {
+              "key": "tagId",
+              "value": "",
+              "description": "Filter by one or more tag IDs. Comma-separated or repeated.",
+              "disabled": true
+            },
+            {
+              "key": "createdAfter",
+              "value": "",
+              "description": "Only contacts created at or after this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "createdBefore",
+              "value": "",
+              "description": "Only contacts created at or before this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "updatedAfter",
+              "value": "",
+              "description": "Only contacts updated at or after this ISO 8601 date or date-time. Use it for incremental sync.",
+              "disabled": true
+            },
+            {
+              "key": "updatedBefore",
+              "value": "",
+              "description": "Only contacts updated at or before this ISO 8601 date or date-time.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Retrieve a paginated list of all contacts in your organization.\n\nContacts are individuals that can be added as signers to documents. Each contact can optionally be associated with a company.\n\n**Filters:** `email`, `phone` and `externalId` match exactly. Every filter you pass must match.\n\n**Pagination:** Pass `nextCursor` from the previous response as `cursor` until `hasMore` is false."
       },
       "response": [],
       "event": [
@@ -155,7 +323,15 @@
             "exec": [
               "pm.test('Status code is 200', function () {",
               "  pm.response.to.have.status(200);",
-              "});"
+              "});",
+              "var response = {};",
+              "try { response = pm.response.json(); } catch (error) {}",
+              "var save = function (key, value) {",
+              "  if (!value) { return; }",
+              "  pm.collectionVariables.set(key, value);",
+              "  if (pm.environment.name) { pm.environment.set(key, value); }",
+              "};",
+              "save('contactId', response.data && response.data[0] && response.data[0].id);"
             ]
           }
         }
@@ -173,13 +349,28 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "disabled": true
           }
         ],
-        "url": "{{baseUrl}}/api/v1/contacts",
-        "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n\n**Optional Fields:**\n- `lastName` - Contact's last name (omit or send an empty string for single-name contacts)\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `nationalId` - National identity number, such as a Swedish personnummer, for eID verification\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contacts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "contacts"
+          ]
+        },
+        "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n\n**Optional Fields:**\n- `lastName` - Contact's last name (omit or send an empty string for single-name contacts)\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `nationalId` - National identity number, such as a Swedish personnummer, for eID verification\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company\n- `addressLine1`, `addressLine2`, `postalCode`, `city`, `state`, `country` - The contact's address",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+46701234567\"\n}",
+          "raw": "{\n  \"firstName\": \"Kai\",\n  \"lastName\": \"Lindqvist\",\n  \"email\": \"kai@example.com\",\n  \"phone\": \"+46701740605\",\n  \"externalId\": \"EMP-0142\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -198,12 +389,13 @@
               "  pm.response.to.have.status(200);",
               "});",
               "var response = {};",
-              "try {",
-              "  response = pm.response.json();",
-              "} catch (error) {",
-              "  response = {};",
-              "}",
-              "if (response.id) { pm.collectionVariables.set('contactId', response.id); }"
+              "try { response = pm.response.json(); } catch (error) {}",
+              "var save = function (key, value) {",
+              "  if (!value) { return; }",
+              "  pm.collectionVariables.set(key, value);",
+              "  if (pm.environment.name) { pm.environment.set(key, value); }",
+              "};",
+              "save('contactId', response.id);"
             ]
           }
         }
@@ -221,13 +413,28 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "disabled": true
           }
         ],
-        "url": "{{baseUrl}}/api/v1/documents",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/documents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "documents"
+          ]
+        },
         "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. The template's fields and parties are copied. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on the PDF for the template's parties are removed.\n\n**CRM Link:** Use `integrationLink` to link the document to a CRM record (currently HubSpot deals). When the workspace has a field mapping configured for the integration, mapped custom fields and product-table rows are prefilled from the record, and signing status is written back to it. Explicit `customFields` in the request take precedence over prefilled values.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill in values** by key, all in one request: `PATCH /api/v1/documents/{docId}/field-values`. To list the keys, call `GET /api/v1/documents/{docId}/field-values`.\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, SE_BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill in values by key\nPATCH /api/v1/documents/{docId}/field-values\n{\n  \"values\": [\n    {\"key\": \"name\", \"value\": \"Alex Andersson\"},\n    {\"key\": \"phone\", \"value\": \"+46700000000\"}\n  ]\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document in the same shape as `GET /api/v1/documents/{id}`, without `fields`. To get a party's signing URL, call `GET /api/v1/documents/{id}/parties/{partyId}`.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Employment Contract\",\n  \"type\": \"SIGNABLE\",\n  \"expiresAt\": \"2026-12-31T23:59:59.000Z\",\n  \"parties\": [],\n  \"documentMeta\": {\n    \"subject\": \"Employment Contract\",\n    \"message\": \"Please review and sign this agreement.\",\n    \"signingOrder\": \"PARALLEL\",\n    \"preferredLanguage\": \"en\"\n  }\n}",
+          "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal \u2013 Kai Lindqvist\",\n  \"type\": \"SIGNABLE\",\n  \"expiresAt\": \"2027-03-31T22:00:00.000Z\",\n  \"documentMeta\": {\n    \"subject\": \"Ditt anst\u00e4llningsavtal fr\u00e5n Exempelbolaget AB\",\n    \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal.\",\n    \"signingMode\": \"PARALLEL\",\n    \"language\": \"sv\"\n  },\n  \"parties\": [\n    {\n      \"name\": \"Maja Holm\",\n      \"email\": \"maja.holm@example.com\",\n      \"role\": \"SIGNER\",\n      \"company\": {\n        \"name\": \"Exempelbolaget AB\",\n        \"orgNumber\": \"5561234567\",\n        \"role\": \"HR-chef\"\n      },\n      \"country\": \"SE\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -246,16 +453,44 @@
               "  pm.response.to.have.status(200);",
               "});",
               "var response = {};",
-              "try {",
-              "  response = pm.response.json();",
-              "} catch (error) {",
-              "  response = {};",
-              "}",
-              "if (response.id) { pm.collectionVariables.set('documentId', response.id); }"
+              "try { response = pm.response.json(); } catch (error) {}",
+              "var save = function (key, value) {",
+              "  if (!value) { return; }",
+              "  pm.collectionVariables.set(key, value);",
+              "  if (pm.environment.name) { pm.environment.set(key, value); }",
+              "};",
+              "save('documentId', response.id);",
+              "save('partyId', response.parties && response.parties[0] && response.parties[0].id);"
             ]
           }
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://app.sajn.se"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "apiVersion",
+      "value": "2026-10"
+    },
+    {
+      "key": "contactId",
+      "value": ""
+    },
+    {
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "partyId",
+      "value": ""
     }
   ]
 }

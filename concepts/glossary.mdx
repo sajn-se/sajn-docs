@@ -13,6 +13,10 @@ A secret token that authenticates requests to the API for one workspace, acting 
 
 The date-based version of the API and webhook payloads, such as `2026-10`. You choose it per request with the `Sajn-Version` header, and the organization has a default. See [API versioning](/api-fundamentals/versioning).
 
+### Approval request
+
+An internal approval of a draft document by workspace members before sajn sends it. While a request is pending, the document's status is `PENDING_APPROVAL`. See [Documents](/concepts/documents#internal-approval).
+
 ### Contact
 
 A reusable record of a person you send documents to. A party created from a contact copies its details. See [Contacts](/concepts/contacts).
@@ -27,7 +31,7 @@ The EU regulation on electronic identification and trust services. It defines th
 
 ### Event
 
-A record of something that happened, such as `DOCUMENT_COMPLETED`, which sajn delivers to your webhook endpoints. Every event has an `id` that stays the same across retries and replays. See [Webhook events](/webhooks/events).
+A record of something that happened, with a dotted type such as `document.completed`, which sajn delivers to your webhook endpoints. The resource it's about is in `data.object`. Every event has an `id` that stays the same across retries. See [Webhook events](/webhooks/events).
 
 ### Field
 
@@ -71,7 +75,7 @@ A party with the role `REVIEWER`. Reviewers are invited to review the document b
 
 ### sajn ID
 
-An identity check with Swedish BankID that isn't tied to a document. See [sajn ID](/concepts/sajn-id).
+An identity check with Swedish BankID that isn't tied to a document. The API calls it an identity check, at `/identity-checks`. See [sajn ID](/concepts/sajn-id).
 
 ### Sandbox
 
@@ -91,7 +95,7 @@ The page that sajn appends to every completed PDF. It records who signed, how th
 
 ### Signing order
 
-Whether parties sign at the same time (`PARALLEL`) or one after another (`SEQUENTIAL`), set in `documentMeta.signingOrder`. See [Parties](/concepts/parties#signing-order).
+Whether parties sign at the same time (`PARALLEL`) or one after another (`SEQUENTIAL`), set in `documentMeta.signingMode`. In `SEQUENTIAL` mode, each party's `signingOrder` sets its position. See [Parties](/concepts/parties#signing-order).
 
 ### Signing URL
 

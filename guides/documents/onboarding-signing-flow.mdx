@@ -8,7 +8,7 @@ In this guide, you add a signing step to your signup flow. A new user fills in y
 The flow has two tracks:
 
 - In the browser: your form, then the signing page, then a redirect back to your app. The user sees one continuous signup.
-- Server to server: the `DOCUMENT_COMPLETED` webhook event, then the PDF download, then account activation. This track is the source of truth, because it doesn't depend on the user's browser.
+- Server to server: the `document.completed` webhook event, then the PDF download, then account activation. This track is the source of truth, because it doesn't depend on the user's browser.
 
 ```mermaid
 graph LR
@@ -17,7 +17,7 @@ graph LR
     C --> D[Send with<br/>deliveryMethod NONE]
     D --> E[Open the<br/>signing URL]
     E --> F[Party signs and<br/>is redirected back]
-    F --> G[DOCUMENT_COMPLETED<br/>webhook]
+    F --> G[document.completed<br/>webhook]
     G --> H[Archive PDF and<br/>activate account]
 ```
 
@@ -25,7 +25,7 @@ graph LR
 
 - Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
 - Create a template with the agreement's content and FORM fields whose keys match your form, such as `full-name` and `org-number`. For more information, see [Templates and forms](/guides/templates/templates-and-forms).
-- Subscribe a webhook endpoint to `DOCUMENT_COMPLETED`. For more information, see [Webhooks](/webhooks/overview).
+- Subscribe a webhook endpoint to `document.completed`. For more information, see [Webhooks](/webhooks/overview).
 - Have a page in your app that finishes the onboarding, such as `https://app.example.com/onboarding/done`.
 
 ## Build the flow
@@ -72,10 +72,10 @@ graph LR
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
-      -d '{ "role": "SIGNER", "nationalId": "NATIONAL_ID" }'
+      -d '{ "nationalId": "NATIONAL_ID" }'
     ```
 
-    Replace `NATIONAL_ID` with the personal identity number the user entered. Send `role` on every party update: a party update without `role` sets it to `SIGNER`.
+    Replace `NATIONAL_ID` with the personal identity number the user entered. The response is the party. You can set `nationalId` only while the document is a `DRAFT`.
   </Step>
 
   <Step title="Fill in the form values">
@@ -94,7 +94,7 @@ graph LR
       }'
     ```
 
-    The response's `results` array has one entry per key, with `success` and, when a value fails, an `error`. `remaining` lists required values that are still empty. To see every key on the document, send a `GET` request to the same path.
+    The response's `results` array has one entry per key, with `success` and, when a value fails, an `error` with `code`, `message`, and `userMessage`. `remaining` lists the keys of required values that are still empty, and `values` lists every value on the document. To see every key on the document, send a `GET` request to the same path.
   </Step>
 
   <Step title="Send the document and get the signing URL">
@@ -120,7 +120,7 @@ graph LR
   </Step>
 
   <Step title="Activate the account from the webhook">
-    When the document is sealed, sajn sends `DOCUMENT_COMPLETED` to your endpoint. Verify the signature, find the signup by `payload.externalId`, archive the PDF, and activate the account:
+    When the document is sealed, sajn sends `document.completed` to your endpoint. Verify the signature, find the signup by the document's `externalId` in `data.object`, archive the PDF, and activate the account:
 
     ```javascript
     import crypto from "node:crypto";
@@ -129,44 +129,61 @@ graph LR
 
     const app = express();
 
-    const isSignedBySajn = (header, rawBody) => {
-      const parts = Object.fromEntries(String(header ?? "").split(",").map((part) => part.split("=")));
+    const isSignedBySajn = (headers, rawBody) => {
+      const id = headers["webhook-id"];
+      const timestamp = headers["webhook-timestamp"];
+      if (!id || Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+
+      const key = Buffer.from(process.env.SAJN_WEBHOOK_SECRET.replace(/^whsec_/, ""), "base64");
       const expected = crypto
-        .createHmac("sha256", process.env.SAJN_WEBHOOK_SECRET)
-        .update(`${parts.t}.${rawBody}`)
-        .digest("hex");
-      return (
-        typeof parts.v1 === "string" &&
-        parts.v1.length === expected.length &&
-        crypto.timingSafeEqual(Buffer.from(parts.v1), Buffer.from(expected))
-      );
+        .createHmac("sha256", key)
+        .update(`${id}.${timestamp}.${rawBody}`)
+        .digest();
+
+      return String(headers["webhook-signature"] ?? "")
+        .split(" ")
+        .some((entry) => {
+          const [version, signature] = entry.split(",");
+          const received = Buffer.from(signature ?? "", "base64");
+          return (
+            version === "v1" &&
+            received.length === expected.length &&
+            crypto.timingSafeEqual(received, expected)
+          );
+        });
     };
 
     app.post("/webhooks/sajn", express.raw({ type: "application/json" }), async (req, res) => {
-      if (!isSignedBySajn(req.headers["x-sajn-signature"], req.body)) {
+      if (!isSignedBySajn(req.headers, req.body)) {
         return res.status(401).end();
       }
       res.status(200).end();
 
-      const { event, payload } = JSON.parse(req.body);
-      if (event !== "DOCUMENT_COMPLETED") return;
+      const event = JSON.parse(req.body);
+      if (event.type !== "document.completed") return;
 
-      const download = await fetch(
-        `https://app.sajn.se/api/v1/documents/${payload.id}/download/SIGNED`,
+      const document = event.data.object;
+      const file = await fetch(
+        `https://app.sajn.se/api/v1/documents/${document.id}/files/SIGNED`,
         { headers: { Authorization: `Bearer ${process.env.SAJN_API_KEY}`, "Sajn-Version": "2026-10" } },
       );
-      const { downloadUrl } = await download.json();
-      const pdf = Buffer.from(await (await fetch(downloadUrl)).arrayBuffer());
+      if (!file.ok) {
+        const error = await file.json();
+        console.error(`Download failed: ${error.code} (request ${error.requestId})`);
+        return;
+      }
+      const { url } = await file.json();
+      const pdf = Buffer.from(await (await fetch(url)).arrayBuffer());
 
       // Replace with your own storage and account logic.
-      await storeSignedAgreement(payload.externalId, pdf);
-      await activateAccount(payload.externalId);
+      await storeSignedAgreement(document.externalId, pdf);
+      await activateAccount(document.externalId);
     });
 
     app.listen(3000);
     ```
 
-    `SAJN_WEBHOOK_SECRET` is the webhook's `secret`, returned once when you create the webhook. For timestamp checks and retries, see [Verify webhook signatures](/webhooks/verify-signatures) and [Delivery and retries](/webhooks/delivery-and-retries).
+    `SAJN_WEBHOOK_SECRET` is the webhook's `whsec_` secret, returned when you create the webhook or rotate its secret. For timestamp checks and retries, see [Verify webhook signatures](/webhooks/verify-signatures) and [Delivery and retries](/webhooks/delivery-and-retries).
   </Step>
 </Steps>
 
@@ -182,8 +199,9 @@ To catch signups whose webhook delivery failed, run a reconciliation job that li
 ## Handle errors
 
 - `400 VALIDATION_FAILED` on create: a party or `documentMeta` field is invalid. Read `issues`.
-- `results[].success: false` on `field-values`: the key doesn't exist, or the value doesn't match the field's type or options. Fix the value; the other values are already written.
-- `404 NOT_FOUND`: the template or the document doesn't exist in the workspace that the API key belongs to.
+- `results[].success: false` on `field-values`: `error.code` is `NOT_FOUND` when the key doesn't exist, and `VALIDATION_FAILED` when the value doesn't match the field's type or options. Fix the value; the other values are already written.
+- `404 NOT_FOUND`: the template or the document doesn't exist in the workspace that the API key belongs to. `resource` names which one.
+- `409 APPROVAL_REQUIRED` on send: the API key's user needs an approval to send. Give the user the permission to send without approval, or request an approval as described in [Send a document for signing](/guides/documents/send-for-signing).
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

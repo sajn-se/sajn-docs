@@ -13,9 +13,9 @@ In this guide, you upload a PDF file to sajn and attach it to a draft document. 
 
 ## How the upload works
 
-1. You create a file record with the file's name, MIME type, size, and SHA-256 checksum. The response has a `fileId`, a storage `key`, and an `uploadUrl`.
+1. You create a file record with the file's name, MIME type, size, and SHA-256 checksum. The response is the file, with its `id`, a storage `key`, and an `uploadUrl`.
 2. You send the bytes to `uploadUrl` in a `PUT` request. Storage rejects bytes that don't match the checksum.
-3. You confirm the upload. The file's status changes from `PENDING` to `CONFIRMED`.
+3. You confirm the upload, so sajn verifies the stored bytes.
 4. You reference the storage `key` in a document field.
 
 ## Upload a file and attach it
@@ -47,11 +47,17 @@ In this guide, you upload a PDF file to sajn and attach it to a draft document. 
       }"
     ```
 
-    The response is similar to the following:
+    The response is the file, in the same shape as [Get file by ID](/api-reference/get-file-by-id), plus `key` and `uploadUrl`. The following example leaves out `url` and `uploadedBy`:
 
     ```json
     {
-      "fileId": "cm4k2xf3u0007abcd2468cdef",
+      "id": "cm4k2xf3u0007abcd2468cdef",
+      "filename": "contract.pdf",
+      "mimeType": "application/pdf",
+      "size": 102400,
+      "visibility": "PRIVATE",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z",
       "key": "f/cm4k2xz0a0000abcd0000orgx/cm4k2xf3u0007abcd2468cdef/contract.pdf",
       "uploadUrl": "https://storage.sajn.se/f/cm4k2xz0a0000abcd0000orgx/cm4k2xf3u0007abcd2468cdef/contract.pdf?X-Amz-Signature=3f9a"
     }
@@ -82,16 +88,7 @@ In this guide, you upload a PDF file to sajn and attach it to a draft document. 
       -H "Sajn-Version: 2026-10"
     ```
 
-    Replace `FILE_ID` with the `fileId`. The response is similar to the following:
-
-    ```json
-    {
-      "id": "cm4k2xf3u0007abcd2468cdef",
-      "status": "CONFIRMED",
-      "size": 102400,
-      "checksumVerified": true
-    }
-    ```
+    Replace `FILE_ID` with the file `id`. sajn checks the stored size and, when storage records it, the checksum. The response is the file, in the same shape as [Get file by ID](/api-reference/get-file-by-id).
 
     Confirming is idempotent. If you skip it, sajn confirms the file the first time you call [Get file by ID](/api-reference/get-file-by-id).
   </Step>
@@ -105,9 +102,13 @@ In this guide, you upload a PDF file to sajn and attach it to a draft document. 
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "type": "PDF",
-        "position": 0,
-        "fieldMeta": { "type": "PDF", "value": "STORAGE_KEY" }
+        "fields": [
+          {
+            "type": "PDF",
+            "position": 0,
+            "fieldMeta": { "type": "PDF", "value": "STORAGE_KEY" }
+          }
+        ]
       }'
     ```
 
@@ -116,7 +117,7 @@ In this guide, you upload a PDF file to sajn and attach it to a draft document. 
     - `DOCUMENT_ID`: the ID of the draft document.
     - `STORAGE_KEY`: the `key` from the file record.
 
-    The response is `{ "fields": [...] }`, with the created field in the same shape as [Get a document field](/api-reference/get-a-document-field). To replace the PDF of an existing field, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID` with the full `fieldMeta`.
+    The response has the created field in `data`, in the same shape as [Get a document field](/api-reference/get-a-document-field). To replace the PDF of an existing field, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID` with the full `fieldMeta`.
 
     To place signature boxes and input fields on the PDF's pages, see [Place fields on a PDF](/guides/fields/pdf-field-placement).
   </Step>
@@ -142,7 +143,7 @@ CREATED=$(curl -sf -X POST "$API/files" "${HEADERS[@]}" -d "{
   \"fileName\": \"$FILE\", \"mimeType\": \"application/pdf\",
   \"size\": $SIZE, \"checksum\": \"$CHECKSUM\"
 }")
-FILE_ID=$(echo "$CREATED" | jq -r .fileId)
+FILE_ID=$(echo "$CREATED" | jq -r .id)
 KEY=$(echo "$CREATED" | jq -r .key)
 
 curl -sf -X PUT "$(echo "$CREATED" | jq -r .uploadUrl)" \
@@ -153,9 +154,11 @@ curl -sf -X PUT "$(echo "$CREATED" | jq -r .uploadUrl)" \
 curl -sf -X POST "$API/files/$FILE_ID/confirm" "${HEADERS[@]}"
 
 curl -sf -X POST "$API/documents/$DOCUMENT_ID/fields" "${HEADERS[@]}" -d "{
-  \"type\": \"PDF\", \"position\": 0,
-  \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"$KEY\" }
-}" | jq '.fields[0].id'
+  \"fields\": [{
+    \"type\": \"PDF\", \"position\": 0,
+    \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"$KEY\" }
+  }]
+}" | jq '.data[0].id'
 ```
 
 ```javascript Node.js
@@ -171,14 +174,17 @@ const headers = {
 
 const post = async (path, body) => {
   const response = await fetch(`${api}${path}`, { method: "POST", headers, body: JSON.stringify(body) });
-  if (!response.ok) throw new Error(`${path}: ${JSON.stringify(await response.json())}`);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`${path}: ${error.code} ${error.message} (request ${error.requestId})`);
+  }
   return response.json();
 };
 
 const bytes = await readFile("contract.pdf");
 const checksum = createHash("sha256").update(bytes).digest("base64");
 
-const { fileId, key, uploadUrl } = await post("/files", {
+const { id: fileId, key, uploadUrl } = await post("/files", {
   fileName: "contract.pdf",
   mimeType: "application/pdf",
   size: bytes.length,
@@ -194,10 +200,8 @@ if (!upload.ok) throw new Error(`Upload failed: ${upload.status}`);
 
 await post(`/files/${fileId}/confirm`);
 
-const { fields } = await post(`/documents/${process.env.DOCUMENT_ID}/fields`, {
-  type: "PDF",
-  position: 0,
-  fieldMeta: { type: "PDF", value: key },
+const { data: fields } = await post(`/documents/${process.env.DOCUMENT_ID}/fields`, {
+  fields: [{ type: "PDF", position: 0, fieldMeta: { type: "PDF", value: key } }],
 });
 console.log(fields[0].id);
 ```
@@ -240,13 +244,13 @@ upload = requests.put(
 )
 upload.raise_for_status()
 
-post(f"/files/{created['fileId']}/confirm")
+post(f"/files/{created['id']}/confirm")
 
 fields = post(f"/documents/{os.environ['DOCUMENT_ID']}/fields", {
-    "type": "PDF",
-    "position": 0,
-    "fieldMeta": {"type": "PDF", "value": created["key"]},
-})["fields"]
+    "fields": [
+        {"type": "PDF", "position": 0, "fieldMeta": {"type": "PDF", "value": created["key"]}},
+    ],
+})["data"]
 print(fields[0]["id"])
 ```
 

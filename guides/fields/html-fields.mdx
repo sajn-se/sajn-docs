@@ -17,7 +17,7 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
 
 <Steps>
   <Step title="Create the HTML field">
-    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields`. Both `type` and `fieldMeta.type` are `HTML`, and `fieldMeta.content` holds the HTML:
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields` with the field in a `fields` array. Both `type` and `fieldMeta.type` are `HTML`, and `fieldMeta.content` holds the HTML:
 
     <CodeGroup>
 
@@ -27,12 +27,16 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "type": "HTML",
-        "position": 0,
-        "fieldMeta": {
-          "type": "HTML",
-          "content": "<div style=\"text-align: center; padding: 20px;\"><h1 style=\"color: #003366;\">Service agreement</h1><p style=\"color: #666666;\">Effective from 2026-11-01</p></div>"
-        }
+        "fields": [
+          {
+            "type": "HTML",
+            "position": 0,
+            "fieldMeta": {
+              "type": "HTML",
+              "content": "<div style=\"text-align: center; padding: 20px;\"><h1 style=\"color: #003366;\">Service agreement</h1><p style=\"color: #666666;\">Effective from 2026-11-01</p></div>"
+            }
+          }
+        ]
       }'
     ```
 
@@ -51,10 +55,15 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
         "Sajn-Version": "2026-10",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ type: "HTML", position: 0, fieldMeta: { type: "HTML", content } }),
+      body: JSON.stringify({
+        fields: [{ type: "HTML", position: 0, fieldMeta: { type: "HTML", content } }],
+      }),
     });
-    const { fields } = await response.json();
-    console.log(fields[0].id);
+    const body = await response.json();
+    if (!response.ok) {
+      throw new Error(`${body.code}: ${body.message} (request ${body.requestId})`);
+    }
+    console.log(body.data[0].id);
     ```
 
     ```python Python
@@ -75,15 +84,21 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
             "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
             "Sajn-Version": "2026-10",
         },
-        json={"type": "HTML", "position": 0, "fieldMeta": {"type": "HTML", "content": content}},
+        json={
+            "fields": [
+                {"type": "HTML", "position": 0, "fieldMeta": {"type": "HTML", "content": content}},
+            ],
+        },
     )
-    response.raise_for_status()
-    print(response.json()["fields"][0]["id"])
+    body = response.json()
+    if not response.ok:
+        raise RuntimeError(f"{body['code']}: {body['message']} (request {body['requestId']})")
+    print(body["data"][0]["id"])
     ```
 
     </CodeGroup>
 
-    Replace `DOCUMENT_ID` with the document ID. The response is `{ "fields": [...] }` with the created field, and `fieldMeta.content` holds the sanitized HTML:
+    Replace `DOCUMENT_ID` with the document ID. The response has the created field in `data`, and `fieldMeta.content` holds the sanitized HTML:
 
     ```json
     {
@@ -109,22 +124,24 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
   </Step>
 
   <Step title="Add several fields in order">
-    To add a header and a footer around other content, send an array. `position` is each field's 0-based place among the document's content blocks:
+    To add a header and a footer around other content, send several fields in the `fields` array. `position` is each field's 0-based place among the document's content blocks:
 
     ```bash
     curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
-      -d '[
-        { "type": "HTML", "position": 0,
-          "fieldMeta": { "type": "HTML", "content": "<div style=\"padding: 20px;\"><h1>Header</h1></div>" } },
-        { "type": "HTML", "position": 1,
-          "fieldMeta": { "type": "HTML", "content": "<div style=\"border-top: 1px solid #cccccc;\"><p>Footer</p></div>" } }
-      ]'
+      -d '{
+        "fields": [
+          { "type": "HTML", "position": 0,
+            "fieldMeta": { "type": "HTML", "content": "<div style=\"padding: 20px;\"><h1>Header</h1></div>" } },
+          { "type": "HTML", "position": 1,
+            "fieldMeta": { "type": "HTML", "content": "<div style=\"border-top: 1px solid #cccccc;\"><p>Footer</p></div>" } }
+        ]
+      }'
     ```
 
-    The response lists the created fields in request order.
+    The response has the created fields in `data`, in request order.
   </Step>
 
   <Step title="Update the content">
@@ -138,7 +155,7 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
       -d '{ "type": "HTML", "fieldMeta": { "type": "HTML", "content": "<h1>Updated header</h1>" } }'
     ```
 
-    Replace `FIELD_ID` with the field's `id`. A field is addressed by its ID; the `key:` prefix finds only FORM subfields. The page's look, such as orientation, page size, and background, is set on the document in `documentStyle`. For its properties, see [Create a new document](/api-reference/create-a-new-document).
+    Replace `FIELD_ID` with the field's `id`. The response is the updated field. The page's look, such as orientation, page size, and background, is set on the document in `documentStyle`. For its properties, see [Create a new document](/api-reference/create-a-new-document).
   </Step>
 </Steps>
 
@@ -416,10 +433,11 @@ Validation errors are `400 VALIDATION_FAILED`, and `issues` lists every problem 
 {
   "code": "VALIDATION_FAILED",
   "message": "fieldMeta.type is HTML, but the field type is TEXT. They must match.",
+  "userMessage": "Förfrågan innehåller ogiltiga värden.",
   "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
   "issues": [
     {
-      "path": "fieldMeta.type",
+      "path": "fields.0.fieldMeta.type",
       "code": "INVALID_VALUE",
       "message": "fieldMeta.type is HTML, but the field type is TEXT. They must match."
     }
@@ -427,7 +445,7 @@ Validation errors are `400 VALIDATION_FAILED`, and `issues` lists every problem 
 }
 ```
 
-A field change on a document that isn't a `DRAFT` returns `400 INVALID_STATE`. Disallowed HTML isn't an error: sajn removes it. For the error shape and every code, see [Errors](/api-fundamentals/errors).
+A field change on a document that isn't a `DRAFT` returns `409 INVALID_STATE`. Disallowed HTML isn't an error: sajn removes it. For the error shape and every code, see [Errors](/api-fundamentals/errors).
 
 ## Next steps
 
@@ -441,7 +459,7 @@ A field change on a document that isn't a `DRAFT` returns `400 INVALID_STATE`. D
   <Card title="Send for signing" icon="paper-plane" href="/guides/documents/send-for-signing">
     Send the document to its parties.
   </Card>
-  <Card title="Create a document field" icon="code" href="/api-reference/create-a-document-field">
+  <Card title="Create document fields" icon="code" href="/api-reference/create-document-fields">
     See every field type in the API reference.
   </Card>
 </CardGroup>

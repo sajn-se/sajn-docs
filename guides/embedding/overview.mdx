@@ -3,7 +3,7 @@ title: "Embedded signing"
 description: "Show the sajn signing page inside your own application in an iframe, with your own theme"
 ---
 
-In this guide, you embed the sajn signing page in your application, so a party signs without leaving it. Your server creates the document and gets the party's token, and your frontend shows the signing page in an iframe through one of the sajn embedding packages.
+In this guide, you embed the sajn signing page in your application, so a party signs without leaving it. Your server creates the document and gets the party's signing token, and your frontend shows the signing page in an iframe through one of the sajn embedding packages.
 
 sajn has the following packages:
 
@@ -51,7 +51,7 @@ The list starts empty, and an empty list allows no domains outside sajn. The lis
       -d '{}'
     ```
 
-    Replace `DOCUMENT_ID` with the `id` from the first response.
+    The first request returns the document. Replace `DOCUMENT_ID` with its `id`, and note the party's `id` in `parties`.
   </Step>
 
   <Step title="Get the party's token on your server">
@@ -61,7 +61,13 @@ The list starts empty, and an empty list allows no domains outside sajn. The lis
       -H "Sajn-Version: 2026-10"
     ```
 
-    Replace `PARTY_ID` with the party's `id`. Return the response's `token` and the document ID to your frontend. The token lets anyone sign as the party, so give it only to that person's session.
+    Replace `PARTY_ID` with the party's `id`. The response has the party's `signingUrl`, such as `https://app.sajn.se/sign/DOCUMENT_ID?token=PARTY_TOKEN`. Read the token from its `token` query parameter:
+
+    ```javascript
+    const token = new URL(party.signingUrl).searchParams.get("token");
+    ```
+
+    Return the token and the document ID to your frontend. The token lets anyone sign as the party, so give it only to that person's session.
   </Step>
 
   <Step title="Show the signing page">
@@ -85,7 +91,7 @@ The list starts empty, and an empty list allows no domains outside sajn. The lis
   </Step>
 
   <Step title="Confirm the signature on your server">
-    The `signer-completed` event runs in the browser, so treat it as a signal to update the screen, not as proof. Confirm the signature with the `DOCUMENT_PARTY_SIGNED` or `DOCUMENT_COMPLETED` [webhook event](/webhooks/overview).
+    The `signer-completed` event runs in the browser, so treat it as a signal to update the screen, not as proof. Confirm the signature with the `document.party.signed` or `document.completed` [webhook event](/webhooks/events).
   </Step>
 </Steps>
 
@@ -96,7 +102,7 @@ Every package takes the same options. The JavaScript package uses the names show
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `documentId` | `string` | Required | The document ID. |
-| `token` | `string` | Required | The party's `token`. |
+| `token` | `string` | Required | The party's token, from the `token` query parameter of its `signingUrl`. |
 | `host` | `string` | `https://app.sajn.se` | The sajn host. |
 | `language` | `string` | `en` | The language of the signing page: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
 | `className` | `string` | None | A CSS class for the iframe. |

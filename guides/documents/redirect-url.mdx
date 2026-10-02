@@ -12,7 +12,7 @@ In this guide, you configure a document so that each party lands on a page in yo
 
 ## How the redirect works
 
-When a party finishes signing, the signing page counts down for five seconds and then opens the redirect URL in the same tab. The party can cancel the countdown. The redirect happens in the party's browser, so it isn't proof that the document was signed. To confirm a signature, use the `DOCUMENT_PARTY_SIGNED` and `DOCUMENT_COMPLETED` [webhook events](/webhooks/overview).
+When a party finishes signing, the signing page counts down for five seconds and then opens the redirect URL in the same tab. The party can cancel the countdown. The redirect happens in the party's browser, so it isn't proof that the document was signed. To confirm a signature, use the `document.party.signed` and `document.completed` [webhook events](/webhooks/events).
 
 The URL can contain the following placeholders. sajn replaces the first occurrence of each:
 
@@ -123,7 +123,7 @@ The URL can contain the following placeholders. sajn replaces the first occurren
 ## Handle errors
 
 - `400 VALIDATION_FAILED`: `redirectUrl` isn't an `http` or `https` URL.
-- `400` after sending: the document is completed or withdrawn, and the redirect can no longer change.
+- `409 INVALID_STATE` after sending: the document is completed, cancelled, or rejected, and the redirect can no longer change.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

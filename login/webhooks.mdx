@@ -7,11 +7,12 @@ Two events tell you the outcome of a login without waiting for the browser to co
 
 | Event | Fires when |
 | --- | --- |
-| `LOGIN_COMPLETED` | A user finished authenticating |
-| `LOGIN_FAILED` | A login ended in a state the user cannot retry out of |
+| `login.completed` | A user finished authenticating |
+| `login.failed` | A login ended in a state the user can't retry out of |
 
-They use the same webhook system as the rest of sajn — same signing, same retries, same delivery
-log. See [Webhooks](/webhooks/overview) for setup and signature verification.
+They use the same webhook system as the rest of sajn: the same event body, Standard Webhooks
+signing, retries, and delivery log. To receive them, add `login.completed` and `login.failed` to
+the `events` of a webhook. For setup, see [Webhooks](/webhooks/overview).
 
 ## Why you might want them
 
@@ -26,40 +27,50 @@ flow if the browser stops responding — so the result exists. The webhook is ho
 it.
 
 <Note>
-  If you use [OpenID Connect](/login/oidc), a `LOGIN_COMPLETED` webhook cannot be exchanged for an
+  If you use [OpenID Connect](/login/oidc), a `login.completed` webhook can't be exchanged for an
   `id_token` — the authorization code goes to the browser and expires in 60 seconds. Treat the
   webhook as a signal to prompt the user to try again, or to reconcile your own records. With the
   [Session API](/login/session-api) you can act on it directly: `GET` the session for the claims.
 </Note>
 
-## `LOGIN_COMPLETED`
+## `login.completed`
 
 ```json
 {
-  "id": "evt_123",
-  "event": "LOGIN_COMPLETED",
-  "createdAt": "2026-07-26T12:03:45.000Z",
+  "id": "cm4k2x9p10001abcd1234efgh",
+  "type": "login.completed",
+  "createdAt": "2026-10-02T12:03:45.000Z",
   "apiVersion": "2026-10",
-  "payload": {
-    "id": "clx9a…",
-    "sessionId": "kZ8f3c…",
-    "clientId": "clx7b…",
-    "mode": "SESSION",
-    "method": "BANKID_SE",
-    "sub": "clx7f2k9v0001…",
-    "authenticatedAt": "2026-07-26T12:03:45.000Z",
-    "state": "your-internal-reference"
+  "workspaceId": "cm4k2x9p10002abcd1234efgh",
+  "environment": "PRODUCTION",
+  "actor": null,
+  "data": {
+    "object": {
+      "id": "cm4k2x9p10003abcd1234efgh",
+      "sessionId": "kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv",
+      "clientId": "cm4k2x9p10004abcd1234efgh",
+      "mode": "SESSION",
+      "method": "SE_BANKID",
+      "sub": "clx7f2k9v0001abcdefghijkl",
+      "authenticatedAt": "2026-10-02T12:03:45.000Z",
+      "state": "your-internal-reference"
+    }
   }
 }
 ```
 
+The fields of `data.object`:
+
 | Field | Meaning |
 | --- | --- |
-| `id` | The authentication record — also what you are billed for |
-| `sessionId` | The login session; use it with the Session API to fetch claims |
+| `id` | The authentication record, which is also what you're billed for |
+| `sessionId` | The login session. With the Session API, use it to read the claims |
+| `clientId` | The sajn Login client that started the login |
 | `mode` | `OIDC` or `SESSION` |
-| `sub` | The pseudonymous subject — same value your `id_token` carries |
-| `state` | Your own value from the login request, if you sent one |
+| `method` | The eID method, `SE_BANKID` |
+| `sub` | The pseudonymous subject, the same value your `id_token` carries |
+| `authenticatedAt` | When the user authenticated |
+| `state` | Your own value from the login request. Absent if you didn't send one |
 
 <Warning>
   **The payload deliberately contains no identity.** No name, no personnummer — only the
@@ -67,42 +78,53 @@ it.
   behind an authenticated read.
 </Warning>
 
-## `LOGIN_FAILED`
+## `login.failed`
 
 ```json
 {
-  "id": "evt_124",
-  "event": "LOGIN_FAILED",
-  "createdAt": "2026-07-26T12:08:12.000Z",
+  "id": "cm4k2x9p10005abcd1234efgh",
+  "type": "login.failed",
+  "createdAt": "2026-10-02T12:08:12.000Z",
   "apiVersion": "2026-10",
-  "payload": {
-    "sessionId": "kZ8f3c…",
-    "clientId": "clx7b…",
-    "mode": "SESSION",
-    "reason": "expiredTransaction",
-    "failedAt": "2026-07-26T12:08:12.000Z",
-    "state": "your-internal-reference"
+  "workspaceId": "cm4k2x9p10002abcd1234efgh",
+  "environment": "PRODUCTION",
+  "actor": null,
+  "data": {
+    "object": {
+      "sessionId": "kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv",
+      "clientId": "cm4k2x9p10004abcd1234efgh",
+      "mode": "SESSION",
+      "reason": "expiredTransaction",
+      "failedAt": "2026-10-02T12:08:12.000Z",
+      "state": "your-internal-reference"
+    }
   }
 }
 ```
+
+`data.object` has the same `sessionId`, `clientId`, `mode`, and `state` as `login.completed`,
+plus `reason`, the BankID hint code, and `failedAt`.
 
 This fires only for **terminal** failures. Recoverable ones — the user cancelled, the QR failed to
 scan, the app was not found — do not fire, because the login page offers a retry within the same
 session and notifying on each would flood your endpoint.
 
-Typical `reason` values: `expiredTransaction`, `certificateErr`. The full list is in
-[Errors](/login/errors).
+Typical `reason` values are `expiredTransaction` and `certificateErr`. For the full list, see
+[Errors](/login/errors#bankid-hint-codes).
 
 ## Delivery
 
-Standard sajn webhook behaviour: signed, retried with backoff, and visible in the delivery log
-under **Inställningar → Utvecklare → Webhooks**.
+Login events are delivered like every other sajn event: signed according to Standard Webhooks,
+retried with backoff, and visible in the delivery log under
+**Inställningar → Utvecklare → Webhooks**.
 
 Two rules worth repeating:
 
-- **Verify the signature** before acting on a payload.
-- **Expect duplicates.** Deliveries are at-least-once. The envelope `id` is stable per event, and
-  `payload.id` on `LOGIN_COMPLETED` is stable per authentication — use either as an idempotency key.
+- **Verify the signature** with the `webhook-id`, `webhook-timestamp`, and `webhook-signature`
+  headers before you act on an event. See [Verify signatures](/webhooks/verify-signatures).
+- **Expect duplicates.** Deliveries are at-least-once. The event `id` is stable per event, and
+  `data.object.id` on `login.completed` is stable per authentication. Use either as an
+  idempotency key.
 
 <Warning>
   Never treat a webhook as an authentication in itself. It says *an* authentication happened; it

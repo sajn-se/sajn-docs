@@ -13,8 +13,8 @@ flowchart TD
     doc --> f1["Field, position 1: FORM"]
     doc --> f2["Field, position 2: PDF"]
     doc --> f3["Field, position 3: PRODUCT_TABLE"]
-    f1 --> sub["Subfields: input, date, checkbox ...<br/>each with a key and an optional partyId"]
-    f2 --> placed["placedFields: boxes on the PDF pages<br/>signature, initials, text, date ..."]
+    f1 --> sub["Subfields: INPUT, DATEPICKER, CHECKBOX, and more<br/>each with a key and an optional partyId"]
+    f2 --> placed["placedFields: boxes on the PDF pages<br/>SIGNATURE, INITIALS, TEXT, DATE, and more"]
     f2 --> acro["formFields: form fields inside the PDF"]
 ```
 
@@ -25,6 +25,7 @@ Every field has the following properties:
 | Property | Description |
 |----------|-------------|
 | `id` | The field ID. |
+| `documentId`, `templateId` | The document or template the field belongs to. The other one is `null`. |
 | `type` | The field type, such as `TEXT` or `PDF`. |
 | `position` | The 0-based order of the field in the document. |
 | `fieldMeta` | The type-specific content and settings. `fieldMeta.type` always equals `type`. |
@@ -34,6 +35,8 @@ The following field is a short HTML section:
 ```json
 {
   "id": "cm4k2x9p50007abcd7890uvwx",
+  "documentId": "cm4k2x9p10001abcd1234efgh",
+  "templateId": null,
   "type": "HTML",
   "position": 0,
   "fieldMeta": {
@@ -59,14 +62,14 @@ The following field is a short HTML section:
 
 Most types also accept the following settings in `fieldMeta`: `locked` freezes the field in the editor, `hidden` hides it, and `visibilityRule` shows it only when a custom field has a given value.
 
-To add fields, call [`POST /documents/{id}/fields`](/api-reference/create-a-document-field). To read them, pass `expand=fields` to [`GET /documents/{id}`](/api-reference/get-a-document-by-id), or call [`GET /documents/{id}/fields`](/api-reference/list-document-fields). You can change fields only while a document is a `DRAFT`.
+To add fields, send them in a `fields` array to [`POST /documents/{id}/fields`](/api-reference/create-document-fields), also when you add one. To read them, pass `expand=fields` to [`GET /documents/{id}`](/api-reference/get-a-document-by-id), or call [`GET /documents/{id}/fields`](/api-reference/list-document-fields). You can change fields only while a document is a `DRAFT`.
 
 ## Values that someone fills in
 
 Three kinds of fields hold values:
 
-- **FORM subfields.** A `FORM` field's `fieldMeta.fields` lists its subfields in a grid of `row` and `column`. A subfield's type is `input`, `text`, `select`, `datepicker`, `radio`, `checkbox`, `number`, or `attachment`.
-- **Placed fields.** A `PDF` field's `fieldMeta.placedFields` lists boxes placed on its pages. Each box has a `page`, a `rect` in PDF points, and a `kind`: `input` for a value or mark, or `static` for fixed text.
+- **FORM subfields.** A `FORM` field's `fieldMeta.fields` lists its subfields in a grid of `row` and `column`. A subfield's type is `INPUT`, `TEXT`, `SELECT`, `DATEPICKER`, `RADIO`, `CHECKBOX`, `NUMBER`, or `ATTACHMENT`.
+- **Placed fields.** A `PDF` field's `fieldMeta.placedFields` lists boxes placed on its pages. Each box has a `page`, a `rect` in PDF points, and a `kind`: `INPUT` for a value or mark, or `STATIC` for fixed text.
 - **PDF form fields.** A `PDF` field's `fieldMeta.formFields` lists the form fields that were already in the uploaded PDF.
 
 Who fills a value depends on `partyId`:
@@ -76,7 +79,7 @@ Who fills a value depends on `partyId`:
 | Set | The party | On the signing page, before signing. Set `required` to block signing until the value is filled. |
 | Not set | You | Before you send the document, through the API or the editor |
 
-A placed box with `inputType` set to `signature` or `initials` is a **signature mark**. The party draws it when they sign, and sajn seals it into the PDF at that position. A signature mark must belong to a party with the `SIGNER` role. For the coordinate model, see [PDF field placement](/guides/fields/pdf-field-placement).
+A placed box with `inputType` set to `SIGNATURE` or `INITIALS` is a **signature mark**. The party draws it when they sign, and sajn seals it into the PDF at that position. A signature mark must belong to a party with the `SIGNER` role. For the coordinate model, see [PDF field placement](/guides/fields/pdf-field-placement).
 
 The following `FORM` field has one subfield that you fill in and one that the party fills in:
 
@@ -91,19 +94,19 @@ The following `FORM` field has one subfield that you fill in and one that the pa
       {
         "id": "customer-name",
         "key": "customer-name",
-        "type": "input",
+        "type": "INPUT",
         "row": 0,
         "column": 0,
-        "fieldMeta": { "type": "input", "label": "Customer", "value": "Example AB" }
+        "fieldMeta": { "type": "INPUT", "label": "Customer", "value": "Example AB" }
       },
       {
         "id": "start-date",
         "key": "start-date",
-        "type": "datepicker",
+        "type": "DATEPICKER",
         "row": 0,
         "column": 1,
         "fieldMeta": {
-          "type": "datepicker",
+          "type": "DATEPICKER",
           "label": "Start date",
           "partyId": "cm4k2x9p20002abcd5678ijkl",
           "required": true
@@ -114,7 +117,7 @@ The following `FORM` field has one subfield that you fill in and one that the pa
 }
 ```
 
-In API version `2026-10`, `fieldMeta` names the party `partyId`. API version `2026-09` calls it `signerId`.
+In API version `2026-10`, `fieldMeta` names the party `partyId`, and every enum inside it is uppercase. API version `2026-09` calls the party `signerId` and spells these enums in lowercase.
 
 ## Fill in values by key
 
@@ -135,7 +138,7 @@ To fill in values by key, use the field values endpoints:
    }
    ```
 
-The same request works for FORM subfields, placed boxes, and PDF form fields. You can fill in values while the document is a `DRAFT` or `IMPORTED`. A value fails, and the other values are still written, when its key doesn't exist, when two fields share the key, when a party fills it in at signing, or when the value doesn't match the field's type or options. The `results` array lists the outcome for each key.
+The same request works for FORM subfields, placed boxes, and PDF form fields. You can fill in values while the document is a `DRAFT` or `IMPORTED`. A value fails, and the other values are still written, when its key doesn't exist, when two fields share the key, when a party fills it in at signing, or when the value doesn't match the field's type or options. The `results` array lists the outcome for each key: `success`, and when it's `false`, an `error` with `code`, `message`, and `userMessage`. `remaining` lists the keys of required values that you fill in and that are still empty.
 
 ## Next steps
 

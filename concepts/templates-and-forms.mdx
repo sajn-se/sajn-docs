@@ -23,7 +23,7 @@ flowchart LR
 
 ## Templates
 
-A template holds the fields, parties, and settings of a kind of document, such as an employment contract or an NDA. Templates have their own fields and parties, managed with the `/templates/{id}/fields` and `/templates/{id}/parties` endpoints, in the same shapes as on a document.
+A template holds the fields, parties, and settings of a kind of document, such as an employment contract or an NDA. Templates have their own fields and parties, managed with the `/templates/{id}/fields` and `/templates/{id}/parties` endpoints. Fields have the same shape as on a document, and a template party nests its company in `company`, as a document party does.
 
 To create a document from a template, send `templateId` to [`POST /documents`](/api-reference/create-a-new-document):
 
@@ -47,7 +47,7 @@ The usual flow from a template is the following:
 1. Fill in the values by key with [`PATCH /documents/{id}/field-values`](/api-reference/fill-in-values-on-a-document). For more information, see [Fields](/concepts/fields#fill-in-values-by-key).
 1. Send the document.
 
-To list the documents created from a template, call [`GET /templates/{id}/documents`](/api-reference/list-documents-created-from-a-template). For more information, see [Templates and forms](/guides/templates/templates-and-forms) and [Managing templates](/guides/templates/managing-templates).
+To list the documents created from a template, call [`GET /documents?templateId=`](/api-reference/list-all-documents) with the template ID. For more information, see [Templates and forms](/guides/templates/templates-and-forms) and [Managing templates](/guides/templates/managing-templates).
 
 ## Forms
 
@@ -61,7 +61,7 @@ A form goes through the following steps:
 1. Configure its questions, fields, and parties, and [select the respondent party](/api-reference/select-the-respondent-party).
 1. [Publish the form](/api-reference/publish-a-form). The user who publishes becomes the sender of every document the form creates, and must be allowed to send without approval.
 1. Share the form's public URL.
-1. Read the answers with [`GET /forms/{id}/submissions`](/api-reference/list-form-submissions), or subscribe to the `FORM_SUBMITTED` webhook event.
+1. Read the answers with [`GET /forms/{id}/submissions`](/api-reference/list-form-submissions), or subscribe to the `form.submitted` webhook event.
 
 Every submission creates an ordinary document. It follows the normal [document lifecycle](/concepts/documents#document-lifecycle), and you read it with the document endpoints. To stop new submissions, [unpublish the form](/api-reference/unpublish-a-form). For more information, see [Managing forms](/guides/templates/managing-forms).
 

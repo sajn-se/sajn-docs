@@ -13,19 +13,19 @@ sajn ID checks the identity in one of two ways:
 ## Before you begin
 
 - Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
-- Subscribe a webhook endpoint to `ID_VERIFIED`, `ID_FAILED`, and `ID_CANCELED`. For more information, see [Webhooks](/webhooks/overview).
-- Each check counts toward your organization's monthly sajn ID quota.
+- Subscribe a webhook endpoint to `identity_check.verified`, `identity_check.failed`, and `identity_check.cancelled`. For more information, see [Webhooks](/webhooks/overview).
+- Each check counts toward your organization's monthly identity check quota.
 
 ## Run an identity check
 
 <Steps>
   <Step title="Create the check">
-    Send a `POST` request to `/api/v1/sajn-id`. Creating the check also sends it, so there's no separate send step:
+    Send a `POST` request to `/api/v1/identity-checks`. Creating the check also sends it, so there's no separate send step:
 
     <CodeGroup>
 
     ```bash curl
-    curl -X POST https://app.sajn.se/api/v1/sajn-id \
+    curl -X POST https://app.sajn.se/api/v1/identity-checks \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
@@ -34,12 +34,12 @@ sajn ID checks the identity in one of two ways:
         "channel": "EMAIL",
         "email": "alex@example.com",
         "reference": "signup-4711",
-        "locale": "en-US"
+        "language": "en"
       }'
     ```
 
     ```javascript Node.js
-    const response = await fetch("https://app.sajn.se/api/v1/sajn-id", {
+    const response = await fetch("https://app.sajn.se/api/v1/identity-checks", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
@@ -51,7 +51,7 @@ sajn ID checks the identity in one of two ways:
         channel: "EMAIL",
         email: "alex@example.com",
         reference: "signup-4711",
-        locale: "en-US",
+        language: "en",
       }),
     });
     const check = await response.json();
@@ -64,7 +64,7 @@ sajn ID checks the identity in one of two ways:
     import requests
 
     response = requests.post(
-        "https://app.sajn.se/api/v1/sajn-id",
+        "https://app.sajn.se/api/v1/identity-checks",
         headers={
             "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
             "Sajn-Version": "2026-10",
@@ -74,7 +74,7 @@ sajn ID checks the identity in one of two ways:
             "channel": "EMAIL",
             "email": "alex@example.com",
             "reference": "signup-4711",
-            "locale": "en-US",
+            "language": "en",
         },
     )
     response.raise_for_status()
@@ -88,12 +88,12 @@ sajn ID checks the identity in one of two ways:
 
     - `fullName` and `channel` are required. With `"channel": "SMS"`, send `phone` instead of `email`.
     - `nationalId` makes BankID check the identity number.
-    - `reference` is your own ID for the check, returned in the webhook payload.
+    - `reference` is your own ID for the check, returned in the check and its webhook events.
     - `contactId` links the check to a contact.
-    - `locale` is the language of the messages. The default is `sv-SE`.
+    - `language` is the language of the messages, as an ISO 639-1 code such as `en`. The default is `sv`.
     - `expiresAt` is when the link stops working. The default is seven days after creation.
 
-    The response is the check. Store its `id`. Only this response has `verificationUrl` and `token`, in case you want to show the link yourself:
+    The response is the check. Store its `id`. Only this response has `verificationUrl`, in case you want to show the link yourself:
 
     ```json
     {
@@ -105,52 +105,45 @@ sajn ID checks the identity in one of two ways:
       "channel": "EMAIL",
       "status": "SENT",
       "reference": "signup-4711",
-      "locale": "en-US",
+      "language": "en",
       "expiresAt": "2026-10-08T09:00:00.000Z",
       "verifiedAt": null,
       "createdAt": "2026-10-01T09:00:00.000Z",
       "updatedAt": "2026-10-01T09:00:00.000Z",
       "verificationUrl": "https://id.sajn.se/v/R4nd0mT0k3n",
-      "token": "R4nd0mT0k3n"
+      "contact": null,
+      "createdBy": { "id": "cm4k2xw3c0000abcd0000usrx", "email": "dana@example.com", "name": "Dana Lund" },
+      "audits": null,
+      "data": null
     }
     ```
   </Step>
 
   <Step title="Get the result">
-    When the person finishes, sajn sends `ID_VERIFIED`. A failed or canceled check sends `ID_FAILED` or `ID_CANCELED` with the same payload:
+    When the person finishes, sajn sends an `identity_check.verified` event. A failed or cancelled check sends `identity_check.failed` or `identity_check.cancelled`, and `identity_check.failed` adds the reason in `data.failureReason`. The event's `data.object` is the check, so find your record by its `reference`:
 
-    ```json
-    {
-      "id": "cm4k2xn7b0013abcd8024abcd",
-      "event": "ID_VERIFIED",
-      "createdAt": "2026-10-01T09:05:00.000Z",
-      "apiVersion": "2026-10",
-      "payload": {
-        "id": "cm4k2xm3a0012abcd7913wxyz",
-        "fullName": "Alex Andersson",
-        "email": "alex@example.com",
-        "phone": null,
-        "channel": "EMAIL",
-        "reference": "signup-4711",
-        "status": "VERIFIED",
-        "failureReason": null,
-        "createdAt": "2026-10-01T09:00:00.000Z",
-        "updatedAt": "2026-10-01T09:05:00.000Z",
-        "organizationId": "cm4k2xz0a0000abcd0000orgx",
-        "contactId": null
-      }
+    ```javascript
+    // Inside your webhook handler, after you verify the signature.
+    const check = event.data.object;
+    if (event.type === "identity_check.verified") {
+      await markVerified(check.reference, check.verifiedAt);
+    }
+    if (event.type === "identity_check.failed") {
+      await markFailed(check.reference, event.data.failureReason);
     }
     ```
 
-    Find your record by `payload.reference`. To read the check without webhooks, poll it:
+    `markVerified` and `markFailed` stand for your own code. To verify the signature, see [Verify webhook signatures](/webhooks/verify-signatures). For the full event, see [Webhook payloads](/webhooks/payloads).
+
+    To read the check without webhooks, poll it:
 
     ```bash
-    curl https://app.sajn.se/api/v1/sajn-id/CHECK_ID \
+    curl https://app.sajn.se/api/v1/identity-checks/CHECK_ID \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
 
-    Replace `CHECK_ID` with the check `id`. `status` moves through `CREATED`, `SENT`, `OPENED`, and ends at `VERIFIED`, `FAILED`, `EXPIRED`, or `CANCELED`. A verified check also has `verifiedAt`, the BankID result in `data`, and its event history in `audits`.
+    Replace `CHECK_ID` with the check `id`. `status` moves through `CREATED`, `SENT`, `OPENED`, and ends at `VERIFIED`, `FAILED`, `EXPIRED`, or `CANCELLED`. A verified check also has `verifiedAt`, the BankID result in `data`, and its event history in `audits`.
   </Step>
 </Steps>
 
@@ -158,7 +151,7 @@ The BankID result in `data` contains personal data, such as the identity number.
 
 ## List checks
 
-`GET /api/v1/sajn-id` lists the organization's checks. Filter with `status`, such as `status=VERIFIED,FAILED`, and with `createdAfter` and `createdBefore`. The list is paginated; for more information, see [Pagination](/api-fundamentals/pagination).
+`GET /api/v1/identity-checks` lists the organization's checks, newest first. Filter with `status`, such as `status=VERIFIED,FAILED`, and with `createdAfter`, `createdBefore`, `updatedAfter`, and `updatedBefore`. The response has the checks in `data`, each with `audits`, `data`, and `verificationUrl` set to `null`. To read `audits` and `data`, get the check by ID. While `hasMore` is `true`, pass `nextCursor` as `cursor` to get the next page. For more information, see [Pagination](/api-fundamentals/pagination).
 
 ## Handle errors
 
@@ -180,7 +173,7 @@ For the error shape and every code, see [Errors](/api-fundamentals/errors).
   <Card title="Set the signing method" icon="fingerprint" href="/guides/identity/signing-methods">
     Verify identity as part of signing instead.
   </Card>
-  <Card title="Create a sajn ID verification" icon="code" href="/api-reference/create-a-new-sajn-id-verification">
+  <Card title="Create an identity check" icon="code" href="/api-reference/create-an-identity-check">
     See the endpoint in the API reference.
   </Card>
 </CardGroup>

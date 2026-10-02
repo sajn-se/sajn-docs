@@ -5,6 +5,8 @@ description: 'Verify a person with Swedish BankID, outside of signing a document
 
 sajn ID verifies a person's identity with Swedish BankID, without a document to sign. Use it to check who someone is before you give them access to a service or complete a transaction. sajn sends the person a link, they identify themselves with BankID, and you read the result.
 
+In the API, a sajn ID verification is an **identity check**, at `/api/v1/identity-checks`.
+
 ## Overview
 
 sajn ID checks the BankID identity in one of two ways:
@@ -34,11 +36,11 @@ The verification's `status` follows these steps, from `CREATED` to `VERIFIED` or
 | `VERIFIED` | Successfully verified |
 | `FAILED` | Verification failed |
 | `EXPIRED` | Verification link expired |
-| `CANCELED` | Verification was canceled |
+| `CANCELLED` | Verification was cancelled |
 
 ## Create a verification
 
-Creating a verification through the API sends it to the person right away, over the `channel` you choose. To create one, call [`POST /sajn-id`](/api-reference/create-a-new-sajn-id-verification).
+Creating a verification through the API sends it to the person right away, over the `channel` you choose. To create one, call [`POST /identity-checks`](/api-reference/create-an-identity-check). The response is the identity check, and it's the only response that includes `verificationUrl`.
 
 ### Verify by national ID
 
@@ -50,9 +52,12 @@ Send the personal number in the `nationalId` field:
   "nationalId": "197001011234",
   "email": "alex@example.com",
   "channel": "EMAIL",
-  "reference": "onboarding-4711"
+  "reference": "onboarding-4711",
+  "language": "sv"
 }
 ```
+
+`language` is optional, and takes an ISO 639-1 code, such as `sv` or `en`.
 
 In API version `2026-09`, this field is `ssn`.
 
@@ -92,21 +97,22 @@ sajn sends the verification link by SMS:
 ```
 
 <Note>
-  API-created verifications use `EMAIL` or `SMS`. The `channel` field returned by the API may also be `IN_APP` for verifications delivered inside the sajn app.
+  API-created verifications use `EMAIL` or `SMS`. The `channel` that the API returns can also be `IN_APP`, for verifications delivered inside the sajn app.
 </Note>
 
 ## Verification data
 
-After a successful verification, [get the verification](/api-reference/get-a-sajn-id-verification-by-id) to read the BankID response in `data`:
+After a successful verification, [get the identity check](/api-reference/get-an-identity-check) to read the BankID response in `data`. The following excerpt shows the relevant fields:
 
 ```json
 {
   "id": "cm4k2x9p80010abcd0123ghij",
   "status": "VERIFIED",
   "fullName": "Alex Lindqvist",
-  "verifiedAt": "2024-01-15T10:30:00Z",
+  "verifiedAt": "2026-10-01T10:30:00.000Z",
   "data": {
-    "completionData": {
+    "bankIdName": "Alex Lindqvist",
+    "bankIdResponse": {
       "user": {
         "personalNumber": "197001011234",
         "name": "Alex Lindqvist",
@@ -121,9 +127,7 @@ After a successful verification, [get the verification](/api-reference/get-a-saj
 }
 ```
 
-<Note>
-  sajn encrypts personal numbers at rest, and returns them only to users with the right permissions.
-</Note>
+In the list from [`GET /identity-checks`](/api-reference/list-identity-checks), `data` is `null`. Reading it requires the `VIEW_SAJN_ID` workspace permission, and sajn records each read in the organization's audit log.
 
 ## Use cases
 
@@ -186,34 +190,26 @@ The verification then appears with the contact.
 
 ## Audit log
 
-A verification returned by the get endpoint includes its audit log in `audits`:
+An identity check that you get by ID includes its audit log in `audits`. In a list, `audits` is `null`. The following excerpt shows one entry:
 
 ```json
 {
   "audits": [
     {
-      "type": "ID_CREATED",
-      "createdAt": "2024-01-15T10:00:00Z"
-    },
-    {
+      "id": "cm4k2x9p90012abcd5678mnop",
       "type": "ID_SENT",
-      "createdAt": "2024-01-15T10:01:00Z",
-      "data": {
-        "channel": "EMAIL"
-      }
-    },
-    {
-      "type": "ID_OPENED",
-      "createdAt": "2024-01-15T10:15:00Z",
-      "ipAddress": "192.0.2.1"
-    },
-    {
-      "type": "ID_VERIFIED",
-      "createdAt": "2024-01-15T10:30:00Z"
+      "createdAt": "2026-10-01T10:01:00.000Z",
+      "data": { "channel": "EMAIL", "recipient": null, "isResending": false },
+      "name": null,
+      "email": null,
+      "ipAddress": null,
+      "userAgent": null
     }
   ]
 }
 ```
+
+The audit log types are `ID_CREATED`, `ID_SENT`, `ID_RESENT`, `ID_OPENED`, `ID_VERIFIED`, `ID_FAILED`, `ID_EXPIRED`, `ID_CANCELED`, and `ID_REVOKED`.
 
 ## Expiration
 
@@ -221,7 +217,7 @@ A verification and its link expire 7 days after creation by default. To set anot
 
 ```json
 {
-  "expiresAt": "2030-01-22T23:59:59Z"
+  "expiresAt": "2030-01-22T23:59:59.000Z"
 }
 ```
 
@@ -243,7 +239,7 @@ The current expiration is returned as `expiresAt` on the verification object.
   </Accordion>
 
   <Accordion title="Personal number encryption">
-    sajn encrypts personal numbers at rest, and returns them only to users with the right permissions.
+    sajn encrypts the `nationalId` you send at rest and never returns it. The BankID response in `data` is returned only to users with the `VIEW_SAJN_ID` permission.
   </Accordion>
 
   <Accordion title="Audit trail">
@@ -268,7 +264,7 @@ The current expiration is returned as `expiresAt` on the verification object.
     Send `nationalId` only when you need it. Verifying by name collects less personal data
   </Card>
   <Card title="Use webhooks" icon="webhook">
-    Subscribe to the `ID_VERIFIED` and `ID_FAILED` events instead of polling
+    Subscribe to the `identity_check.verified` and `identity_check.failed` webhook events instead of polling
   </Card>
 </CardGroup>
 
@@ -278,7 +274,7 @@ The current expiration is returned as `expiresAt` on the verification object.
   <Card title="Identity verification guide" icon="shield-check" href="/guides/identity/identity-verification">
     Step-by-step guide to implementing ID checks
   </Card>
-  <Card title="API Reference" icon="code" href="/api-reference/create-a-new-sajn-id-verification">
-    Explore the sajn ID API
+  <Card title="API reference" icon="code" href="/api-reference/create-an-identity-check">
+    Create an identity check
   </Card>
 </CardGroup>

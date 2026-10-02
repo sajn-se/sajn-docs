@@ -83,7 +83,7 @@ In this guide, you send a draft document to its parties. You personalize the inv
 
     Replace `DOCUMENT_ID` with the ID of your draft. The `Idempotency-Key` header makes a retry of the same request safe: the API replays the first response instead of sending the document twice.
 
-    The response is the document. The following example leaves out `documentMeta`:
+    The response is the document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id) without `fields`. The following example leaves out `documentMeta` and `parties`:
 
     ```json
     {
@@ -94,14 +94,34 @@ In this guide, you send a draft document to its parties. You personalize the inv
       "expiresAt": "2026-10-31T16:00:00.000Z",
       "createdAt": "2026-10-01T09:00:00.000Z",
       "updatedAt": "2026-10-01T09:05:00.000Z",
-      "completedAt": null
+      "completedAt": null,
+      "deletedAt": null,
+      "approvalRequestId": null
     }
     ```
 
-    The status code tells you what happened:
+    The document's status is `PENDING`. Each party is invited on its own `deliveryMethod`. With `SEQUENTIAL` signing, only the first party in `signingOrder` is invited.
 
-    - `200`: the document is sent, and its status is `PENDING`. Each party is invited on its own `deliveryMethod`. With `SEQUENTIAL` signing, only the first party in `signingOrder` is invited.
-    - `202`: the document needs approval first, and its status is `PENDING_APPROVAL`. This happens when you send an `approverId` because you lack the permission to send without approval. The approver's decision sends the document.
+    If you lack the permission to send without approval, the request fails with `409 APPROVAL_REQUIRED` and the document stays a `DRAFT`. Request an approval instead, as described in the following step.
+  </Step>
+
+  <Step title="Optional: Request an approval">
+    To submit the draft for internal approval, send a `POST` request to `/api/v1/approval-requests` with the `documentId` and the user IDs of the approvers in `approverIds`. To submit the approvers already on the document, leave out `approverIds`:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/approval-requests \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "documentId": "DOCUMENT_ID",
+        "approverIds": ["APPROVER_USER_ID"]
+      }'
+    ```
+
+    Replace `APPROVER_USER_ID` with the `id` of a member from `GET /api/v1/members?permission=APPROVE_DOCUMENT`.
+
+    The response is the approval request, with `status` `PENDING`. The document's status changes to `PENDING_APPROVAL`, and sajn notifies the approvers. When the request is approved, sajn sends the document for signing, unless the request has `autoSend` set to false. In that case, the document stays `PENDING_APPROVAL` until the user who requested the approval sends it with `POST /api/v1/documents/DOCUMENT_ID/send`. For more information, see [Request approval of a document](/api-reference/request-approval-of-a-document).
   </Step>
 
   <Step title="Share signing links for parties you reach yourself">
@@ -113,7 +133,7 @@ In this guide, you send a draft document to its parties. You personalize the inv
       -H "Sajn-Version: 2026-10"
     ```
 
-    Replace `PARTY_ID` with the party's `id`. The response is the party, including `token` and `signingUrl`:
+    Replace `PARTY_ID` with the party's `id`. The response is the party, including its `signingUrl`. The following example leaves out some party fields:
 
     ```json
     {
@@ -124,7 +144,6 @@ In this guide, you send a draft document to its parties. You personalize the inv
       "role": "SIGNER",
       "deliveryMethod": "NONE",
       "signingStatus": "NOT_SIGNED",
-      "token": "K7xq2m9VbN4pR8sT1wY6zA3c",
       "signingUrl": "https://app.sajn.se/sign/cm4k2x9p10001abcd1234efgh?token=K7xq2m9VbN4pR8sT1wY6zA3c"
     }
     ```
@@ -133,7 +152,7 @@ In this guide, you send a draft document to its parties. You personalize the inv
   </Step>
 
   <Step title="Track progress">
-    We recommend subscribing to webhooks instead of polling. The `DOCUMENT_PARTY_SIGNED` event fires when a party signs, and `DOCUMENT_COMPLETED` fires when everyone has signed. For more information, see [Webhooks](/webhooks/overview).
+    We recommend subscribing to webhooks instead of polling. The `document.party.signed` event fires when a party signs, and `document.completed` fires when everyone has signed and the sealed PDF is ready. For more information, see [Webhooks](/webhooks/overview) and [Event types](/webhooks/events).
 
     To check the state at any time, get the document:
 
@@ -166,10 +185,10 @@ In this guide, you send a draft document to its parties. You personalize the inv
   </Step>
 
   <Step title="Download the sealed PDF">
-    When every signing party has signed, the document's status changes to `COMPLETED` and sajn seals the PDF. Download it with the `SIGNED` file type:
+    When every signing party has signed, the document's status changes to `COMPLETED` and sajn seals the PDF. Get a download URL for it with the `SIGNED` file type:
 
     ```bash
-    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/download/SIGNED \
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/files/SIGNED \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
@@ -212,8 +231,8 @@ The document returns to `DRAFT`, existing signatures are removed, and every part
 
 Branch on the error `code`:
 
-- `400 INVALID_STATE`: the document isn't a `DRAFT`. A document in `PENDING_APPROVAL` is sent when the approver approves it.
-- `403 APPROVAL_REQUIRED`: you lack the permission to send without approval. Call [List eligible approvers](/api-reference/list-eligible-approvers), and then send again with an `approverId`.
+- `409 INVALID_STATE`: the document isn't a `DRAFT`, or its approval request is still pending. A document in `PENDING_APPROVAL` is sent when the request is approved.
+- `409 APPROVAL_REQUIRED`: you lack the permission to send without approval. Request an approval with [Request approval of a document](/api-reference/request-approval-of-a-document).
 - `403 LIMIT_EXCEEDED`: the organization reached its monthly limit of sent documents.
 - `403 PERMISSION_DENIED`: a party's signing method isn't included in the organization's plan. The `userMessage` names the method.
 

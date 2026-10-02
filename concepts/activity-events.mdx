@@ -5,15 +5,15 @@ description: "Every entry type in a document's activity log, the audit trail beh
 
 sajn records everything that happens to a document in its **activity log**: who sent it, who opened it, how each party verified their identity, and when the PDF was sealed. The log is the source of the signing journal and the timestamps on the [signing certificate](/concepts/signing-certificate).
 
-Activity events aren't [webhook events](/webhooks/events). Webhooks notify your server about a smaller set of changes as they happen. The activity log is the complete record, which you read when you need it.
+Activity events aren't [webhook events](/webhooks/events). Webhooks notify your server about a smaller set of changes as they happen, with dotted lowercase types such as `document.party.signed`. The activity log is the complete record, which you read when you need it, and its types are uppercase, such as `DOCUMENT_SIGNED`.
 
 ## Read the activity log
 
-To read a document's log, call [`GET /documents/{id}/activity`](/api-reference/get-document-activity-log). It needs the `READ_DOCUMENT_AUDIT_LOG` workspace permission. The response lists every event, newest first:
+To read a document's log, call [`GET /documents/{id}/activity`](/api-reference/get-document-activity-log). It needs the `READ_DOCUMENT_AUDIT_LOG` workspace permission. The response is a page of events, newest first:
 
 ```json
 {
-  "activity": [
+  "data": [
     {
       "id": "cm4k2x9p90011abcd4567klmn",
       "createdAt": "2026-10-01T09:41:05.000Z",
@@ -22,9 +22,13 @@ To read a document's log, call [`GET /documents/{id}/activity`](/api-reference/g
       "name": "Kai Berg",
       "email": "kai@example.com"
     }
-  ]
+  ],
+  "hasMore": true,
+  "nextCursor": "eyJjIjoiY3JlYXRlZEF0IiwidiI6IjIwMjYtMTAtMDFUMDk6NDE6MDUuMDAwWiIsImlkIjoiY200azJ4OXA5MDAxMWFiY2Q0NTY3a2xtbiJ9"
 }
 ```
+
+To read the whole log, request the next page with `cursor` set to `nextCursor` until `hasMore` is `false`. For more information, see [Pagination](/api-fundamentals/pagination).
 
 | Field | Description |
 |-------|-------------|

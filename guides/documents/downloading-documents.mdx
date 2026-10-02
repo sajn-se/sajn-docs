@@ -12,11 +12,13 @@ In this guide, you download the files of a document: the sealed PDF, the unsigne
 
 ## Choose a file type
 
-The download endpoint, `GET /api/v1/documents/DOCUMENT_ID/download/FILE_TYPE`, takes one of the following file types:
+A document has up to three files:
 
-- `SIGNED`: the sealed PDF with every signature and the [signing certificate](/concepts/signing-certificate). Available when the document is `COMPLETED`.
-- `ORIGINAL`: the unsigned document. Available in every status.
-- `JOURNAL`: the signing journal, a separate PDF with every party, their identity and signing method, and every event with its timestamp and IP address. Available when the document is `COMPLETED`.
+- `SIGNED`: the sealed PDF with every signature and the [signing certificate](/concepts/signing-certificate). Ready when the document is `COMPLETED` and sealed.
+- `ORIGINAL`: the unsigned document. Ready in every status.
+- `JOURNAL`: the signing journal, a separate PDF with every party, their identity and signing method, and every event with its timestamp and IP address. Ready shortly after the document is `COMPLETED`.
+
+To get one file, call `GET /api/v1/documents/DOCUMENT_ID/files/TYPE`. To see which files are ready, call `GET /api/v1/documents/DOCUMENT_ID/files`, which lists only the files that are ready, each with its own URL.
 
 ## Download a file
 
@@ -27,7 +29,7 @@ The download endpoint, `GET /api/v1/documents/DOCUMENT_ID/download/FILE_TYPE`, t
     <CodeGroup>
 
     ```bash curl
-    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/download/SIGNED \
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/files/SIGNED \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
@@ -36,7 +38,7 @@ The download endpoint, `GET /api/v1/documents/DOCUMENT_ID/download/FILE_TYPE`, t
     const documentId = "DOCUMENT_ID";
 
     const response = await fetch(
-      `https://app.sajn.se/api/v1/documents/${documentId}/download/SIGNED`,
+      `https://app.sajn.se/api/v1/documents/${documentId}/files/SIGNED`,
       {
         headers: {
           Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
@@ -44,7 +46,7 @@ The download endpoint, `GET /api/v1/documents/DOCUMENT_ID/download/FILE_TYPE`, t
         },
       },
     );
-    const { downloadUrl } = await response.json();
+    const { url } = await response.json();
     ```
 
     ```python Python
@@ -55,14 +57,14 @@ The download endpoint, `GET /api/v1/documents/DOCUMENT_ID/download/FILE_TYPE`, t
     document_id = "DOCUMENT_ID"
 
     response = requests.get(
-        f"https://app.sajn.se/api/v1/documents/{document_id}/download/SIGNED",
+        f"https://app.sajn.se/api/v1/documents/{document_id}/files/SIGNED",
         headers={
             "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
             "Sajn-Version": "2026-10",
         },
     )
     response.raise_for_status()
-    download_url = response.json()["downloadUrl"]
+    url = response.json()["url"]
     ```
 
     </CodeGroup>
@@ -71,11 +73,13 @@ The download endpoint, `GET /api/v1/documents/DOCUMENT_ID/download/FILE_TYPE`, t
 
     ```json
     {
-      "downloadUrl": "https://files.sajn.se/documents/cm4k2x9p10001abcd1234efgh/sealed.pdf?Expires=1790845200&Signature=Qm9vZ3Vz&Key-Pair-Id=K2EXAMPLE"
+      "type": "SIGNED",
+      "url": "https://files.sajn.se/documents/cm4k2x9p10001abcd1234efgh/sealed.pdf?Expires=1790845200&Signature=Qm9vZ3Vz&Key-Pair-Id=K2EXAMPLE",
+      "expiresAt": "2026-10-02T10:45:00.000Z"
     }
     ```
 
-    The URL is valid for 15 minutes. Every download is recorded in the document's audit log and fires the `SECURITY_DOCUMENT_DOWNLOADED` webhook event.
+    The URL is valid for 15 minutes, until `expiresAt`. Every URL that the API returns counts as a download: it's recorded in the document's audit log and fires the `security.document_downloaded` webhook event.
   </Step>
 
   <Step title="Fetch the file">
@@ -84,18 +88,18 @@ The download endpoint, `GET /api/v1/documents/DOCUMENT_ID/download/FILE_TYPE`, t
     <CodeGroup>
 
     ```bash curl
-    curl -L "DOWNLOAD_URL" -o signed-document.pdf
+    curl -L "FILE_URL" -o signed-document.pdf
     ```
 
     ```javascript Node.js
     import { writeFile } from "node:fs/promises";
 
-    const file = await fetch(downloadUrl);
+    const file = await fetch(url);
     await writeFile("signed-document.pdf", Buffer.from(await file.arrayBuffer()));
     ```
 
     ```python Python
-    file = requests.get(download_url)
+    file = requests.get(url)
     file.raise_for_status()
     with open("signed-document.pdf", "wb") as output:
         output.write(file.content)
@@ -103,13 +107,13 @@ The download endpoint, `GET /api/v1/documents/DOCUMENT_ID/download/FILE_TYPE`, t
 
     </CodeGroup>
 
-    Replace `DOWNLOAD_URL` with the `downloadUrl` from the previous step. The file is a PDF file. If the URL has expired, request a new one.
+    Replace `FILE_URL` with the `url` from the previous step. The file is a PDF file. If the URL has expired, request a new one.
   </Step>
 </Steps>
 
 ## Archive documents when they're completed
 
-We recommend downloading each document as soon as it's completed, so your archive doesn't depend on polling. Subscribe a webhook endpoint to `DOCUMENT_COMPLETED`, and download the files in the handler. The payload of `DOCUMENT_COMPLETED` is the document, so `payload.id` is the document ID.
+We recommend downloading each document as soon as it's completed, so your archive doesn't depend on polling. Subscribe a webhook endpoint to `document.completed`, which fires when the sealed PDF is ready, and download the files in the handler. The event's `data.object` is the document, so `data.object.id` is the document ID.
 
 The following Express handler verifies the delivery's signature, answers right away, and then archives the sealed PDF and the journal:
 
@@ -121,41 +125,56 @@ import express from "express";
 
 const app = express();
 
-const isSignedBySajn = (header, rawBody) => {
-  const parts = Object.fromEntries(String(header ?? "").split(",").map((part) => part.split("=")));
+const isSignedBySajn = (headers, rawBody) => {
+  const id = headers["webhook-id"];
+  const timestamp = headers["webhook-timestamp"];
+  if (!id || Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+
+  const key = Buffer.from(process.env.SAJN_WEBHOOK_SECRET.replace(/^whsec_/, ""), "base64");
   const expected = crypto
-    .createHmac("sha256", process.env.SAJN_WEBHOOK_SECRET)
-    .update(`${parts.t}.${rawBody}`)
-    .digest("hex");
-  return (
-    typeof parts.v1 === "string" &&
-    parts.v1.length === expected.length &&
-    crypto.timingSafeEqual(Buffer.from(parts.v1), Buffer.from(expected))
-  );
+    .createHmac("sha256", key)
+    .update(`${id}.${timestamp}.${rawBody}`)
+    .digest();
+
+  return String(headers["webhook-signature"] ?? "")
+    .split(" ")
+    .some((entry) => {
+      const [version, signature] = entry.split(",");
+      const received = Buffer.from(signature ?? "", "base64");
+      return (
+        version === "v1" &&
+        received.length === expected.length &&
+        crypto.timingSafeEqual(received, expected)
+      );
+    });
 };
 
-const download = async (documentId, fileType) => {
+const download = async (documentId, type) => {
   const response = await fetch(
-    `https://app.sajn.se/api/v1/documents/${documentId}/download/${fileType}`,
+    `https://app.sajn.se/api/v1/documents/${documentId}/files/${type}`,
     { headers: { Authorization: `Bearer ${process.env.SAJN_API_KEY}`, "Sajn-Version": "2026-10" } },
   );
-  if (!response.ok) throw new Error(`${fileType}: ${response.status}`);
-  const { downloadUrl } = await response.json();
-  return Buffer.from(await (await fetch(downloadUrl)).arrayBuffer());
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`${type}: ${error.code} (request ${error.requestId})`);
+  }
+  const { url } = await response.json();
+  return Buffer.from(await (await fetch(url)).arrayBuffer());
 };
 
 app.post("/webhooks/sajn", express.raw({ type: "application/json" }), async (req, res) => {
-  if (!isSignedBySajn(req.headers["x-sajn-signature"], req.body)) {
+  if (!isSignedBySajn(req.headers, req.body)) {
     return res.status(401).end();
   }
   res.status(200).end();
 
-  const { event, payload } = JSON.parse(req.body);
-  if (event !== "DOCUMENT_COMPLETED") return;
+  const event = JSON.parse(req.body);
+  if (event.type !== "document.completed") return;
 
-  const name = payload.externalId ?? payload.id;
-  await writeFile(`archive/${name}.pdf`, await download(payload.id, "SIGNED"));
-  await writeFile(`archive/${name}-journal.pdf`, await download(payload.id, "JOURNAL"));
+  const document = event.data.object;
+  const name = document.externalId ?? document.id;
+  await writeFile(`archive/${name}.pdf`, await download(document.id, "SIGNED"));
+  await writeFile(`archive/${name}-journal.pdf`, await download(document.id, "JOURNAL"));
 });
 
 app.listen(3000);
@@ -164,29 +183,29 @@ app.listen(3000);
 The handler reads the following environment variables:
 
 - `SAJN_API_KEY`: your API key.
-- `SAJN_WEBHOOK_SECRET`: the webhook's `secret`, returned once when you create the webhook.
+- `SAJN_WEBHOOK_SECRET`: the webhook's `whsec_` secret, returned when you create the webhook or rotate its secret.
 
-The journal is generated after the sealed PDF, so in production, retry the `JOURNAL` download when it returns `404`. A delivery can arrive more than once. Deduplicate on the envelope's `id`, or make the archive write idempotent, as the preceding example does by writing to a fixed filename. For more information, see [Verify webhook signatures](/webhooks/verify-signatures) and [Delivery and retries](/webhooks/delivery-and-retries).
+The journal is generated after the sealed PDF, so in production, retry the `JOURNAL` download when it returns `409 INVALID_STATE`. A delivery can arrive more than once. Deduplicate on the event's `id`, or make the archive write idempotent, as the preceding example does by writing to a fixed filename. For more information, see [Verify webhook signatures](/webhooks/verify-signatures) and [Delivery and retries](/webhooks/delivery-and-retries).
 
 To catch up on documents that completed while your endpoint was down, see [Sync all completed documents nightly](/guides/recipes/nightly-sync).
 
 ## Handle errors
 
-The endpoint returns `404 NOT_FOUND` in two cases, which you can tell apart by `message`:
+Branch on the error `code`:
 
-- The document doesn't exist, or your key can't see it: `"Document not found"`.
-- The file doesn't exist yet, for example `SIGNED` before the document is completed: `"The document has no SIGNED file"`.
+- `404 NOT_FOUND`, with `resource` set to `document`: the document doesn't exist, or your key can't see it.
+- `409 INVALID_STATE`: the file isn't ready yet, for example `SIGNED` before the document is completed.
 
 ```json
 {
-  "code": "NOT_FOUND",
-  "message": "The document has no SIGNED file",
+  "code": "INVALID_STATE",
+  "message": "The document has no SIGNED file yet",
   "userMessage": "Filen (SIGNED) finns inte för det här dokumentet.",
   "requestId": "req_V1StGXR8Z5jdHi6BmyT2"
 }
 ```
 
-sajn generates the journal after it seals the document, so `JOURNAL` can return this error for a short time after `DOCUMENT_COMPLETED`. Retry it after a few seconds. For the error shape and every code, see [Errors](/api-fundamentals/errors).
+sajn generates the journal after it seals the document, so `JOURNAL` can return this error for a short time after `document.completed`. Retry it after a few seconds. For the error shape and every code, see [Errors](/api-fundamentals/errors).
 
 ## Next steps
 
@@ -200,7 +219,7 @@ sajn generates the journal after it seals the document, so `JOURNAL` can return 
   <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
     Get notified when a document is completed.
   </Card>
-  <Card title="Download a document file" icon="code" href="/api-reference/download-a-document-file-by-type">
+  <Card title="Get a document file" icon="code" href="/api-reference/get-a-document-file">
     See the endpoint in the API reference.
   </Card>
 </CardGroup>

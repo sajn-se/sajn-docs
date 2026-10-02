@@ -33,7 +33,7 @@ For most everyday agreements, a simple signature is enough. Use an eID when you 
 | `NL_IDIN` | Dutch iDIN, through the signer's bank | AES | A Dutch bank that supports iDIN |
 | `MANUAL` | Signed on paper, outside sajn | None in sajn | Nothing. Used for documents imported into the archive. |
 
-eID schemes are switched on market by market. A `requiredSignature` that your account can't use yet is rejected with the message `This eID scheme is not yet available`.
+eID schemes are switched on market by market. A `requiredSignature` that your account can't use yet fails with `400 VALIDATION_FAILED`, and the issue's message is `This eID scheme is not yet available`.
 
 ## List the available methods
 
@@ -41,7 +41,7 @@ Build a signature-method picker from [`GET /helpers/signature-methods`](/api-ref
 
 ```json
 {
-  "items": [
+  "data": [
     { "code": "SE_BANKID", "label": "BankID" },
     { "code": "DK_MITID", "label": "MitID" },
     { "code": "DRAWING", "label": "Drawn signature" },

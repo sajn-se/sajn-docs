@@ -28,16 +28,28 @@ curl -X POST https://app.sajn.se/api/v1/login/sessions \
   }'
 ```
 
+The response is the session, the same object that step 3 reads, with `loginUrl` and `expiresAt`
+set:
+
 ```json Response
 {
-  "id": "kZ8f3c…",
-  "loginUrl": "https://login.sajn.se/session/acme/kZ8f3c…",
-  "expiresAt": "2026-07-26T12:15:00.000Z"
+  "id": "kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv",
+  "status": "PENDING",
+  "method": null,
+  "completedAt": null,
+  "state": "your-internal-reference",
+  "sub": null,
+  "claims": null,
+  "loginUrl": "https://login.sajn.se/l/kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv",
+  "expiresAt": "2026-10-02T12:15:00.000Z"
 }
 ```
 
-`redirectUri` must be registered on the client. Custom schemes are supported precisely so an
-in-app browser can dismiss itself back into your app.
+Later reads return `loginUrl` and `expiresAt` as `null`. The user must finish authenticating by
+`expiresAt`, 15 minutes after the request.
+
+`redirectUri` must be registered on the client. Custom schemes are supported so an in-app
+browser can dismiss itself back into your app.
 
 ## 2. Send the user to `loginUrl`
 
@@ -47,7 +59,7 @@ hosted page.
 When they finish, we redirect to your `redirectUri`:
 
 ```
-acme://auth?sessionId=kZ8f3c…&state=your-internal-reference
+acme://auth?sessionId=kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv&state=your-internal-reference
 ```
 
 <Warning>
@@ -58,49 +70,54 @@ acme://auth?sessionId=kZ8f3c…&state=your-internal-reference
 ## 3. Read the result, from your server
 
 ```bash
-curl https://app.sajn.se/api/v1/login/sessions/kZ8f3c… \
+curl https://app.sajn.se/api/v1/login/sessions/kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```json Completed
 {
-  "id": "kZ8f3c…",
+  "id": "kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv",
   "status": "COMPLETED",
-  "method": "BANKID_SE",
-  "completedAt": "2026-07-26T12:03:45.000Z",
+  "method": "SE_BANKID",
+  "completedAt": "2026-10-02T12:03:45.000Z",
   "state": "your-internal-reference",
-  "sub": "clx7f2k9v0001…",
+  "sub": "clx7f2k9v0001abcdefghijkl",
   "claims": {
-    "sub": "clx7f2k9v0001…",
+    "sub": "clx7f2k9v0001abcdefghijkl",
     "amr": ["BANKID_SE"],
-    "auth_time": 1785016190,
+    "auth_time": 1790942625,
     "name": "Anna Andersson",
     "given_name": "Anna",
     "family_name": "Andersson",
-    "birthdate": "1985-03-15"
-  }
+    "birthdate": "1985-03-15",
+    "nin": null,
+    "nin_type": null
+  },
+  "loginUrl": null,
+  "expiresAt": null
 }
 ```
 
-`claims` and `sub` are populated only once `status` is `COMPLETED`, and contain exactly what your
-client is approved for — the same projection the OIDC `id_token` uses.
+`sub` and `claims` are `null` until `status` is `COMPLETED`. `claims` then has every claim key;
+a claim your client isn't approved for is `null`, as `nin` and `nin_type` are in the preceding
+example for a client without the `nin` scope. The projection is the same one the OIDC
+`id_token` uses.
 
 | `status` | Meaning |
 | --- | --- |
-| `PENDING` | Still in progress — the user has not finished |
+| `PENDING` | In progress. This includes a cancelled or failed attempt that the user can still retry |
 | `COMPLETED` | Authenticated. Read `claims` |
-| `FAILED` | The user cancelled, or BankID rejected it |
-| `EXPIRED` | The session ran out before completion |
+| `FAILED` | The login failed, and the user can't retry it in this session |
+| `EXPIRED` | BankID timed out, and the user can't retry it in this session |
 
-In API version `2026-09`, `status` is lowercase: `pending`, `complete`, `failed`, or `expired`.
+In API version `2026-09`, `status` is lowercase: `pending`, `complete`, `failed`, or `expired`, and `method` is `BANKID_SE` instead of `SE_BANKID`.
 
 A completed result stays readable for **30 minutes**, which is room for a retry or a brief outage
 on your side. After that it is gone; the authentication itself is still recorded for billing.
 
-<Note>
-  Sessions belonging to another workspace return `404`, not `403` — "exists but isn't yours" is
-  itself information.
-</Note>
+A session that has run out without completing, or that belongs to another workspace, returns
+`404 NOT_FOUND`, not `403`: "exists but isn't yours" is itself information. For every error
+code, see [Errors](/login/errors#session-api-errors).
 
 ## Handling the user who never comes back
 
@@ -111,7 +128,7 @@ Two ways to cover it:
 
 <CardGroup cols={2}>
   <Card title="Webhook" icon="webhook" href="/login/webhooks">
-    Subscribe to `LOGIN_COMPLETED`. It fires whether or not the redirect arrives.
+    Subscribe to `login.completed`. It fires whether or not the redirect arrives.
   </Card>
   <Card title="Poll" icon="rotate">
     `GET` the session until it leaves `PENDING`. Simple, and fine at low volume.

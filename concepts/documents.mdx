@@ -19,9 +19,9 @@ A document's `status` tells you where it is. The following diagram shows the tra
 stateDiagram-v2
     [*] --> DRAFT: create
     DRAFT --> PENDING: send
-    DRAFT --> PENDING_APPROVAL: send, approval required
-    PENDING_APPROVAL --> PENDING: approver approves
-    PENDING_APPROVAL --> DRAFT: approver rejects, or request canceled
+    DRAFT --> PENDING_APPROVAL: request approval
+    PENDING_APPROVAL --> PENDING: approvers approve
+    PENDING_APPROVAL --> DRAFT: approver rejects, or request cancelled
     PENDING --> COMPLETED: last signer signs, PDF sealed
     PENDING --> REJECTED: a party rejects
     PENDING --> EXPIRED: expiration date passes
@@ -36,7 +36,7 @@ stateDiagram-v2
 | Status | Meaning | What you can do |
 |--------|---------|-----------------|
 | `DRAFT` | Being prepared. Nothing has been sent. | Change everything: content, parties, and settings. |
-| `PENDING_APPROVAL` | Sent for internal approval. A workspace member must approve it before sajn sends it. | Wait for the approver, or cancel the approval request. |
+| `PENDING_APPROVAL` | Submitted for internal approval. The approvers must approve it before sajn sends it. `approvalRequestId` names the [approval request](#internal-approval). | Wait for the approvers, or cancel the approval request. |
 | `PENDING` | Sent. Waiting for signatures. | Add, correct, or remove parties who haven't signed, send reminders, change some settings, or withdraw it. Content is locked. |
 | `COMPLETED` | Every required party signed, and the PDF is sealed. | Download the signed PDF and the signing journal. Nothing can change. |
 | `REJECTED` | A party declined to sign. | Create a new document if the agreement is still needed. |
@@ -51,20 +51,36 @@ The following table lists what moves a document from one status to another:
 
 | From | To | Trigger | Webhook event |
 |------|----|---------|---------------|
-| None | `DRAFT` | [Create a document](/api-reference/create-a-new-document) | `DOCUMENT_CREATED` |
-| `DRAFT` | `PENDING` | [Send the document](/api-reference/send-document-for-signing). The response is `200`. | `DOCUMENT_SENT` |
-| `DRAFT` | `PENDING_APPROVAL` | Send the document without the `SEND_WITHOUT_APPROVAL` permission, with an `approverId`. The response is `202`. | None |
-| `PENDING_APPROVAL` | `PENDING` | The approver approves. | `DOCUMENT_SENT` |
-| `PENDING_APPROVAL` | `DRAFT` | The approver rejects, or the request is canceled. | None |
-| `PENDING` | `COMPLETED` | The last party who must sign signs, and sajn seals the PDF. | `DOCUMENT_COMPLETED` |
-| `PENDING` | `REJECTED` | A party rejects the document. | `DOCUMENT_REJECTED` |
-| `PENDING` | `EXPIRED` | The expiration date passes. | `DOCUMENT_EXPIRED` |
-| `EXPIRED` | `PENDING` | [Change the expiration date](/api-reference/change-a-sent-documents-expiration-date). | `DOCUMENT_EXPIRATION_EXTENDED` |
-| `PENDING` | `DRAFT` | [Withdraw the document](/api-reference/withdraw-a-sent-document). sajn removes existing signatures and notifies the parties. | `DOCUMENT_WITHDRAWN` |
+| None | `DRAFT` | [Create a document](/api-reference/create-a-new-document) | `document.created` |
+| `DRAFT` | `PENDING` | [Send the document](/api-reference/send-document-for-signing). | `document.sent` |
+| `DRAFT` | `PENDING_APPROVAL` | [Request approval](/api-reference/request-approval-of-a-document). | `approval_request.created` |
+| `PENDING_APPROVAL` | `PENDING` | The last required approver approves, and the request has `autoSend` set to `true`. | `approval_request.approved`, `document.sent` |
+| `PENDING_APPROVAL` | `DRAFT` | An approver rejects, or the requester cancels the request. | `approval_request.rejected` or `approval_request.cancelled` |
+| `PENDING` | `COMPLETED` | The last party who must sign signs, and sajn seals the PDF. | `document.fully_signed`, then `document.completed` |
+| `PENDING` | `REJECTED` | A party rejects the document. | `document.rejected` |
+| `PENDING` | `EXPIRED` | The expiration date passes. | `document.expired` |
+| `EXPIRED` | `PENDING` | [Change the expiration date](/api-reference/change-a-sent-documents-expiration-date). | `document.expiration_extended` |
+| `PENDING` | `DRAFT` | [Withdraw the document](/api-reference/withdraw-a-sent-document). sajn removes existing signatures and notifies the parties. | `document.withdrawn` |
 
-Sealing runs in the background after the last signature, so a document can stay `PENDING` for a short time after everyone has signed. Wait for `DOCUMENT_COMPLETED`, or for `status` to be `COMPLETED`, before you download the signed PDF.
+Sealing runs in the background after the last signature, so a document can stay `PENDING` for a short time after everyone has signed. `document.fully_signed` fires when the last party signs, and `document.completed` fires when the sealed PDF exists. Wait for `document.completed`, or for `status` to be `COMPLETED`, before you download the signed PDF.
 
-For the events that fire per party, such as `DOCUMENT_PARTY_SIGNED`, see [Webhook events](/webhooks/events).
+For the events that fire per party, such as `document.party.signed`, see [Webhook events](/webhooks/events).
+
+## Internal approval
+
+When a document needs internal approval, [`POST /documents/{id}/send`](/api-reference/send-document-for-signing) fails with `409 APPROVAL_REQUIRED`. A document needs approval when it has approvers, such as the ones its template adds, when the workspace's approval policy applies, or when your role lacks the `SEND_WITHOUT_APPROVAL` permission. To submit the draft for approval, call [`POST /approval-requests`](/api-reference/request-approval-of-a-document) with its `documentId`:
+
+```json
+{
+  "documentId": "cm4k2x9p10001abcd1234efgh",
+  "approverIds": ["cm4k2x9p00000abcd0000mnop"],
+  "customMessage": "Please review the payment terms."
+}
+```
+
+Leave out `approverIds` to submit the approvers already on the document, such as the ones its template adds. To find members who can approve, call [`GET /members?permission=APPROVE_DOCUMENT`](/api-reference/list-workspace-members).
+
+The response is the approval request, with its `status` and each approver's decision. Approvers act on it with [`POST /approval-requests/{id}/approve`](/api-reference/approve-an-approval-request) or [`/reject`](/api-reference/reject-an-approval-request), and the requester can [cancel](/api-reference/cancel-an-approval-request) it. A rejection returns the document to `DRAFT`, so you can edit it and request approval again. When an approved request has `autoSend` set to `false`, the document stays in `PENDING_APPROVAL` until the requester sends it.
 
 ## Before you send
 
@@ -80,8 +96,8 @@ A `DRAFT` document accepts every change. After you send it, what you can change 
 
 - `name`, `externalId`, `responsibleUserId`, and `value` can always change.
 - Reminders, subject, message, and the redirect URL can change until the document is completed, rejected, or cancelled.
-- `forceReadFullDocument`, `accessVerification`, and `preferredLanguage` can change until someone has signed.
-- `signingOrder` can't change. Withdraw the document first.
+- `forceReadFullDocument`, `accessVerification`, and `language` can change until someone has signed.
+- `signingMode` can't change. Withdraw the document first.
 
 To change the content or settings that are locked, [withdraw](/api-reference/withdraw-a-sent-document) the document, change it, and send it again.
 
@@ -92,10 +108,10 @@ The `documentMeta` object holds the settings that control signing. The most comm
 | Field | Description |
 |-------|-------------|
 | `subject`, `message` | Subject line and message of the signing invitation. |
-| `signingOrder` | `PARALLEL` lets every party sign at once. `SEQUENTIAL` invites parties one at a time, in their `signingOrder`. |
-| `preferredLanguage` | Language of the signing page and emails: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
+| `signingMode` | `PARALLEL` lets every party sign at once. `SEQUENTIAL` invites parties one at a time, in their `signingOrder`. |
+| `language` | Language of the signing page and emails: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
 | `forceReadFullDocument` | If `true`, a party must scroll through the whole document before signing. |
-| `reminderIntervalDays` | Days between automatic reminders. |
+| `reminderIntervalDays` | Days between automatic reminders, as an integer. `0` turns them off, and `null` uses the default of 3 days. |
 | `redirectUrl` | Where to send a party after signing. |
 | `accessVerification` | A verification that every party passes before the document opens. |
 | `value` | The monetary value of the agreement. |
@@ -114,7 +130,7 @@ The `type` field sets what kind of document it is:
 
 ## Files
 
-A document has up to three files, which you download with [`GET /documents/{id}/download/{fileType}`](/api-reference/download-a-document-file-by-type):
+A document has up to three files. [`GET /documents/{id}/files/{type}`](/api-reference/get-a-document-file) returns a download URL for one of them, and [`GET /documents/{id}/files`](/api-reference/list-document-files) lists every file that's ready. A file that isn't ready returns `409 INVALID_STATE`:
 
 | File type | Contents | Available |
 |-----------|----------|-----------|
@@ -128,13 +144,13 @@ For more information, see [Downloading signed documents](/guides/documents/downl
 
 The following fields help you find documents and link them to your own systems:
 
-- **`externalId`**: your own ID for the document, such as a deal or order number. Filter the document list by it.
+- **`externalId`**: your own ID for the document, such as a deal or order number. Filter the document list by it with `externalId=`, which matches the whole value.
 - **Tags**: labels such as `NDA` or `Employment`. For more information, see [Organizing with tags](/guides/documents/organizing-with-tags).
 - **Custom fields**: structured values such as a project name or cost center. For more information, see [Custom fields](/guides/fields/custom-fields).
 
 ## Delete a document
 
-[`DELETE /documents/{id}`](/api-reference/delete-a-document) moves a document to the trash, in any status. You can restore it from the trash until the workspace's trash period ends.
+[`DELETE /documents/{id}`](/api-reference/delete-a-document) moves a document to the trash, in any status, and returns it with `deletedAt` set. You can restore it from the trash until the workspace's trash period ends.
 
 To delete a document immediately and permanently, move it to the trash first, and then call [`POST /documents/{id}/purge`](/api-reference/permanently-delete-a-document). Purging can't be undone. The verify link in a sealed PDF keeps working after a purge. For more information, see [storage and deletion](/guider/lagring-och-radering).
 

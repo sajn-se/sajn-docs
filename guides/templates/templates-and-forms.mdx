@@ -76,7 +76,7 @@ A template holds the content, the parties, and the settings that every document 
 
     </CodeGroup>
 
-    Replace `TEMPLATE_ID` with the template's ID. The response is the document, with a copy of each template party in `parties`. The document also gets the template's settings, such as the signing order and the reminders.
+    Replace `TEMPLATE_ID` with the template's ID. The response is the document, with a copy of each template party in `parties`. The document also gets the template's settings, such as the signing mode and the reminders.
 
     If you send `parties` in this request, they replace the template's parties, and signature and initials boxes placed on a PDF for the template's parties are removed. Use that only for templates without placed boxes.
   </Step>
@@ -90,32 +90,33 @@ A template holds the content, the parties, and the settings that every document 
       -H "Sajn-Version: 2026-10"
     ```
 
-    Replace `DOCUMENT_ID` with the document `id`. Each value has a `key`, a `label`, a `type`, and `filledBy`. You can write values where `filledBy` is `sender`. A party fills in the values where `filledBy` is `signer`:
+    Replace `DOCUMENT_ID` with the document `id`. The response lists the values in `data`. Each value has a `key`, a `label`, a `type`, and `filledBy`. You can write values where `filledBy` is `SENDER`. A party fills in the values where `filledBy` is `SIGNER`:
 
     ```json
     {
-      "values": [
+      "data": [
         {
           "key": "employee-name",
           "label": "Name",
-          "kind": "form",
+          "kind": "FORM",
           "fieldId": "cm4k2xd5s0005abcd7890uvwx",
           "type": "INPUT",
           "required": true,
+          "options": null,
           "value": null,
-          "filledBy": "sender",
+          "filledBy": "SENDER",
           "partyId": null
         },
         {
           "key": "department",
           "label": "Department",
-          "kind": "form",
+          "kind": "FORM",
           "fieldId": "cm4k2xd5s0005abcd7890uvwx",
           "type": "SELECT",
           "required": false,
           "options": ["HR", "Sales", "Engineering"],
           "value": null,
-          "filledBy": "sender",
+          "filledBy": "SENDER",
           "partyId": null
         }
       ]
@@ -142,26 +143,25 @@ A template holds the content, the parties, and the settings that every document 
       }'
     ```
 
-    The response reports each key in `results`, lists required values that are still empty in `remaining`, and returns every value in `values`:
+    The response reports each key in `results`, lists required values that are still empty in `remaining`, and returns every value in `data`:
 
     ```json
     {
-      "success": true,
       "results": [
-        { "key": "employee-name", "success": true },
-        { "key": "department", "success": true },
-        { "key": "start-date", "success": true }
+        { "key": "employee-name", "success": true, "error": null },
+        { "key": "department", "success": true, "error": null },
+        { "key": "start-date", "success": true, "error": null }
       ],
       "remaining": [],
-      "values": []
+      "data": []
     }
     ```
 
-    The example leaves out the `values` list. A value fails, and the others are still written, when its key doesn't exist, two fields share the key, a party fills it in, or it doesn't match the type or the `options`. Send at most 100 values per request. A FORM `CHECKBOX` value is a list of the selected options, such as `["Remote", "Parking"]`.
+    The example leaves out the `data` list. Check each result's `success`. A value fails, and the others are still written, when its key doesn't exist, two fields share the key, a party fills it in, or it doesn't match the type or the `options`. Send at most 100 values per request. A FORM `CHECKBOX` value is a list of the selected options, such as `["Remote", "Parking"]`.
   </Step>
 
   <Step title="Put the right people in the parties">
-    Update each copied party with the real person. Send `role` in every party update, because an update without it sets the role to `SIGNER`:
+    Update each copied party with the real person. Properties you leave out stay unchanged:
 
     ```bash
     curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID \
@@ -170,8 +170,7 @@ A template holds the content, the parties, and the settings that every document 
       -H "Content-Type: application/json" \
       -d '{
         "name": "Alex Andersson",
-        "email": "alex@example.com",
-        "role": "SIGNER"
+        "email": "alex@example.com"
       }'
     ```
 
@@ -191,29 +190,19 @@ A template holds the content, the parties, and the settings that every document 
   </Step>
 </Steps>
 
-## Fill in FORM subfields with other properties
+## Change other properties of FORM subfields
 
-The `field-values` endpoint writes values only. To change other properties of FORM subfields, such as the `label` or the party who fills one in, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields` with an `updates` array of up to 50 subfields:
+The `field-values` endpoint writes values only. To change other properties of a FORM subfield, such as its `label` or the party who fills it in, update the FORM field that holds it.
 
-```bash
-curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
-  -H "Authorization: Bearer $SAJN_API_KEY" \
-  -H "Sajn-Version: 2026-10" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "updates": [
-      { "key": "start-date", "fieldMeta": { "type": "datepicker", "label": "First working day" } }
-    ]
-  }'
-```
+1. Find the field with `GET /api/v1/documents/DOCUMENT_ID/fields?key=start-date`. The response lists the FORM field in `data`, with every subfield in `fieldMeta.fields`.
+2. Change the subfield in that `fieldMeta`, and send the whole `fieldMeta` in a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID`. The update replaces the field's `fieldMeta`, so a subfield you leave out is removed.
 
-sajn merges each `fieldMeta` into the subfield and keeps the other properties. Don't send several single-key requests (`PATCH .../fields/key:KEY`) at the same time for subfields of one form: they overwrite each other.
+Replace `FIELD_ID` with the `id` of the FORM field. The response is the updated field.
 
 ## Handle errors
 
-- `results[].success: false` from `field-values`: read `error`. The other values are written.
-- `400` from `field-values`: another edit changed one of the fields while the request ran, and nothing was written. Send the request again.
-- `400 INVALID_STATE`: the document isn't a `DRAFT`. You can fill in values only before sending.
+- `results[].success: false` from `field-values`: read `error.code` and `error.message`. The other values are written.
+- `409 INVALID_STATE`: the document isn't a `DRAFT`, because you can fill in values only before sending. From `field-values`, it can also mean that another edit changed one of the fields while the request ran, and nothing was written. Send the request again.
 - `404 NOT_FOUND`: the template or the document doesn't exist in the workspace that the API key belongs to.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).

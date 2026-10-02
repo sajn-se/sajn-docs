@@ -12,7 +12,7 @@ In this guide, you create a document that several parties sign. You choose wheth
 
 ## Choose a signing order
 
-The document's `documentMeta.signingOrder` decides when each party is invited:
+The document's `documentMeta.signingMode` decides when each party is invited, and each party's `signingOrder` sets its position in a sequence:
 
 - `PARALLEL`: every party is invited when you send the document and can sign in any order. This is the fastest option, and we recommend it when the order doesn't matter.
 - `SEQUENTIAL`: parties are invited in ascending `signingOrder`. Parties with the same `signingOrder` form a group: they're invited together, and the next group is invited when everyone in the group has signed.
@@ -35,7 +35,7 @@ With `SEQUENTIAL`, a party hears nothing until it's their turn. In the sajn app,
       -d '{
         "name": "Partnership agreement",
         "templateId": "TEMPLATE_ID",
-        "documentMeta": { "signingOrder": "SEQUENTIAL" },
+        "documentMeta": { "signingMode": "SEQUENTIAL" },
         "parties": [
           { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER", "signingOrder": 1 },
           { "name": "Kai Berg", "email": "kai@example.com", "role": "SIGNER", "signingOrder": 1 },
@@ -56,7 +56,7 @@ With `SEQUENTIAL`, a party hears nothing until it's their turn. In the sajn app,
       body: JSON.stringify({
         name: "Partnership agreement",
         templateId: "TEMPLATE_ID",
-        documentMeta: { signingOrder: "SEQUENTIAL" },
+        documentMeta: { signingMode: "SEQUENTIAL" },
         parties: [
           { name: "Alex Andersson", email: "alex@example.com", role: "SIGNER", signingOrder: 1 },
           { name: "Kai Berg", email: "kai@example.com", role: "SIGNER", signingOrder: 1 },
@@ -83,7 +83,7 @@ With `SEQUENTIAL`, a party hears nothing until it's their turn. In the sajn app,
         json={
             "name": "Partnership agreement",
             "templateId": "TEMPLATE_ID",
-            "documentMeta": {"signingOrder": "SEQUENTIAL"},
+            "documentMeta": {"signingMode": "SEQUENTIAL"},
             "parties": [
                 {"name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER", "signingOrder": 1},
                 {"name": "Kai Berg", "email": "kai@example.com", "role": "SIGNER", "signingOrder": 1},
@@ -116,16 +116,19 @@ With `SEQUENTIAL`, a party hears nothing until it's their turn. In the sajn app,
   </Step>
 
   <Step title="Track the parties">
-    Each signature fires a `DOCUMENT_PARTY_SIGNED` webhook event. Its payload has the whole document in `document` and the party who signed in `party`:
+    Each signature fires a `document.party.signed` webhook event. The event has the whole document in `data.object` and the party who signed in `data.party`:
 
     ```json
     {
       "id": "cm4k2xh1w0009abcd4680klmn",
-      "event": "DOCUMENT_PARTY_SIGNED",
+      "type": "document.party.signed",
       "createdAt": "2026-10-02T10:30:00.000Z",
       "apiVersion": "2026-10",
-      "payload": {
-        "document": {
+      "workspaceId": "cm4k2x7c00000abcd0000wxyz",
+      "environment": "PRODUCTION",
+      "actor": null,
+      "data": {
+        "object": {
           "id": "cm4k2x9p10001abcd1234efgh",
           "name": "Partnership agreement",
           "status": "PENDING",
@@ -147,7 +150,7 @@ With `SEQUENTIAL`, a party hears nothing until it's their turn. In the sajn app,
     }
     ```
 
-    The example leaves out some document and party fields. To count the parties who haven't signed, filter `payload.document.parties` on `signingStatus`. When every signing party has signed, `DOCUMENT_COMPLETED` fires. For every event, see [Webhook events](/webhooks/events).
+    The example leaves out some document and party fields. To count the parties who haven't signed, filter `data.object.parties` on `signingStatus`. When every signing party has signed, `document.fully_signed` fires, followed by `document.completed` when the sealed PDF is ready. For every event, see [Webhook events](/webhooks/events).
 
     To check the state without webhooks, call [Get a document by ID](/api-reference/get-a-document-by-id) and read each party's `signingStatus` and `readStatus`.
   </Step>
@@ -165,7 +168,7 @@ Only `SIGNER` parties have to sign before the document is completed.
 
 ## Common sequences
 
-The following patterns use `"signingOrder": "SEQUENTIAL"` on the document:
+The following patterns use `"signingMode": "SEQUENTIAL"` in the document's `documentMeta`:
 
 - Your company signs first, then the customer: give your signatory `signingOrder` 1 and the customer's signatory 2.
 - Two companies sign, then witnesses: give both companies' signatories 1, and every witness 2.
@@ -176,13 +179,14 @@ For a board resolution or a document where everyone signs on equal terms, use `P
 ## Things to plan for
 
 - In a sequence, one party who doesn't sign blocks everyone after them. Set an expiration date and keep automatic reminders on. For more information, see [Reminders and expiration](/guides/documents/reminders-expiration).
-- When a party rejects the document, the document's status becomes `REJECTED` and the `DOCUMENT_PARTY_REJECTED` event fires. To try again, create and send a new document.
-- To change the order of a sent document, [withdraw it](/api-reference/withdraw-a-sent-document), update the parties' `signingOrder`, and send it again. `documentMeta.signingOrder` can't change while the document is sent.
+- When a party rejects the document, the document's status becomes `REJECTED`, and the `document.party.rejected` and `document.rejected` events fire. To try again, create and send a new document.
+- To change the order of a sent document, [withdraw it](/api-reference/withdraw-a-sent-document), update the parties' `signingOrder`, and send it again. `documentMeta.signingMode` can't change while the document is sent.
 
 ## Handle errors
 
 - `400 VALIDATION_FAILED`: a party is invalid, for example without `email`. Read `issues` for the path, such as `parties.2.email`.
-- `400` on `PATCH /api/v1/documents/DOCUMENT_ID` with a changed `signingOrder` after sending: the field is locked. Withdraw the document first.
+- `409 INVALID_STATE` on `PATCH /api/v1/documents/DOCUMENT_ID` with a changed `documentMeta.signingMode` after sending, or on `PATCH /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` with a changed `signingOrder`: the setting is locked. Withdraw the document first.
+- `400 VALIDATION_FAILED` with `documentMeta.signingOrder` in the request: the setting is named `signingMode` in `documentMeta`.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

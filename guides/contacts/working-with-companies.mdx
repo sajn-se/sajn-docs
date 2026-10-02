@@ -14,15 +14,15 @@ In this guide, you create a company record, link a contact to it, and add that c
 
 <Steps>
   <Step title="Find or create the company">
-    Search by organization number first. The search matches exactly:
+    Filter the company list by organization number first. The filter matches exactly and ignores a hyphen:
 
     ```bash
-    curl "https://app.sajn.se/api/v1/companies/search?orgNumber=556000-0000" \
+    curl "https://app.sajn.se/api/v1/companies?orgNumber=556000-0000" \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
 
-    If the response's `companies` array is empty, create the company:
+    If the response's `data` array is empty, create the company:
 
     ```bash
     curl -X POST https://app.sajn.se/api/v1/companies \
@@ -39,11 +39,13 @@ In this guide, you create a company record, link a contact to it, and add that c
       "id": "cm4k2xk9z0011abcd6802stuv",
       "name": "Example AB",
       "orgNumber": "556000-0000",
-      "country": "SE"
+      "country": "SE",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
     }
     ```
 
-    `country` is a country code and defaults to `SE`. Organization numbers are unique in the organization: creating a second company with the same number returns `409`.
+    `country` is an ISO 3166-1 alpha-2 country code and defaults to `SE`. Organization numbers are unique in the organization: creating a second company with the same number returns `409 ALREADY_EXISTS`.
   </Step>
 
   <Step title="Link a contact to the company">
@@ -83,26 +85,37 @@ In this guide, you create a company record, link a contact to it, and add that c
       }'
     ```
 
-    Replace `CONTACT_ID` with the contact `id`. Without a contact, send `name`, `email`, `companyName`, `companyOrgNumber`, and optionally `companyRole` on the party instead. Send `companyName` and `companyOrgNumber` together or not at all.
+    Replace `CONTACT_ID` with the contact `id`. Without a contact, send `name`, `email`, and a `company` object on the party instead:
+
+    ```json
+    {
+      "name": "Kai Berg",
+      "email": "kai@example.com",
+      "role": "SIGNER",
+      "company": { "name": "Example AB", "orgNumber": "556000-0000", "role": "CEO" }
+    }
+    ```
+
+    Send `company.name` and `company.orgNumber` together or not at all. On the document, each party has its company in `company`, or `null` for a private individual. Template parties nest their company in `company` the same way. For more information, see [Manage templates](/guides/templates/managing-templates).
   </Step>
 </Steps>
 
 ## Look up a company in the registry
 
-To prefill a company from the external company registry, call `GET /api/v1/companies/lookup` with `orgNr`:
+To prefill a company from the external company registry, send a `GET` request to `/api/v1/company-registry/ORG_NUMBER`:
 
 ```bash
-curl "https://app.sajn.se/api/v1/companies/lookup?orgNr=5560000000" \
+curl https://app.sajn.se/api/v1/company-registry/5560000000 \
   -H "Authorization: Bearer $SAJN_API_KEY" \
   -H "Sajn-Version: 2026-10"
 ```
 
-The response has the company's basic details, address, legal form, VAT registration, business activity, its signature rule, and the responsible persons, such as executives and board members. The endpoint allows two requests per minute, and results are cached for three days. It doesn't create a company record; send a `POST` request to `/api/v1/companies` for that.
+Replace `ORG_NUMBER` with the organization number, with or without a hyphen. The response has the company's basic details, with the organization number in `basic.orgNumber`, its address, legal form, VAT registration, business activity, signature rule, and the responsible persons, such as executives and board members. Results are cached for three days. The endpoint doesn't create a company record; send a `POST` request to `/api/v1/companies` for that. For the full response, see [Look up a company in the company registry](/api-reference/look-up-a-company-in-the-company-registry).
 
 ## List and get companies
 
-- `GET /api/v1/companies` lists companies sorted by name. `query` matches part of the name or organization number. The list is paginated; for more information, see [Pagination](/api-fundamentals/pagination).
-- `GET /api/v1/companies/COMPANY_ID` returns the company with its `contacts`.
+- `GET /api/v1/companies` lists companies, newest first. `query` matches part of the name or organization number, and `orgNumber` and `name` match exactly. Every filter you pass must match. The response has the companies in `data`; while `hasMore` is `true`, pass `nextCursor` as `cursor` to get the next page. For more information, see [Pagination](/api-fundamentals/pagination).
+- `GET /api/v1/companies/COMPANY_ID` returns the company. To list its contacts, call `GET /api/v1/contacts?companyId=COMPANY_ID`.
 
 ## Choose between a company party and an individual party
 
@@ -112,9 +125,9 @@ To see who can sign for a Swedish company, read the signature rule from the regi
 
 ## Handle errors
 
-- `400 VALIDATION_FAILED`: `name` is missing, or a party has `companyName` without `companyOrgNumber`.
-- `409`: a company with the organization number exists. Use the existing one from the search.
-- `429 RATE_LIMITED` on `lookup`: wait the number of seconds in `Retry-After`.
+- `400 VALIDATION_FAILED`: `name` is missing, or a party has `company.name` without `company.orgNumber`.
+- `409 ALREADY_EXISTS`: a company with the organization number exists. Use the existing one from the list.
+- `404 NOT_FOUND` from `company-registry`: the registry has no company with the organization number.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

@@ -3,7 +3,7 @@ title: "Sync completed documents nightly"
 description: "Recipe: a scheduled job that downloads every newly completed document's sealed PDF and journal into your archive"
 ---
 
-In this recipe, you write a job that runs every night and copies each document completed since the last run into your archive: the sealed PDF, the signing journal, and a JSON file with the document's details. It's the safety net next to webhooks: if your webhook endpoint missed a `DOCUMENT_COMPLETED` delivery, the next night's run catches the document.
+In this recipe, you write a job that runs every night and copies each document completed since the last run into your archive: the sealed PDF, the signing journal, and a JSON file with the document's details. It's the safety net next to webhooks: if your webhook endpoint missed a `document.completed` delivery, the next night's run catches the document.
 
 ## Before you begin
 
@@ -42,13 +42,15 @@ In this recipe, you write a job that runs every night and copies each document c
             if response.status_code == 429 or response.status_code >= 500:
                 time.sleep(int(response.headers.get("Retry-After", 2 ** attempt)))
                 continue
-            response.raise_for_status()
-            return response.json()
+            data = response.json()
+            if not response.ok:
+                raise RuntimeError(f"GET {path}: {data['code']} {data['message']} ({data['requestId']})")
+            return data
         raise RuntimeError(f"GET {path}: gave up after retries")
 
 
     def download(document_id, file_type, target):
-        url = get(f"/documents/{document_id}/download/{file_type}")["downloadUrl"]
+        url = get(f"/documents/{document_id}/files/{file_type}")["url"]
         file = requests.get(url)
         file.raise_for_status()
         target.write_bytes(file.content)
@@ -65,9 +67,9 @@ In this recipe, you write a job that runs every night and copies each document c
 
     params = {
         "status": "COMPLETED",
-        "orderBy": "updatedAt",
+        "orderBy": "completedAt",
         "orderDirection": "asc",
-        "perPage": 100,
+        "limit": 100,
     }
     if STATE.exists():
         params["completedAfter"] = STATE.read_text().strip()
@@ -76,10 +78,10 @@ In this recipe, you write a job that runs every night and copies each document c
     count = 0
     while True:
         page = get("/documents", params)
-        for document in page["documents"]:
+        for document in page["data"]:
             archive(document)
             count += 1
-        if not page["hasNextPage"]:
+        if not page["hasMore"]:
             break
         params["cursor"] = page["nextCursor"]
 
@@ -90,9 +92,10 @@ In this recipe, you write a job that runs every night and copies each document c
     The job works as follows:
 
     - `completedAfter` includes its boundary, and the job stores the time the run started, so a document completed during the run is archived again the next night. Writing to a fixed folder per document makes that harmless.
-    - The cursor keeps the pages stable while documents change. It requires `orderBy` set to `createdAt` or `updatedAt`.
+    - The job passes each response's `nextCursor` as `cursor` until `hasMore` is `false`. The cursor keeps the pages stable while documents change.
+    - Each file `url` expires at the response's `expiresAt`, so the job downloads it right away.
     - If any document fails, the job stops before it saves the timestamp, so the next run retries the same window.
-    - Each document costs three or four requests. For your plan's limits, see [Rate limits and quotas](/api-fundamentals/rate-limits).
+    - Each document costs three API requests, plus its share of the list pages. For your plan's limits, see [Rate limits and quotas](/api-fundamentals/rate-limits).
   </Step>
 
   <Step title="Run it once by hand">
@@ -120,7 +123,7 @@ In this recipe, you write a job that runs every night and copies each document c
 
 ## Handle errors
 
-- `404 NOT_FOUND` with `"The document has no JOURNAL file"`: sajn generates the journal shortly after it seals the document. The job stops, and the next run retries the document.
+- `409 INVALID_STATE` on a file: sajn hasn't produced the file yet. sajn generates the journal shortly after it seals the document. The job stops, and the next run retries the document.
 - `401 UNAUTHORIZED`: the key is invalid or was revoked.
 - `400 VALIDATION_FAILED`: a malformed `completedAfter` in `last-sync.txt`. The value must be an ISO 8601 date-time.
 

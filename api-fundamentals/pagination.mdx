@@ -1,16 +1,38 @@
 ---
 title: "Pagination"
-description: "Walk any list endpoint with nextCursor and hasNextPage, or jump to a page with page and perPage"
+description: "Walk any list endpoint with limit, cursor, and nextCursor, get a total count, and sync changes incrementally"
 ---
 
-List endpoints return one page of results at a time. Every paginated list returns the same two fields, so one loop walks any of them:
+Every list that grows with your data returns one page of results at a time, in the same shape:
 
-- `hasNextPage`: `true` if another page follows; `false` on the last page.
-- `nextCursor`: an opaque string to pass as the `cursor` query parameter of your next request, or `null` on the last page.
+```json
+{
+  "data": [],
+  "hasMore": true,
+  "nextCursor": "eyJjIjoiY3JlYXRlZEF0IiwidiI6IjIwMjYtMTAtMDFUMDg6MDA6MDAuMDAwWiIsImlkIjoiY200azJ4OXAxMDAwMWFiY2QxMjM0ZWZnaCJ9"
+}
+```
 
-To get the next page, send the same request again with `cursor` set to the `nextCursor` you received, and keep every other query parameter unchanged. Stop when `hasNextPage` is `false`.
+| Field | Description |
+|-------|-------------|
+| `data` | The items on this page. |
+| `hasMore` | `true` if more items follow this page; `false` on the last page. |
+| `nextCursor` | An opaque string to pass as `cursor` to get the next page, or `null` on the last page. |
+| `total` | The number of items that match your filters. Present only when you send `include=total`. See [Get the total](#get-the-total). |
 
-Behind that interface, a list is either page-based or cursor-native. The difference matters only when the data changes while you walk it, or when you want to jump to a specific page.
+A paginated list takes the following query parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `limit` | The maximum number of items to return, from 1 to 100. Default: `25`. |
+| `cursor` | The `nextCursor` from the previous response. Leave it out to get the first page. |
+| `include` | `total` adds `total` to the response. |
+
+To get the next page, send the same request again with `cursor` set to the `nextCursor` you received, and keep every other query parameter unchanged. Stop when `hasMore` is `false`.
+
+<Note>
+  This page describes API version `2026-10`. In `2026-09`, lists return the array under a name of their own, such as `documents`, and most page with `page` and `perPage`. In `2026-10`, `page` and `perPage` return `400 VALIDATION_FAILED`. For the differences, see [Upgrading to 2026-10](/upgrading/2026-10#pagination).
+</Note>
 
 ## Walk a list
 
@@ -24,7 +46,7 @@ The following samples list every document in the workspace, 100 at a time:
 cursor=""
 
 while true; do
-  args=(--data-urlencode "perPage=100")
+  args=(--data-urlencode "limit=100")
   [ -n "$cursor" ] && args+=(--data-urlencode "cursor=$cursor")
 
   page=$(curl -sS --fail-with-body -G https://app.sajn.se/api/v1/documents \
@@ -32,22 +54,27 @@ while true; do
     -H "Sajn-Version: 2026-10" \
     "${args[@]}") || { echo "$page" >&2; exit 1; }
 
-  echo "$page" | jq -c '.documents[] | {id, name, status}'
+  echo "$page" | jq -c '.data[] | {id, name, status}'
 
-  [ "$(echo "$page" | jq -r '.hasNextPage')" = "true" ] || break
+  [ "$(echo "$page" | jq -r '.hasMore')" = "true" ] || break
   cursor=$(echo "$page" | jq -r '.nextCursor')
 done
 ```
 
-```javascript Node.js
-// list-documents.mjs. Requires Node.js 18 or later.
+```typescript TypeScript
+// list-documents.ts. Requires Node.js 18 or later.
 const BASE_URL = 'https://app.sajn.se/api/v1';
 
-async function* listAll(path, key, params = {}) {
-  let cursor = null;
+type Page<T> = { data: T[]; hasMore: boolean; nextCursor: string | null };
+
+async function* listAll<T>(
+  path: string,
+  params: Record<string, string> = {},
+): AsyncGenerator<T> {
+  let cursor: string | null = null;
 
   do {
-    const query = new URLSearchParams({ perPage: '100', ...params });
+    const query = new URLSearchParams({ limit: '100', ...params });
     if (cursor) query.set('cursor', cursor);
 
     const response = await fetch(`${BASE_URL}${path}?${query}`, {
@@ -61,13 +88,15 @@ async function* listAll(path, key, params = {}) {
       throw new Error(`${response.status}: ${await response.text()}`);
     }
 
-    const page = await response.json();
-    yield* page[key];
-    cursor = page.hasNextPage ? page.nextCursor : null;
+    const page = (await response.json()) as Page<T>;
+    yield* page.data;
+    cursor = page.hasMore ? page.nextCursor : null;
   } while (cursor);
 }
 
-for await (const document of listAll('/documents', 'documents')) {
+type Document = { id: string; name: string; status: string };
+
+for await (const document of listAll<Document>('/documents')) {
   console.log(document.id, document.name, document.status);
 }
 ```
@@ -85,95 +114,91 @@ HEADERS = {
 }
 
 
-def list_all(path, key, **params):
-    params = {"perPage": 100, **params}
+def list_all(path, **params):
+    params = {"limit": 100, **params}
 
     while True:
         response = requests.get(f"{BASE_URL}{path}", headers=HEADERS, params=params)
         response.raise_for_status()
         page = response.json()
 
-        yield from page[key]
+        yield from page["data"]
 
-        if not page["hasNextPage"]:
+        if not page["hasMore"]:
             return
         params["cursor"] = page["nextCursor"]
 
 
-for document in list_all("/documents", "documents"):
+for document in list_all("/documents"):
     print(document["id"], document["name"], document["status"])
 ```
 
 </CodeGroup>
 
-Each sample reads your API key from the `SAJN_API_KEY` environment variable. To walk another list, change the path and the name of the array in the response, such as `/contacts` and `contacts`. Add filters to the first request only; the loops keep them on every page.
+Each sample reads your API key from the `SAJN_API_KEY` environment variable. Every paginated list has the same shape, so to walk another list, change the path, such as `/contacts`. Add filters to the first request only; the loops keep them on every page.
 
 A full walk of a large list sends many requests in a short time. To stay within your per-minute limit, see [Rate limits and quotas](/api-fundamentals/rate-limits).
 
-## Page-based lists
+## Paginated and bounded lists
 
-Most lists, such as [contacts](/api-reference/list-all-contacts) and [templates](/api-reference/list-all-templates), are page-based. They take the following query parameters:
+Lists that grow with your data, such as [documents](/api-reference/list-all-documents), [contacts](/api-reference/list-all-contacts), [folders](/api-reference/list-folders), and a document's [comments](/api-reference/list-comment-threads-on-a-document), are paginated as this page describes.
 
-| Parameter | Description |
-|-----------|-------------|
-| `page` | The page number, from 1 to 10,000. Default: `1`. |
-| `perPage` | The number of items per page, from 1 to 100. The default is 10, 20, or 25, depending on the endpoint; the API reference lists each one. |
-| `cursor` | The `nextCursor` from the previous response. If you send both `cursor` and `page`, `cursor` wins. |
+Lists that their parent bounds aren't paginated. They return every item in one response, as `{ data, hasMore: false, nextCursor: null }`, and don't take `limit` or `cursor`. The following lists are bounded:
 
-A page-based response has the following fields next to its array of results:
+- A document's parties, fields, field values, signatures, files, links, reminders, and delegations.
+- A template's parties and fields.
+- The workspace's roles and permissions.
+- The `/api/v1/helpers` lists, such as countries and currencies.
 
-| Field | Description |
-|-------|-------------|
-| `totalPages` | The number of pages at the current `perPage`. Every page-based list returns it. |
-| `total` | The number of items that match your filters. Returned by the document, contact, company, and template lists, and by the list of documents created from a template. |
-| `hasNextPage` | `true` if another page follows. |
-| `nextCursor` | The cursor for the next page, or `null` on the last page. |
+## Get the total
 
-For example, the following request gets the first page of contacts:
+A list returns `total` only when you send `include=total`, because counting every match takes time. Ask for it on the first page only, when you need it, such as to show a count in your UI:
 
 ```bash
 curl -G https://app.sajn.se/api/v1/contacts \
   -H "Authorization: Bearer $SAJN_API_KEY" \
   -H "Sajn-Version: 2026-10" \
-  --data-urlencode "perPage=20"
+  --data-urlencode "limit=20" \
+  --data-urlencode "include=total"
 ```
 
 The response is similar to the following:
 
 ```json
 {
-  "contacts": [],
-  "total": 87,
-  "totalPages": 5,
-  "hasNextPage": true,
-  "nextCursor": "eyJwIjoyfQ"
+  "data": [],
+  "hasMore": true,
+  "nextCursor": "eyJwIjoyfQ",
+  "total": 87
 }
 ```
 
-On a page-based list, `nextCursor` stands for the next page number. If items are added or deleted while you walk the list, items can shift between pages, so a walk can skip or repeat an item. To jump to a specific page, such as for a table in your own UI, send `page` instead of `cursor`.
+To know whether another page follows, read `hasMore`, not `total`.
 
-## Cursor-native lists
+## Sort a list
 
-The following lists use keyset pagination: the cursor marks the last item you received, not a page number. Items created while you walk never shift the items you haven't read yet, which makes these lists the right choice for syncing data.
+Most lists return the newest items first. The following lists also take `orderBy` and `orderDirection`, where `orderDirection` is `asc` or `desc`, with a default of `desc`:
 
-| List | Order | `page` |
-|------|-------|--------|
-| [`GET /api/v1/documents`](/api-reference/list-all-documents) | `orderBy` and `orderDirection`. Default: `updatedAt`, newest first. | Accepted. Ignored when you send `cursor`. |
-| [`GET /api/v1/forms`](/api-reference/list-forms) | `updatedAt`, then ID, oldest first. | Not accepted. |
-| [`GET /api/v1/forms/{id}/submissions`](/api-reference/list-form-submissions) | `updatedAt`, then ID, oldest first. | Not accepted. |
-| [`GET /api/v1/events`](/api-reference/list-events) | `createdAt`, then ID, newest first. | Not accepted. |
+| List | `orderBy` | Default |
+|------|-----------|---------|
+| [`GET /api/v1/documents`](/api-reference/list-all-documents) | `createdAt`, `updatedAt`, `name`, `completedAt`, or `expiresAt` | `createdAt` |
+| [`GET /api/v1/forms`](/api-reference/list-forms) | `createdAt` or `updatedAt` | `createdAt` |
+| [`GET /api/v1/forms/{id}/submissions`](/api-reference/list-form-submissions) | `startedAt` or `updatedAt` | `startedAt` |
+| [`GET /api/v1/members`](/api-reference/list-workspace-members) | `joinedAt`, `lastActiveAt`, or `name` | `joinedAt` |
 
-The forms, submissions, and events lists return no `total` or `totalPages`. The document list returns both.
+Documents with no `completedAt` or `expiresAt` value sort last in both directions.
 
-### Documents
+A cursor belongs to the sort order it was issued for. A cursor sent with a different `orderBy` returns `400 VALIDATION_FAILED`. To change the order, start again without `cursor`.
 
-Cursor pagination on the document list requires `orderBy` set to `createdAt` or `updatedAt`. If you sort by `name`, `completedAt`, or `expiresAt`, `nextCursor` is always `null`; use `page` instead, and check `hasNextPage` to find the last page.
+## Changes during a walk
 
-A cursor belongs to the sort order it was issued for. Sending a cursor with a different `orderBy` returns `400 VALIDATION_FAILED`.
+The document, form, form submission, event, webhook, webhook delivery, tag, folder, approval request, document activity, and document message lists page by keyset: the cursor marks the last item you received. Items that are created or deleted while you walk never shift the items you haven't read yet, and every `orderBy` works the same way. This makes these lists the right choice for syncing data.
+
+The other paginated lists, such as contacts and templates, page by position. If items are created or deleted while you walk one, items can shift between pages, so a walk can skip or repeat an item. Deduplicate by `id`.
 
 ### Sync changes incrementally
 
-To keep a copy of your documents up to date, sort by the time of the last change, oldest first, and start after the newest change you've stored:
+To keep a copy of your documents up to date, sort by the time of the last change, oldest first, and start at the newest change you've stored:
 
 ```bash
 curl -G https://app.sajn.se/api/v1/documents \
@@ -182,12 +207,12 @@ curl -G https://app.sajn.se/api/v1/documents \
   --data-urlencode "updatedAfter=2026-10-01T08:00:00Z" \
   --data-urlencode "orderBy=updatedAt" \
   --data-urlencode "orderDirection=asc" \
-  --data-urlencode "perPage=100"
+  --data-urlencode "limit=100"
 ```
 
-Walk the cursor until `hasNextPage` is `false`, and then store the largest `updatedAt` you received for the next run. A document that changes during the walk moves to the end of the list, so the walk still reaches it. `updatedAfter` includes its boundary, so the next run returns the last document again; deduplicate by `id`.
+Walk the cursor until `hasMore` is `false`, and then store the largest `updatedAt` you received for the next run. A document that changes during the walk moves to the end of the list, so the walk still reaches it. `updatedAfter` includes its boundary, so the next run returns the last document again; deduplicate by `id`.
 
-Forms and submissions are already sorted this way, so pass `updatedAfter` and walk the cursor. To reconcile webhook events you might have missed, see [Replay and reconcile](/webhooks/replay-and-reconcile).
+Forms and form submissions work the same way with `updatedAfter` and `orderBy=updatedAt`. To reconcile webhook events you might have missed, see [Replay and reconcile](/webhooks/replay-and-reconcile).
 
 ## Invalid cursors
 

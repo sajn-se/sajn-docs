@@ -53,7 +53,7 @@ X-RateLimit-Daily-Reset: 1790917200
 
 ## Limit responses
 
-A request over either limit returns an HTTP `429 Too Many Requests` status code, a `Retry-After` header, and the usual [error body](/api-fundamentals/errors). Branch on `code` to tell the limits apart.
+A request over either limit returns an HTTP `429 Too Many Requests` status code, a `Retry-After` header, and the usual [error body](/api-fundamentals/errors). Branch on `code` to tell the limits apart. In API version `2026-09`, both limits return the code `TOO_MANY_REQUESTS`; the daily quota is the cause when `X-RateLimit-Daily-Remaining` is `0`.
 
 Over the per-minute limit:
 
@@ -83,7 +83,7 @@ How to retry depends on the error:
 
 - `429 RATE_LIMITED`: wait the number of seconds in `Retry-After`, and then retry. It's usually a few seconds.
 - `429 DAILY_QUOTA_EXCEEDED`: `Retry-After` can be several hours. Stop sending requests, and schedule the work for after the window resets, instead of holding a request open.
-- `500 INTERNAL_ERROR` and network errors: retry with exponential backoff and jitter.
+- `500 INTERNAL_ERROR`, `503 UPSTREAM_UNAVAILABLE`, and network errors: retry with exponential backoff and jitter.
 
 To make a retried write request safe, send the same `Idempotency-Key` header on every attempt. For more information, see [Idempotency](/api-fundamentals/idempotency).
 
@@ -203,7 +203,7 @@ Apps that sajn publishes itself, such as its add-ins and its packaged integratio
 To use fewer requests:
 
 - Subscribe to [webhooks](/webhooks/overview) instead of polling for changes.
-- Request up to 100 items per page with `perPage`.
+- Request up to 100 items per page with `limit`.
 - Sync with `updatedAfter` so each run reads only what changed. For more information, see [Sync changes incrementally](/api-fundamentals/pagination#sync-changes-incrementally).
 - Spread scheduled jobs over time instead of starting them all at the same minute.
 

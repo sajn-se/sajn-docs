@@ -3,7 +3,7 @@ title: "Embed signing in your app"
 description: "Recipe: a server route that prepares a document and returns a signing token, and a page that shows the signing page in an iframe"
 ---
 
-In this recipe, you build an Express app where a signed-in user signs an agreement without leaving your site. The server creates and sends the document and returns the party's token. The page shows the signing page with `@sajn/embed-js` and moves on when the user has signed.
+In this recipe, you build an Express app where a signed-in user signs an agreement without leaving your site. The server creates and sends the document and returns the party's signing token. The page shows the signing page with `@sajn/embed-js` and moves on when the user has signed.
 
 ## Before you begin
 
@@ -16,7 +16,7 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
 
 <Steps>
   <Step title="Prepare the document on the server">
-    Save the following file as `server.js`. The `/api/signing-session` route creates the document with the user as a party whose `deliveryMethod` is `NONE`, sends it, and returns the document ID and the party's token:
+    Save the following file as `server.js`. The `/api/signing-session` route creates the document with the user as a party whose `deliveryMethod` is `NONE`, sends it, and returns the document ID and the token from the party's `signingUrl`:
 
     ```javascript
     // server.js
@@ -32,7 +32,7 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
     const sajn = async (method, path, body) => {
       const response = await fetch(`${API}${path}`, { method, headers, body: body && JSON.stringify(body) });
       const data = await response.json();
-      if (!response.ok) throw new Error(`${data.code}: ${data.message} (${data.requestId})`);
+      if (!response.ok) throw Object.assign(new Error(`${data.code}: ${data.message} (${data.requestId})`), { body: data });
       return data;
     };
 
@@ -43,22 +43,28 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
       // Replace with the signed-in user from your session.
       const user = { id: "user-42", name: "Alex Andersson", email: "alex@example.com" };
 
-      const document = await sajn("POST", "/documents", {
-        name: `Membership agreement - ${user.name}`,
-        templateId: process.env.SAJN_TEMPLATE_ID,
-        externalId: `membership-${user.id}`,
-        parties: [{ name: user.name, email: user.email, role: "SIGNER", deliveryMethod: "NONE" }],
-      });
-      await sajn("POST", `/documents/${document.id}/send`, {});
-      const party = await sajn("GET", `/documents/${document.id}/parties/${document.parties[0].id}`);
+      try {
+        const document = await sajn("POST", "/documents", {
+          name: `Membership agreement - ${user.name}`,
+          templateId: process.env.SAJN_TEMPLATE_ID,
+          externalId: `membership-${user.id}`,
+          parties: [{ name: user.name, email: user.email, role: "SIGNER", deliveryMethod: "NONE" }],
+        });
+        await sajn("POST", `/documents/${document.id}/send`, {});
+        const party = await sajn("GET", `/documents/${document.id}/parties/${document.parties[0].id}`);
+        const token = new URL(party.signingUrl).searchParams.get("token");
 
-      res.json({ documentId: document.id, token: party.token });
+        res.json({ documentId: document.id, token });
+      } catch (error) {
+        console.error(error.message);
+        res.status(502).json({ message: error.body?.userMessage ?? "Signing isn't available right now." });
+      }
     });
 
     app.listen(3000);
     ```
 
-    The token lets anyone sign as the party, so return it only to that user's session. If the template has signature boxes placed on a PDF, leave out `parties` and update the template's party instead; see [Create documents from templates](/guides/templates/templates-and-forms).
+    The create request returns the whole document, so the party's `id` is in `parties`. `GET /api/v1/documents/:id/parties/:partyId` returns the party's `signingUrl`, which carries the token in its `token` query parameter. The token lets anyone sign as the party, so return it only to that user's session. If the template has signature boxes placed on a PDF, leave out `parties` and update the template's party instead; see [Create documents from templates](/guides/templates/templates-and-forms).
   </Step>
 
   <Step title="Show the signing page">
@@ -78,7 +84,12 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
         <script>
           (async () => {
             const response = await fetch("/api/signing-session", { method: "POST" });
-            const { documentId, token } = await response.json();
+            const session = await response.json();
+            if (!response.ok) {
+              document.querySelector("#signing").textContent = session.message;
+              return;
+            }
+            const { documentId, token } = session;
 
             sajn.embedSignDocument({
               element: "#signing",
@@ -96,7 +107,7 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
   </Step>
 
   <Step title="Confirm the signature on the server">
-    `onSignerCompleted` runs in the browser, so use it to move the user on, not as proof. To confirm the signature, subscribe a webhook to `DOCUMENT_COMPLETED` and match the document by `payload.externalId`. For a complete handler, see [Send a contract from your CRM](/guides/recipes/crm-contract-notifications#build-the-service).
+    `onSignerCompleted` runs in the browser, so use it to move the user on, not as proof. To confirm the signature, subscribe a webhook to `document.party.signed` or `document.completed`, and match the document by `data.object.externalId`. For a complete handler, see [Send a contract from your CRM](/guides/recipes/crm-contract-notifications#build-the-service).
   </Step>
 </Steps>
 
@@ -107,7 +118,7 @@ Start the server with `node server.js` behind a public HTTPS domain that's in th
 ## Handle errors
 
 - A blank frame or a `document-error` event: the domain isn't in the allowlist or isn't served over HTTPS, or the token is wrong.
-- An error from `/api/signing-session`: the message includes the API `code` and `requestId`. For what each code means, see [Errors](/api-fundamentals/errors).
+- An error from `/api/signing-session`: the server logs the API `code` and `requestId`, and the page shows the error's `userMessage`, which is safe to show users. For what each code means, see [Errors](/api-fundamentals/errors).
 
 ## Related guides
 

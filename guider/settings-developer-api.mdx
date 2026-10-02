@@ -90,10 +90,11 @@ Bytet påverkar så här:
 - Anrop som inte anger någon version, och webhooks som skapas efter bytet, använder den nya versionen direkt.
 - Befintliga webhooks behåller sin egen version. Du byter version på en webhook i dess dialog, se [Konfigurera webhooks](/guider/webhooks).
 - Integrationer som själva anger version i sina anrop påverkas inte.
+- OAuth-appar påverkas inte. En app har en egen API-version, som sätts när appen skapas, och använder den för anrop utan version.
 
-Är organisationens version utfasad visar rutan datumet då den slutar fungera. Byt version före det datumet, tillsammans med den som byggt dina integrationer. Har ingen version valts än visar menyn **Inte vald**, och den senaste versionen väljs vid organisationens första API-anrop.
+Är organisationens version utfasad visar rutan datumet då den slutar fungera. Byt version före det datumet, tillsammans med den som byggt dina integrationer. Har ingen version valts än visar menyn **Inte vald**, och den senaste versionen väljs vid organisationens första anrop med en API-nyckel.
 
-Tabellen **Anrop de senaste 72 timmarna** visar vilka versioner dina integrationer faktiskt använder: version, hur den valdes (**Header** betyder att integrationen angav versionen själv, **Organisationens standard** att den fick organisationens version), antal anrop och när versionen senast användes. Titta här innan du byter, så ser du om någon integration fortfarande använder en äldre version.
+Tabellen **Anrop de senaste 72 timmarna** visar vilka versioner dina integrationer faktiskt använder: version, hur den valdes (**Header** betyder att integrationen angav versionen själv, **Organisationens standard** att anropet saknade header. Anrop från en OAuth-app utan header visas också som **Organisationens standard**, med appens version), antal anrop och när versionen senast användes. Titta här innan du byter, så ser du om någon integration fortfarande använder en äldre version.
 
 Utvecklare hittar detaljerna i [Versionshantering](/api-reference/versioning).
 

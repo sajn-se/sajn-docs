@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "c3475b84-304a-5703-81cc-e42bf1091ac8",
     "name": "sajn Contacts and Parties",
-    "description": "Starter flow for contact creation, lookup, and document party management.",
+    "description": "Create a contact, find it by email, update it, and add it to a document as a party.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -15,64 +15,6 @@
       }
     ]
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "https://app.sajn.se"
-    },
-    {
-      "key": "uploadBaseUrl",
-      "value": "https://upload.sajn.se"
-    },
-    {
-      "key": "apiKey",
-      "value": ""
-    },
-    {
-      "key": "apiVersion",
-      "value": "2026-10"
-    },
-    {
-      "key": "documentId",
-      "value": ""
-    },
-    {
-      "key": "contactId",
-      "value": ""
-    },
-    {
-      "key": "partyId",
-      "value": ""
-    },
-    {
-      "key": "fileType",
-      "value": "SIGNED"
-    },
-    {
-      "key": "fieldId",
-      "value": ""
-    },
-    {
-      "key": "tagId",
-      "value": ""
-    },
-    {
-      "key": "fileId",
-      "value": ""
-    },
-    {
-      "key": "fileKey",
-      "value": ""
-    },
-    {
-      "key": "sajnIdId",
-      "value": ""
-    },
-    {
-      "key": "signingUrl",
-      "value": ""
-    }
-  ],
   "item": [
     {
       "name": "Create a new contact",
@@ -86,13 +28,28 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "disabled": true
           }
         ],
-        "url": "{{baseUrl}}/api/v1/contacts",
-        "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n\n**Optional Fields:**\n- `lastName` - Contact's last name (omit or send an empty string for single-name contacts)\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `nationalId` - National identity number, such as a Swedish personnummer, for eID verification\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contacts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "contacts"
+          ]
+        },
+        "description": "Create a new contact in your organization.\n\n**Required Fields:**\n- `firstName` - Contact's first name\n\n**Optional Fields:**\n- `lastName` - Contact's last name (omit or send an empty string for single-name contacts)\n- `email` - Email address\n- `phone` - Phone number (for SMS notifications)\n- `nationalId` - National identity number, such as a Swedish personnummer, for eID verification\n- `externalId` - Your external reference ID for tracking\n- `companyId` - Associate with existing company\n- `companyRole` - Role within the company\n- `addressLine1`, `addressLine2`, `postalCode`, `city`, `state`, `country` - The contact's address",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+46701234567\"\n}",
+          "raw": "{\n  \"firstName\": \"Kai\",\n  \"lastName\": \"Lindqvist\",\n  \"email\": \"kai@example.com\",\n  \"phone\": \"+46701740605\",\n  \"externalId\": \"EMP-0142\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -111,19 +68,20 @@
               "  pm.response.to.have.status(200);",
               "});",
               "var response = {};",
-              "try {",
-              "  response = pm.response.json();",
-              "} catch (error) {",
-              "  response = {};",
-              "}",
-              "if (response.id) { pm.collectionVariables.set('contactId', response.id); }"
+              "try { response = pm.response.json(); } catch (error) {}",
+              "var save = function (key, value) {",
+              "  if (!value) { return; }",
+              "  pm.collectionVariables.set(key, value);",
+              "  if (pm.environment.name) { pm.environment.set(key, value); }",
+              "};",
+              "save('contactId', response.id);"
             ]
           }
         }
       ]
     },
     {
-      "name": "Search contacts",
+      "name": "List all contacts",
       "request": {
         "method": "GET",
         "header": [
@@ -132,8 +90,98 @@
             "value": "{{apiVersion}}"
           }
         ],
-        "url": "{{baseUrl}}/api/v1/contacts/search?email=john.doe@example.com&phone=string&externalId=string",
-        "description": "Search for contacts by email, phone number, or external ID.\n\n**Query Parameters (at least one required):**\n- `email` - Search by exact email address match\n- `phone` - Search by exact phone number match\n- `externalId` - Search by exact external ID match\n\n**Response:** Returns an array of matching contacts. Empty array if no matches found.\n\n**Note:** All searches are exact matches and scoped to your organization."
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contacts?email=kai@example.com",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "contacts"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "25",
+              "description": "Maximum number of items to return, from 1 to 100. Default: 25.",
+              "disabled": true
+            },
+            {
+              "key": "cursor",
+              "value": "",
+              "description": "The `nextCursor` from the previous response, to get the next page. Keep the other parameters unchanged.",
+              "disabled": true
+            },
+            {
+              "key": "include",
+              "value": "total",
+              "description": "`total` adds the number of items that match the filters. Counting takes time, so ask for it only when you need it.",
+              "disabled": true
+            },
+            {
+              "key": "query",
+              "value": "",
+              "description": "Free-text search across first name, last name, email, phone, and company",
+              "disabled": true
+            },
+            {
+              "key": "email",
+              "value": "kai@example.com",
+              "description": "Returns only contacts whose email address equals this value exactly.",
+              "disabled": false
+            },
+            {
+              "key": "phone",
+              "value": "",
+              "description": "Returns only contacts whose phone number equals this value exactly. Encode a leading `+` as `%2B`.",
+              "disabled": true
+            },
+            {
+              "key": "externalId",
+              "value": "",
+              "description": "Returns only the contact whose `externalId` equals this value exactly.",
+              "disabled": true
+            },
+            {
+              "key": "companyId",
+              "value": "",
+              "description": "Filter by one or more company IDs. Comma-separated or repeated.",
+              "disabled": true
+            },
+            {
+              "key": "tagId",
+              "value": "",
+              "description": "Filter by one or more tag IDs. Comma-separated or repeated.",
+              "disabled": true
+            },
+            {
+              "key": "createdAfter",
+              "value": "",
+              "description": "Only contacts created at or after this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "createdBefore",
+              "value": "",
+              "description": "Only contacts created at or before this ISO 8601 date or date-time.",
+              "disabled": true
+            },
+            {
+              "key": "updatedAfter",
+              "value": "",
+              "description": "Only contacts updated at or after this ISO 8601 date or date-time. Use it for incremental sync.",
+              "disabled": true
+            },
+            {
+              "key": "updatedBefore",
+              "value": "",
+              "description": "Only contacts updated at or before this ISO 8601 date or date-time.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Retrieve a paginated list of all contacts in your organization.\n\nContacts are individuals that can be added as signers to documents. Each contact can optionally be associated with a company.\n\n**Filters:** `email`, `phone` and `externalId` match exactly. Every filter you pass must match.\n\n**Pagination:** Pass `nextCursor` from the previous response as `cursor` until `hasMore` is false."
       },
       "response": [],
       "event": [
@@ -144,7 +192,15 @@
             "exec": [
               "pm.test('Status code is 200', function () {",
               "  pm.response.to.have.status(200);",
-              "});"
+              "});",
+              "var response = {};",
+              "try { response = pm.response.json(); } catch (error) {}",
+              "var save = function (key, value) {",
+              "  if (!value) { return; }",
+              "  pm.collectionVariables.set(key, value);",
+              "  if (pm.environment.name) { pm.environment.set(key, value); }",
+              "};",
+              "save('contactId', response.data && response.data[0] && response.data[0].id);"
             ]
           }
         }
@@ -162,13 +218,29 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "disabled": true
           }
         ],
-        "url": "{{baseUrl}}/api/v1/contacts/{{documentId}}",
-        "description": "Update contact information. All fields are optional.\n\n**Note:** Updating a contact does not affect existing document signers. Changes only apply to new documents.",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/contacts/{{contactId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "contacts",
+            "{{contactId}}"
+          ]
+        },
+        "description": "Update contact information. Omit a field to keep its value, or pass `null` to clear it.\n\nUpdating a contact doesn't change the parties of existing documents. Changes apply only to new documents.",
         "body": {
           "mode": "raw",
-          "raw": "{}",
+          "raw": "{\n  \"phone\": \"+46701740605\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -203,13 +275,28 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "disabled": true
           }
         ],
-        "url": "{{baseUrl}}/api/v1/documents",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/documents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "documents"
+          ]
+        },
         "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. The template's fields and parties are copied. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on the PDF for the template's parties are removed.\n\n**CRM Link:** Use `integrationLink` to link the document to a CRM record (currently HubSpot deals). When the workspace has a field mapping configured for the integration, mapped custom fields and product-table rows are prefilled from the record, and signing status is written back to it. Explicit `customFields` in the request take precedence over prefilled values.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill in values** by key, all in one request: `PATCH /api/v1/documents/{docId}/field-values`. To list the keys, call `GET /api/v1/documents/{docId}/field-values`.\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, SE_BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill in values by key\nPATCH /api/v1/documents/{docId}/field-values\n{\n  \"values\": [\n    {\"key\": \"name\", \"value\": \"Alex Andersson\"},\n    {\"key\": \"phone\", \"value\": \"+46700000000\"}\n  ]\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document in the same shape as `GET /api/v1/documents/{id}`, without `fields`. To get a party's signing URL, call `GET /api/v1/documents/{id}/parties/{partyId}`.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Employment Contract\",\n  \"type\": \"SIGNABLE\",\n  \"expiresAt\": \"2026-12-31T23:59:59.000Z\",\n  \"parties\": [],\n  \"documentMeta\": {\n    \"subject\": \"Employment Contract\",\n    \"message\": \"Please review and sign this agreement.\",\n    \"signingOrder\": \"PARALLEL\",\n    \"preferredLanguage\": \"en\"\n  }\n}",
+          "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal \u2013 Kai Lindqvist\",\n  \"type\": \"SIGNABLE\",\n  \"expiresAt\": \"2027-03-31T22:00:00.000Z\",\n  \"documentMeta\": {\n    \"subject\": \"Ditt anst\u00e4llningsavtal fr\u00e5n Exempelbolaget AB\",\n    \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal.\",\n    \"signingMode\": \"PARALLEL\",\n    \"language\": \"sv\"\n  },\n  \"parties\": [\n    {\n      \"name\": \"Maja Holm\",\n      \"email\": \"maja.holm@example.com\",\n      \"role\": \"SIGNER\",\n      \"company\": {\n        \"name\": \"Exempelbolaget AB\",\n        \"orgNumber\": \"5561234567\",\n        \"role\": \"HR-chef\"\n      },\n      \"country\": \"SE\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -228,12 +315,14 @@
               "  pm.response.to.have.status(200);",
               "});",
               "var response = {};",
-              "try {",
-              "  response = pm.response.json();",
-              "} catch (error) {",
-              "  response = {};",
-              "}",
-              "if (response.id) { pm.collectionVariables.set('documentId', response.id); }"
+              "try { response = pm.response.json(); } catch (error) {}",
+              "var save = function (key, value) {",
+              "  if (!value) { return; }",
+              "  pm.collectionVariables.set(key, value);",
+              "  if (pm.environment.name) { pm.environment.set(key, value); }",
+              "};",
+              "save('documentId', response.id);",
+              "save('partyId', response.parties && response.parties[0] && response.parties[0].id);"
             ]
           }
         }
@@ -251,10 +340,27 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "disabled": true
           }
         ],
-        "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties",
-        "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party. Use GET /documents/:id/parties/:partyId to retrieve the signing URL.",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "documents",
+            "{{documentId}}",
+            "parties"
+          ]
+        },
+        "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party, with its `signingUrl`, in the shape of `GET /api/v1/documents/:id/parties/:partyId`. sajn logs that you read the signing URL in the document's audit trail.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"deliveryMethod\": \"EMAIL\",\n  \"requiredSignature\": \"DRAWING\"\n}",
@@ -276,12 +382,13 @@
               "  pm.response.to.have.status(200);",
               "});",
               "var response = {};",
-              "try {",
-              "  response = pm.response.json();",
-              "} catch (error) {",
-              "  response = {};",
-              "}",
-              "if (response.id) { pm.collectionVariables.set('partyId', response.id); }"
+              "try { response = pm.response.json(); } catch (error) {}",
+              "var save = function (key, value) {",
+              "  if (!value) { return; }",
+              "  pm.collectionVariables.set(key, value);",
+              "  if (pm.environment.name) { pm.environment.set(key, value); }",
+              "};",
+              "save('partyId', response.id);"
             ]
           }
         }
@@ -297,7 +404,20 @@
             "value": "{{apiVersion}}"
           }
         ],
-        "url": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties/{{partyId}}",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/parties/{{partyId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "documents",
+            "{{documentId}}",
+            "parties",
+            "{{partyId}}"
+          ]
+        },
         "description": "Retrieve a specific party including their signing URL.\n\n**Security Note:** This endpoint creates an audit log entry each time a signing URL is accessed. Use this endpoint when you need the signing URL to share with the party.\n\n**Response includes:**\n- Party details (name, email, phone, company info)\n- Signing status (NOT_SIGNED, SIGNED, REJECTED)\n- Read status (NOT_OPENED, OPENED, READ)\n- Complete signing URL with token"
       },
       "response": [],
@@ -311,16 +431,47 @@
               "  pm.response.to.have.status(200);",
               "});",
               "var response = {};",
-              "try {",
-              "  response = pm.response.json();",
-              "} catch (error) {",
-              "  response = {};",
-              "}",
-              "if (response.signingUrl) { pm.collectionVariables.set('signingUrl', response.signingUrl); }"
+              "try { response = pm.response.json(); } catch (error) {}",
+              "var save = function (key, value) {",
+              "  if (!value) { return; }",
+              "  pm.collectionVariables.set(key, value);",
+              "  if (pm.environment.name) { pm.environment.set(key, value); }",
+              "};",
+              "save('signingUrl', response.signingUrl);"
             ]
           }
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://app.sajn.se"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "apiVersion",
+      "value": "2026-10"
+    },
+    {
+      "key": "contactId",
+      "value": ""
+    },
+    {
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "partyId",
+      "value": ""
+    },
+    {
+      "key": "signingUrl",
+      "value": ""
     }
   ]
 }

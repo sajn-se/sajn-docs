@@ -1,7 +1,8 @@
 """Rebuild the API tab of docs.json as a version switcher, and mark deprecated specs.
 
 Run from the repo root after replacing api/openapi.json (latest). Idempotent: the developer pages come
-from GUIDE_GROUPS, the endpoint groups from origin/main's API tab, and the deprecation notice is
+from GUIDE_GROUPS, the 2026-10 endpoint groups from LATEST_ENDPOINT_GROUPS, the 2026-09 ones from
+origin/main's API tab, and the deprecation notice is
 rewritten, not appended.
 """
 import json
@@ -130,6 +131,209 @@ GUIDE_GROUPS = [
 ]
 
 
+# The 2026-10 endpoint groups, in sidebar order. 2026-09 keeps origin/main's groups, because its routes are frozen.
+LATEST_ENDPOINT_GROUPS = [
+    {"group": "Login", "pages": [
+        "POST /api/v1/login/sessions",
+        "GET /api/v1/login/sessions/{id}",
+    ]},
+    {"group": "System", "pages": ["GET /api/v1/health"]},
+    {"group": "Account", "pages": ["GET /api/v1/me"]},
+    {"group": "Organization", "pages": ["GET /api/v1/organization", "GET /api/v1/limits"]},
+    {"group": "Workspaces", "pages": ["GET /api/v1/workspaces"]},
+    {"group": "Members", "pages": [
+        "GET /api/v1/members",
+        "POST /api/v1/members",
+        "GET /api/v1/members/{userId}",
+        "PATCH /api/v1/members/{userId}",
+        "DELETE /api/v1/members/{userId}",
+        "GET /api/v1/member-invites",
+        "POST /api/v1/member-invites",
+        "POST /api/v1/member-invites/{id}/resend",
+        "DELETE /api/v1/member-invites/{id}",
+    ]},
+    {"group": "Roles and permissions", "pages": [
+        "GET /api/v1/roles",
+        "POST /api/v1/roles",
+        "GET /api/v1/roles/{id}",
+        "PATCH /api/v1/roles/{id}",
+        "DELETE /api/v1/roles/{id}",
+        "GET /api/v1/permissions",
+    ]},
+    {"group": "Documents", "pages": [
+        "GET /api/v1/documents",
+        "POST /api/v1/documents",
+        "GET /api/v1/documents/{id}",
+        "PATCH /api/v1/documents/{id}",
+        "DELETE /api/v1/documents/{id}",
+        "POST /api/v1/documents/{id}/send",
+        "POST /api/v1/documents/{id}/withdraw",
+        "POST /api/v1/documents/{id}/extend-expiration",
+        "POST /api/v1/documents/{id}/purge",
+        "GET /api/v1/documents/{id}/files",
+        "GET /api/v1/documents/{id}/files/{type}",
+        "GET /api/v1/documents/{id}/activity",
+        "GET /api/v1/documents/{id}/signatures",
+        "GET /api/v1/documents/{id}/delegations",
+        "GET /api/v1/documents/{id}/reminders",
+        "POST /api/v1/documents/{id}/reminders",
+        "GET /api/v1/documents/{id}/links",
+        "POST /api/v1/documents/{id}/links",
+        "DELETE /api/v1/documents/{id}/links/{linkId}",
+    ]},
+    {"group": "Document parties", "pages": [
+        "GET /api/v1/documents/{id}/parties",
+        "POST /api/v1/documents/{id}/parties",
+        "GET /api/v1/documents/{id}/parties/{partyId}",
+        "PATCH /api/v1/documents/{id}/parties/{partyId}",
+        "DELETE /api/v1/documents/{id}/parties/{partyId}",
+    ]},
+    {"group": "Document fields", "pages": [
+        "GET /api/v1/documents/{id}/fields",
+        "POST /api/v1/documents/{id}/fields",
+        "GET /api/v1/documents/{id}/fields/{fieldId}",
+        "PATCH /api/v1/documents/{id}/fields/{fieldId}",
+        "PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields",
+        "DELETE /api/v1/documents/{id}/fields/{fieldId}",
+        "GET /api/v1/documents/{id}/field-values",
+        "PATCH /api/v1/documents/{id}/field-values",
+    ]},
+    {"group": "Document comments", "pages": [
+        "GET /api/v1/documents/{id}/comments",
+        "POST /api/v1/documents/{id}/comments",
+        "GET /api/v1/documents/{id}/comments/{threadId}",
+        "PATCH /api/v1/documents/{id}/comments/{threadId}",
+        "DELETE /api/v1/documents/{id}/comments/{threadId}",
+        "POST /api/v1/documents/{id}/comments/{threadId}/messages",
+    ]},
+    {"group": "Document messages", "pages": [
+        "GET /api/v1/documents/{id}/messages",
+        "POST /api/v1/documents/{id}/messages",
+    ]},
+    {"group": "Document tags", "pages": [
+        "POST /api/v1/documents/{id}/tags",
+        "DELETE /api/v1/documents/{id}/tags/{tagId}",
+    ]},
+    {"group": "Approval requests", "pages": [
+        "GET /api/v1/approval-requests",
+        "POST /api/v1/approval-requests",
+        "GET /api/v1/approval-requests/{id}",
+        "POST /api/v1/approval-requests/{id}/approve",
+        "POST /api/v1/approval-requests/{id}/reject",
+        "POST /api/v1/approval-requests/{id}/cancel",
+    ]},
+    {"group": "Files", "pages": [
+        "POST /api/v1/files",
+        "POST /api/v1/files/{id}/confirm",
+        "GET /api/v1/files",
+        "GET /api/v1/files/{id}",
+        "DELETE /api/v1/files/{id}",
+    ]},
+    {"group": "Folders", "pages": [
+        "GET /api/v1/folders",
+        "POST /api/v1/folders",
+        "GET /api/v1/folders/{id}",
+        "PATCH /api/v1/folders/{id}",
+        "DELETE /api/v1/folders/{id}",
+    ]},
+    {"group": "Blocks", "pages": [
+        "GET /api/v1/blocks",
+        "GET /api/v1/blocks/{id}",
+        "DELETE /api/v1/blocks/{id}",
+    ]},
+    {"group": "Templates", "pages": [
+        "GET /api/v1/templates",
+        "POST /api/v1/templates",
+        "GET /api/v1/templates/{id}",
+        "PATCH /api/v1/templates/{id}",
+        "DELETE /api/v1/templates/{id}",
+        "POST /api/v1/templates/{id}/duplicate",
+        "GET /api/v1/templates/{id}/fields",
+        "POST /api/v1/templates/{id}/fields",
+        "GET /api/v1/templates/{id}/fields/{fieldId}",
+        "PATCH /api/v1/templates/{id}/fields/{fieldId}",
+        "PATCH /api/v1/templates/{id}/fields/{fieldId}/placed-fields",
+        "DELETE /api/v1/templates/{id}/fields/{fieldId}",
+        "GET /api/v1/templates/{id}/parties",
+        "POST /api/v1/templates/{id}/parties",
+        "PATCH /api/v1/templates/{id}/parties/{partyId}",
+        "DELETE /api/v1/templates/{id}/parties/{partyId}",
+        "POST /api/v1/templates/{id}/tags",
+        "DELETE /api/v1/templates/{id}/tags/{tagId}",
+    ]},
+    {"group": "Forms", "pages": [
+        "GET /api/v1/forms",
+        "POST /api/v1/forms",
+        "GET /api/v1/forms/{id}",
+        "PATCH /api/v1/forms/{id}",
+        "DELETE /api/v1/forms/{id}",
+        "POST /api/v1/forms/{id}/publish",
+        "POST /api/v1/forms/{id}/unpublish",
+        "POST /api/v1/forms/{id}/rotate-token",
+        "PUT /api/v1/forms/{id}/respondent",
+        "GET /api/v1/forms/{id}/template",
+        "PATCH /api/v1/forms/{id}/template",
+        "PUT /api/v1/forms/{id}/template/fields",
+        "PUT /api/v1/forms/{id}/template/parties",
+        "GET /api/v1/forms/{id}/submissions",
+        "GET /api/v1/forms/{id}/submissions/{submissionId}",
+    ]},
+    {"group": "Contacts", "pages": [
+        "GET /api/v1/contacts",
+        "POST /api/v1/contacts",
+        "GET /api/v1/contacts/{id}",
+        "PATCH /api/v1/contacts/{id}",
+        "DELETE /api/v1/contacts/{id}",
+    ]},
+    {"group": "Companies", "pages": [
+        "GET /api/v1/companies",
+        "POST /api/v1/companies",
+        "GET /api/v1/companies/{id}",
+        "GET /api/v1/company-registry/{orgNumber}",
+    ]},
+    {"group": "Tags", "pages": [
+        "GET /api/v1/tags",
+        "POST /api/v1/tags",
+        "PATCH /api/v1/tags/{id}",
+    ]},
+    {"group": "Document categories", "pages": ["GET /api/v1/document-categories"]},
+    {"group": "Custom fields", "pages": [
+        "GET /api/v1/custom-fields",
+        "POST /api/v1/custom-fields",
+        "GET /api/v1/custom-fields/{id}",
+        "PATCH /api/v1/custom-fields/{id}",
+        "DELETE /api/v1/custom-fields/{id}",
+    ]},
+    {"group": "Identity checks", "pages": [
+        "GET /api/v1/identity-checks",
+        "POST /api/v1/identity-checks",
+        "GET /api/v1/identity-checks/{id}",
+    ]},
+    {"group": "Webhooks", "pages": [
+        "GET /api/v1/webhooks",
+        "POST /api/v1/webhooks",
+        "GET /api/v1/webhooks/{id}",
+        "PATCH /api/v1/webhooks/{id}",
+        "DELETE /api/v1/webhooks/{id}",
+        "POST /api/v1/webhooks/{id}/rotate-secret",
+        "POST /api/v1/webhooks/{id}/test",
+        "POST /api/v1/webhooks/{id}/reactivate",
+        "GET /api/v1/webhooks/{id}/deliveries",
+        "GET /api/v1/webhooks/{id}/deliveries/{deliveryId}",
+        "POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry",
+    ]},
+    {"group": "Events", "pages": ["GET /api/v1/events", "GET /api/v1/events/{id}"]},
+    {"group": "Helpers", "pages": [
+        "GET /api/v1/helpers/countries",
+        "GET /api/v1/helpers/currencies",
+        "GET /api/v1/helpers/languages",
+        "GET /api/v1/helpers/timezones",
+        "GET /api/v1/helpers/signature-methods",
+        "GET /api/v1/helpers/two-step-verifications",
+    ]},
+]
+
+
 def pages(groups):
     for item in groups:
         if isinstance(item, str):
@@ -181,7 +385,7 @@ open(LEGACY_SPEC, "w").write(json.dumps(legacy_spec, indent=2, ensure_ascii=Fals
 api_groups = [g for g in base_groups if any(isinstance(p, str) and ENDPOINT.match(p) for p in g["pages"])]
 
 latest_groups = GUIDE_GROUPS + [{"group": "API reference", "pages": [
-    *endpoint_groups(api_groups, latest_ops),
+    *endpoint_groups(LATEST_ENDPOINT_GROUPS, latest_ops),
     {"group": "Webhook events", "pages": webhook_groups("api/openapi.json")},
 ]}]
 # A page shared with another dropdown makes Mintlify snap back to that dropdown, so 2026-09 lists only its own pages.
@@ -220,3 +424,7 @@ open("docs.json", "w").write(json.dumps(docs, indent=2, ensure_ascii=False) + "\
 for name, groups, ops in (("2026-10", latest_groups, latest_ops), ("2026-09", legacy_groups, legacy_ops)):
     listed = {p.removeprefix(f"{LEGACY_SPEC} ") for p in pages(groups) if ENDPOINT.match(p.removeprefix(f"{LEGACY_SPEC} "))}
     print(f"{name}: {len(listed)} endpoints in nav, unlisted in spec: {sorted(ops - listed)}")
+
+stale = sorted(p for p in pages(LATEST_ENDPOINT_GROUPS) if p not in latest_ops)
+if stale:
+    print(f"2026-10: in LATEST_ENDPOINT_GROUPS but not in spec: {stale}")

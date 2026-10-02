@@ -104,7 +104,7 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
 
     </CodeGroup>
 
-    The response is the full document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id). The following example leaves out `documentMeta` and some party fields:
+    The response is the full document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id). `fields` is `null` unless you pass `expand=fields`. The following example leaves out `documentMeta` and some party fields:
 
     ```json
     {
@@ -116,6 +116,10 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
       "createdAt": "2026-10-01T09:00:00.000Z",
       "updatedAt": "2026-10-01T09:00:00.000Z",
       "completedAt": null,
+      "deletedAt": null,
+      "templateId": null,
+      "folderId": null,
+      "responsibleUserId": "cm4k2x7c00000abcd0000wxyz",
       "parties": [
         {
           "id": "cm4k2xa3f0002abcd5678ijkl",
@@ -123,6 +127,7 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
           "type": "INDIVIDUAL",
           "name": "Alex Andersson",
           "email": "alex@example.com",
+          "company": null,
           "role": "SIGNER",
           "signingOrder": null,
           "deliveryMethod": "EMAIL",
@@ -134,7 +139,9 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
       ],
       "tags": [],
       "customFields": [],
-      "productTables": []
+      "fields": null,
+      "productTables": [],
+      "approvalRequestId": null
     }
     ```
 
@@ -156,9 +163,9 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
         "documentMeta": {
           "subject": "Your employment contract",
           "message": "Hi Alex, here is your contract. Sign it before October 31.",
-          "signingOrder": "SEQUENTIAL",
-          "preferredLanguage": "en",
-          "reminderIntervalDays": "3",
+          "signingMode": "SEQUENTIAL",
+          "language": "en",
+          "reminderIntervalDays": 3,
           "forceReadFullDocument": true
         }
       }'
@@ -168,9 +175,9 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
 
     The most-used `documentMeta` fields are the following:
 
-    - `signingOrder`: `PARALLEL` invites every party at once. `SEQUENTIAL` invites them one at a time, in `signingOrder` order. For more information, see [Multi-party signing](/guides/documents/multi-party-signing).
-    - `reminderIntervalDays`: the number of days between automatic reminders, as a string. `"0"` turns them off. For more information, see [Reminders and expiration](/guides/documents/reminders-expiration).
-    - `preferredLanguage`: the language of the emails and the signing page, such as `sv` or `en`.
+    - `signingMode`: `PARALLEL` invites every party at once. `SEQUENTIAL` invites them one at a time, in the order of each party's `signingOrder`. For more information, see [Multi-party signing](/guides/documents/multi-party-signing).
+    - `reminderIntervalDays`: the number of days between automatic reminders, as an integer. `0` turns them off, and `null` uses the default of 3 days. For more information, see [Reminders and expiration](/guides/documents/reminders-expiration).
+    - `language`: the language of the emails and the signing page, such as `sv` or `en`.
     - `redirectUrl` and `redirectEnabled`: where to send a party after signing. For more information, see [Redirect after signing](/guides/documents/redirect-url).
     - `internalRecipients`: up to five email addresses that get a copy of the sealed PDF when the document is completed.
 
@@ -234,19 +241,24 @@ To fill in the template's form fields before you send the document, use [Fill in
 
 ## Add a company party
 
-A party with both `companyName` and `companyOrgNumber` is a `COMPANY` party, which signs on behalf of the company. Send both fields or neither:
+A party with a `company` is a `COMPANY` party, which signs on behalf of the company. Set the company's `name` and `orgNumber` together, and optionally the party's `role` at the company. Leave out `company` for a private individual:
 
 ```json
 {
   "name": "Kai Berg",
   "email": "kai@example.com",
-  "companyName": "Example AB",
-  "companyOrgNumber": "556000-0000",
-  "companyRole": "CEO",
+  "company": {
+    "name": "Example AB",
+    "orgNumber": "5560000000",
+    "role": "CEO"
+  },
+  "country": "SE",
   "role": "SIGNER",
   "requiredSignature": "SE_BANKID"
 }
 ```
+
+`country` is an ISO 3166-1 alpha-2 code, such as `SE`. The response returns the company as `company`, with `id`, `name`, `orgNumber`, and `role`, and `company` is `null` for a private individual.
 
 A party added by `name` and `email` has no phone number. To deliver the invitation by SMS, add the party from a contact that has a phone number, with `contactId` and `"deliveryMethod": "SMS"`. You can also set `phone` later with [Update a party](/api-reference/update-a-party).
 
@@ -254,7 +266,7 @@ A party added by `name` and `email` has no phone number. To deliver the invitati
 
 Errors have the same shape on every endpoint. Branch on `code`:
 
-- `400 VALIDATION_FAILED`: the body is invalid, for example a party without `email`, or `companyName` without `companyOrgNumber`. The `issues` array lists each problem with its `path`, such as `parties.0.email`.
+- `400 VALIDATION_FAILED`: the body is invalid, for example a party without `email`, a `company` with `name` but no `orgNumber`, or a flat key such as `companyName`. The `issues` array lists each problem with its `path`, such as `parties.0.email`.
 - `404 NOT_FOUND`: a `contactId` or the `templateId` doesn't exist in the workspace.
 - `429 RATE_LIMITED`: wait the number of seconds in the `Retry-After` header, and then retry.
 

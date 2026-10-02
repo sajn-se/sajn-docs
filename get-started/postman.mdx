@@ -20,13 +20,13 @@ Each link downloads a JSON file.
     A health check, your first list requests, and creating a contact and a document.
   </Card>
   <Card title="Document lifecycle" icon="file-signature">
-    Create a document, add a party, send it, fetch the signing URL, and download the file.
+    Create a contact and a document, add the contact as a party, send the document, get the signing URL, and get the signed PDF.
   </Card>
   <Card title="Contacts and parties" icon="users">
-    Create, search, and update contacts, and add them to a document as parties.
+    Create a contact, find it by email, update it, and add it to a document as a party.
   </Card>
   <Card title="API reference" icon="code">
-    Every endpoint, generated from the OpenAPI specification.
+    Every endpoint, generated from the OpenAPI specification and grouped like the API reference.
   </Card>
 </CardGroup>
 
@@ -41,18 +41,20 @@ Each link downloads a JSON file.
 
 ## Variables
 
-The collections share variables, so one request can use what an earlier request returned:
+The collections share variables through the environment, so one request can use what an earlier request returned, even in another collection:
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `apiKey` | Bearer token for every request | Empty |
 | `apiVersion` | Sent as the `Sajn-Version` header on every request | `2026-10` |
 | `baseUrl` | Base URL of the API | `https://app.sajn.se` |
-| `uploadBaseUrl` | Base URL for file uploads | `https://upload.sajn.se` |
-| `documentId`, `contactId`, `partyId`, `sajnIdId` | IDs that test scripts capture from responses | Empty |
-| `fileType` | File to download: `ORIGINAL`, `SIGNED`, or `JOURNAL` | `SIGNED` |
+| `contactId`, `documentId`, `partyId`, `signingUrl` | Values that the workflow collections capture from responses | Empty |
+| `identityCheckId`, `fileId`, `approvalRequestId` | IDs that the create requests in the API reference collection capture | Empty |
+| `fileType` | File that **Get a document file** returns: `ORIGINAL`, `SIGNED`, or `JOURNAL` | `SIGNED` |
 
-The workflow collections include test scripts that save IDs from successful responses, so later requests use them automatically.
+Every other path parameter, such as `templateId` or `webhookId`, has an empty variable of the same name in the environment. Set it before you run a request that uses it.
+
+Test scripts save each captured value to the collection and to the active environment. List requests include every query parameter that the endpoint accepts, turned off; turn on the ones you need. To retry a write safely, turn on the `Idempotency-Key` header, which sends a new GUID with each request. For more information, see [Idempotency](/api-fundamentals/idempotency).
 
 To test against another API version, change `apiVersion`. For the supported versions, see [API versioning](/api-fundamentals/versioning).
 
@@ -61,9 +63,15 @@ To test against another API version, change `apiVersion`. For the supported vers
 1. In the getting started collection, run **Health check**.
 1. Run **List all documents** or **List all contacts** to confirm that the key works.
 1. Run **Create a new contact**, then **Create a new document**.
-1. In the document lifecycle collection, continue with **Add a party to document** and **Send document for signing**.
+1. In the document lifecycle collection, run the requests from **Create a new contact** to **Get a party with signing URL**.
+1. To sign as the contact, open the `signingUrl` value in a browser. The example parties use `example.com` addresses, so they don't receive the signing email.
+1. After every party has signed, run **Get a document file**.
 
-A document needs an expiration date before you can send it, so **Create a new document** sets `expiresAt`. Change it to a date that suits your test.
+**Create a new document** creates a draft with one party, Maja Holm, who signs for a company. It also sets `expiresAt`, because a document needs an expiration date before you can send it. Change the date to one that suits your test.
+
+**Get a document file** returns `409 INVALID_STATE` until the file exists. The signed PDF exists after every party has signed, including Maja Holm. **Create a new document** saves her party ID in `partyId`, and **Add a party to document** replaces it with the contact's. To get her signing URL, copy her ID from `parties` in the **Create a new document** response into `partyId`, and run **Get a party with signing URL** again.
+
+If **Send document for signing** returns `409 APPROVAL_REQUIRED`, the document needs an approval before you can send it. To request one, use [Request approval of a document](/api-reference/request-approval-of-a-document).
 
 ## How the collections stay current
 

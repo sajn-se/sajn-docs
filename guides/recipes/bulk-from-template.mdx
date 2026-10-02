@@ -30,7 +30,7 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
       -H "Sajn-Version: 2026-10"
     ```
 
-    Replace `DOCUMENT_ID` with the draft's ID. Use the `key` of each value with `filledBy` set to `sender`.
+    Replace `DOCUMENT_ID` with the draft's ID. The response lists the values in `data`. Use the `key` of each value with `filledBy` set to `SENDER`.
   </Step>
 
   <Step title="Write the script">
@@ -68,7 +68,7 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
 
     def send_agreement(row):
         external_id = f"agreement-{row['employee_id']}"
-        existing = call("GET", "/documents", params={"externalId": external_id})["documents"]
+        existing = call("GET", "/documents", params={"externalId": external_id})["data"]
         if existing and existing[0]["status"] != "DRAFT":
             return existing[0]["id"], "already sent"
 
@@ -77,7 +77,6 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
             "templateId": os.environ["SAJN_TEMPLATE_ID"],
             "externalId": external_id,
         }, key=f"{external_id}-create")
-        document = call("GET", f"/documents/{document['id']}")
 
         result = call("PATCH", f"/documents/{document['id']}/field-values", {
             "values": [
@@ -93,7 +92,6 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
         call("PATCH", f"/documents/{document['id']}/parties/{employee['id']}", {
             "name": row["name"],
             "email": row["email"],
-            "role": "SIGNER",
         })
 
         call("POST", f"/documents/{document['id']}/send", {}, key=f"{external_id}-send")
@@ -112,8 +110,9 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
     The script works as follows:
 
     - `externalId` ties each document to a row, so a second run finds the document instead of creating another one. The `externalId` filter matches the whole value.
+    - The create request and each item in the list return the document with its `parties`, so the script finds the employee's party without another request.
     - The idempotency keys make a retried create or send replay the first response.
-    - The party update sends `role`, because an update without it sets the role to `SIGNER`.
+    - A value that isn't written doesn't fail the request. The script checks `success` on each item in `results`.
     - `call` waits for the number of seconds in `Retry-After` when the API returns `429`.
   </Step>
 
@@ -139,7 +138,7 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
 
 - `403 LIMIT_EXCEEDED` on create: the organization reached its hourly limit for created documents, or its monthly limit for sent documents. Wait, and run the script again; it continues where it stopped.
 - `429 RATE_LIMITED`: the script waits and retries. For the limits per plan, see [Rate limits and quotas](/api-fundamentals/rate-limits).
-- `values not written`: a key doesn't exist on the template, or a value doesn't match the field's type. Fix the CSV or the template.
+- `values not written`: each failed result has an `error` with a `code`. `NOT_FOUND` means the key doesn't exist on the template, and `VALIDATION_FAILED` means the value doesn't match the field's type. Fix the CSV or the template.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

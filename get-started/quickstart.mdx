@@ -93,7 +93,7 @@ You need the following:
 
     ```json
     {
-      "userId": "cm4k2x9p00000abcd0000mnop",
+      "id": "cm4k2x9p00000abcd0000mnop",
       "email": "alex@example.com",
       "name": "Alex Lindqvist",
       "workspace": {
@@ -186,7 +186,7 @@ You need the following:
 
     Replace `SIGNER_EMAIL` with your own email address.
 
-    The response is the new document, in `DRAFT` status, with the party you added. The following excerpt shows the fields you use next:
+    The response is the new document, in `DRAFT` status, in the same shape as [`GET /documents/{id}`](/api-reference/get-a-document-by-id). The following excerpt shows the fields you use next:
 
     ```json
     {
@@ -217,7 +217,7 @@ You need the following:
   </Step>
 
   <Step title="Add content">
-    A new document has no content. [Add a field](/api-reference/create-a-document-field) to it. This example adds an `HTML` field; for other content types, such as an uploaded PDF, see [Fields](/concepts/fields).
+    A new document has no content. [Add fields](/api-reference/create-document-fields) to it. The request takes a `fields` array, also for one field. This example adds an `HTML` field; for other content types, such as an uploaded PDF, see [Fields](/concepts/fields).
 
     <CodeGroup>
 
@@ -227,45 +227,57 @@ You need the following:
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "type": "HTML",
-        "position": 0,
-        "fieldMeta": {
-          "type": "HTML",
-          "content": "<h1>Consulting agreement</h1><p>Kai Berg delivers 40 hours of consulting to Example AB.</p>"
-        }
+        "fields": [
+          {
+            "type": "HTML",
+            "position": 0,
+            "fieldMeta": {
+              "type": "HTML",
+              "content": "<h1>Consulting agreement</h1><p>Kai Berg delivers 40 hours of consulting to Example AB.</p>"
+            }
+          }
+        ]
       }'
     ```
 
     ```javascript Node.js
     await sajn("POST", `/documents/${documentId}/fields`, {
-      type: "HTML",
-      position: 0,
-      fieldMeta: {
-        type: "HTML",
-        content:
-          "<h1>Consulting agreement</h1>" +
-          "<p>Kai Berg delivers 40 hours of consulting to Example AB.</p>",
-      },
+      fields: [
+        {
+          type: "HTML",
+          position: 0,
+          fieldMeta: {
+            type: "HTML",
+            content:
+              "<h1>Consulting agreement</h1>" +
+              "<p>Kai Berg delivers 40 hours of consulting to Example AB.</p>",
+          },
+        },
+      ],
     });
     ```
 
     ```python Python
     sajn("POST", f"/documents/{document_id}/fields", {
-        "type": "HTML",
-        "position": 0,
-        "fieldMeta": {
-            "type": "HTML",
-            "content": (
-                "<h1>Consulting agreement</h1>"
-                "<p>Kai Berg delivers 40 hours of consulting to Example AB.</p>"
-            ),
-        },
+        "fields": [
+            {
+                "type": "HTML",
+                "position": 0,
+                "fieldMeta": {
+                    "type": "HTML",
+                    "content": (
+                        "<h1>Consulting agreement</h1>"
+                        "<p>Kai Berg delivers 40 hours of consulting to Example AB.</p>"
+                    ),
+                },
+            }
+        ],
     })
     ```
 
     </CodeGroup>
 
-    The response lists the created fields under `fields`.
+    The response lists the created fields in `data`.
   </Step>
 
   <Step title="Send the document">
@@ -293,7 +305,7 @@ You need the following:
 
     </CodeGroup>
 
-    A `200` response means the document was sent. A `202` response means your workspace role can't send without approval, and the document waits in `PENDING_APPROVAL`. For more information, see [Send for signing](/guides/documents/send-for-signing).
+    The response is the document, with `status` set to `PENDING`. If your workspace role can't send without approval, the request fails with `409 APPROVAL_REQUIRED`; [request approval](/api-reference/request-approval-of-a-document) first. For more information, see [Send for signing](/guides/documents/send-for-signing).
   </Step>
 
   <Step title="Get the signing URL">
@@ -338,7 +350,7 @@ You need the following:
 
     <Tabs>
       <Tab title="Webhook">
-        [Create a webhook endpoint](/api-reference/create-a-new-webhook) that subscribes to `DOCUMENT_COMPLETED`. sajn sends a test request to the URL when you create the endpoint, so the URL must be publicly reachable. For local development, see [Test webhooks](/webhooks/testing).
+        [Create a webhook endpoint](/api-reference/create-a-new-webhook) that subscribes to `document.completed`. sajn must reach the URL over the public internet, and rejects a URL that answers with an HTML page. For local development, see [Test webhooks](/webhooks/testing).
 
         ```bash
         curl https://app.sajn.se/api/v1/webhooks \
@@ -346,32 +358,38 @@ You need the following:
           -H "Sajn-Version: 2026-10" \
           -H "Content-Type: application/json" \
           -d '{
-            "webhookUrl": "WEBHOOK_URL",
-            "eventTriggers": ["DOCUMENT_COMPLETED"],
+            "url": "WEBHOOK_URL",
+            "events": ["document.completed"],
+            "enabled": true,
             "apiVersion": "2026-10"
           }'
         ```
 
-        Replace `WEBHOOK_URL` with your endpoint's HTTPS URL. Store the `secret` from the response; you use it to [verify signatures](/webhooks/verify-signatures).
+        Replace `WEBHOOK_URL` with your endpoint's HTTPS URL. Store the `secret` from the response, which starts with `whsec_`. sajn returns it only when you create the webhook or rotate its secret, and you use it to [verify signatures](/webhooks/verify-signatures).
 
         When the document completes, your endpoint receives a `POST` request similar to the following:
 
         ```json
         {
           "id": "cm4k2x9p30005abcd9012mnop",
-          "event": "DOCUMENT_COMPLETED",
+          "type": "document.completed",
           "createdAt": "2026-10-01T09:41:12.000Z",
           "apiVersion": "2026-10",
-          "payload": {
-            "id": "cm4k2x9p10001abcd1234efgh",
-            "name": "Consulting agreement",
-            "status": "COMPLETED",
-            "completedAt": "2026-10-01T09:41:10.000Z"
+          "workspaceId": "cm4k2x9p00003abcd0000qrst",
+          "environment": "SANDBOX",
+          "actor": null,
+          "data": {
+            "object": {
+              "id": "cm4k2x9p10001abcd1234efgh",
+              "name": "Consulting agreement",
+              "status": "COMPLETED",
+              "completedAt": "2026-10-01T09:41:10.000Z"
+            }
           }
         }
         ```
 
-        `payload.id` is the document ID. For the full payload, see [Webhook payloads](/webhooks/payloads).
+        `data.object` is the document, in the shape of `GET /documents/{id}`, so `data.object.id` is the document ID. For the full payload, see [Webhook payloads](/webhooks/payloads).
       </Tab>
       <Tab title="Polling">
         [Get the document](/api-reference/get-a-document-by-id) until `status` is `COMPLETED`:
@@ -411,14 +429,14 @@ You need the following:
   </Step>
 
   <Step title="Download the signed PDF">
-    [Request a download URL](/api-reference/download-a-document-file-by-type) for the `SIGNED` file, then download it. The URL is valid for 15 minutes:
+    [Get the `SIGNED` file](/api-reference/get-a-document-file) to get a download URL, then download the PDF. The URL works for 15 minutes:
 
     <CodeGroup>
 
     ```bash curl
-    DOWNLOAD_URL=$(curl -s https://app.sajn.se/api/v1/documents/$DOCUMENT_ID/download/SIGNED \
+    DOWNLOAD_URL=$(curl -s https://app.sajn.se/api/v1/documents/$DOCUMENT_ID/files/SIGNED \
       -H "Authorization: Bearer $SAJN_API_KEY" \
-      -H "Sajn-Version: 2026-10" | jq -r .downloadUrl)
+      -H "Sajn-Version: 2026-10" | jq -r .url)
 
     curl -o consulting-agreement.pdf "$DOWNLOAD_URL"
     ```
@@ -426,14 +444,14 @@ You need the following:
     ```javascript Node.js
     import { writeFile } from "node:fs/promises";
 
-    const { downloadUrl } = await sajn("GET", `/documents/${documentId}/download/SIGNED`);
-    const pdf = await fetch(downloadUrl);
+    const signed = await sajn("GET", `/documents/${documentId}/files/SIGNED`);
+    const pdf = await fetch(signed.url);
     await writeFile("consulting-agreement.pdf", Buffer.from(await pdf.arrayBuffer()));
     ```
 
     ```python Python
-    download = sajn("GET", f"/documents/{document_id}/download/SIGNED")
-    pdf = requests.get(download["downloadUrl"])
+    signed = sajn("GET", f"/documents/{document_id}/files/SIGNED")
+    pdf = requests.get(signed["url"])
 
     with open("consulting-agreement.pdf", "wb") as file:
         file.write(pdf.content)
@@ -441,7 +459,7 @@ You need the following:
 
     </CodeGroup>
 
-    The curl sample uses `jq` to read the URL from the response. Until the document is `COMPLETED`, the request returns `404` with the code `NOT_FOUND`.
+    The response has the file's `type`, `url`, and `expiresAt`, and the curl sample uses `jq` to read `url`. Until the document is `COMPLETED`, the request returns `409` with the code `INVALID_STATE`.
 
     The PDF ends with a [signing certificate](/concepts/signing-certificate) that records who signed, how, and when.
   </Step>

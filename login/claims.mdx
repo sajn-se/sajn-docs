@@ -134,7 +134,8 @@ An `id_token` payload with all three scopes:
 
 The same claims appear in the `id_token`, from `/oidc/userinfo`, and in the
 [Session API](/login/session-api) result. There is no channel that reveals more than another, and
-no way to widen the set after approval.
+no way to widen the set after approval. The Session API returns every claim key in `claims`, with
+`null` for a claim your client isn't approved for.
 
 ## Not included
 

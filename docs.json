@@ -404,10 +404,16 @@
                     ]
                   },
                   {
+                    "group": "Organization",
+                    "pages": [
+                      "GET /api/v1/organization",
+                      "GET /api/v1/limits"
+                    ]
+                  },
+                  {
                     "group": "Workspaces",
                     "pages": [
-                      "GET /api/v1/workspaces",
-                      "GET /api/v1/workspace-permissions"
+                      "GET /api/v1/workspaces"
                     ]
                   },
                   {
@@ -419,18 +425,20 @@
                       "PATCH /api/v1/members/{userId}",
                       "DELETE /api/v1/members/{userId}",
                       "GET /api/v1/member-invites",
+                      "POST /api/v1/member-invites",
                       "POST /api/v1/member-invites/{id}/resend",
                       "DELETE /api/v1/member-invites/{id}"
                     ]
                   },
                   {
-                    "group": "Workspace Roles",
+                    "group": "Roles and permissions",
                     "pages": [
-                      "GET /api/v1/workspace-roles",
-                      "POST /api/v1/workspace-roles",
-                      "GET /api/v1/workspace-roles/{id}",
-                      "PATCH /api/v1/workspace-roles/{id}",
-                      "DELETE /api/v1/workspace-roles/{id}"
+                      "GET /api/v1/roles",
+                      "POST /api/v1/roles",
+                      "GET /api/v1/roles/{id}",
+                      "PATCH /api/v1/roles/{id}",
+                      "DELETE /api/v1/roles/{id}",
+                      "GET /api/v1/permissions"
                     ]
                   },
                   {
@@ -441,23 +449,24 @@
                       "GET /api/v1/documents/{id}",
                       "PATCH /api/v1/documents/{id}",
                       "DELETE /api/v1/documents/{id}",
-                      "GET /api/v1/documents/{id}/download/{fileType}",
-                      "GET /api/v1/documents/{id}/activity",
                       "POST /api/v1/documents/{id}/send",
                       "POST /api/v1/documents/{id}/withdraw",
                       "POST /api/v1/documents/{id}/extend-expiration",
+                      "POST /api/v1/documents/{id}/purge",
+                      "GET /api/v1/documents/{id}/files",
+                      "GET /api/v1/documents/{id}/files/{type}",
+                      "GET /api/v1/documents/{id}/activity",
+                      "GET /api/v1/documents/{id}/signatures",
                       "GET /api/v1/documents/{id}/delegations",
                       "GET /api/v1/documents/{id}/reminders",
                       "POST /api/v1/documents/{id}/reminders",
-                      "GET /api/v1/documents/{id}/signatures",
                       "GET /api/v1/documents/{id}/links",
                       "POST /api/v1/documents/{id}/links",
-                      "DELETE /api/v1/documents/{id}/links/{linkId}",
-                      "POST /api/v1/documents/{id}/purge"
+                      "DELETE /api/v1/documents/{id}/links/{linkId}"
                     ]
                   },
                   {
-                    "group": "Document Parties",
+                    "group": "Document parties",
                     "pages": [
                       "GET /api/v1/documents/{id}/parties",
                       "POST /api/v1/documents/{id}/parties",
@@ -467,20 +476,52 @@
                     ]
                   },
                   {
-                    "group": "Document Comments",
+                    "group": "Document fields",
+                    "pages": [
+                      "GET /api/v1/documents/{id}/fields",
+                      "POST /api/v1/documents/{id}/fields",
+                      "GET /api/v1/documents/{id}/fields/{fieldId}",
+                      "PATCH /api/v1/documents/{id}/fields/{fieldId}",
+                      "PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields",
+                      "DELETE /api/v1/documents/{id}/fields/{fieldId}",
+                      "GET /api/v1/documents/{id}/field-values",
+                      "PATCH /api/v1/documents/{id}/field-values"
+                    ]
+                  },
+                  {
+                    "group": "Document comments",
                     "pages": [
                       "GET /api/v1/documents/{id}/comments",
                       "POST /api/v1/documents/{id}/comments",
+                      "GET /api/v1/documents/{id}/comments/{threadId}",
                       "PATCH /api/v1/documents/{id}/comments/{threadId}",
                       "DELETE /api/v1/documents/{id}/comments/{threadId}",
                       "POST /api/v1/documents/{id}/comments/{threadId}/messages"
                     ]
                   },
                   {
-                    "group": "Document Chat",
+                    "group": "Document messages",
                     "pages": [
-                      "GET /api/v1/documents/{id}/chat",
-                      "POST /api/v1/documents/{id}/chat"
+                      "GET /api/v1/documents/{id}/messages",
+                      "POST /api/v1/documents/{id}/messages"
+                    ]
+                  },
+                  {
+                    "group": "Document tags",
+                    "pages": [
+                      "POST /api/v1/documents/{id}/tags",
+                      "DELETE /api/v1/documents/{id}/tags/{tagId}"
+                    ]
+                  },
+                  {
+                    "group": "Approval requests",
+                    "pages": [
+                      "GET /api/v1/approval-requests",
+                      "POST /api/v1/approval-requests",
+                      "GET /api/v1/approval-requests/{id}",
+                      "POST /api/v1/approval-requests/{id}/approve",
+                      "POST /api/v1/approval-requests/{id}/reject",
+                      "POST /api/v1/approval-requests/{id}/cancel"
                     ]
                   },
                   {
@@ -512,37 +553,6 @@
                     ]
                   },
                   {
-                    "group": "Document Approval",
-                    "pages": [
-                      "GET /api/v1/approvers",
-                      "GET /api/v1/documents/{id}/approval",
-                      "DELETE /api/v1/documents/{id}/approval",
-                      "POST /api/v1/documents/{id}/approval/approve",
-                      "POST /api/v1/documents/{id}/approval/reject"
-                    ]
-                  },
-                  {
-                    "group": "Document Fields",
-                    "pages": [
-                      "GET /api/v1/documents/{id}/fields",
-                      "GET /api/v1/documents/{id}/fields/{fieldId}",
-                      "POST /api/v1/documents/{id}/fields",
-                      "PATCH /api/v1/documents/{id}/fields",
-                      "PATCH /api/v1/documents/{id}/fields/{fieldId}",
-                      "PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields",
-                      "DELETE /api/v1/documents/{id}/fields/{fieldId}",
-                      "GET /api/v1/documents/{id}/field-values",
-                      "PATCH /api/v1/documents/{id}/field-values"
-                    ]
-                  },
-                  {
-                    "group": "Document Tags",
-                    "pages": [
-                      "POST /api/v1/documents/{id}/tags",
-                      "DELETE /api/v1/documents/{id}/tags/{tagId}"
-                    ]
-                  },
-                  {
                     "group": "Templates",
                     "pages": [
                       "GET /api/v1/templates",
@@ -552,8 +562,8 @@
                       "DELETE /api/v1/templates/{id}",
                       "POST /api/v1/templates/{id}/duplicate",
                       "GET /api/v1/templates/{id}/fields",
-                      "GET /api/v1/templates/{id}/fields/{fieldId}",
                       "POST /api/v1/templates/{id}/fields",
+                      "GET /api/v1/templates/{id}/fields/{fieldId}",
                       "PATCH /api/v1/templates/{id}/fields/{fieldId}",
                       "PATCH /api/v1/templates/{id}/fields/{fieldId}/placed-fields",
                       "DELETE /api/v1/templates/{id}/fields/{fieldId}",
@@ -562,8 +572,7 @@
                       "PATCH /api/v1/templates/{id}/parties/{partyId}",
                       "DELETE /api/v1/templates/{id}/parties/{partyId}",
                       "POST /api/v1/templates/{id}/tags",
-                      "DELETE /api/v1/templates/{id}/tags/{tagId}",
-                      "GET /api/v1/templates/{id}/documents"
+                      "DELETE /api/v1/templates/{id}/tags/{tagId}"
                     ]
                   },
                   {
@@ -578,10 +587,10 @@
                       "POST /api/v1/forms/{id}/unpublish",
                       "POST /api/v1/forms/{id}/rotate-token",
                       "PUT /api/v1/forms/{id}/respondent",
-                      "GET /api/v1/forms/{id}/document",
-                      "PATCH /api/v1/forms/{id}/document",
-                      "PUT /api/v1/forms/{id}/document/fields",
-                      "PUT /api/v1/forms/{id}/document/parties",
+                      "GET /api/v1/forms/{id}/template",
+                      "PATCH /api/v1/forms/{id}/template",
+                      "PUT /api/v1/forms/{id}/template/fields",
+                      "PUT /api/v1/forms/{id}/template/parties",
                       "GET /api/v1/forms/{id}/submissions",
                       "GET /api/v1/forms/{id}/submissions/{submissionId}"
                     ]
@@ -592,7 +601,6 @@
                       "GET /api/v1/contacts",
                       "POST /api/v1/contacts",
                       "GET /api/v1/contacts/{id}",
-                      "GET /api/v1/contacts/search",
                       "PATCH /api/v1/contacts/{id}",
                       "DELETE /api/v1/contacts/{id}"
                     ]
@@ -603,8 +611,7 @@
                       "GET /api/v1/companies",
                       "POST /api/v1/companies",
                       "GET /api/v1/companies/{id}",
-                      "GET /api/v1/companies/lookup",
-                      "GET /api/v1/companies/search"
+                      "GET /api/v1/company-registry/{orgNumber}"
                     ]
                   },
                   {
@@ -616,19 +623,27 @@
                     ]
                   },
                   {
-                    "group": "Document Categories",
+                    "group": "Document categories",
                     "pages": [
                       "GET /api/v1/document-categories"
                     ]
                   },
                   {
-                    "group": "Custom Fields",
+                    "group": "Custom fields",
                     "pages": [
                       "GET /api/v1/custom-fields",
                       "POST /api/v1/custom-fields",
                       "GET /api/v1/custom-fields/{id}",
                       "PATCH /api/v1/custom-fields/{id}",
                       "DELETE /api/v1/custom-fields/{id}"
+                    ]
+                  },
+                  {
+                    "group": "Identity checks",
+                    "pages": [
+                      "GET /api/v1/identity-checks",
+                      "POST /api/v1/identity-checks",
+                      "GET /api/v1/identity-checks/{id}"
                     ]
                   },
                   {
@@ -639,6 +654,9 @@
                       "GET /api/v1/webhooks/{id}",
                       "PATCH /api/v1/webhooks/{id}",
                       "DELETE /api/v1/webhooks/{id}",
+                      "POST /api/v1/webhooks/{id}/rotate-secret",
+                      "POST /api/v1/webhooks/{id}/test",
+                      "POST /api/v1/webhooks/{id}/reactivate",
                       "GET /api/v1/webhooks/{id}/deliveries",
                       "GET /api/v1/webhooks/{id}/deliveries/{deliveryId}",
                       "POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry"
@@ -648,23 +666,7 @@
                     "group": "Events",
                     "pages": [
                       "GET /api/v1/events",
-                      "GET /api/v1/events/{id}",
-                      "POST /api/v1/events/{id}/replay"
-                    ]
-                  },
-                  {
-                    "group": "sajn ID",
-                    "pages": [
-                      "GET /api/v1/sajn-id",
-                      "POST /api/v1/sajn-id",
-                      "GET /api/v1/sajn-id/{id}"
-                    ]
-                  },
-                  {
-                    "group": "Organization",
-                    "pages": [
-                      "GET /api/v1/organization",
-                      "GET /api/v1/limits"
+                      "GET /api/v1/events/{id}"
                     ]
                   },
                   {
@@ -684,92 +686,115 @@
                       {
                         "group": "Documents",
                         "pages": [
-                          "webhook DOCUMENT_CREATED",
-                          "webhook DOCUMENT_SENT",
-                          "webhook DOCUMENT_SIGNED",
-                          "webhook DOCUMENT_COMPLETED",
-                          "webhook DOCUMENT_REJECTED",
-                          "webhook DOCUMENT_EXPIRED",
-                          "webhook DOCUMENT_WITHDRAWN",
-                          "webhook DOCUMENT_MODIFIED",
-                          "webhook DOCUMENT_DELETED",
-                          "webhook DOCUMENT_RESTORED",
-                          "webhook DOCUMENT_ARCHIVED",
-                          "webhook DOCUMENT_UNARCHIVED",
-                          "webhook DOCUMENT_EXPIRATION_EXTENDED",
-                          "webhook DOCUMENT_ARCHIVE_UPLOADED"
+                          "webhook document.created",
+                          "webhook document.sent",
+                          "webhook document.fully_signed",
+                          "webhook document.completed",
+                          "webhook document.rejected",
+                          "webhook document.expired",
+                          "webhook document.withdrawn",
+                          "webhook document.updated",
+                          "webhook document.deleted",
+                          "webhook document.restored",
+                          "webhook document.archived",
+                          "webhook document.unarchived",
+                          "webhook document.expiration_extended",
+                          "webhook document.expiring_soon",
+                          "webhook document.comment.created"
                         ]
                       },
                       {
                         "group": "Parties",
                         "pages": [
-                          "webhook DOCUMENT_PARTY_SENT",
-                          "webhook DOCUMENT_PARTY_DELIVERY_FAILED",
-                          "webhook DOCUMENT_PARTY_OPENED",
-                          "webhook DOCUMENT_PARTY_READ",
-                          "webhook DOCUMENT_PARTY_SIGNED",
-                          "webhook DOCUMENT_PARTY_REJECTED",
-                          "webhook DOCUMENT_PARTY_DELEGATED",
-                          "webhook DOCUMENT_PARTY_AUTH_FAILED",
-                          "webhook DOCUMENT_PARTY_ADDED",
-                          "webhook DOCUMENT_PARTY_REMOVED",
-                          "webhook DOCUMENT_REMINDER_AUTOMATIC",
-                          "webhook DOCUMENT_REMINDER_MANUAL"
+                          "webhook document.party.sent",
+                          "webhook document.party.delivery_failed",
+                          "webhook document.party.opened",
+                          "webhook document.party.read",
+                          "webhook document.party.signed",
+                          "webhook document.party.rejected",
+                          "webhook document.party.delegated",
+                          "webhook document.party.auth_failed",
+                          "webhook document.party.verified",
+                          "webhook document.party.updated",
+                          "webhook document.party.added",
+                          "webhook document.party.removed",
+                          "webhook document.party.reminded"
                         ]
                       },
                       {
                         "group": "Identity checks",
                         "pages": [
-                          "webhook ID_CREATED",
-                          "webhook ID_SENT",
-                          "webhook ID_OPENED",
-                          "webhook ID_VERIFIED",
-                          "webhook ID_FAILED",
-                          "webhook ID_CANCELED"
+                          "webhook identity_check.created",
+                          "webhook identity_check.sent",
+                          "webhook identity_check.opened",
+                          "webhook identity_check.verified",
+                          "webhook identity_check.failed",
+                          "webhook identity_check.cancelled"
                         ]
                       },
                       {
                         "group": "Contacts",
                         "pages": [
-                          "webhook CONTACT_CREATED",
-                          "webhook CONTACT_UPDATED",
-                          "webhook CONTACT_DELETED"
+                          "webhook contact.created",
+                          "webhook contact.updated",
+                          "webhook contact.deleted",
+                          "webhook company.created",
+                          "webhook company.updated",
+                          "webhook company.deleted"
                         ]
                       },
                       {
                         "group": "Templates and forms",
                         "pages": [
-                          "webhook TEMPLATE_CREATED",
-                          "webhook TEMPLATE_UPDATED",
-                          "webhook TEMPLATE_DELETED",
-                          "webhook TEMPLATE_RESTORED",
-                          "webhook FORM_SUBMITTED"
+                          "webhook template.created",
+                          "webhook template.updated",
+                          "webhook template.deleted",
+                          "webhook template.restored",
+                          "webhook form.submitted"
                         ]
                       },
                       {
                         "group": "Workspace",
                         "pages": [
-                          "webhook WORKSPACE_CREATED",
-                          "webhook MEMBER_ADDED"
+                          "webhook workspace.created",
+                          "webhook member.added",
+                          "webhook member.invited",
+                          "webhook member.invite_accepted",
+                          "webhook webhook.test"
+                        ]
+                      },
+                      {
+                        "group": "Approvals",
+                        "pages": [
+                          "webhook approval_request.created",
+                          "webhook approval_request.approved",
+                          "webhook approval_request.rejected",
+                          "webhook approval_request.cancelled"
                         ]
                       },
                       {
                         "group": "sajn Login",
                         "pages": [
-                          "webhook LOGIN_COMPLETED",
-                          "webhook LOGIN_FAILED"
+                          "webhook login.completed",
+                          "webhook login.failed"
                         ]
                       },
                       {
                         "group": "Security",
                         "pages": [
-                          "webhook SECURITY_DOCUMENT_DOWNLOADED",
-                          "webhook SECURITY_DOCUMENTS_EXPORTED",
-                          "webhook SECURITY_SIGNATURE_IDENTITY_ACCESSED",
-                          "webhook SECURITY_WORKSPACE_MEMBER_REMOVED",
-                          "webhook SECURITY_WORKSPACE_MEMBER_ROLE_CHANGED",
-                          "webhook SECURITY_WORKSPACE_ROLE_UPDATED",
-                          "webhook SECURITY_WORKSPACE_RETENTION_UPDATED"
+                          "webhook security.document_downloaded",
+                          "webhook security.documents_exported",
+                          "webhook security.signature_identity_accessed",
+                          "webhook security.member_removed",
+                          "webhook security.member_role_changed",
+                          "webhook security.role_updated",
+                          "webhook security.workspace_retention_updated"
+                        ]
+                      },
+                      {
+                        "group": "Usage",
+                        "pages": [
+                          "webhook usage.limit_reached"
                         ]
                       }
                     ]

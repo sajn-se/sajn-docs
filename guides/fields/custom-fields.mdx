@@ -17,8 +17,9 @@ A custom field definition has the following properties:
 - `name`: the name shown in the sajn app, such as `Project code`.
 - `type`: what the field belongs to. `DOCUMENT` fields hold values on documents, and `CONTACT` fields hold values on contacts.
 - `inputType`: the kind of value: `TEXT`, `TEXTAREA`, `NUMBER`, `DATE`, `EMAIL`, `PHONE`, `URL`, `BOOLEAN`, `SELECT`, or `JSON`.
-- `options`: for `SELECT`, the choices as a JSON-encoded string array, such as `"[\"HR\",\"Sales\"]"`.
-- `defaultValue` and `required`: optional.
+- `required`: whether the field needs a value.
+- `options`: for `SELECT`, the choices as an array of strings, such as `["HR", "Sales"]`.
+- `defaultValue`: optional.
 
 Values are always strings. Send a number as `"50000"`, a date as `"2026-12-31"`, and a boolean as `"true"` or `"false"`.
 
@@ -41,7 +42,7 @@ The API sets values on documents. `CONTACT` field values are set in the sajn app
         "name": "Department",
         "type": "DOCUMENT",
         "inputType": "SELECT",
-        "options": "[\"HR\",\"Sales\",\"Engineering\"]",
+        "options": ["HR", "Sales", "Engineering"],
         "required": false
       }'
     ```
@@ -58,16 +59,18 @@ The API sets values on documents. `CONTACT` field values are set in the sajn app
         name: "Department",
         type: "DOCUMENT",
         inputType: "SELECT",
-        options: JSON.stringify(["HR", "Sales", "Engineering"]),
+        options: ["HR", "Sales", "Engineering"],
         required: false,
       }),
     });
-    const customField = await response.json();
-    console.log(customField.id);
+    const body = await response.json();
+    if (!response.ok) {
+      throw new Error(`${body.code}: ${body.message} (request ${body.requestId})`);
+    }
+    console.log(body.id);
     ```
 
     ```python Python
-    import json
     import os
 
     import requests
@@ -82,12 +85,14 @@ The API sets values on documents. `CONTACT` field values are set in the sajn app
             "name": "Department",
             "type": "DOCUMENT",
             "inputType": "SELECT",
-            "options": json.dumps(["HR", "Sales", "Engineering"]),
+            "options": ["HR", "Sales", "Engineering"],
             "required": False,
         },
     )
-    response.raise_for_status()
-    print(response.json()["id"])
+    body = response.json()
+    if not response.ok:
+        raise RuntimeError(f"{body['code']}: {body['message']} (request {body['requestId']})")
+    print(body["id"])
     ```
 
     </CodeGroup>
@@ -102,13 +107,13 @@ The API sets values on documents. `CONTACT` field values are set in the sajn app
       "inputType": "SELECT",
       "defaultValue": null,
       "required": false,
-      "options": "[\"HR\",\"Sales\",\"Engineering\"]",
+      "options": ["HR", "Sales", "Engineering"],
       "createdAt": "2026-10-01T09:00:00.000Z",
       "updatedAt": "2026-10-01T09:00:00.000Z"
     }
     ```
 
-    Definitions are shared by the workspace. To find existing ones, call [List all custom fields](/api-reference/list-all-custom-fields), optionally with `type=DOCUMENT`.
+    Definitions are shared by the workspace. To find existing ones, call [List all custom fields](/api-reference/list-all-custom-fields), optionally with `type=DOCUMENT`. The list is in `data`; while `hasMore` is `true`, pass `nextCursor` as `cursor` to get the next page.
   </Step>
 
   <Step title="Set the value on a document">
@@ -166,11 +171,11 @@ The API sets values on documents. `CONTACT` field values are set in the sajn app
 
 To rename a field or change its options, send a `PATCH` request to `/api/v1/custom-fields/CUSTOM_FIELD_ID`. Every property is optional, and `type` can't change. Changing `inputType` can make existing values invalid for the new type.
 
-To delete a field, send a `DELETE` request to the same path. Deleting a definition removes its values from every document and contact.
+To delete a field, send a `DELETE` request to the same path. The response is `{ "id": "CUSTOM_FIELD_ID", "deleted": true }`. Deleting a definition removes its values from every document and contact. To keep a copy of the definition, get it before you delete it.
 
 ## Handle errors
 
-- `400 VALIDATION_FAILED`: `name`, `type`, or `inputType` is missing or unknown.
+- `400 VALIDATION_FAILED`: `name`, `type`, `inputType`, or `required` is missing or unknown, or `options` is a JSON-encoded string instead of an array.
 - `404 NOT_FOUND`: no custom field has the ID.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).

@@ -37,7 +37,7 @@ Webhooks hör till **arbetsytan** du står i. Vill du ha samma händelser från 
     - **Händelser** – en eller flera händelser som ska utlösa anropet. Se nästa steg.
     - **API-version** – bestämmer formatet på händelserna som skickas till din URL. Förvald är organisationens API-version, som du väljer på [Utvecklare-sidans start](/guider/settings-developer-api). Webhooken behåller sin version tills du byter den här, även om organisationen byter version senare. En utfasad version visar datumet då den upphör.
     - **E-post vid automatisk paus (valfritt)** – får ett mejl när webhooken pausas automatiskt, inte vid varje leveransfel. Lämnar du fältet tomt får organisationens ägare mejlet, om ägaren har den aviseringen påslagen.
-    - **Hemlighet** – nyckeln som signerar varje anrop. Uppdateringsikonen i fältet fyller i ett nytt slumpat värde. Lämnar du fältet tomt skapar sajn en hemlighet åt dig.
+    - **Hemlighet** – nyckeln som signerar varje anrop. Uppdateringsikonen i fältet fyller i ett nytt slumpat värde. Lämnar du fältet tomt skapar sajn en hemlighet åt dig. På API-version `2026-10` sparar sajn hemligheten i formatet för Standard Webhooks: `whsec_` följt av värdet du angav, base64-kodat. Öppna webhooken med **Redigera** efter att du sparat och kopiera hemligheten därifrån.
 
     <Frame>
       <img src="/images/guider/webhooks/05-fill-url.png" alt="Dialogen Skapa webhook med URL, händelser, felmejl och hemlighet. Hemligheten är maskad" />
@@ -46,21 +46,25 @@ Webhooks hör till **arbetsytan** du står i. Vill du ha samma händelser från 
     {/* TODO screenshot: dialogen Skapa webhook med fältet API-version öppet, där den senaste versionen är märkt Senaste och en utfasad version visar sitt slutdatum */}
   </Step>
   <Step title="Välj bland tillgängliga händelser">
-    Händelsenamnen följer mönstret `<resurs>.<verb>`. Skriv i fältet för att filtrera listan.
+    Listan visar händelserna med sajns interna namn i gemener, till exempel `document.signed`. Skriv i fältet för att filtrera listan.
 
-    **Dokument** – `document.created`, `document.sent`, `document.signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.modified`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration.extended`, `document.archive.uploaded`.
+    **Dokument** – `document.created`, `document.sent`, `document.signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.modified`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration.extended`, `document.expiring.soon`, `document.archive.uploaded`, `document.comment.created`.
 
-    **Per part** – `document.party.sent`, `document.party.delivery.failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth.failed`, `document.party.added`, `document.party.removed`.
+    **Per part** – `document.party.sent`, `document.party.delivery.failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth.failed`, `document.party.added`, `document.party.removed`, `document.party.verified`, `document.party.updated`.
 
     **Påminnelser** – `document.reminder.automatic`, `document.reminder.manual`.
 
+    **Godkännanden** – `approval.request.created`, `approval.request.approved`, `approval.request.rejected`, `approval.request.cancelled`.
+
     **ID-kontroll** – `id.created`, `id.sent`, `id.opened`, `id.verified`, `id.failed`, `id.canceled`.
 
-    **Kontakter och mallar** – `contact.created`, `contact.updated`, `contact.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`.
+    **Kontakter, företag och mallar** – `contact.created`, `contact.updated`, `contact.deleted`, `company.created`, `company.updated`, `company.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`, `form.submitted`.
 
-    **Organisation** – `workspace.created`, `member.added`, `login.completed`, `login.failed`.
+    **Organisation** – `workspace.created`, `member.added`, `member.invited`, `member.invite.accepted`, `usage.limit.reached`, `login.completed`, `login.failed`.
 
     **Säkerhet** – `security.document.downloaded`, `security.documents.exported`, `security.signature.identity.accessed`, `security.workspace.member.removed`, `security.workspace.member.role.changed`, `security.workspace.role.updated`, `security.workspace.retention.updated`. De är tänkta att matas in i ett SIEM.
+
+    På API-version `2026-10` har varje leverans en `type`, och för några händelser skiljer den sig från namnet i listan. Till exempel blir `document.signed` till `document.fully_signed`, `document.modified` till `document.updated`, `id.created` till `identity_check.created` och `security.workspace.member.removed` till `security.member_removed`. `document.archive.uploaded` skickas inte till `2026-10`, där `document.created` täcker samma dokument. Alla typer finns under [Händelser](/webhooks/events).
 
     Välj så få som möjligt – en endpoint som prenumererar på allt får snabbt hög trafik. För de flesta integrationer räcker `document.signed` och `document.completed`.
 
@@ -72,15 +76,26 @@ Webhooks hör till **arbetsytan** du står i. Vill du ha samma händelser från 
 
 ## Verifiera att anropet kommer från sajn
 
-Varje leverans skickas med de här headerna:
+Vilka headers en leverans har beror på webhookens API-version.
+
+På `2026-10` följer leveranserna [Standard Webhooks](https://www.standardwebhooks.com):
+
+- `webhook-id` – händelsens `id`, samma som fältet `id` i bodyn. Det är detsamma i alla omförsök och omsändningar, så använd det för att inte göra samma arbete två gånger.
+- `webhook-timestamp` – när anropet skickades, i Unix-sekunder. Avvisa anrop som är äldre än din tolerans.
+- `webhook-signature` – `v1,<base64>`, en HMAC-SHA256 över strängen `<webhook-id>.<webhook-timestamp>.<rå body>`. Nyckeln är hemligheten efter `whsec_`, base64-avkodad. Ett bibliotek för Standard Webhooks gör kontrollen åt dig, se [Verifiera signaturer](/webhooks/verify-signatures).
+
+På `2026-09` har leveranserna de här headerna:
 
 - `X-Sajn-Signature` – `t=<unix-sekunder>,v1=<hex>`, där `v1` är en HMAC-SHA256 över strängen `<t>.<rå body>` med din hemlighet som nyckel. Tidsstämpeln ingår i det signerade, så en tidigare leverans kan inte spelas upp igen. Avvisa anrop som är äldre än din tolerans.
-- `X-Sajn-Delivery` – ett id för leveransen till just din endpoint. Det är detsamma i alla omförsök, men en omsändning får ett nytt. För att inte göra samma arbete två gånger, använd fältet `id` i bodyn, som är detsamma för händelsen i alla omförsök och omsändningar.
-- `X-Sajn-Secret` – hemligheten i klartext. Skickas bara till endpoints på API-version `2026-09`. Använd den inte, verifiera med `X-Sajn-Signature` i stället.
+- `X-Sajn-Delivery` – ett id för leveransen till just din endpoint. Det är detsamma i alla omförsök, men en omsändning får ett nytt. En `2026-09`-leverans har inget händelse-id, så gör din mottagare tålig mot att samma händelse kommer två gånger.
+- `X-Sajn-Environment` – `production` eller `sandbox`.
+- `X-Sajn-Secret` – hemligheten i klartext. Använd den inte, verifiera med `X-Sajn-Signature` i stället.
 
 ## Rotera hemligheten
 
 Öppna webhooken via menyn på raden och välj **Redigera**, klicka på uppdateringsikonen i fältet **Hemlighet** och spara. Den nya hemligheten används direkt för alla efterföljande anrop – uppdatera din verifieringskod innan du sparar, annars faller inkommande anrop på valideringen.
+
+Vill du byta utan avbrott på API-version `2026-10`, rotera i stället med [`POST /api/v1/webhooks/{id}/rotate-secret`](/webhooks/manage-endpoints#rotate-the-signing-secret). Då signeras leveranserna med både den gamla och den nya hemligheten i 24 timmar.
 
 ## När något inte kommer fram
 

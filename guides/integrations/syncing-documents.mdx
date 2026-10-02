@@ -19,7 +19,7 @@ We recommend combining a sync like this with [webhooks](/webhooks/overview): web
     Filter `GET /api/v1/documents` with `updatedAfter` set to the newest `updatedAt` you've stored, sorted by `updatedAt` in ascending order:
 
     ```bash
-    curl "https://app.sajn.se/api/v1/documents?updatedAfter=2026-10-01T10:00:00Z&orderBy=updatedAt&orderDirection=asc&perPage=100" \
+    curl "https://app.sajn.se/api/v1/documents?updatedAfter=2026-10-01T10:00:00Z&orderBy=updatedAt&orderDirection=asc&limit=100" \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
@@ -30,37 +30,50 @@ We recommend combining a sync like this with [webhooks](/webhooks/overview): web
 
     ```json
     {
-      "documents": [
+      "data": [
         {
           "id": "cm4k2x9p10001abcd1234efgh",
           "externalId": "hr-2026-0142",
+          "expiresAt": "2026-10-31T16:00:00.000Z",
           "name": "Employment contract - Alex Andersson",
           "status": "COMPLETED",
-          "expiresAt": "2026-10-31T16:00:00.000Z",
           "documentMeta": null,
           "createdAt": "2026-10-01T09:00:00.000Z",
           "updatedAt": "2026-10-02T10:31:00.000Z",
-          "completedAt": "2026-10-02T10:31:00.000Z"
+          "completedAt": "2026-10-02T10:31:00.000Z",
+          "deletedAt": null,
+          "templateId": "cm4k2xc1r0004abcd3456qrst",
+          "folderId": null,
+          "responsibleUserId": "cm4k2xw3c0000abcd0000usrx",
+          "parties": [
+            {
+              "id": "cm4k2xb7q0003abcd9012mnop",
+              "name": "Alex Andersson",
+              "email": "alex@example.com",
+              "role": "SIGNER",
+              "signingStatus": "SIGNED",
+              "signedAt": "2026-10-02T10:30:00.000Z"
+            }
+          ],
+          "tags": []
         }
       ],
-      "total": 4812,
-      "totalPages": 49,
-      "hasNextPage": true,
+      "hasMore": true,
       "nextCursor": "eyJjIjoidXBkYXRlZEF0IiwidiI6IjIwMjYtMTAtMDJUMTA6MzE6MDAuMDAwWiJ9"
     }
     ```
 
-    The example leaves out `documentMeta` content. List items don't include parties or custom fields; get those from [Get a document by ID](/api-reference/get-a-document-by-id) for the documents you need them for.
+    The example leaves out `documentMeta` content. Each list item includes its parties' signing status and its tags, but not the parties' full details or the custom fields; get those from [Get a document by ID](/api-reference/get-a-document-by-id) for the documents you need them for. To get the total count, add `include=total`.
   </Step>
 
   <Step title="Walk the pages with the cursor">
-    Pass `nextCursor` back as `cursor`, with the same filters and sort, until `hasNextPage` is `false`. The following programs run the whole sync and print the timestamp to store for the next run:
+    Pass `nextCursor` back as `cursor`, with the same filters and sort, until `hasMore` is `false`. The following programs run the whole sync and print the timestamp to store for the next run:
 
     <CodeGroup>
 
     ```javascript Node.js
     const since = process.argv[2]; // The stored updatedAt, or nothing on the first run.
-    const params = new URLSearchParams({ orderBy: "updatedAt", orderDirection: "asc", perPage: "100" });
+    const params = new URLSearchParams({ orderBy: "updatedAt", orderDirection: "asc", limit: "100" });
     if (since) params.set("updatedAfter", since);
 
     let newest = since;
@@ -68,16 +81,19 @@ We recommend combining a sync like this with [webhooks](/webhooks/overview): web
       const response = await fetch(`https://app.sajn.se/api/v1/documents?${params}`, {
         headers: { Authorization: `Bearer ${process.env.SAJN_API_KEY}`, "Sajn-Version": "2026-10" },
       });
-      if (!response.ok) throw new Error(JSON.stringify(await response.json()));
       const page = await response.json();
+      if (!response.ok) {
+        // Branch on page.code, such as RATE_LIMITED, and log requestId for support.
+        throw new Error(`${page.code}: ${page.message} (request ${page.requestId})`);
+      }
 
-      for (const document of page.documents) {
+      for (const document of page.data) {
         // Replace with an upsert into your database, keyed on document.id.
         console.log("upsert", document.id, document.status);
         newest = document.updatedAt;
       }
 
-      if (!page.hasNextPage) break;
+      if (!page.hasMore) break;
       params.set("cursor", page.nextCursor);
     }
 
@@ -91,7 +107,7 @@ We recommend combining a sync like this with [webhooks](/webhooks/overview): web
     import requests
 
     since = sys.argv[1] if len(sys.argv) > 1 else None
-    params = {"orderBy": "updatedAt", "orderDirection": "asc", "perPage": 100}
+    params = {"orderBy": "updatedAt", "orderDirection": "asc", "limit": 100}
     if since:
         params["updatedAfter"] = since
 
@@ -105,15 +121,17 @@ We recommend combining a sync like this with [webhooks](/webhooks/overview): web
             },
             params=params,
         )
-        response.raise_for_status()
         page = response.json()
+        if not response.ok:
+            # Branch on page["code"], such as RATE_LIMITED, and log requestId for support.
+            raise RuntimeError(f"{page['code']}: {page['message']} (request {page['requestId']})")
 
-        for document in page["documents"]:
+        for document in page["data"]:
             # Replace with an upsert into your database, keyed on document["id"].
             print("upsert", document["id"], document["status"])
             newest = document["updatedAt"]
 
-        if not page["hasNextPage"]:
+        if not page["hasMore"]:
             break
         params["cursor"] = page["nextCursor"]
 
@@ -124,9 +142,8 @@ We recommend combining a sync like this with [webhooks](/webhooks/overview): web
 
     Cursor pages stay stable while documents change between requests, which page numbers don't. The cursor follows these rules:
 
-    - It works with `orderBy` set to `createdAt` or `updatedAt`, the default. Other sort fields use `page`.
-    - Keep the same `orderBy`, `orderDirection`, and filters for every request in one walk. A cursor from another sort returns `400`.
-    - `page` is ignored when `cursor` is set.
+    - It works with every `orderBy` value. Documents without a `completedAt` or `expiresAt` value come last when you sort by that field.
+    - Keep the same `orderBy`, `orderDirection`, and filters for every request in one walk. A cursor from another sort returns `400 VALIDATION_FAILED`.
     - Cursors are opaque. Don't build or edit them.
 
     For more information, see [Pagination](/api-fundamentals/pagination).
@@ -144,7 +161,8 @@ The list takes the following filters. Send each value as a plain string, not JSO
 - `completedAfter` and `completedBefore`: the completion time, for syncing signed documents only.
 - `status`: one or more statuses, such as `status=PENDING,COMPLETED`, or a repeated parameter.
 - `externalId`: the document with exactly this `externalId`, case-sensitive. For a partial match, use `query`.
-- `tagId`, `folderId`, and `responsibleUserId`: documents with a tag, in a folder, or with a responsible user.
+- `templateId`: documents created from one or more templates.
+- `tagId`, `folderId`, and `responsibleUserId`: documents with a tag, in a folder, or with a responsible user. For top-level documents, use `folderId=root`.
 - `archived`: `true` for archived documents only. The default, `false`, leaves archived documents out.
 
 Dates take an ISO 8601 date or date-time, and a value without an offset is UTC. An unknown query parameter returns `400 VALIDATION_FAILED` with the issue code `UNRECOGNIZED_KEY`, so a misspelled filter fails instead of returning every document. For more information, see [Query parameters](/api-fundamentals/query-parameters).

@@ -8,7 +8,7 @@ In this guide, you embed the sajn signing page in a Vue app with the `@sajn/embe
 ## Before you begin
 
 - Turn on embedding for your organization and add your domain to the allowlist. For more information, see [Embedded signing](/guides/embedding/overview#turn-on-embedding).
-- On your server, create the document and get the party's `token` from `GET /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID`. Never call the sajn API from the browser, because the request needs your API key.
+- On your server, create the document and read the party's token from the `signingUrl` that `GET /api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` returns. For the steps, see [Embed the signing page](/guides/embedding/overview#embed-the-signing-page). Never call the sajn API from the browser, because the request needs your API key.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ import { EmbedSignDocument } from '@sajn/embed-vue';
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | `document-id` | `string` | Yes | - | Document ID |
-| `token` | `string` | Yes | - | The party's `token` |
+| `token` | `string` | Yes | - | The party's token |
 | `host` | `string` | No | `https://app.sajn.se` | Custom host URL |
 | `language` | `string` | No | `en` | UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
 | `class` | `string` | No | - | CSS class for iframe |
@@ -277,7 +277,7 @@ import { EmbedViewDocument } from '@sajn/embed-vue';
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | `document-id` | `string` | Yes | - | Document ID |
-| `token` | `string` | Yes | - | The party's `token`, the same as for signing |
+| `token` | `string` | Yes | - | The party's token, the same as for signing |
 | `host` | `string` | No | `https://app.sajn.se` | Custom host URL |
 | `language` | `string` | No | `en` | UI language (`sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, `it`) |
 | `class` | `string` | No | - | CSS class for iframe |

@@ -28,7 +28,7 @@ curl https://app.sajn.se/api/v1/documents \
 
 Replace `API_KEY` with your API key.
 
-The header takes precedence over your organization's default version. Without the header, the request uses the default.
+The header takes precedence over every default. Without the header, a request with an API key uses your [organization's default](#organization-default), and a request with an OAuth access token uses the [OAuth app's version](#oauth-app-version).
 
 We recommend sending `Sajn-Version` on every request and keeping it in your code permanently. Your integration then behaves the same no matter what the organization default is, and you upgrade by changing one value after you've tested against the new version.
 
@@ -36,7 +36,13 @@ We recommend sending `Sajn-Version` on every request and keeping it in your code
 
 Each organization has one default version, shared by all its workspaces and API keys. There's no per-key version.
 
-An organization without a default is pinned to the latest version by its first API request that has no `Sajn-Version` header. After that, the default changes only when a member who can manage the organization's settings changes it in the **API-version** section under **Inställningar > Utvecklare** in the [dashboard](https://app.sajn.se). That section also shows how many requests over the last 72 hours used each version, and whether they chose it with the header or relied on the default.
+An organization without a default is pinned to the latest version by its first API key request that has no `Sajn-Version` header. After that, the default changes only when a member who can manage the organization's settings changes it in the **API-version** section under **Inställningar > Utvecklare** in the [dashboard](https://app.sajn.se). That section also shows how many requests over the last 72 hours used each version, and whether they chose it with the header or relied on the default.
+
+### OAuth app version
+
+Each OAuth app has its own version, set to the latest version when you create the app. A request with the app's access token and no `Sajn-Version` header uses the app's version, never the default of the organization that connected the app. An app serves many organizations, so its contract stays the same when one of them changes its default, and a request from an app never sets an organization's default.
+
+To call another version from an app, send the `Sajn-Version` header.
 
 ### Response headers
 
@@ -58,6 +64,7 @@ A request with a version problem fails with an HTTP `400 Bad Request` status cod
 {
   "code": "INVALID_API_VERSION",
   "message": "Unknown API version \"2025-01\". Supported versions: 2026-09, 2026-10.",
+  "userMessage": "API-versionen finns inte.",
   "requestId": "req_V1StGXR8Z5jdHi6BmyT2"
 }
 ```
@@ -67,30 +74,33 @@ On `2026-09`, the body has only `message` and `code`. For the error shape and ev
 | Code | Cause |
 |------|-------|
 | `INVALID_API_VERSION` | The `Sajn-Version` header names a version that doesn't exist. |
-| `API_VERSION_SUNSET` | The requested version is past its sunset date. This applies to the header and to the organization default. |
+| `API_VERSION_SUNSET` | The requested version is past its sunset date. This applies to the header, the organization default, and an OAuth app's version. |
 
-An endpoint that a version removed returns an HTTP `404 Not Found` status code on that version and every later one. On earlier versions, it keeps working until their sunset date.
+An endpoint that a version removed returns `404 ROUTE_NOT_FOUND` on that version and every later one. On earlier versions, it keeps working until their sunset date.
 
 ## Webhook versions
 
 Each webhook endpoint has its own API version, which sets the shape of the payloads it receives. The endpoint keeps its version when the organization default changes, so you can move the API and your webhook receivers separately.
 
 - To choose the version when you create an endpoint, set `apiVersion` in the [`POST /api/v1/webhooks`](/webhooks/manage-endpoints) request body. Without it, the endpoint gets your organization's default version.
-- To change the version of an existing endpoint, send `apiVersion` in a [`PATCH /api/v1/webhooks/{id}`](/api-reference/update-a-webhook) request. Every delivery after the change uses the new version, including automatic retries and [event replays](/webhooks/replay-and-reconcile) of earlier events. A [manual retry of a single delivery](/api-reference/replay-a-webhook-delivery) resends that delivery's original body, in the version it was first sent in.
+- To change the version of an existing endpoint, send `apiVersion` in a [`PATCH /api/v1/webhooks/{id}`](/api-reference/update-a-webhook) request. Every delivery after the change uses the new version, including automatic retries of earlier deliveries. A [retry of a delivery](/api-reference/replay-a-webhook-delivery) that you request resends that delivery's original body, in the version it was first sent in.
 
-Each delivery states its version twice: in the `Sajn-Version` request header and in the `apiVersion` field of the body:
+Each delivery states its version twice: in the `Sajn-Version` request header and in the `apiVersion` field of the body. In the following delivery, `data.object` is shortened:
 
 ```json
 {
-  "id": "cm9evt1a2b3c4d5e6f7g8h9i0",
-  "event": "DOCUMENT_SIGNED",
+  "id": "cm4k2x9p10001abcd1234efgh",
+  "type": "document.party.signed",
   "createdAt": "2026-10-01T12:00:00.000Z",
   "apiVersion": "2026-10",
-  "payload": {}
+  "workspaceId": "cm4k2x9p10002abcd1234efgh",
+  "environment": "PRODUCTION",
+  "actor": null,
+  "data": { "object": {} }
 }
 ```
 
-The version also decides the envelope. A `2026-09` delivery has no `id`, uses the attempt time as `createdAt`, and adds `webhookEndpoint`. For the payloads, see [Webhooks](/webhooks/overview).
+The version also decides the envelope and the signature headers. A `2026-09` delivery has `event` and `payload` instead of `type` and `data`, has no `id`, uses the attempt time as `createdAt`, adds `webhookEndpoint`, and is signed with `X-Sajn-*` headers instead of the Standard Webhooks headers. For the payloads, see [Webhooks](/webhooks/overview).
 
 ## Version lifecycle
 
@@ -105,4 +115,4 @@ To move to `2026-10`, see [Upgrading to 2026-10](/upgrading/2026-10).
 
 - [Errors](/api-fundamentals/errors): the error shape and every error code.
 - [Query parameters](/api-fundamentals/query-parameters): how `2026-10` reads query strings.
-- [Pagination](/api-fundamentals/pagination): walk any list with `nextCursor`.
+- [Pagination](/api-fundamentals/pagination): walk any list with `cursor` and `nextCursor`.

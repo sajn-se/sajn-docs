@@ -26,6 +26,7 @@ flowchart LR
 | `companyId` | No | The company the contact works for |
 | `companyRole` | No | The contact's role at the company, such as `CEO` |
 | `externalId` | No | Your own ID for the contact, such as a CRM record ID |
+| `addressLine1`, `addressLine2`, `postalCode`, `city`, `state`, `country` | No | Postal address. `country` is an ISO 3166-1 alpha-2 code, such as `SE`. |
 
 The following request body creates a contact:
 
@@ -41,13 +42,13 @@ The following request body creates a contact:
 }
 ```
 
-To create it, send the body to [`POST /contacts`](/api-reference/create-a-new-contact).
+To create it, send the body to [`POST /contacts`](/api-reference/create-a-new-contact). The response is the contact, with the full company in `company`.
 
 ## Companies
 
-A company has a `name`, an optional `orgNumber`, and an optional `country`. To link a contact to a company, set the contact's `companyId`. To read a company with its contacts, call [`GET /companies/{id}`](/api-reference/get-a-company-by-id).
+A company has a `name`, an optional `orgNumber`, and an optional `country`. To link a contact to a company, set the contact's `companyId`. To read a company, call [`GET /companies/{id}`](/api-reference/get-a-company-by-id), and to list its contacts, call [`GET /contacts?companyId=`](/api-reference/list-all-contacts). To find companies, filter [`GET /companies`](/api-reference/list-companies) by `orgNumber` or `name`.
 
-To find a company's details in an external business registry by its organization number, call [`GET /companies/lookup`](/api-reference/lookup-company-in-external-registry).
+To find a company's details in the business registry by its organization number, call [`GET /company-registry/{orgNumber}`](/api-reference/look-up-a-company-in-the-company-registry).
 
 ## Use a contact on a document
 
@@ -65,13 +66,13 @@ The party gets the contact's name, email, phone number, national ID, and company
 
 ## Find contacts
 
-To list contacts, call [`GET /contacts`](/api-reference/list-all-contacts). Use `query` to search first name, last name, email, phone, and company, and `companyId` or `tagId` to filter. For pagination, see [Pagination](/api-fundamentals/pagination).
+To list contacts, call [`GET /contacts`](/api-reference/list-all-contacts). Use `query` to search first name, last name, email, phone, and company. To filter, pass `email`, `phone`, `externalId`, `companyId`, or `tagId`; a contact must match every filter you pass. For pagination, see [Pagination](/api-fundamentals/pagination).
 
-Before you create a contact, search for it, so you don't create duplicates. If you sync contacts from another system, store that system's ID in `externalId`.
+Before you create a contact, look it up by `email` or `externalId`, so you don't create duplicates. If you sync contacts from another system, store that system's ID in `externalId`.
 
 ## Delete a contact
 
-[`DELETE /contacts/{id}`](/api-reference/delete-a-contact) deletes a contact permanently. Parties created from the contact keep their own copy of its details and are unlinked from it, so existing documents don't change.
+[`DELETE /contacts/{id}`](/api-reference/delete-a-contact) deletes a contact permanently and returns its `id` with `deleted` set to `true`. Parties created from the contact keep their own copy of its details and are unlinked from it, so existing documents don't change.
 
 ## Next steps
 

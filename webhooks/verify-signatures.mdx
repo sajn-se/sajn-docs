@@ -1,91 +1,61 @@
 ---
 title: "Verify webhook signatures"
-description: "Confirm that a webhook delivery came from sajn by checking its HMAC-SHA256 signature"
+description: "Confirm that a webhook delivery came from sajn by checking its Standard Webhooks signature"
 ---
 
-Anyone who knows your endpoint's URL can send it a request. To make sure a delivery came from sajn and wasn't changed on the way, check its `X-Sajn-Signature` header before you act on it.
+Anyone who knows your endpoint's URL can send it a request. To make sure that a delivery came from sajn and wasn't changed on the way, check its `webhook-signature` header before you act on it.
+
+sajn signs deliveries according to [Standard Webhooks](https://www.standardwebhooks.com). We recommend that you verify them with an official Standard Webhooks library, which handles the encoding, the timestamp check, multiple signatures, and constant-time comparison for you. If you can't add a dependency, [verify the signature yourself](#verify-without-a-library).
 
 ## How sajn signs a delivery
 
-Before each attempt, sajn computes an HMAC-SHA256 over the timestamp, a period, and the raw request body, using the endpoint's signing secret as the key. It sends the result in the `X-Sajn-Signature` header:
+Before each attempt, sajn computes an HMAC-SHA256 over the event ID, the timestamp, and the raw request body, and sends three headers:
 
 ```text
-X-Sajn-Signature: t=1759311000,v1=8b5c4f0e2a7d9c1b3e6f8a0d2c4b6e8f1a3c5e7b9d0f2a4c6e8b1d3f5a7c9e0b
+webhook-id: cm4k2x9p10014abcd1234efgh
+webhook-timestamp: 1759311000
+webhook-signature: v1,K5oZfzN95Z9UVu1EsfQmfVNQhnkZ2pj9o9NDN/H/pI4=
 ```
 
-The header has the following parts:
+The headers have the following values:
 
-- `t`: the time of the attempt, in Unix seconds. Each retry gets a new timestamp and signature.
-- `v1`: the lowercase hex HMAC-SHA256 of the string `<t>.<raw body>`, keyed with the secret.
+- `webhook-id`: the event `id`, the same value as `id` in the body.
+- `webhook-timestamp`: the time of this attempt, in Unix seconds. Each retry gets a new timestamp and signature.
+- `webhook-signature`: one or more space-separated signatures. Each one is `v1,` followed by the base64 HMAC-SHA256 of the string `<webhook-id>.<webhook-timestamp>.<raw body>`.
 
-The timestamp is part of the signed string, so someone who captures a delivery can't resend it later under a fresh timestamp. Your endpoint rejects anything older than its tolerance.
+The HMAC key is the base64 decoding of the part of the secret after the `whsec_` prefix. You get the secret when you [create the endpoint](/webhooks/manage-endpoints#create-an-endpoint) or [rotate its secret](/webhooks/manage-endpoints#rotate-the-signing-secret).
 
-The key is the secret exactly as sajn returned it, encoded as UTF-8. A generated secret looks like 64 hex characters, but don't hex-decode it. You get the secret when you [create the endpoint](/webhooks/manage-endpoints#store-the-secret) or [rotate the secret](/webhooks/manage-endpoints#rotate-the-signing-secret).
+For 24 hours after you rotate the secret, `webhook-signature` carries two signatures, one per secret, so a receiver that still has the old secret keeps working until you deploy the new one. Accept a request when any signature matches. The timestamp is part of the signed string, so someone who captures a delivery can't resend it later under a fresh timestamp.
 
-## Verify a delivery
+## Verify with a Standard Webhooks library
 
-<Steps>
-  <Step title="Read the raw body">
-    Read the request body as bytes, before any framework parses it as JSON. A parsed and re-serialized body has different bytes, and its signature doesn't match.
-  </Step>
-  <Step title="Parse the header">
-    Split `X-Sajn-Signature` on commas, then split each part on its first `=`. Read `t` as an integer and keep `v1` as a string. If either is missing, reject the request.
-  </Step>
-  <Step title="Check the timestamp">
-    Reject the request if `t` is more than five minutes away from your server's clock, in either direction. Five minutes covers ordinary clock drift and network delay.
-  </Step>
-  <Step title="Compute the expected signature">
-    Compute the HMAC-SHA256 of `t`, a period, and the raw body, keyed with your secret.
-  </Step>
-  <Step title="Compare in constant time">
-    Compare your result with `v1` with a constant-time function, such as `crypto.timingSafeEqual` in Node.js or `hmac.compare_digest` in Python. A plain `==` comparison leaks timing information.
-  </Step>
-  <Step title="Respond">
-    If the signature matches, return a `2xx` status code and process the event. If it doesn't, return `400 Bad Request` and don't process it. sajn doesn't retry a `4xx` status code, so if a misconfiguration made you reject real deliveries, [reconcile with the events API](/webhooks/replay-and-reconcile) after you fix it.
-  </Step>
-</Steps>
+Install the library for your language. Each one reads the secret with its `whsec_` prefix, checks the timestamp with a five-minute tolerance, and accepts a request when any of its signatures matches:
 
-## Code samples
+<CodeGroup>
 
-Each of the following samples is a complete receiver that reads the raw body, checks the timestamp with a five-minute tolerance, and compares signatures in constant time. Each one reads the secret from the `SAJN_WEBHOOK_SECRET` environment variable.
+```bash Node.js
+pnpm add standardwebhooks
+```
+
+```bash Python
+pip install standardwebhooks
+```
+
+```bash Go
+go get github.com/standard-webhooks/standard-webhooks/libraries
+```
+
+</CodeGroup>
+
+Each of the following samples is a complete receiver that reads the raw body, verifies it, and reads the secret from the `SAJN_WEBHOOK_SECRET` environment variable:
 
 <CodeGroup>
 
 ```javascript Node.js (Express)
-import crypto from "node:crypto";
 import express from "express";
+import { Webhook } from "standardwebhooks";
 
-const WEBHOOK_SECRET = process.env.SAJN_WEBHOOK_SECRET;
-const TOLERANCE_SECONDS = 5 * 60;
-
-function verifySajnSignature(rawBody, header, secret) {
-  if (!header) return false;
-
-  const parts = Object.fromEntries(
-    header.split(",").map((part) => {
-      const index = part.indexOf("=");
-      return [part.slice(0, index).trim(), part.slice(index + 1).trim()];
-    }),
-  );
-  const timestamp = Number(parts.t);
-  if (!Number.isInteger(timestamp) || !parts.v1) return false;
-
-  const age = Math.abs(Math.floor(Date.now() / 1000) - timestamp);
-  if (age > TOLERANCE_SECONDS) return false;
-
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(`${timestamp}.`)
-    .update(rawBody)
-    .digest();
-  const received = Buffer.from(parts.v1, "hex");
-
-  return (
-    received.length === expected.length &&
-    crypto.timingSafeEqual(received, expected)
-  );
-}
-
+const webhook = new Webhook(process.env.SAJN_WEBHOOK_SECRET);
 const app = express();
 
 // Keep this route's body as raw bytes. express.json() would parse it first.
@@ -93,14 +63,19 @@ app.post(
   "/webhooks/sajn",
   express.raw({ type: "application/json" }),
   (req, res) => {
-    const header = req.get("X-Sajn-Signature");
-    if (!verifySajnSignature(req.body, header, WEBHOOK_SECRET)) {
+    let event;
+    try {
+      event = webhook.verify(req.body, {
+        "webhook-id": req.get("webhook-id"),
+        "webhook-timestamp": req.get("webhook-timestamp"),
+        "webhook-signature": req.get("webhook-signature"),
+      });
+    } catch {
       return res.sendStatus(400);
     }
 
-    const event = JSON.parse(req.body.toString("utf8"));
     // Deduplicate on event.id, then queue the work and return quickly.
-    console.log(event.id, event.event);
+    console.log(event.id, event.type);
     res.sendStatus(200);
   },
 );
@@ -109,175 +84,65 @@ app.listen(3000);
 ```
 
 ```python Python (Flask)
-import hashlib
-import hmac
-import json
 import os
-import time
 
 from flask import Flask, abort, request
+from standardwebhooks import Webhook, WebhookVerificationError
 
-WEBHOOK_SECRET = os.environ["SAJN_WEBHOOK_SECRET"]
-TOLERANCE_SECONDS = 5 * 60
-
+webhook = Webhook(os.environ["SAJN_WEBHOOK_SECRET"])
 app = Flask(__name__)
-
-
-def verify_sajn_signature(
-    raw_body: bytes, header: str | None, secret: str
-) -> bool:
-    if not header:
-        return False
-    parts = dict(
-        part.strip().split("=", 1) for part in header.split(",") if "=" in part
-    )
-    try:
-        timestamp = int(parts["t"])
-        received = parts["v1"].encode()
-    except (KeyError, ValueError):
-        return False
-    if abs(time.time() - timestamp) > TOLERANCE_SECONDS:
-        return False
-
-    signed = f"{timestamp}.".encode() + raw_body
-    expected = hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected.encode(), received)
 
 
 @app.post("/webhooks/sajn")
 def sajn_webhook():
     # The bytes exactly as sent, before Flask parses anything.
     raw_body = request.get_data()
-    header = request.headers.get("X-Sajn-Signature")
-    if not verify_sajn_signature(raw_body, header, WEBHOOK_SECRET):
+    try:
+        event = webhook.verify(raw_body, dict(request.headers))
+    except WebhookVerificationError:
         abort(400)
 
-    event = json.loads(raw_body)
     # Deduplicate on event["id"], then queue the work and return quickly.
-    print(event["id"], event["event"])
+    print(event["id"], event["type"])
     return "", 200
-```
-
-```php PHP
-<?php
-
-const TOLERANCE_SECONDS = 5 * 60;
-
-function verifySajnSignature(string $rawBody, ?string $header, string $secret): bool
-{
-    if (!$header) {
-        return false;
-    }
-
-    $parts = [];
-    foreach (explode(',', $header) as $part) {
-        $pair = explode('=', trim($part), 2);
-        if (count($pair) === 2) {
-            $parts[$pair[0]] = $pair[1];
-        }
-    }
-    if (!isset($parts['t'], $parts['v1']) || !ctype_digit($parts['t'])) {
-        return false;
-    }
-
-    $timestamp = (int) $parts['t'];
-    if (abs(time() - $timestamp) > TOLERANCE_SECONDS) {
-        return false;
-    }
-
-    $expected = hash_hmac('sha256', $timestamp . '.' . $rawBody, $secret);
-    return hash_equals($expected, $parts['v1']);
-}
-
-// The bytes exactly as sent. In Laravel, use $request->getContent().
-$rawBody = file_get_contents('php://input');
-$header = $_SERVER['HTTP_X_SAJN_SIGNATURE'] ?? null;
-$secret = getenv('SAJN_WEBHOOK_SECRET');
-
-if (!verifySajnSignature($rawBody, $header, $secret)) {
-    http_response_code(400);
-    exit;
-}
-
-$event = json_decode($rawBody, true);
-// Deduplicate on $event['id'], then queue the work and return quickly.
-error_log($event['id'] . ' ' . $event['event']);
-http_response_code(200);
 ```
 
 ```go Go
 package main
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
-	"time"
+
+	standardwebhooks "github.com/standard-webhooks/standard-webhooks/libraries/go"
 )
 
-const tolerance = 5 * time.Minute
-
-func verifySajnSignature(rawBody []byte, header, secret string) bool {
-	var timestamp int64
-	var received []byte
-	for _, part := range strings.Split(header, ",") {
-		key, value, ok := strings.Cut(strings.TrimSpace(part), "=")
-		if !ok {
-			continue
-		}
-		switch key {
-		case "t":
-			timestamp, _ = strconv.ParseInt(value, 10, 64)
-		case "v1":
-			received, _ = hex.DecodeString(value)
-		}
-	}
-	if timestamp == 0 || received == nil {
-		return false
-	}
-	age := time.Since(time.Unix(timestamp, 0))
-	if age > tolerance || age < -tolerance {
-		return false
-	}
-
-	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(strconv.FormatInt(timestamp, 10) + "."))
-	mac.Write(rawBody)
-	return hmac.Equal(mac.Sum(nil), received)
-}
-
 func main() {
-	secret := os.Getenv("SAJN_WEBHOOK_SECRET")
+	webhook, err := standardwebhooks.NewWebhook(os.Getenv("SAJN_WEBHOOK_SECRET"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	http.HandleFunc("POST /webhooks/sajn", func(w http.ResponseWriter, r *http.Request) {
 		rawBody, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "unreadable body", http.StatusBadRequest)
-			return
-		}
-		header := r.Header.Get("X-Sajn-Signature")
-		if !verifySajnSignature(rawBody, header, secret) {
+		if err != nil || webhook.Verify(rawBody, r.Header) != nil {
 			http.Error(w, "invalid signature", http.StatusBadRequest)
 			return
 		}
 
 		var event struct {
-			ID    string `json:"id"`
-			Event string `json:"event"`
+			ID   string `json:"id"`
+			Type string `json:"type"`
 		}
 		if err := json.Unmarshal(rawBody, &event); err != nil {
 			http.Error(w, "invalid JSON", http.StatusBadRequest)
 			return
 		}
 		// Deduplicate on event.ID, then queue the work and return quickly.
-		log.Println(event.ID, event.Event)
+		log.Println(event.ID, event.Type)
 		w.WriteHeader(http.StatusOK)
 	})
 
@@ -285,136 +150,294 @@ func main() {
 }
 ```
 
-```ruby Ruby (Sinatra)
-require "json"
-require "openssl"
-require "rack/utils"
-require "sinatra"
+</CodeGroup>
 
-WEBHOOK_SECRET = ENV.fetch("SAJN_WEBHOOK_SECRET")
+Standard Webhooks also maintains libraries for PHP, Ruby, C#, Java, Kotlin, Rust, and Elixir. For the list, see the [Standard Webhooks repository](https://github.com/standard-webhooks/standard-webhooks/tree/main/libraries).
+
+## Verify without a library
+
+To verify a delivery yourself, do the following:
+
+<Steps>
+  <Step title="Read the raw body">
+    Read the request body as bytes, before any framework parses it as JSON. A parsed and re-serialized body has different bytes, and its signature doesn't match.
+  </Step>
+  <Step title="Check the timestamp">
+    Read `webhook-timestamp` as an integer. Reject the request if it's more than five minutes away from your server's clock, in either direction.
+  </Step>
+  <Step title="Compute the expected signature">
+    Remove the `whsec_` prefix from your secret and base64-decode the rest. Use the bytes as the key for an HMAC-SHA256 of `webhook-id`, a period, `webhook-timestamp`, a period, and the raw body. Base64-encode the result.
+  </Step>
+  <Step title="Compare with each signature">
+    Split `webhook-signature` on spaces. For each entry, split it on its first comma, skip it if the version isn't `v1`, and compare the rest with your result in constant time, such as with `crypto.timingSafeEqual` in Node.js or `hmac.compare_digest` in Python. Accept the request if any entry matches.
+  </Step>
+  <Step title="Respond">
+    If a signature matches, return a `2xx` status code and process the event. If none does, return `400 Bad Request` and don't process it.
+  </Step>
+</Steps>
+
+Each of the following functions implements these steps. It takes the raw body, the three header values, and the secret, and returns `true` for a valid delivery:
+
+<CodeGroup>
+
+```javascript Node.js
+import crypto from "node:crypto";
+
+const TOLERANCE_SECONDS = 5 * 60;
+
+export function verifySajnWebhook(rawBody, id, timestamp, signatures, secret) {
+  if (!id || !timestamp || !signatures) return false;
+
+  const seconds = Number(timestamp);
+  const now = Math.floor(Date.now() / 1000);
+  if (!Number.isInteger(seconds) || Math.abs(now - seconds) > TOLERANCE_SECONDS) {
+    return false;
+  }
+
+  const key = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
+  const expected = crypto
+    .createHmac("sha256", key)
+    .update(`${id}.${seconds}.`)
+    .update(rawBody)
+    .digest();
+
+  return signatures.split(" ").some((entry) => {
+    const [version, signature] = entry.split(",", 2);
+    if (version !== "v1" || !signature) return false;
+    const received = Buffer.from(signature, "base64");
+    return (
+      received.length === expected.length &&
+      crypto.timingSafeEqual(received, expected)
+    );
+  });
+}
+```
+
+```python Python
+import base64
+import hashlib
+import hmac
+import time
+
 TOLERANCE_SECONDS = 5 * 60
 
-def verify_sajn_signature(raw_body, header, secret)
-  return false if header.nil? || header.empty?
 
-  parts = header.split(",").filter_map do |part|
-    key, value = part.strip.split("=", 2)
-    [key, value] if value
-  end.to_h
-  timestamp = Integer(parts["t"], exception: false)
-  received = parts["v1"]
-  return false if timestamp.nil? || received.nil?
-  return false if (Time.now.to_i - timestamp).abs > TOLERANCE_SECONDS
+def verify_sajn_webhook(
+    raw_body: bytes, msg_id: str, timestamp: str, signatures: str, secret: str
+) -> bool:
+    if not (msg_id and timestamp and signatures):
+        return False
+    try:
+        seconds = int(timestamp)
+    except ValueError:
+        return False
+    if abs(time.time() - seconds) > TOLERANCE_SECONDS:
+        return False
 
-  signed = "#{timestamp}.".b + raw_body.b
-  expected = OpenSSL::HMAC.hexdigest("SHA256", secret, signed)
-  Rack::Utils.secure_compare(expected, received)
-end
+    key = base64.b64decode(secret.removeprefix("whsec_"))
+    signed = f"{msg_id}.{seconds}.".encode() + raw_body
+    expected = base64.b64encode(
+        hmac.new(key, signed, hashlib.sha256).digest()
+    ).decode()
 
-post "/webhooks/sajn" do
-  raw_body = request.body.read
-  header = request.env["HTTP_X_SAJN_SIGNATURE"]
-  halt 400 unless verify_sajn_signature(raw_body, header, WEBHOOK_SECRET)
+    for entry in signatures.split(" "):
+        version, _, signature = entry.partition(",")
+        if version == "v1" and hmac.compare_digest(signature, expected):
+            return True
+    return False
+```
 
-  event = JSON.parse(raw_body)
-  # Deduplicate on event["id"], then queue the work and return quickly.
-  puts "#{event["id"]} #{event["event"]}"
-  status 200
+```php PHP
+<?php
+
+const TOLERANCE_SECONDS = 5 * 60;
+
+function verifySajnWebhook(
+    string $rawBody,
+    ?string $id,
+    ?string $timestamp,
+    ?string $signatures,
+    string $secret
+): bool {
+    if (!$id || !$timestamp || !$signatures || !ctype_digit($timestamp)) {
+        return false;
+    }
+    if (abs(time() - (int) $timestamp) > TOLERANCE_SECONDS) {
+        return false;
+    }
+
+    $key = base64_decode(preg_replace('/^whsec_/', '', $secret));
+    $expected = base64_encode(
+        hash_hmac('sha256', "$id.$timestamp.$rawBody", $key, true)
+    );
+
+    foreach (explode(' ', $signatures) as $entry) {
+        $parts = explode(',', $entry, 2);
+        if (count($parts) === 2 && $parts[0] === 'v1'
+            && hash_equals($expected, $parts[1])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// The bytes exactly as sent. In Laravel, use $request->getContent().
+$valid = verifySajnWebhook(
+    file_get_contents('php://input'),
+    $_SERVER['HTTP_WEBHOOK_ID'] ?? null,
+    $_SERVER['HTTP_WEBHOOK_TIMESTAMP'] ?? null,
+    $_SERVER['HTTP_WEBHOOK_SIGNATURE'] ?? null,
+    getenv('SAJN_WEBHOOK_SECRET')
+);
+```
+
+```go Go
+package sajnwebhook
+
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"strconv"
+	"strings"
+	"time"
+)
+
+const tolerance = 5 * time.Minute
+
+func Verify(rawBody []byte, id, timestamp, signatures, secret string) bool {
+	seconds, err := strconv.ParseInt(timestamp, 10, 64)
+	if id == "" || signatures == "" || err != nil {
+		return false
+	}
+	age := time.Since(time.Unix(seconds, 0))
+	if age > tolerance || age < -tolerance {
+		return false
+	}
+
+	key, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(secret, "whsec_"))
+	if err != nil {
+		return false
+	}
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(id + "." + timestamp + "."))
+	mac.Write(rawBody)
+	expected := mac.Sum(nil)
+
+	for _, entry := range strings.Split(signatures, " ") {
+		version, signature, ok := strings.Cut(entry, ",")
+		if !ok || version != "v1" {
+			continue
+		}
+		received, err := base64.StdEncoding.DecodeString(signature)
+		if err == nil && hmac.Equal(received, expected) {
+			return true
+		}
+	}
+	return false
+}
+```
+
+```ruby Ruby
+require "base64"
+require "openssl"
+
+TOLERANCE_SECONDS = 5 * 60
+
+def verify_sajn_webhook(raw_body, id, timestamp, signatures, secret)
+  return false if [id, timestamp, signatures].any? { |value| value.to_s.empty? }
+
+  seconds = Integer(timestamp, exception: false)
+  return false if seconds.nil? || (Time.now.to_i - seconds).abs > TOLERANCE_SECONDS
+
+  key = Base64.strict_decode64(secret.delete_prefix("whsec_"))
+  signed = "#{id}.#{seconds}.".b + raw_body.b
+  expected = Base64.strict_encode64(OpenSSL::HMAC.digest("SHA256", key, signed))
+
+  signatures.split(" ").any? do |entry|
+    version, signature = entry.split(",", 2)
+    version == "v1" && !signature.nil? &&
+      OpenSSL.secure_compare(signature, expected)
+  end
 end
 ```
 
-```csharp C# (ASP.NET Core)
+```csharp C#
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 
-var secret = Environment.GetEnvironmentVariable("SAJN_WEBHOOK_SECRET")!;
-var app = WebApplication.CreateBuilder(args).Build();
-
-app.MapPost("/webhooks/sajn", async (HttpRequest request) =>
+static bool VerifySajnWebhook(
+    byte[] rawBody, string? id, string? timestamp, string? signatures,
+    string secret, int toleranceSeconds = 300)
 {
-    // Read the bytes exactly as sent. Model binding would parse them first.
-    using var buffer = new MemoryStream();
-    await request.Body.CopyToAsync(buffer);
-    var rawBody = buffer.ToArray();
-
-    string? header = request.Headers["X-Sajn-Signature"];
-    if (!VerifySajnSignature(rawBody, header, secret))
-    {
-        return Results.BadRequest();
-    }
-
-    using var json = JsonDocument.Parse(rawBody);
-    var root = json.RootElement;
-    // Deduplicate on the id property, then queue the work and return quickly.
-    Console.WriteLine($"{root.GetProperty("id")} {root.GetProperty("event")}");
-    return Results.Ok();
-});
-
-app.Run();
-
-static bool VerifySajnSignature(
-    byte[] rawBody, string? header, string secret, int toleranceSeconds = 300)
-{
-    if (string.IsNullOrEmpty(header)) return false;
-
-    long timestamp = 0;
-    string? received = null;
-    foreach (var part in header.Split(','))
-    {
-        var pair = part.Trim().Split('=', 2);
-        if (pair.Length != 2) continue;
-        if (pair[0] == "t") long.TryParse(pair[1], out timestamp);
-        else if (pair[0] == "v1") received = pair[1];
-    }
-    if (timestamp == 0 || received is null) return false;
-
-    var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-    if (Math.Abs(now - timestamp) > toleranceSeconds) return false;
-
-    var prefix = Encoding.UTF8.GetBytes($"{timestamp}.");
-    var signed = new byte[prefix.Length + rawBody.Length];
-    prefix.CopyTo(signed, 0);
-    rawBody.CopyTo(signed, prefix.Length);
-    var expected = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), signed);
-
-    byte[] receivedBytes;
-    try
-    {
-        receivedBytes = Convert.FromHexString(received);
-    }
-    catch (FormatException)
+    if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(signatures)
+        || !long.TryParse(timestamp, out var seconds))
     {
         return false;
     }
-    return CryptographicOperations.FixedTimeEquals(expected, receivedBytes);
+    var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    if (Math.Abs(now - seconds) > toleranceSeconds) return false;
+
+    var key = Convert.FromBase64String(
+        secret.StartsWith("whsec_") ? secret[6..] : secret);
+    var prefix = Encoding.UTF8.GetBytes($"{id}.{seconds}.");
+    var signed = new byte[prefix.Length + rawBody.Length];
+    prefix.CopyTo(signed, 0);
+    rawBody.CopyTo(signed, prefix.Length);
+    var expected = HMACSHA256.HashData(key, signed);
+
+    foreach (var entry in signatures.Split(' '))
+    {
+        var parts = entry.Split(',', 2);
+        if (parts.Length != 2 || parts[0] != "v1") continue;
+        try
+        {
+            var received = Convert.FromBase64String(parts[1]);
+            if (CryptographicOperations.FixedTimeEquals(received, expected))
+            {
+                return true;
+            }
+        }
+        catch (FormatException)
+        {
+            // Not base64, so not a match. Try the next signature.
+        }
+    }
+    return false;
 }
 ```
 
 </CodeGroup>
 
-To send a signed test request to one of these receivers, run the following script, which signs a body with `openssl`:
+## Send a signed test request
+
+To test your receiver without sajn, sign a request yourself. The following script signs a body with `openssl` and posts it to a receiver on port 3000:
 
 ```bash
-SECRET="whsec-test"
-BODY='{"id":"cm4k2x9p10001abcd1234efgh","event":"DOCUMENT_COMPLETED","payload":{}}'
+SECRET="whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw"
+ID="cm4k2x9p10014abcd1234efgh"
+BODY='{"id":"cm4k2x9p10014abcd1234efgh","type":"webhook.test","data":{}}'
 TIMESTAMP=$(date +%s)
-SIGNATURE=$(printf '%s.%s' "$TIMESTAMP" "$BODY" \
-  | openssl dgst -sha256 -hmac "$SECRET" | awk '{print $NF}')
+KEY_HEX=$(printf '%s' "${SECRET#whsec_}" | base64 -d | xxd -p -c 256)
+SIGNATURE=$(printf '%s.%s.%s' "$ID" "$TIMESTAMP" "$BODY" \
+  | openssl dgst -sha256 -mac HMAC -macopt "hexkey:$KEY_HEX" -binary \
+  | base64)
 
 curl -i -X POST http://localhost:3000/webhooks/sajn \
   -H "Content-Type: application/json" \
-  -H "X-Sajn-Signature: t=$TIMESTAMP,v1=$SIGNATURE" \
+  -H "webhook-id: $ID" \
+  -H "webhook-timestamp: $TIMESTAMP" \
+  -H "webhook-signature: v1,$SIGNATURE" \
   -d "$BODY"
 ```
 
-The script uses `whsec-test` as the secret, so start the receiver with `SAJN_WEBHOOK_SECRET=whsec-test`. A receiver that works returns `HTTP/1.1 200 OK`. For more ways to test, see [Test webhooks locally](/webhooks/testing).
+Start the receiver with `SAJN_WEBHOOK_SECRET` set to the same secret. A receiver that works returns `HTTP/1.1 200 OK`. To have sajn send a real signed event instead, call [`POST /api/v1/webhooks/{id}/test`](/api-reference/send-a-test-event-to-a-webhook). For more ways to test, see [Test webhooks locally](/webhooks/testing).
 
 ## Common pitfalls
 
 ### The body was parsed before verification
 
-Most frameworks parse JSON request bodies automatically. The parsed body serializes back to different bytes, for example with other whitespace, other key order, or `\u00e5` instead of `å`, so the signature never matches. Read the raw bytes for the webhook route:
+Most frameworks parse JSON request bodies automatically. The parsed body serializes back to different bytes, for example with other whitespace, other key order, or `å` instead of `å`, so the signature never matches. Read the raw bytes for the webhook route:
 
 | Framework | Raw body |
 |-----------|----------|
@@ -430,7 +453,7 @@ Verify first, then parse the same bytes.
 
 ### The clock is wrong
 
-The timestamp check compares `t` with your server's clock. If your clock drifts by more than the tolerance, you reject every delivery. Keep the server's clock synchronized with NTP. Don't compare `t` with the envelope's `createdAt`: `createdAt` is when the event happened, and on a retry it can be hours older than the attempt.
+The timestamp check compares `webhook-timestamp` with your server's clock. If your clock drifts by more than the tolerance, you reject every delivery. Keep the server's clock synchronized with NTP. Don't compare it with the event's `createdAt`: `createdAt` is when the event happened, and on a retry it can be days older than the attempt.
 
 ### The secret doesn't match
 
@@ -438,16 +461,20 @@ If every delivery fails verification, check the secret:
 
 - The secret is the one for this endpoint. Each endpoint, and each environment, has its own.
 - The secret has no surrounding whitespace or quotes from your environment file.
-- The secret is used as a UTF-8 string, not hex-decoded.
-- The secret is current. After a [rotation](/webhooks/manage-endpoints#rotate-the-signing-secret), sajn signs with the new secret only.
+- The key is the base64 decoding of the secret after `whsec_`, not the secret's text.
+- The secret is current. Twenty-four hours after a [rotation](/webhooks/manage-endpoints#rotate-the-signing-secret), sajn stops signing with the old secret.
 
-### The endpoint trusts `X-Sajn-Secret`
+### Only the first signature is checked
 
-Endpoints on API version `2026-09` also receive the secret in plain text in an `X-Sajn-Secret` header. Comparing that header proves nothing about the body, and it exposes the secret to anything that logs request headers. Verify `X-Sajn-Signature` instead, and move the endpoint to `2026-10`, which doesn't send the header.
+During a rotation, `webhook-signature` holds two signatures, and either can be the one that matches your secret. Split the header on spaces and check every entry. The libraries do.
 
 ## Prevent replays
 
-The signature proves that sajn sent the body. To make sure you act on each event once, also do the following:
+The signature proves that sajn sent the body. To make sure that you act on each event once, also do the following:
 
 - Keep the timestamp tolerance short, so an old captured request fails.
-- Deduplicate on the envelope's `id`, which is the same on every retry and replay. For more information, see [How delivery behaves](/webhooks/overview#how-delivery-behaves).
+- Deduplicate on `webhook-id`, the event `id`, which is the same on every retry and replay. For more information, see [How delivery behaves](/webhooks/overview#how-delivery-behaves).
+
+## Verify a 2026-09 endpoint
+
+An endpoint on API version `2026-09` isn't signed according to Standard Webhooks. Its deliveries carry `X-Sajn-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256>`, an HMAC over `<t>.<raw body>` keyed with the secret's UTF-8 text, with one signature only, even during a rotation. These endpoints also receive the secret in plain text in the `X-Sajn-Secret` header; don't trust that header, because it proves nothing about the body. To switch to Standard Webhooks signatures, move the endpoint to `2026-10`, as [Upgrading to 2026-10](/upgrading/2026-10) describes.
