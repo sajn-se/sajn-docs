@@ -152,7 +152,7 @@ The following fields help you find documents and link them to your own systems:
 
 [`DELETE /documents/{id}`](/api-reference/delete-a-document) moves a document to the trash, in any status, and returns it with `deletedAt` set. You can restore it from the trash until the workspace's trash period ends.
 
-To delete a document immediately and permanently, move it to the trash first, and then call [`POST /documents/{id}/purge`](/api-reference/permanently-delete-a-document). Purging can't be undone. The verify link in a sealed PDF keeps working after a purge. For more information, see [storage and deletion](/guider/lagring-och-radering).
+A workspace can turn on a retention policy that moves completed documents to the trash after a set period, with exemptions per document. To delete a document immediately and permanently, move it to the trash first, and then call [`POST /documents/{id}/purge`](/api-reference/permanently-delete-a-document). Purging can't be undone. The verify link in a sealed PDF keeps working after a purge. For more information, see [storage and deletion](/guider/lagring-och-radering).
 
 ## Next steps
 

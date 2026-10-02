@@ -46759,7 +46759,6 @@
                 "type": "string",
                 "enum": [
                   "DRAFT",
-                  "SENDING",
                   "PENDING_APPROVAL",
                   "PENDING",
                   "COMPLETED",
@@ -46968,7 +46967,6 @@
                             "type": "string",
                             "enum": [
                               "DRAFT",
-                              "SENDING",
                               "PENDING_APPROVAL",
                               "PENDING",
                               "COMPLETED",
@@ -49675,7 +49673,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -74566,7 +74563,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -79652,7 +79648,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -84425,7 +84420,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -96077,7 +96071,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -100816,7 +100809,7 @@
     },
     "/api/v1/documents/{id}/withdraw": {
       "post": {
-        "description": "Withdraw (cancel) a document that has been sent out for signing. The document is returned to `DRAFT` status and signers are notified.\n\n**Status Requirements:**\n- Document must be in `PENDING` or `SENDING` status; any other status returns `409 INVALID_STATE`. Use `DELETE /api/v1/documents/{id}` for documents in `DRAFT`, and `POST /api/v1/approval-requests/{id}/cancel` for `PENDING_APPROVAL`.\n\n**Permissions:**\n- Requires the `WITHDRAW_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `reason` (optional) - Free-text reason. Included in withdrawal emails to signers and stored on the audit log.\n\n**What happens when you withdraw:**\n1. Document status is set back to `DRAFT`\n2. Any existing signatures and signer verifications are removed\n3. Each signer's signing/sending/read status is reset\n4. Pending signing reminders are cancelled\n5. A withdrawal email is sent to every signer that had been notified\n6. The `document.withdrawn` webhook is triggered\n\n**Response:** Returns the document in the same shape as `GET /api/v1/documents/{id}`, without `fields`.",
+        "description": "Withdraw (cancel) a document that has been sent out for signing. The document is returned to `DRAFT` status and signers are notified.\n\n**Status Requirements:**\n- Document must be in `PENDING` status; any other status returns `409 INVALID_STATE`. Use `DELETE /api/v1/documents/{id}` for documents in `DRAFT`, and `POST /api/v1/approval-requests/{id}/cancel` for `PENDING_APPROVAL`.\n\n**Permissions:**\n- Requires the `WITHDRAW_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `reason` (optional) - Free-text reason. Included in withdrawal emails to signers and stored on the audit log.\n\n**What happens when you withdraw:**\n1. Document status is set back to `DRAFT`\n2. Any existing signatures and signer verifications are removed\n3. Each signer's signing/sending/read status is reset\n4. Pending signing reminders are cancelled\n5. A withdrawal email is sent to every signer that had been notified\n6. The `document.withdrawn` webhook is triggered\n\n**Response:** Returns the document in the same shape as `GET /api/v1/documents/{id}`, without `fields`.",
         "summary": "Withdraw a sent document",
         "parameters": [
           {
@@ -100909,7 +100902,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -104963,8 +104955,8 @@
                     "summary": "INVALID_STATE",
                     "value": {
                       "code": "INVALID_STATE",
-                      "message": "The document can only be withdrawn when its status is PENDING or SENDING",
-                      "userMessage": "Dokumentet kan endast återkallas när det är i status PENDING eller SENDING.",
+                      "message": "The document can only be withdrawn when its status is PENDING",
+                      "userMessage": "Dokumentet kan endast återkallas när det är i status PENDING.",
                       "requestId": "req_V1StGXR8Z5jdHi6BmyT2"
                     }
                   }
@@ -105722,7 +105714,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -152469,7 +152460,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -157254,7 +157244,6 @@
                       "type": "string",
                       "enum": [
                         "DRAFT",
-                        "SENDING",
                         "PENDING_APPROVAL",
                         "PENDING",
                         "COMPLETED",
@@ -162051,7 +162040,6 @@
                                 "type": "string",
                                 "enum": [
                                   "DRAFT",
-                                  "SENDING",
                                   "PENDING_APPROVAL",
                                   "PENDING",
                                   "COMPLETED",
@@ -163842,7 +163830,6 @@
                           "type": "string",
                           "enum": [
                             "DRAFT",
-                            "SENDING",
                             "PENDING_APPROVAL",
                             "PENDING",
                             "COMPLETED",
@@ -191612,7 +191599,7 @@
         ]
       },
       "post": {
-        "description": "Create a new webhook subscription for your workspace.\n\n**Required Fields:**\n- `url` - URL that receives a POST request for each event\n- `events` - The event types to subscribe to, such as `document.completed`\n\n**Optional Fields:**\n- `secret` - Signing secret in the Standard Webhooks format, `whsec_<base64>`. sajn generates one when omitted, and the response returns it once\n- `enabled` - Whether the webhook is active (default: true)\n- `apiVersion` - API version, such as `2026-10`, that determines the body this endpoint receives. Defaults to your organization's API version. The endpoint keeps this version until you change it with `PATCH /api/v1/webhooks/:id`\n\n**Delivery:** each event is a POST with the body `{ id, type, createdAt, apiVersion, workspaceId, environment, actor, data }`, the same object `GET /api/v1/events/:id` returns. `data.object` is the resource the event is about. The request follows [Standard Webhooks](https://www.standardwebhooks.com): `webhook-id` is the event `id`, `webhook-timestamp` is the send time in Unix seconds, and `webhook-signature` is `v1,<base64 HMAC-SHA256>` over `<webhook-id>.<webhook-timestamp>.<raw body>`, keyed with the base64-decoded secret after `whsec_`. Any Standard Webhooks library verifies it. Return a 2xx status code within 30 seconds. sajn retries any other answer, a timeout, and a network error with backoff for about three days, and stops at once on `410 Gone`. Delivery is at least once, so deduplicate on `webhook-id`.\n\n**Event types:** `events` takes the following values:\n- Document, with the document in `data.object`: `document.created` (with `data.source`), `document.sent`, `document.fully_signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.updated`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration_extended`, `document.expiring_soon`, and `document.comment.created`, with the comment in `data.object`\n- Party, with the document in `data.object` and the party in `data.party`: `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`, `document.party.verified`, `document.party.updated`, `document.party.added`, `document.party.removed`, `document.party.reminded`\n- Approval: `approval_request.created`, `approval_request.approved`, `approval_request.rejected`, `approval_request.cancelled`\n- Identity check: `identity_check.created`, `identity_check.sent`, `identity_check.opened`, `identity_check.verified`, `identity_check.failed`, `identity_check.cancelled`\n- Contact, company and template: `contact.created`, `contact.updated`, `contact.deleted`, `company.created`, `company.updated`, `company.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`\n- Form: `form.submitted`, with the same fields as `GET /api/v1/forms/:id/submissions/:submissionId`\n- Workspace: `workspace.created`, `member.added`, `member.invited`, `member.invite_accepted`\n- sajn Login: `login.completed`, `login.failed`, with the login session in `data.object`\n- Security, a feed for a SIEM: `security.document_downloaded`, `security.documents_exported`, `security.signature_identity_accessed`, `security.member_removed`, `security.member_role_changed`, `security.role_updated`, `security.workspace_retention_updated`\n- Usage: `usage.limit_reached`\n\n**Plan Requirement:** Requires the Team plan or higher, or a sandbox organization.",
+        "description": "Create a new webhook subscription for your workspace.\n\n**Required Fields:**\n- `url` - URL that receives a POST request for each event\n- `events` - The event types to subscribe to, such as `document.completed`\n\n**Optional Fields:**\n- `secret` - Signing secret in the Standard Webhooks format, `whsec_<base64>`. sajn generates one when omitted, and the response returns it once\n- `enabled` - Whether the webhook is active (default: true)\n- `apiVersion` - API version, such as `2026-10`, that determines the body this endpoint receives. Defaults to the API version of this request. The endpoint keeps this version until you change it with `PATCH /api/v1/webhooks/:id`\n\n**Delivery:** each event is a POST with the body `{ id, type, createdAt, apiVersion, workspaceId, environment, actor, data }`, the same object `GET /api/v1/events/:id` returns. `data.object` is the resource the event is about. The request follows [Standard Webhooks](https://www.standardwebhooks.com): `webhook-id` is the event `id`, `webhook-timestamp` is the send time in Unix seconds, and `webhook-signature` is `v1,<base64 HMAC-SHA256>` over `<webhook-id>.<webhook-timestamp>.<raw body>`, keyed with the base64-decoded secret after `whsec_`. Any Standard Webhooks library verifies it. Return a 2xx status code within 30 seconds. sajn retries any other answer, a timeout, and a network error with backoff for about three days, and stops at once on `410 Gone`. Delivery is at least once, so deduplicate on `webhook-id`.\n\n**Event types:** `events` takes the following values:\n- Document, with the document in `data.object`: `document.created` (with `data.source`), `document.sent`, `document.fully_signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.updated`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration_extended`, `document.expiring_soon`, and `document.comment.created`, with the comment in `data.object`\n- Party, with the document in `data.object` and the party in `data.party`: `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`, `document.party.verified`, `document.party.updated`, `document.party.added`, `document.party.removed`, `document.party.reminded`\n- Approval: `approval_request.created`, `approval_request.approved`, `approval_request.rejected`, `approval_request.cancelled`\n- Identity check: `identity_check.created`, `identity_check.sent`, `identity_check.opened`, `identity_check.verified`, `identity_check.failed`, `identity_check.cancelled`\n- Contact, company and template: `contact.created`, `contact.updated`, `contact.deleted`, `company.created`, `company.updated`, `company.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`\n- Form: `form.submitted`, with the same fields as `GET /api/v1/forms/:id/submissions/:submissionId`\n- Workspace: `workspace.created`, `member.added`, `member.invited`, `member.invite_accepted`\n- sajn Login: `login.completed`, `login.failed`, with the login session in `data.object`\n- Security, a feed for a SIEM: `security.document_downloaded`, `security.documents_exported`, `security.signature_identity_accessed`, `security.member_removed`, `security.member_role_changed`, `security.role_updated`, `security.workspace_retention_updated`\n- Usage: `usage.limit_reached`\n\n**Plan Requirement:** Requires the Team plan or higher, or a sandbox organization.",
         "summary": "Create a new webhook",
         "parameters": [
           {
@@ -363080,7 +363067,11 @@
                             ]
                           },
                           "createdBy": {
-                            "type": "object",
+                            "description": "A sajn user",
+                            "type": [
+                              "object",
+                              "null"
+                            ],
                             "properties": {
                               "id": {
                                 "type": "string",
@@ -363102,8 +363093,7 @@
                               "email",
                               "name"
                             ],
-                            "additionalProperties": false,
-                            "description": "The user who created the block"
+                            "additionalProperties": false
                           },
                           "createdAt": {
                             "type": "string",
@@ -364710,7 +364700,11 @@
                       ]
                     },
                     "createdBy": {
-                      "type": "object",
+                      "description": "A sajn user",
+                      "type": [
+                        "object",
+                        "null"
+                      ],
                       "properties": {
                         "id": {
                           "type": "string",
@@ -364732,8 +364726,7 @@
                         "email",
                         "name"
                       ],
-                      "additionalProperties": false,
-                      "description": "The user who created the block"
+                      "additionalProperties": false
                     },
                     "createdAt": {
                       "type": "string",
@@ -368198,7 +368191,6 @@
             "type": "string",
             "enum": [
               "DRAFT",
-              "SENDING",
               "PENDING_APPROVAL",
               "PENDING",
               "COMPLETED",
