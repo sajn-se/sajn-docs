@@ -78,7 +78,7 @@ The request body takes the following fields:
 | `events` | Yes | One or more event types, such as `document.completed`. For the full list, see [Webhook events](/webhooks/events). |
 | `secret` | No | The signing secret, in the Standard Webhooks format: `whsec_` followed by the base64 of 24 to 64 random bytes. If you omit it, sajn generates one. |
 | `enabled` | No | Whether sajn delivers to the endpoint. Default: `true`. |
-| `apiVersion` | No | The API version that sets the shape of the events, such as `2026-10`. Default: your organization's API version. A version past its sunset date can't be selected. |
+| `apiVersion` | No | The API version that sets the shape of the events, such as `2026-10`. Default: the API version of the request that creates the endpoint. A version past its sunset date can't be selected. |
 | `failureNotificationEmail` | No | The address that sajn emails when it pauses the endpoint. Default: `null`. |
 
 sajn checks the URL before it saves the endpoint. It rejects a URL that doesn't use HTTPS, a host that resolves to a private, loopback, or link-local address, and a URL that answers a `GET` request with a `2xx` HTML page, which usually means that a website was entered instead of a receiver. An endpoint that isn't deployed yet passes the check.

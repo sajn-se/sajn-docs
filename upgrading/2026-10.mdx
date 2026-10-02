@@ -492,7 +492,7 @@ If `2026-09` requests from **Organisationens standard** remain, find the integra
 
 In the **API-version** section, select `2026-10` in the version list, and then click **Byt version**. Requests without the `Sajn-Version` header use `2026-10` from then on.
 
-Switching the default doesn't change the version of existing webhook endpoints. New webhook endpoints created without `apiVersion` get `2026-10`.
+Switching the default doesn't change the version of existing webhook endpoints. A webhook endpoint created through the API without `apiVersion` gets the version of that request, so `Sajn-Version: 2026-10` gives a `2026-10` endpoint.
 
 ## What to change in your code
 
