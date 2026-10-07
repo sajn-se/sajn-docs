@@ -201,7 +201,7 @@ To catch signups whose webhook delivery failed, run a reconciliation job that li
 - `400 VALIDATION_FAILED` on create: a party or `documentMeta` field is invalid. Read `issues`.
 - `results[].success: false` on `field-values`: `error.code` is `NOT_FOUND` when the key doesn't exist, and `VALIDATION_FAILED` when the value doesn't match the field's type or options. Fix the value; the other values are already written.
 - `404 NOT_FOUND`: the template or the document doesn't exist in the workspace that the API key belongs to. `resource` names which one.
-- `409 APPROVAL_REQUIRED` on send: the API key's user needs an approval to send. Give the user the permission to send without approval, or request an approval as described in [Send a document for signing](/guides/documents/send-for-signing).
+- `409 APPROVAL_REQUIRED` on send: the API key needs an approval to send. Give the key the permission to send without approval, or request an approval as described in [Send a document for signing](/guides/documents/send-for-signing).
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

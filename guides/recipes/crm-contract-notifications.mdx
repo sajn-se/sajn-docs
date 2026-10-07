@@ -185,7 +185,7 @@ Kai gets the invitation by email. When Kai signs, `contracts/deal-12345.pdf` app
 ## Handle errors
 
 - An error thrown by `sajn` includes the `code` and `requestId`. Branch on `code`, and log `requestId` so sajn support can find the request. For what each code means, see [Errors](/api-fundamentals/errors).
-- `409 APPROVAL_REQUIRED` on send: the API key's user needs approval to send. Request it with [`POST /api/v1/approval-requests`](/api-reference/request-approval-of-a-document). When the request is approved, sajn sends the document for signing.
+- `409 APPROVAL_REQUIRED` on send: the API key needs approval to send. Request it with [`POST /api/v1/approval-requests`](/api-reference/request-approval-of-a-document). When the request is approved, sajn sends the document for signing.
 - `Values not written`: a key doesn't exist on the template (`NOT_FOUND`), or a value doesn't match the field's type (`VALIDATION_FAILED`).
 - If your endpoint is down, sajn retries the delivery. For more information, see [Delivery and retries](/webhooks/delivery-and-retries).
 

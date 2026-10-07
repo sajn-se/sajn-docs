@@ -95,7 +95,7 @@ In this recipe, you write a job that runs every night and copies each document c
     - The job passes each response's `nextCursor` as `cursor` until `hasMore` is `false`. The cursor keeps the pages stable while documents change.
     - Each file `url` expires at the response's `expiresAt`, so the job downloads it right away.
     - If any document fails, the job stops before it saves the timestamp, so the next run retries the same window.
-    - Each document costs three API requests, plus its share of the list pages. For your plan's limits, see [Rate limits and quotas](/api-fundamentals/rate-limits).
+    - Each document costs three API requests, plus its share of the list pages. For your plan's limits, see [Rate limits](/api-fundamentals/rate-limits).
   </Step>
 
   <Step title="Run it once by hand">

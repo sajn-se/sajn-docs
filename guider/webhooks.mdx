@@ -21,7 +21,7 @@ Webhooks hör till **arbetsytan** du står i. Vill du ha samma händelser från 
 
 <Steps>
   <Step title="Öppna Inställningar, Utvecklare och fliken Webhooks">
-    Öppna [Inställningar → Utvecklare → Webhooks](https://app.sajn.se/~/settings/workspace/developer/webhooks). Tabellen visar **URL** (din mottagande endpoint), **Event** (vilka händelser som utlöser anropet), **Version** (vilken API-version händelserna skickas i), **Status** och **Skapad**. Sökfältet uppe till vänster filtrerar listan, och menyn längst till höger på varje rad har **Redigera** och **Ta bort**.
+    Öppna [Inställningar → Utvecklare → Webhooks](https://app.sajn.se/~/settings/organization/developer/webhooks). Tabellen visar **URL** (din mottagande endpoint), **Event** (vilka händelser som utlöser anropet), **Version** (vilken API-version händelserna skickas i), **Status** och **Skapad**. Sökfältet uppe till vänster filtrerar listan, och menyn längst till höger på varje rad har **Redigera** och **Ta bort**.
 
     Texten överst påminner om var leveranserna hamnar: under fliken **Loggar**.
 
@@ -34,6 +34,7 @@ Webhooks hör till **arbetsytan** du står i. Vill du ha samma händelser från 
 
     - **Webhook URL** – den HTTPS-endpoint sajn ska skicka JSON till, t.ex. `https://dittforetag.se/api/webhook`. URL:en valideras innan webhooken sparas.
     - **Aktiv** – välj **Nej** för att skapa webhooken inaktiverad.
+    - **Arbetsytor** – visas bara för administratörer i organisationen. Välj arbetsytan du står i, eller **Alla arbetsytor** för händelser från hela organisationen, även arbetsytor som skapas senare. **Alla arbetsytor** kräver API-version `2026-10`; varje händelse anger sin arbetsyta i `workspaceId`.
     - **Händelser** – en eller flera händelser som ska utlösa anropet. Se nästa steg.
     - **API-version** – bestämmer formatet på händelserna som skickas till din URL. Förvald är organisationens API-version, som du väljer på [Utvecklare-sidans start](/guider/settings-developer-api). Webhooken behåller sin version tills du byter den här, även om organisationen byter version senare. En utfasad version visar datumet då den upphör.
     - **E-post vid automatisk paus (valfritt)** – får ett mejl när webhooken pausas automatiskt, inte vid varje leveransfel. Lämnar du fältet tomt får organisationens ägare mejlet, om ägaren har den aviseringen påslagen.
@@ -99,7 +100,7 @@ Vill du byta utan avbrott på API-version `2026-10`, rotera i stället med [`POS
 
 ## När något inte kommer fram
 
-Under fliken [Loggar](https://app.sajn.se/~/settings/workspace/developer/logs) finns **Webhook-loggar** med varje utskick: händelse, URL, status och svarskod. Loggarna sparas i 7 dagar. Fliken [Övervakning](https://app.sajn.se/~/settings/workspace/developer/monitoring) sammanfattar samma period som antal leveranser, felandel och leveranstid.
+Under fliken [Loggar](https://app.sajn.se/~/settings/organization/developer/logs) finns **Webhook-loggar** med varje utskick: händelse, URL, status och svarskod. Loggarna sparas i 7 dagar. Fliken [Övervakning](https://app.sajn.se/~/settings/organization/developer/monitoring) sammanfattar samma period som antal leveranser, felandel och leveranstid.
 
 Misslyckas en leverans gör sajn flera omförsök. Fortsätter leveranserna att misslyckas pausas webhooken till slut, se nästa avsnitt.
 

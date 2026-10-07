@@ -1,43 +1,37 @@
 ---
-title: "Rate limits and quotas"
-description: "The per-minute limit and daily quota for each plan, the X-RateLimit headers, 429 responses, and how to retry"
+title: "Rate limits"
+description: "The per-minute limit for each plan, the X-RateLimit headers, 429 responses, and how to retry"
 ---
 
-The API limits how many requests each organization can send. The limits apply to the whole organization: every API key and OAuth app in it, across all its workspaces, shares them. A [sandbox](/get-started/sandbox) is a separate organization with limits of its own.
+The API limits how many requests each organization can send per minute. The limit applies to the whole organization: every API key and OAuth app in it, across all its workspaces, shares it, and so do the add-ins and integrations that sajn publishes. A [sandbox](/get-started/sandbox) is a separate organization with a limit of its own.
 
-There are two limits:
-
-- **A per-minute limit** stops bursts of traffic. It counts requests over the last 60 seconds, as a sliding window. When you reach it, requests fail with `429 RATE_LIMITED`.
-- **A daily quota** caps total volume. It counts requests in a 24-hour window that starts with the first request after the previous window ends, not at midnight. When you reach it, requests fail with `429 DAILY_QUOTA_EXCEEDED`.
+The limit counts requests over the last 60 seconds, as a sliding window, and stops bursts of traffic. There's no daily cap on the number of requests. When you reach the limit, requests fail with `429 RATE_LIMITED`.
 
 ## Limits per plan
 
-The limits depend on your organization's plan:
+The limit depends on your organization's plan:
 
-| Plan | Requests per minute | Requests per day |
-|------|---------------------|------------------|
-| Team | 600 | 100,000 |
-| Enterprise | 2,000 | 2,000,000 |
-| Sandbox | 60 | 2,000 |
+| Plan | Requests per minute |
+|------|---------------------|
+| Team | 600 |
+| Enterprise | 2,000 |
+| Sandbox | 60 |
 
-A sandbox always has the sandbox limits, whatever the plan of the organization that created it. An organization on Solo that kept API access when API access moved to Team has 120 requests per minute and 10,000 per day.
+A sandbox always has the sandbox limit, whatever the plan of the organization that created it. An organization on Solo that kept API access when API access moved to Team has 120 requests per minute.
 
-If sajn has agreed a custom limit with your organization, it replaces the per-minute limit, and the daily quota doesn't apply. To discuss higher limits, contact [dev@sajn.se](mailto:dev@sajn.se).
+If sajn has agreed a custom limit with your organization, it replaces the limit of your plan. To discuss a higher limit, contact [dev@sajn.se](mailto:dev@sajn.se).
 
-We recommend reading your limits from the response headers rather than hard-coding these numbers, so your client adapts when your plan changes.
+We recommend reading your limit from the response headers rather than hard-coding these numbers, so your client adapts when your plan changes.
 
 ## Rate-limit headers
 
-Every authenticated response from the REST API carries the per-minute headers. Responses that count against the daily quota also carry the daily headers:
+Every authenticated response from the REST API carries the following headers:
 
 | Header | Description |
 |--------|-------------|
 | `X-RateLimit-Limit` | Your per-minute limit. |
 | `X-RateLimit-Remaining` | The requests you have left in the current minute. |
 | `X-RateLimit-Reset` | When the per-minute window resets, as a Unix timestamp in seconds. |
-| `X-RateLimit-Daily-Limit` | Your daily quota. |
-| `X-RateLimit-Daily-Remaining` | The requests you have left in the current 24-hour window. |
-| `X-RateLimit-Daily-Reset` | When the 24-hour window resets, as a Unix timestamp in seconds. |
 | `Retry-After` | On a `429` response only. The number of seconds to wait before you retry. |
 
 For example, a Team organization's response has headers similar to the following:
@@ -46,16 +40,11 @@ For example, a Team organization's response has headers similar to the following
 X-RateLimit-Limit: 600
 X-RateLimit-Remaining: 598
 X-RateLimit-Reset: 1790841660
-X-RateLimit-Daily-Limit: 100000
-X-RateLimit-Daily-Remaining: 99120
-X-RateLimit-Daily-Reset: 1790917200
 ```
 
 ## Limit responses
 
-A request over either limit returns an HTTP `429 Too Many Requests` status code, a `Retry-After` header, and the usual [error body](/api-fundamentals/errors). Branch on `code` to tell the limits apart. In API version `2026-09`, both limits return the code `TOO_MANY_REQUESTS`; the daily quota is the cause when `X-RateLimit-Daily-Remaining` is `0`.
-
-Over the per-minute limit:
+A request over the limit returns an HTTP `429 Too Many Requests` status code, a `Retry-After` header, and the usual [error body](/api-fundamentals/errors) with the code `RATE_LIMITED`. In API version `2026-09`, the code is `TOO_MANY_REQUESTS`.
 
 ```json
 {
@@ -66,23 +55,11 @@ Over the per-minute limit:
 }
 ```
 
-Over the daily quota:
-
-```json
-{
-  "code": "DAILY_QUOTA_EXCEEDED",
-  "message": "API daily quota exceeded",
-  "userMessage": "Du har nått dagens gräns för API-anrop. Uppgradera ditt abonnemang för en högre gräns.",
-  "requestId": "req_V1StGXR8Z5jdHi6BmyT2"
-}
-```
-
 ## Retry with backoff
 
 How to retry depends on the error:
 
 - `429 RATE_LIMITED`: wait the number of seconds in `Retry-After`, and then retry. It's usually a few seconds.
-- `429 DAILY_QUOTA_EXCEEDED`: `Retry-After` can be several hours. Stop sending requests, and schedule the work for after the window resets, instead of holding a request open.
 - `500 INTERNAL_ERROR`, `503 UPSTREAM_UNAVAILABLE`, and network errors: retry with exponential backoff and jitter.
 
 To make a retried write request safe, send the same `Idempotency-Key` header on every attempt. For more information, see [Idempotency](/api-fundamentals/idempotency).
@@ -124,10 +101,7 @@ async function sajnFetch(path, init = {}, maxAttempts = 5) {
 
     if (response.status !== 429 && response.status < 500) return response;
 
-    const body = await response.clone().json().catch(() => ({}));
-    if (attempt >= maxAttempts || body.code === 'DAILY_QUOTA_EXCEEDED') {
-      return response;
-    }
+    if (attempt >= maxAttempts) return response;
 
     const retryAfter = Number(response.headers.get('Retry-After'));
     await sleep(
@@ -174,12 +148,7 @@ def sajn_request(method, path, max_attempts=5, **kwargs):
         if response.status_code != 429 and response.status_code < 500:
             return response
 
-        try:
-            code = response.json().get("code")
-        except ValueError:
-            code = None
-
-        if attempt == max_attempts or code == "DAILY_QUOTA_EXCEEDED":
+        if attempt == max_attempts:
             return response
 
         retry_after = int(response.headers.get("Retry-After", 0))
@@ -193,10 +162,6 @@ print(response.status_code, response.json())
 </CodeGroup>
 
 The Node.js and Python samples return the last response when they give up, so your code can still read its `code` and `requestId`.
-
-## First-party apps
-
-Apps that sajn publishes itself, such as its add-ins and its packaged integrations, share the per-minute limit with the rest of your organization. Their requests don't count against the daily quota, and their responses carry no daily headers. Your own API keys and third-party OAuth apps count against both limits.
 
 ## Stay within the limits
 

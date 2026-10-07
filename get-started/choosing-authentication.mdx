@@ -51,11 +51,11 @@ OAuth isn't more secure in this case. It gives the same access with more moving 
   sajn doesn't support the `client_credentials` grant. For server-to-server access, use an API key. To create one, see [Authentication](/get-started/authentication).
 </Note>
 
-### One key per workspace
+### Workspaces
 
-An API key is bound to the workspace you create it in, so you never send a workspace ID. If your organization has several workspaces, create one key per workspace. A leaked key then exposes one workspace, not everything its creator can reach.
+An API key can act in one or several workspaces of the organization. A request acts in the key's default workspace, or in the workspace you name in the `Sajn-Workspace` header. Give each key only the workspaces and permissions its integration needs, so a leaked key exposes no more than that. For more information, see [Choose a workspace](/get-started/authentication#choose-a-workspace).
 
-Before you write data, confirm which workspace a key points at with `GET /me`:
+Before you write data, confirm which workspace a request acts in with `GET /me`:
 
 ```bash
 curl https://app.sajn.se/api/v1/me \
@@ -68,8 +68,8 @@ The response is similar to the following:
 ```json
 {
   "id": "cm4k2x9p00000abcd0000mnop",
-  "email": "integration@example.com",
-  "name": "Example Integration",
+  "email": "svc-cm4k2x9p00000abcd0000mnop@service.sajn.invalid",
+  "name": "crm-sync-production",
   "workspace": { "id": "cm4k2x9p00003abcd0000qrst", "slug": "k3x9p", "name": "Sales" },
   "organization": { "id": "cm4k2x9p00004abcd0000uvwx", "name": "Example AB" }
 }
@@ -84,7 +84,7 @@ sajn supports the `authorization_code` and `refresh_token` grants. Access tokens
 For the requests, scopes, and token lifetimes, see [OAuth 2.0](/api-fundamentals/oauth).
 
 <Warning>
-  Don't ask customers for their API keys. A customer who hands you a key gives you full access to their workspace, with no way to narrow it, no record of what your integration did as opposed to what they did, and no way to revoke you short of finding and deleting the right key. OAuth exists for this case.
+  Don't ask customers for their API keys. A customer who hands you a key gives you a credential they manage on your behalf: they choose its workspaces and permissions, they must notice when it expires, and they can revoke you only by finding and revoking the right key. OAuth exists for this case.
 </Warning>
 
 ## Methods that aren't the document API

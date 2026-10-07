@@ -5,7 +5,7 @@ description: "Isolated areas of an organization, each with its own documents, co
 
 A **workspace** is an isolated area inside an [organization](/concepts/organizations), such as a department, a team, or a client. Every document lives in exactly one workspace, and so do the templates, contacts, and settings it uses.
 
-Every API request works in one workspace: the one that the API key or OAuth token is bound to. You never send a workspace ID.
+Every API request works in one workspace. An OAuth token is bound to the workspace chosen when it was granted. An API key can act in several workspaces: a request acts in the key's default workspace, or in the one named in the `Sajn-Workspace` header.
 
 ## What belongs to a workspace
 
@@ -33,7 +33,7 @@ The following properties identify a workspace:
 
 ## Workspaces in the API
 
-An API key acts in the workspace it was created in. To check which one, call [`GET /me`](/api-reference/get-authenticated-user-+-workspace-context):
+A request with an API key acts in the key's default workspace, unless the `Sajn-Workspace` header names another workspace that the key can act in. To check which workspace a request acts in, call [`GET /me`](/api-reference/get-authenticated-user-+-workspace-context):
 
 ```bash
 curl https://app.sajn.se/api/v1/me \
@@ -41,11 +41,11 @@ curl https://app.sajn.se/api/v1/me \
   -H "Sajn-Version: 2026-10"
 ```
 
-To list the workspaces the key's user is a member of, call [`GET /workspaces`](/api-reference/list-accessible-workspaces). The workspace the key is bound to has `isCurrent` set to `true`. To work in another workspace, use a key created in that workspace.
+To list the workspaces the key can act in, call [`GET /workspaces`](/api-reference/list-accessible-workspaces). The workspace that the request acts in has `isCurrent` set to `true`. To work in another of them, send its `id` in the `Sajn-Workspace` header. For more information, see [Choose a workspace](/get-started/authentication#choose-a-workspace).
 
 ## Members and roles
 
-Each member has one workspace role per workspace. The role decides what the member, and every API key the member creates, can do in the workspace. Every workspace has the built-in roles **Läsare**, **Medarbetare**, **Säljare**, **Godkännare**, and **Avdelningsansvarig**, and you can add custom roles.
+Each member has one workspace role per workspace. The role decides what the member can do in the workspace. An API key has its own permissions, which you set when you create the key. Every workspace has the built-in roles **Läsare**, **Medarbetare**, **Säljare**, **Godkännare**, and **Avdelningsansvarig**, and you can add custom roles.
 
 You can manage members and roles through the API:
 
