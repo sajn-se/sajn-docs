@@ -3,7 +3,7 @@ title: "Manage webhook endpoints"
 description: "Create, update, test, rotate, reactivate, and delete webhook endpoints in the dashboard or through the API"
 ---
 
-A webhook endpoint is a URL plus the list of events it subscribes to, its API version, and its signing secret. You can manage endpoints in the dashboard under **Inställningar > Utvecklare > Webhooks**, or through the `/api/v1/webhooks` endpoints with an API key for the workspace. Both act on the same endpoints.
+A webhook endpoint is a URL plus the list of events it subscribes to, its API version, and its signing secret. You can manage endpoints in the dashboard under **Inställningar > Utvecklare > Webhooks**, or through the `/api/v1/webhooks` endpoints with an API key for the workspace. Both act on the same endpoints, except that an endpoint for every workspace is managed only in the dashboard.
 
 Managing webhooks requires the **Hantera webhooks** (Manage webhooks) permission in the workspace. An OAuth app needs the `webhooks:write` scope for every webhook and event endpoint, including the read-only ones. Endpoints that an integration such as HubSpot or Slack installed don't appear in the API; the integration manages them.
 
@@ -17,6 +17,7 @@ Managing webhooks requires the **Hantera webhooks** (Manage webhooks) permission
        - **Webhook URL**: your endpoint. It must use HTTPS.
        - **Händelser** (Events): the events to subscribe to.
        - **API-version**: the version that sets the shape of the events. It defaults to your organization's version.
+       - **Arbetsytor** (Workspaces): shown to organization administrators only. To receive the events of every workspace, including workspaces created later, select **Alla arbetsytor**. It requires API version `2026-10`.
        - **E-post vid automatisk paus** (Email on automatic pause): optional; see [Failure notifications](#failure-notifications).
        - **Hemlighet** (Secret): leave it empty, and sajn generates one.
     4. Click **Skapa webhook**.

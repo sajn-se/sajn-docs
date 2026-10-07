@@ -3,20 +3,21 @@ title: "Hantera API-nycklar och utvecklarinställningar"
 description: "Skapa och hantera API-nycklar, webhooks och loggar för integrationer mot sajns REST API"
 ---
 
-På sidan [Utvecklare](https://app.sajn.se/~/settings/workspace/developer) finns allt som behövs för att bygga mot sajns REST API: API-nycklar, webhooks, övervakning och loggar. Den här guiden går igenom flikarna. Skapa bara en API-nyckel när du behöver en, eftersom nyckeln fungerar som riktiga inloggningsuppgifter.
+På sidan [Utvecklare](https://app.sajn.se/~/settings/organization/developer) finns allt som behövs för att bygga mot sajns REST API: API-nycklar, webhooks, övervakning och loggar. Den här guiden går igenom flikarna. Skapa bara en API-nyckel när du behöver en, eftersom nyckeln fungerar som riktiga inloggningsuppgifter.
 
-Sidan hör till **arbetsytan**, inte organisationen. Nycklar och webhooks du skapar här gäller den arbetsyta du står i.
+Sidan ligger under organisationens inställningar. En API-nyckel tillhör **organisationen**, inte den som skapade den, och kan nå en eller flera arbetsytor. En webhook gäller en arbetsyta, eller alla arbetsytor i organisationen.
 
 ## Innan du börjar
 
-- Du är inloggad och har behörighet att hantera API-nycklar eller webhooks i arbetsytan.
+- För API-nycklar: du är administratör i alla arbetsytor som nyckeln ska nå, eller äger organisationen.
+- För webhooks: du har behörighet att hantera webhooks i arbetsytan.
 - API-åtkomst ingår i Team och Enterprise.
 
 ## Steg för steg
 
 <Steps>
   <Step title="Öppna Inställningar och sedan Utvecklare">
-    Fliken **Hem** samlar det du behöver för att komma igång: genvägar till dokumentationen, MCP-servern och sajns Postman-samling, adressen till MCP-servern, och **API-gränser för din plan**. Gränserna – förfrågningar per minut och per dygn – räknas per organisation, och `X-RateLimit-*`-headrarna i svaren visar aktuell status.
+    Fliken **Hem** samlar det du behöver för att komma igång: genvägar till dokumentationen, MCP-servern och sajns Postman-samling, adressen till MCP-servern, och **API-gränser för din plan**. Gränsen – förfrågningar per minut – räknas per organisation, och `X-RateLimit-*`-headrarna i svaren visar aktuell status. Det finns ingen gräns per dygn.
 
     Längst ned kan du prenumerera på **Utvecklarnyheter**, som går till din inloggningsadress.
 
@@ -24,28 +25,30 @@ Sidan hör till **arbetsytan**, inte organisationen. Nycklar och webhooks du ska
       <img src="/images/guider/settings-developer-api/02-open-developer.png" alt="Fliken Hem under Utvecklare med genvägar, MCP-adress och API-gränser" />
     </Frame>
   </Step>
-  <Step title="Fliken API-nycklar listar arbetsytans nycklar">
-    Tabellen på fliken [API-nycklar](https://app.sajn.se/~/settings/workspace/developer/api-keys) visar **Namn**, en maskad **API-nyckel** (klicka på den för att avslöja prefixet), när nyckeln **skapades**, när den **senast användes** och när den **utgår**. Sökfältet uppe till vänster filtrerar på namn.
+  <Step title="Fliken API-nycklar listar organisationens nycklar">
+    Tabellen på fliken [API-nycklar](https://app.sajn.se/~/settings/organization/developer/api-keys) visar **Namn**, nyckelns **Behörigheter**, en maskad **API-nyckel** (klicka på den för att avslöja prefixet), när nyckeln **skapades**, när den **senast användes** och när den **utgår**. Sökfältet uppe till vänster filtrerar på namn.
 
     <Frame>
       <img src="/images/guider/settings-developer-api/03-open-api-keys.png" alt="Fliken API-nycklar med tabell och knappen Skapa API-nyckel" />
     </Frame>
   </Step>
   <Step title="Skapa API-nyckel">
-    Dialogen har två fält: ett **namn** och hur länge nyckeln ska gälla – *30 dagar*, *90 dagar*, *1 år* eller *Aldrig*.
+    Klicka på **Skapa API-nyckel**. På sidan som öppnas väljer du:
 
-    Det finns ingen behörighetsväljare. Nyckeln **ärver dina behörigheter i arbetsytan**: ändras dina behörigheter, eller tas du bort från arbetsytan, slutar nyckeln fungera.
+    - **Namn** – vad nyckeln används till, till exempel *Fortnox-integration*. Namnet syns i nyckellistan och i aktivitetsloggen.
+    - **Arbetsytor** – de arbetsytor nyckeln får nå. Väljer du flera anger du också en **Standardarbetsyta**, som anrop utan headern `Sajn-Workspace` går till.
+    - **Behörigheter** – *Alla*, *Endast läsning* eller *Anpassade*. Nyckeln har samma behörigheter i varje vald arbetsyta.
+    - **Utgår** – *30 dagar*, *90 dagar*, *1 år* eller *Aldrig*.
 
-    När nyckeln genereras visas hela värdet **bara en gång**. Kopiera den direkt och spara den säkert – du kommer inte att kunna se den igen.
+    Nyckeln fortsätter att fungera om den som skapade den byter roll eller lämnar organisationen. Före utgångsdatumet får den som skapade nyckeln och administratörerna i standardarbetsytan ett mejl, 14 dagar före och dagen före.
 
-    <Frame>
-      <img src="/images/guider/settings-developer-api/04-open-create-key.png" alt="Dialogen Skapa ny API-nyckel med namn och utgångstid" />
-    </Frame>
+    När nyckeln skapas visas hela värdet **bara en gång**. Kopiera den direkt och spara den säkert – du kommer inte att kunna se den igen.
   </Step>
   <Step title="Menyn på varje rad – regenerera eller återkalla">
     Menyn längst till höger på en nyckelrad låter dig:
 
-    - **Regenerera** – byter ut nyckelns hemliga värde mot ett nytt, som visas en gång. Det gamla värdet slutar fungera direkt, så uppdatera dina integrationer.
+    - **Redigera** – ändrar nyckelns namn, arbetsytor och behörigheter.
+    - **Regenerera** – byter ut nyckelns hemliga värde mot ett nytt, som visas en gång, och du väljer när det nya värdet utgår. Det gamla värdet slutar fungera direkt, så uppdatera dina integrationer. Ett utgångsdatum kan inte förlängas – du förnyar en nyckel genom att regenerera den.
     - **Återkalla** – tar bort nyckeln helt. Alla anrop med den avvisas omedelbart.
 
     Längst ned i menyn står vem som skapade nyckeln, så att du kan stämma av internt innan du gör något destruktivt.
@@ -79,7 +82,7 @@ sajn ändrar ibland formatet på det som API:t och webhooks skickar. Varje såda
 
 Inställningen gäller hela organisationen, inte bara arbetsytan. Rutan **API-version** visas på fliken **Hem** om din roll har behörigheten **Hantera organisationsinställningar**.
 
-1. Öppna [Inställningar → Utvecklare](https://app.sajn.se/~/settings/workspace/developer) och leta upp rutan **API-version**.
+1. Öppna [Inställningar → Utvecklare](https://app.sajn.se/~/settings/organization/developer) och leta upp rutan **API-version**.
 2. Välj en version i menyn. Den nyaste är märkt **Senaste**. En utfasad version är märkt **Utfasas** med datumet då den slutar fungera.
 3. Klicka **Byt version** för att bekräfta.
 

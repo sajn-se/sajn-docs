@@ -120,8 +120,10 @@ An unknown query parameter is an `UNRECOGNIZED_KEY` issue, so a misspelled filte
 The status tells you whether the credential or the operation is the problem:
 
 - `401 UNAUTHORIZED` means only that the token is missing, invalid, expired, or revoked. Check the API key, or refresh the OAuth access token. For more information, see [Refresh the access token](/api-fundamentals/oauth#refresh-the-access-token).
+- `401 API_KEY_EXPIRED` means that the API key has passed its expiration date. To renew the key, regenerate it. For more information, see [Rotate a key](/get-started/authentication#rotate-a-key).
 - `403` means that the token is valid, but the operation isn't allowed. The code tells you why:
-  - `PERMISSION_DENIED`: the user's workspace role lacks a permission the operation requires, or the endpoint isn't available to OAuth apps.
+  - `PERMISSION_DENIED`: the API key or the user's workspace role lacks a permission the operation requires, or the endpoint isn't available to OAuth apps.
+  - `WORKSPACE_ACCESS_DENIED`: the workspace named by the `Sajn-Workspace` header doesn't exist, or the token can't act in it. For more information, see [Choose a workspace](/get-started/authentication#choose-a-workspace).
   - `INSUFFICIENT_SCOPE`: the OAuth token wasn't granted a scope the operation requires. The body lists `requiredScopes` and `grantedScopes`. For more information, see [Scopes](/api-fundamentals/oauth#scopes).
   - `PLAN_REQUIRED`: the organization's plan doesn't include API access or the feature.
   - `ACCOUNT_INACTIVE`: the organization, the user, or the user's workspace membership is deactivated or suspended.
@@ -157,7 +159,6 @@ When a request with an `Idempotency-Key` replays a stored error, the `requestId`
 Only some errors can succeed when you retry the same request:
 
 - `RATE_LIMITED` and `IDEMPOTENCY_KEY_IN_USE`: wait the number of seconds in the `Retry-After` response header, and then retry. For a sample, see [Retry with backoff](/api-fundamentals/rate-limits#retry-with-backoff).
-- `DAILY_QUOTA_EXCEEDED`: `Retry-After` can be several hours, so stop sending requests and resume after it. For more information, see [Rate limits and quotas](/api-fundamentals/rate-limits).
 - `UPSTREAM_UNAVAILABLE`, `INTERNAL_ERROR`, and network errors: retry with exponential backoff. To make a retried write request safe, send the same `Idempotency-Key` header on every attempt. For more information, see [Idempotency](/api-fundamentals/idempotency).
 - Every other code: the request fails the same way until you change it, or the state it depends on changes, so don't retry it unchanged.
 
@@ -171,10 +172,13 @@ The API returns only the following codes:
 | `INVALID_JSON` | 400 | No | The request body isn't valid JSON. |
 | `EXPIRED` | 400 | No | The link, code, or resource has expired. |
 | `IDEMPOTENCY_KEY_REUSED` | 400 | No | The `Idempotency-Key` was already used with a different request. |
+| `WORKSPACE_REQUIRED` | 400 | No | The API key has no default workspace. Name one with the `Sajn-Workspace` header. |
 | `INVALID_API_VERSION` | 400 | No | The `Sajn-Version` header names a version that doesn't exist. |
 | `API_VERSION_SUNSET` | 400 | No | The requested version, or your organization's default, is past its sunset date. |
-| `UNAUTHORIZED` | 401 | No | The API token is missing, invalid, expired, or revoked. |
+| `UNAUTHORIZED` | 401 | No | The API token is missing, invalid, or revoked. |
+| `API_KEY_EXPIRED` | 401 | No | The API key has passed its expiration date. Regenerate the key to renew it. |
 | `PERMISSION_DENIED` | 403 | No | The token's user isn't allowed to perform the operation, such as because their workspace role lacks a permission. |
+| `WORKSPACE_ACCESS_DENIED` | 403 | No | The workspace named by the `Sajn-Workspace` header doesn't exist, or the token can't act in it. |
 | `INSUFFICIENT_SCOPE` | 403 | No | The OAuth token wasn't granted a scope the operation requires. See `requiredScopes` and `grantedScopes`. |
 | `PLAN_REQUIRED` | 403 | No | The organization's plan doesn't include API access or the feature. |
 | `ACCOUNT_INACTIVE` | 403 | No | The organization, user, or membership behind the token is deactivated or suspended. |
@@ -187,10 +191,9 @@ The API returns only the following codes:
 | `APPROVAL_REQUIRED` | 409 | No | The operation needs an approval first. |
 | `IDEMPOTENCY_KEY_IN_USE` | 409 | After `Retry-After` | A request with the same `Idempotency-Key` is still running. |
 | `RATE_LIMITED` | 429 | After `Retry-After` | The per-minute rate limit was reached. |
-| `DAILY_QUOTA_EXCEEDED` | 429 | After `Retry-After` | The daily request quota was reached. |
 | `INTERNAL_ERROR` | 500 | With backoff | Something went wrong on sajn's side. Quote `requestId` when you contact support. |
 | `UPSTREAM_UNAVAILABLE` | 503 | With backoff | A service the operation depends on, such as an eID provider or a connected integration, failed or is unavailable. |
 
-The version codes are described in [API versioning](/api-fundamentals/versioning#errors), the `429` codes in [Rate limits and quotas](/api-fundamentals/rate-limits), and the `IDEMPOTENCY_KEY_*` codes in [Idempotency](/api-fundamentals/idempotency).
+The version codes are described in [API versioning](/api-fundamentals/versioning#errors), the `429` code in [Rate limits](/api-fundamentals/rate-limits), and the `IDEMPOTENCY_KEY_*` codes in [Idempotency](/api-fundamentals/idempotency).
 
 The OAuth endpoints under `/api/oauth`, such as the token endpoint, don't use this shape. They return the standard OAuth 2.0 `error` and `error_description` fields. For more information, see [Token endpoint errors](/api-fundamentals/oauth#token-endpoint-errors).

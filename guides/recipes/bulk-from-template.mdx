@@ -137,7 +137,7 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
 ## Handle errors
 
 - `403 LIMIT_EXCEEDED` on create: the organization reached its hourly limit for created documents, or its monthly limit for sent documents. Wait, and run the script again; it continues where it stopped.
-- `429 RATE_LIMITED`: the script waits and retries. For the limits per plan, see [Rate limits and quotas](/api-fundamentals/rate-limits).
+- `429 RATE_LIMITED`: the script waits and retries. For the limits per plan, see [Rate limits](/api-fundamentals/rate-limits).
 - `values not written`: each failed result has an `error` with a `code`. `NOT_FOUND` means the key doesn't exist on the template, and `VALIDATION_FAILED` means the value doesn't match the field's type. Fix the CSV or the template.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).

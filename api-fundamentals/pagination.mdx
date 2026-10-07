@@ -137,7 +137,7 @@ for document in list_all("/documents"):
 
 Each sample reads your API key from the `SAJN_API_KEY` environment variable. Every paginated list has the same shape, so to walk another list, change the path, such as `/contacts`. Add filters to the first request only; the loops keep them on every page.
 
-A full walk of a large list sends many requests in a short time. To stay within your per-minute limit, see [Rate limits and quotas](/api-fundamentals/rate-limits).
+A full walk of a large list sends many requests in a short time. To stay within your per-minute limit, see [Rate limits](/api-fundamentals/rate-limits).
 
 ## Paginated and bounded lists
 
@@ -221,5 +221,5 @@ A cursor is opaque. Don't parse it, build it, or store it for later use; pass it
 ## Next steps
 
 - [Query parameters](/api-fundamentals/query-parameters): filter formats, such as dates and multi-value filters.
-- [Rate limits and quotas](/api-fundamentals/rate-limits): the per-minute and daily limits that a full walk counts against.
+- [Rate limits](/api-fundamentals/rate-limits): the per-minute limit that a full walk counts against.
 - [Errors](/api-fundamentals/errors): the error shape and every error code.

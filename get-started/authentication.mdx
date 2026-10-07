@@ -3,22 +3,23 @@ title: "Authentication"
 description: "Create an API key, send it with every request, and keep it safe"
 ---
 
-The sajn API authenticates every request with a bearer token in the `Authorization` header. For a server that works with your own sajn workspace, that token is an **API key**, which this page covers.
+The sajn API authenticates every request with a bearer token in the `Authorization` header. For a server that works with your own sajn organization, that token is an **API key**, which this page covers.
 
 If you build software that other sajn customers connect to their own accounts, use [OAuth 2.0](/api-fundamentals/oauth) instead. If you're not sure which applies to you, see [Choosing an authentication method](/get-started/choosing-authentication).
 
 ## Create an API key
 
-To create a key, you need the **Hantera API-nycklar** permission in the workspace, and the organization needs API access. API access is included from the Team plan, and in every [sandbox](/get-started/sandbox).
+To create a key, you must be an administrator in every workspace the key can act in, or own the organization, and the organization needs API access. API access is included from the Team plan, and in every [sandbox](/get-started/sandbox).
 
-1. In the sajn app, open the workspace that the integration works in.
-1. Go to **Inställningar > Utvecklare > API-nycklar**. **Utvecklare** is in the workspace settings.
+1. In the sajn app, go to **Inställningar > Utvecklare > API-nycklar**.
 1. Click **Skapa API-nyckel**.
-1. Enter a name that says what uses the key, such as `crm-sync-production`.
+1. In **Namn**, enter a name that says what uses the key, such as `crm-sync-production`.
+1. In **Arbetsytor**, select the workspaces that the key can act in. If you select more than one, choose the **Standardarbetsyta** that requests act in when they don't name a workspace.
+1. In **Behörigheter**, select **Alla**, **Endast läsning**, or **Anpassade**, and adjust the permissions. The key has the same permissions in every workspace it can act in.
 1. In **Utgår**, choose when the key expires: after 30 days, 90 days, 1 year, or never.
 1. Click **Skapa nyckel**, and copy the key. sajn shows the full key only once.
 
-sajn emails every workspace member who can manage API keys when a key is created.
+sajn emails the workspace members who can manage API keys when a key is created. Before a key expires, sajn emails the person who created it and the administrators of its default workspace, 14 days before and the day before.
 
 ### Key prefixes
 
@@ -73,15 +74,15 @@ These samples read the key from the `SAJN_API_KEY` environment variable.
 
 ## What a key can do
 
-A key is bound to the workspace you created it in, and acts as the user who created it:
+Every API key runs as its own service account, a non-human account that the organization owns. The key doesn't depend on the person who created it, so it keeps working when that person changes role or leaves the organization.
 
-- **One workspace.** Every request works on that workspace's documents, contacts, and templates. You never send a workspace ID. If your organization has several workspaces, create one key per workspace.
-- **The creator's role.** The key can do what the creator's workspace role allows, and nothing more. If the role changes, so does what the key can do. A request that the role doesn't allow fails with the code `PERMISSION_DENIED`.
+- **Its workspaces.** The key can act in the workspaces you selected, and each request acts in one of them. For more information, see [Choose a workspace](#choose-a-workspace).
+- **Its permissions.** The key can do what its permissions allow, in every workspace it can act in, and nothing more. A key can't administer a workspace. A request that the permissions don't allow fails with the code `PERMISSION_DENIED`.
 - **No scopes.** Unlike an OAuth token, an API key isn't limited to a set of scopes.
 
-If the creator is deactivated, or the organization is suspended, requests with the key fail with the code `ACCOUNT_INACTIVE`. To keep an integration running when people change roles or leave, we recommend creating its keys from an account that exists only for the integration.
+To change a key's name, workspaces, or permissions, click **Redigera** in the key's menu in the API key list. If the organization is suspended, requests with the key fail with the code `ACCOUNT_INACTIVE`.
 
-To check which user, workspace, and organization a key acts as, call [`GET /me`](/api-reference/get-authenticated-user-+-workspace-context):
+To check which account, workspace, and organization a request acts as, call [`GET /me`](/api-reference/get-authenticated-user-+-workspace-context):
 
 ```bash
 curl https://app.sajn.se/api/v1/me \
@@ -89,17 +90,40 @@ curl https://app.sajn.se/api/v1/me \
   -H "Sajn-Version: 2026-10"
 ```
 
-The response is similar to the following:
+The response is similar to the following. `email` and `name` belong to the key's service account:
 
 ```json
 {
   "id": "cm4k2x9p00000abcd0000mnop",
-  "email": "integration@example.com",
-  "name": "Example Integration",
+  "email": "svc-cm4k2x9p00000abcd0000mnop@service.sajn.invalid",
+  "name": "crm-sync-production",
   "workspace": { "id": "cm4k2x9p00003abcd0000qrst", "slug": "k3x9p", "name": "Sales" },
   "organization": { "id": "cm4k2x9p00004abcd0000uvwx", "name": "Example AB" }
 }
 ```
+
+## Choose a workspace
+
+A request without a `Sajn-Workspace` header acts in the key's default workspace. To act in another workspace that the key can act in, send the workspace's ID in the `Sajn-Workspace` header:
+
+```bash
+curl https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Sajn-Workspace: WORKSPACE_ID"
+```
+
+Replace `WORKSPACE_ID` with the `id` of the workspace. To list the workspaces the key can act in, call [`GET /workspaces`](/api-reference/list-accessible-workspaces). The workspace that the request acts in has `isCurrent` set to `true`.
+
+The header follows these rules:
+
+- It takes a workspace ID, not a slug, so renaming a workspace doesn't break your integration.
+- A workspace that doesn't exist, or that the key can't act in, returns `403 WORKSPACE_ACCESS_DENIED`. sajn never falls back to the default workspace.
+- A value that isn't a single workspace ID returns `400 VALIDATION_FAILED`.
+- If the key's default workspace was deleted, a request without the header returns `400 WORKSPACE_REQUIRED`. To fix it, edit the key and save it with a new default workspace, or send the header.
+- It works in every API version and on the [MCP server](/ai/workspace-mcp).
+
+Idempotency keys, webhooks created through the API, and the `isCurrent` flag all follow the workspace that the request acts in. The [rate limit](/api-fundamentals/rate-limits) is per organization, so it doesn't change with the workspace.
 
 ## Rotate a key
 
@@ -108,9 +132,9 @@ To replace a key without downtime, do the following:
 1. Create a new key, as described in [Create an API key](#create-an-api-key).
 1. Deploy the new key to your integration.
 1. Confirm in the **Senast använd** column of the API key list that the old key is no longer used.
-1. Delete the old key.
+1. In the old key's menu, click **Återkalla**.
 
-The API key list also lets you regenerate a key. Regenerating replaces the key at once: the old value stops working immediately, and the new key keeps the name and expiration date. The new key acts as the user who regenerated it. Use it when a key has leaked and must stop working now.
+You can also regenerate a key from its menu. Regenerating replaces the secret at once: the old value stops working immediately. The key keeps its name, workspaces, and permissions, and you choose when the new secret expires. You can't extend a key's expiration date, so to renew a key that's about to expire, regenerate it. Regenerate a key at once when it has leaked and must stop working now.
 
 ## Keep keys safe
 
@@ -119,13 +143,13 @@ The API key list also lets you regenerate a key. Regenerating replaces the key a
     Store keys in environment variables or a secrets manager. Never commit a key to version control, and never send it to a browser or a mobile app.
   </Accordion>
   <Accordion title="Use one key per integration and environment">
-    A separate key for each integration and environment limits what a leaked key exposes, and lets you revoke one without breaking the others. Use a sandbox key for development and testing.
+    A separate key for each integration and environment, with only the workspaces and permissions it needs, limits what a leaked key exposes, and lets you revoke one without breaking the others. Use a sandbox key for development and testing.
   </Accordion>
   <Accordion title="Set an expiration date">
-    A key that expires limits how long a leaked key works. Rotate it before it expires.
+    A key that expires limits how long a leaked key works. Regenerate it before it expires.
   </Accordion>
   <Accordion title="Review key usage">
-    The API key list shows when each key was last used. Delete keys you no longer use. To see individual requests, use the API logs under **Inställningar > Utvecklare > Loggar**.
+    The API key list shows when each key was last used. Revoke keys you no longer use. To see individual requests, use the API logs under **Inställningar > Utvecklare > Loggar**.
   </Accordion>
 </AccordionGroup>
 
@@ -146,8 +170,11 @@ The following codes relate to authentication:
 
 | Status | `code` | Meaning |
 |--------|--------|---------|
-| `401 Unauthorized` | `UNAUTHORIZED` | The key is missing, invalid, expired, or revoked. |
-| `403 Forbidden` | `PERMISSION_DENIED` | The key's user lacks the workspace permission that the operation requires. |
-| `403 Forbidden` | `ACCOUNT_INACTIVE` | The organization, user, or membership behind the key is deactivated or suspended. |
+| `400 Bad Request` | `WORKSPACE_REQUIRED` | The key has no default workspace, and the request has no `Sajn-Workspace` header. |
+| `401 Unauthorized` | `UNAUTHORIZED` | The key is missing, invalid, or revoked. |
+| `401 Unauthorized` | `API_KEY_EXPIRED` | The key has passed its expiration date. Regenerate it. |
+| `403 Forbidden` | `PERMISSION_DENIED` | The key lacks the permission that the operation requires. |
+| `403 Forbidden` | `WORKSPACE_ACCESS_DENIED` | The workspace in the `Sajn-Workspace` header doesn't exist, or the key can't act in it. |
+| `403 Forbidden` | `ACCOUNT_INACTIVE` | The organization behind the key is deactivated or suspended. |
 
-In API version `2026-09`, the error body has no `requestId`, and the `code` values differ. For every error code, see [Errors](/api-fundamentals/errors). For the request limits per organization, see [Rate limits and quotas](/api-fundamentals/rate-limits).
+In API version `2026-09`, the error body has no `requestId`, and the `code` values differ. For every error code, see [Errors](/api-fundamentals/errors). For the request limits per organization, see [Rate limits](/api-fundamentals/rate-limits).

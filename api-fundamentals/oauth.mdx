@@ -18,7 +18,7 @@ sajn supports the authorization code grant, with optional PKCE, and the refresh 
 1. Your server exchanges the code for an access token and a refresh token.
 1. Your server calls the API with the access token, and refreshes it when it expires.
 
-Each access token is bound to the one workspace the person selected, like an API key. Your app never sends a workspace ID.
+Each access token is bound to the one workspace the person selected. Your app doesn't send a workspace ID. A `Sajn-Workspace` header that names another workspace returns `403 WORKSPACE_ACCESS_DENIED`.
 
 ## Endpoints
 
@@ -380,5 +380,5 @@ A scope limits what a token can do, on top of the person's role. Request only th
 ## Next steps
 
 - [Errors](/api-fundamentals/errors): the error shape of the REST API, including `INSUFFICIENT_SCOPE`.
-- [Rate limits and quotas](/api-fundamentals/rate-limits): the limits your app shares with the organization's API keys.
+- [Rate limits](/api-fundamentals/rate-limits): the limits your app shares with the organization's API keys.
 - [Webhooks](/webhooks/overview): get notified of changes instead of polling.

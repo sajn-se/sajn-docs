@@ -10,7 +10,7 @@ A webhook sends an HTTPS `POST` request to your server when something happens in
 - Start your own onboarding flow when a party signs, or follow up with a party whose invitation bounced.
 - Feed security events, such as downloads and role changes, into a SIEM.
 
-Webhooks belong to a workspace. An endpoint receives the events of the workspace it was created in, and you manage it with that workspace's API key or in its settings. Webhooks are part of API access, which requires the Team plan or higher; a [sandbox](/get-started/sandbox) organization always has it.
+An endpoint receives the events of one workspace, or of every workspace in the organization. An endpoint for one workspace is managed by that workspace's administrators, in the dashboard or with an API key that acts in the workspace. An endpoint for every workspace, including workspaces created later, is created in the dashboard by an organization administrator and requires API version `2026-10`; read `workspaceId` on each event to tell the workspaces apart. Webhooks are part of API access, which requires the Team plan or higher; a [sandbox](/get-started/sandbox) organization always has it.
 
 sajn signs and sends webhooks according to [Standard Webhooks](https://www.standardwebhooks.com), an open specification, so the official Standard Webhooks libraries verify them without sajn-specific code.
 
