@@ -80,7 +80,7 @@ In this guide, you sync people from your system into sajn contacts and add them 
         "name": "Service agreement",
         "templateId": "TEMPLATE_ID",
         "parties": [
-          { "contactId": "CONTACT_ID", "role": "SIGNER", "deliveryMethod": "SMS", "requiredSignature": "SE_BANKID" }
+          { "contactId": "CONTACT_ID", "role": "SIGNER", "delivery": ["SMS"], "signatureMethod": "SE_BANKID" }
         ]
       }'
     ```

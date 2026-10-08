@@ -22,7 +22,7 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
 
 <Steps>
   <Step title="Create a draft with its parties">
-    Send a `POST` request to `/api/v1/documents` with a `name` and the `parties` who take part. Each party is either an existing contact, referenced by `contactId`, or a person given by `name` and `email`:
+    Send a `POST` request to `/api/v1/documents` with a `name` and the `parties` who take part. Each party is an existing contact, referenced by `contactId`, or a person given by `name` and an `email` or a `phone`. Details you send beside a `contactId`, such as `email` or `nationalId`, override the contact's for this document:
 
     <CodeGroup>
 
@@ -39,8 +39,8 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
             "name": "Alex Andersson",
             "email": "alex@example.com",
             "role": "SIGNER",
-            "deliveryMethod": "EMAIL",
-            "requiredSignature": "SE_BANKID"
+            "delivery": ["EMAIL"],
+            "signatureMethod": "SE_BANKID"
           }
         ]
       }'
@@ -62,8 +62,8 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
             name: "Alex Andersson",
             email: "alex@example.com",
             role: "SIGNER",
-            deliveryMethod: "EMAIL",
-            requiredSignature: "SE_BANKID",
+            delivery: ["EMAIL"],
+            signatureMethod: "SE_BANKID",
           },
         ],
       }),
@@ -91,8 +91,8 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
                     "name": "Alex Andersson",
                     "email": "alex@example.com",
                     "role": "SIGNER",
-                    "deliveryMethod": "EMAIL",
-                    "requiredSignature": "SE_BANKID",
+                    "delivery": ["EMAIL"],
+                    "signatureMethod": "SE_BANKID",
                 }
             ],
         },
@@ -104,7 +104,7 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
 
     </CodeGroup>
 
-    The response is the full document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id). `fields` is `null` unless you pass `expand=fields`. The following example leaves out `documentMeta` and some party fields:
+    The response is the full document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id). `content` is `null` unless you pass `expand=content`. The following example leaves out `documentMeta` and some party fields:
 
     ```json
     {
@@ -130,16 +130,16 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
           "company": null,
           "role": "SIGNER",
           "signingOrder": null,
-          "deliveryMethod": "EMAIL",
-          "requiredSignature": "SE_BANKID",
-          "twoStepVerification": "NONE",
+          "delivery": ["EMAIL"],
+          "signatureMethod": "SE_BANKID",
+          "signVerification": null,
           "signingStatus": "NOT_SIGNED",
           "readStatus": "NOT_OPENED"
         }
       ],
       "tags": [],
       "customFields": [],
-      "fields": null,
+      "content": null,
       "productTables": [],
       "approvalRequestId": null
     }
@@ -147,7 +147,7 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
 
     Store the document `id` and each party `id`. The other document and party endpoints take them as path parameters.
 
-    If you leave out `expiresAt`, the document gets the workspace's default expiration, if the workspace has one. If you leave out `requiredSignature`, the party gets the workspace's default signing method.
+    If you leave out `expiresAt`, the document gets the workspace's default expiration, if the workspace has one. If you leave out `signatureMethod`, the party gets the workspace's default signing method.
   </Step>
 
   <Step title="Configure the invitation and signing settings">
@@ -206,16 +206,51 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
     A document created without a template has no content. Add it in one of the following ways:
 
     - Upload a PDF file and attach it as a `PDF` field. For more information, see [Upload files](/guides/documents/file-uploads).
-    - Add text and HTML fields. For more information, see [HTML fields](/guides/fields/html-fields).
+    - Add text and HTML content. For more information, see [HTML content](/guides/fields/html-fields).
     - Create the document from a template that already has content, as described in the following section.
 
     The document is ready to send. Continue with [Send a document for signing](/guides/documents/send-for-signing).
   </Step>
 </Steps>
 
+## Create and send in one request
+
+To create a document with its content and send it in one request, add `content` and `send` to the `POST /api/v1/documents` request:
+
+- `content` takes content blocks in the same shape as [Create document content](/api-reference/create-document-content). `position` is optional; by default, each block follows the blocks before it, including any that the template adds.
+- Give a party a `ref`, such as `buyer`. A block names the party by its `ref` wherever it takes a party ID: in `partyId` inside `fieldMeta`, or in the `party` attribute of a `<sajn-field>` tag.
+- `send: true` sends the document after sajn creates it, the same way as [Send a document for signing](/guides/documents/send-for-signing).
+
+The following request creates a one-page agreement in which the buyer fills in a delivery address, and sends it:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: order-1042-create" \
+  -d '{
+    "name": "Purchase agreement",
+    "expiresAt": "2026-12-31T22:00:00.000Z",
+    "parties": [
+      { "ref": "buyer", "name": "Alex Andersson", "email": "alex@example.com",
+        "phone": "+46705550123", "role": "SIGNER", "delivery": ["EMAIL", "SMS"] }
+    ],
+    "content": [
+      { "type": "HTML",
+        "fieldMeta": { "type": "HTML", "content": "<h1>Purchase agreement</h1><p>Deliver to <sajn-field key=\"delivery-address\" party=\"buyer\" label=\"Delivery address\"></sajn-field>.</p>" } }
+    ],
+    "send": true
+  }'
+```
+
+The response is the document with the status `PENDING`. In the stored content, each `ref` is replaced by the party's ID.
+
+sajn checks the content before it creates anything. A `ref` that no party has, or a field `key` that two fields use, fails with `400 VALIDATION_FAILED` and creates nothing. If the document is created but the send fails, for example because it isn't ready, the document stays a `DRAFT`, and the error `message` names its ID. Fix the problem, and then send the draft with `POST /api/v1/documents/DOCUMENT_ID/send`.
+
 ## Create a document from a template
 
-To reuse content and parties, pass a `templateId`. The new document copies the template's fields, parties, and settings. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on a PDF for the template's parties are removed. For a template with placed boxes, leave out `parties` and update the copied parties instead, as described in [Create documents from templates](/guides/templates/templates-and-forms):
+To reuse content and parties, pass a `templateId`. The new document copies the template's content, parties, and settings. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on a PDF for the template's parties are removed. For a template with placed boxes, leave out `parties` and update the copied parties instead, as described in [Create documents from templates](/guides/templates/templates-and-forms):
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents \
@@ -254,19 +289,19 @@ A party with a `company` is a `COMPANY` party, which signs on behalf of the comp
   },
   "country": "SE",
   "role": "SIGNER",
-  "requiredSignature": "SE_BANKID"
+  "signatureMethod": "SE_BANKID"
 }
 ```
 
 `country` is an ISO 3166-1 alpha-2 code, such as `SE`. The response returns the company as `company`, with `id`, `name`, `orgNumber`, and `role`, and `company` is `null` for a private individual.
 
-A party added by `name` and `email` has no phone number. To deliver the invitation by SMS, add the party from a contact that has a phone number, with `contactId` and `"deliveryMethod": "SMS"`. You can also set `phone` later with [Update a party](/api-reference/update-a-party).
+To deliver the invitation by SMS, send the party's `phone` with `"delivery": ["SMS"]`, or `"delivery": ["EMAIL", "SMS"]` to send both. Each channel needs its contact detail: an email address for `EMAIL`, and a phone number for `SMS`.
 
 ## Handle errors
 
 Errors have the same shape on every endpoint. Branch on `code`:
 
-- `400 VALIDATION_FAILED`: the body is invalid, for example a party without `email`, a `company` with `name` but no `orgNumber`, or a flat key such as `companyName`. The `issues` array lists each problem with its `path`, such as `parties.0.email`.
+- `400 VALIDATION_FAILED`: the body is invalid, for example a party without `contactId` that has no `name`, or neither an `email` nor a `phone`, a `company` with `name` but no `orgNumber`, or a flat key such as `companyName`. The `issues` array lists each problem with its `path`, such as `parties.0.email`.
 - `404 NOT_FOUND`: a `contactId` or the `templateId` doesn't exist in the workspace.
 - `429 RATE_LIMITED`: wait the number of seconds in the `Retry-After` header, and then retry.
 

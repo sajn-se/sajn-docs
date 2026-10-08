@@ -1,11 +1,11 @@
 ---
-title: "HTML fields"
+title: "HTML content"
 description: "Add custom-styled sections to a document with sanitized HTML and inline CSS"
 ---
 
-In this guide, you add `HTML` fields to a document: content blocks written in HTML with inline CSS, for branded headers, styled sections, and layouts that a `TEXT` field can't express. sajn sanitizes the HTML on the server, and the sealed PDF renders it as written.
+In this guide, you add `HTML` content blocks to a document: sections written in HTML with inline CSS, for branded headers, styled sections, and layouts that a `TEXT` block can't express. sajn sanitizes the HTML on the server, and the sealed PDF renders it as written.
 
-`HTML` fields are an API feature. Use them for content your code generates. For content that people edit in the sajn app, use `TEXT` fields or a template.
+`HTML` blocks are an API feature. Use them for content your code generates. For content that people edit in the sajn app, use `TEXT` blocks or a template.
 
 ## Before you begin
 
@@ -16,18 +16,18 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
 ## Add HTML content
 
 <Steps>
-  <Step title="Create the HTML field">
-    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields` with the field in a `fields` array. Both `type` and `fieldMeta.type` are `HTML`, and `fieldMeta.content` holds the HTML:
+  <Step title="Create the HTML block">
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/content` with the block in a `content` array. Both `type` and `fieldMeta.type` are `HTML`, and `fieldMeta.content` holds the HTML:
 
     <CodeGroup>
 
     ```bash curl
-    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "fields": [
+        "content": [
           {
             "type": "HTML",
             "position": 0,
@@ -48,7 +48,7 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
         <p style="color: #666666;">Effective from 2026-11-01</p>
       </div>`;
 
-    const response = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}/fields`, {
+    const response = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}/content`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
@@ -56,7 +56,7 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        fields: [{ type: "HTML", position: 0, fieldMeta: { type: "HTML", content } }],
+        content: [{ type: "HTML", position: 0, fieldMeta: { type: "HTML", content } }],
       }),
     });
     const body = await response.json();
@@ -79,13 +79,13 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
     </div>"""
 
     response = requests.post(
-        f"https://app.sajn.se/api/v1/documents/{document_id}/fields",
+        f"https://app.sajn.se/api/v1/documents/{document_id}/content",
         headers={
             "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
             "Sajn-Version": "2026-10",
         },
         json={
-            "fields": [
+            "content": [
                 {"type": "HTML", "position": 0, "fieldMeta": {"type": "HTML", "content": content}},
             ],
         },
@@ -98,11 +98,11 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
 
     </CodeGroup>
 
-    Replace `DOCUMENT_ID` with the document ID. The response has the created field in `data`, and `fieldMeta.content` holds the sanitized HTML:
+    Replace `DOCUMENT_ID` with the document ID. The response has the created block in `data`, and `fieldMeta.content` holds the sanitized HTML:
 
     ```json
     {
-      "fields": [
+      "data": [
         {
           "id": "cm4k2xd5s0005abcd7890uvwx",
           "documentId": "cm4k2x9p10001abcd1234efgh",
@@ -123,16 +123,16 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
     Compare the stored content with what you sent. sajn removes tags, attributes, and CSS values that aren't in the allowlists that follow, without an error.
   </Step>
 
-  <Step title="Add several fields in order">
-    To add a header and a footer around other content, send several fields in the `fields` array. `position` is each field's 0-based place among the document's content blocks:
+  <Step title="Add several blocks in order">
+    To add a header and a footer around other content, send several blocks in the `content` array. `position` is each block's 0-based place among the document's content blocks:
 
     ```bash
-    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "fields": [
+        "content": [
           { "type": "HTML", "position": 0,
             "fieldMeta": { "type": "HTML", "content": "<div style=\"padding: 20px;\"><h1>Header</h1></div>" } },
           { "type": "HTML", "position": 1,
@@ -141,27 +141,37 @@ In this guide, you add `HTML` fields to a document: content blocks written in HT
       }'
     ```
 
-    The response has the created fields in `data`, in request order.
+    The response has the created blocks in `data`, in request order.
   </Step>
 
   <Step title="Update the content">
-    To replace the HTML of a field, send a `PATCH` request with the field's `id` and the full `fieldMeta`:
+    To replace the HTML of a block, send a `PATCH` request with the block's `id` and the full `fieldMeta`:
 
     ```bash
-    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID \
+    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content/CONTENT_ID \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{ "type": "HTML", "fieldMeta": { "type": "HTML", "content": "<h1>Updated header</h1>" } }'
     ```
 
-    Replace `FIELD_ID` with the field's `id`. The response is the updated field. The page's look, such as orientation, page size, and background, is set on the document in `documentStyle`. For its properties, see [Create a new document](/api-reference/create-a-new-document).
+    Replace `CONTENT_ID` with the block's `id`. The response is the updated block. The page's look, such as orientation, page size, and background, is set on the document in `documentStyle`. For its properties, see [Create a new document](/api-reference/create-a-new-document).
   </Step>
 </Steps>
 
+## Add fields that parties fill in
+
+To let a party fill in a value inside the HTML, such as an address or a start date, put a `<sajn-field>` tag where the value goes:
+
+```html
+<p>Delivery address: <sajn-field key="delivery-address" party="PARTY_ID" type="TEXT" label="Delivery address"></sajn-field></p>
+```
+
+Replace `PARTY_ID` with the `id` of the party who fills in the field. The party fills it in on the signing page, and can't sign until it's filled in unless you set `required="false"`. For every attribute, see [Inline fields in text](/guides/fields/signer-fields#inline-fields-in-text).
+
 ## Allowed HTML tags
 
-HTML fields support a safe subset of HTML tags for formatting and layout. All HTML content is automatically sanitized server-side.
+HTML blocks support a safe subset of HTML tags for formatting and layout. All HTML content is automatically sanitized server-side.
 
 ### Text formatting
 - `<p>`, `<span>`, `<div>` - Basic containers
@@ -338,17 +348,17 @@ CSS works only in inline `style` attributes. The following properties are suppor
 
 ## Image hosting
 
-HTML fields support both hosted image URLs and inline base64 data URIs. **Use hosted URLs.**
+HTML blocks support both hosted image URLs and inline base64 data URIs. **Use hosted URLs.**
 
 ### Host images instead of inlining them
 
 <Warning>
 Always reference images by a hosted `https://` URL. **Do not embed images as base64
-`data:` URIs** in HTML field content.
+`data:` URIs** in HTML content.
 
 Base64 inflates the image by ~33%, can't be cached or deduplicated, and is stored
 inline in every document you create from a template — so the same image is copied
-on every send. A handful of multi-MB base64 fields can dominate your account's
+on every send. A handful of multi-MB base64 blocks can dominate your account's
 storage and slow document rendering. Inline base64 images are **strongly
 discouraged and may be rejected in a future API version.**
 </Warning>
@@ -376,7 +386,7 @@ Accepted today for backwards compatibility, but avoid it — prefer a hosted URL
 ```
 
 <Note>
-HTML field content can be up to 100 MB, so existing integrations keep working.
+HTML content can be up to 100 MB, so existing integrations keep working.
 We recommend keeping content small, with text and hosted image URLs, because
 the limit can be lowered in a future API version.
 </Note>
@@ -384,7 +394,7 @@ the limit can be lowered in a future API version.
 
 ## Sanitization
 
-HTML fields are automatically sanitized server-side for security:
+HTML blocks are automatically sanitized server-side for security:
 
 ### Kept
 - Formatting tags (`<p>`, `<div>`, `<span>`, headings)
@@ -437,7 +447,7 @@ Validation errors are `400 VALIDATION_FAILED`, and `issues` lists every problem 
   "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
   "issues": [
     {
-      "path": "fields.0.fieldMeta.type",
+      "path": "content.0.fieldMeta.type",
       "code": "INVALID_VALUE",
       "message": "fieldMeta.type is HTML, but the field type is TEXT. They must match."
     }
@@ -445,7 +455,7 @@ Validation errors are `400 VALIDATION_FAILED`, and `issues` lists every problem 
 }
 ```
 
-A field change on a document that isn't a `DRAFT` returns `409 INVALID_STATE`. Disallowed HTML isn't an error: sajn removes it. For the error shape and every code, see [Errors](/api-fundamentals/errors).
+A content change on a document that isn't a `DRAFT` returns `409 INVALID_STATE`. Disallowed HTML isn't an error: sajn removes it. For the error shape and every code, see [Errors](/api-fundamentals/errors).
 
 ## Next steps
 
@@ -459,7 +469,7 @@ A field change on a document that isn't a `DRAFT` returns `409 INVALID_STATE`. D
   <Card title="Send for signing" icon="paper-plane" href="/guides/documents/send-for-signing">
     Send the document to its parties.
   </Card>
-  <Card title="Create document fields" icon="code" href="/api-reference/create-document-fields">
-    See every field type in the API reference.
+  <Card title="Create document content" icon="code" href="/api-reference/create-document-content">
+    See every content block type in the API reference.
   </Card>
 </CardGroup>

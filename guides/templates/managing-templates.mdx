@@ -1,6 +1,6 @@
 ---
 title: "Manage templates"
-description: "Create a template with fields, default parties, settings, and tags through the API, and keep it up to date"
+description: "Create a template with content, default parties, settings, and tags through the API, and keep it up to date"
 ---
 
 In this guide, you build a template through the API: its content, its default parties, the settings that documents inherit, and a tag. Then you list, copy, and delete templates.
@@ -10,13 +10,13 @@ To create documents from a template and fill in its fields, see [Create document
 ## Before you begin
 
 - Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
-- Read [Fields that parties fill in](/guides/fields/signer-fields) for the FORM field format. Template fields use the same format as document fields.
+- Read [Fields that parties fill in](/guides/fields/signer-fields) for the FORM block format. Template content uses the same format as document content.
 
 ## Build a template
 
 <Steps>
   <Step title="Create the template with its content">
-    Send a `POST` request to `/api/v1/templates` with a `name` and the fields in `initialFields`:
+    Send a `POST` request to `/api/v1/templates` with a `name` and the content blocks in `initialContent`:
 
     ```bash
     curl -X POST https://app.sajn.se/api/v1/templates \
@@ -25,7 +25,7 @@ To create documents from a template and fill in its fields, see [Create document
       -H "Content-Type: application/json" \
       -d '{
         "name": "Employment contract",
-        "initialFields": [
+        "initialContent": [
           { "type": "HTML", "position": 0,
             "fieldMeta": { "type": "HTML", "content": "<h1>Employment contract</h1><p>The terms of employment follow.</p>" } },
           { "type": "FORM", "position": 1,
@@ -64,7 +64,7 @@ To create documents from a template and fill in its fields, see [Create document
         "allowDelegation": true,
         "reminderIntervalDays": 3,
         "responsibleUserId": "cm4k2xw3c0000abcd0000usrx",
-        "accessVerification": "NONE",
+        "openVerification": null,
         "internalRecipients": [],
         "visibility": "EVERYONE",
         "selectedUserIds": [],
@@ -74,14 +74,14 @@ To create documents from a template and fill in its fields, see [Create document
       },
       "parties": [],
       "tags": [],
-      "fields": null,
+      "content": null,
       "createdAt": "2026-10-01T09:00:00.000Z",
       "updatedAt": "2026-10-01T09:00:00.000Z",
       "deletedAt": null
     }
     ```
 
-    Every template endpoint returns the template in this shape. `fields` is `null` unless you get the template with `expand=fields`. Store the template `id`. The subfield keys, `employee-name` and `start-date`, are the keys your code fills in on every document created from the template.
+    Every template endpoint returns the template in this shape. `content` is `null` unless you get the template with `expand=content`. Store the template `id`. The subfield keys, `employee-name` and `start-date`, are the keys your code fills in on every document created from the template.
   </Step>
 
   <Step title="Add the default parties">
@@ -96,8 +96,8 @@ To create documents from a template and fill in its fields, see [Create document
         "name": "Employee",
         "role": "SIGNER",
         "signingOrder": 1,
-        "deliveryMethod": "EMAIL",
-        "requiredSignature": "SE_BANKID"
+        "delivery": ["EMAIL"],
+        "signatureMethod": "SE_BANKID"
       }'
     ```
 
@@ -150,32 +150,32 @@ To create documents from a template and fill in its fields, see [Create document
 ## Find, copy, and delete templates
 
 - List templates with `GET /api/v1/templates`. Filter by name with `query`, and by tag with `tagId`. The response has the templates in `data`; to get the next page, pass `nextCursor` as `cursor` while `hasMore` is `true`. For more information, see [Pagination](/api-fundamentals/pagination).
-- Get one template with its `parties` and `tags` with `GET /api/v1/templates/TEMPLATE_ID`. To include its content blocks in `fields`, add `expand=fields`.
-- Copy a template with all its fields and parties with `POST /api/v1/templates/TEMPLATE_ID/duplicate`. Use a copy to change a template without affecting the original.
+- Get one template with its `parties` and `tags` with `GET /api/v1/templates/TEMPLATE_ID`. To include its content blocks in `content`, add `expand=content`.
+- Copy a template with all its content and parties with `POST /api/v1/templates/TEMPLATE_ID/duplicate`. Use a copy to change a template without affecting the original.
 - Delete a template with `DELETE /api/v1/templates/TEMPLATE_ID`. The template moves to the trash, and the response is the template with `deletedAt` set. sajn deletes it permanently after 90 days. Documents created from it aren't affected.
 - List the documents created from a template with `GET /api/v1/documents?templateId=TEMPLATE_ID`.
 
-## Change fields and parties
+## Change content and parties
 
-The template field and party endpoints work like their document counterparts:
+The template content and party endpoints work like their document counterparts:
 
 | Task | Endpoint |
 |------|----------|
-| Add fields | `POST /api/v1/templates/TEMPLATE_ID/fields` |
-| Replace a field | `PATCH /api/v1/templates/TEMPLATE_ID/fields/FIELD_ID` |
-| Find the field that holds a key | `GET /api/v1/templates/TEMPLATE_ID/fields?key=KEY` |
-| Move boxes on a PDF | `PATCH /api/v1/templates/TEMPLATE_ID/fields/FIELD_ID/placed-fields` |
-| Delete a field | `DELETE /api/v1/templates/TEMPLATE_ID/fields/FIELD_ID` |
+| Add content blocks | `POST /api/v1/templates/TEMPLATE_ID/content` |
+| Replace a content block | `PATCH /api/v1/templates/TEMPLATE_ID/content/CONTENT_ID` |
+| Find the block that holds a key | `GET /api/v1/templates/TEMPLATE_ID/content?key=KEY` |
+| Move boxes on a PDF | `PATCH /api/v1/templates/TEMPLATE_ID/content/CONTENT_ID/placed-fields` |
+| Delete a content block | `DELETE /api/v1/templates/TEMPLATE_ID/content/CONTENT_ID` |
 | Change a party | `PATCH /api/v1/templates/TEMPLATE_ID/parties/PARTY_ID` |
 | Remove a party | `DELETE /api/v1/templates/TEMPLATE_ID/parties/PARTY_ID` |
 
-A field update replaces the field's `fieldMeta`, so send the whole object. To change one FORM subfield, find its field by key, then send the field's whole `fieldMeta` with the subfield changed. A field `DELETE` returns `{ "id": "FIELD_ID", "deleted": true }`; to keep the content, read the field first. For the field formats, see [HTML fields](/guides/fields/html-fields), [Fields that parties fill in](/guides/fields/signer-fields), and [Place fields on a PDF](/guides/fields/pdf-field-placement).
+A content block update replaces the block's `fieldMeta`, so send the whole object. To change one FORM subfield, find its block by key, then send the block's whole `fieldMeta` with the subfield changed. A content block `DELETE` returns `{ "id": "CONTENT_ID", "deleted": true }`; to keep the block, read it first. For the block formats, see [HTML content](/guides/fields/html-fields), [Fields that parties fill in](/guides/fields/signer-fields), and [Place fields on a PDF](/guides/fields/pdf-field-placement).
 
 ## Handle errors
 
-- `400 VALIDATION_FAILED`: a field or a party is invalid. For example, a role of `ACCEPTOR` fails; send `SIGNER`. Read `issues` for the path.
+- `400 VALIDATION_FAILED`: a content block or a party is invalid. For example, a role of `ACCEPTOR` fails; send `SIGNER`. Read `issues` for the path.
 - `409 INVALID_STATE`: the template is locked against edits.
-- `404 NOT_FOUND`: the template, the field, or the party doesn't exist in the workspace.
+- `404 NOT_FOUND`: the template, the content block, or the party doesn't exist in the workspace.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

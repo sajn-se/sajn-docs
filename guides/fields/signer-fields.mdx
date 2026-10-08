@@ -1,11 +1,11 @@
 ---
 title: "Fields that parties fill in"
-description: "Add form inputs that a party fills in while signing, next to values you fill in yourself"
+description: "Add form inputs and inline fields that a party fills in while signing, next to values you fill in yourself"
 ---
 
 In this guide, you add a form to a document. Some inputs you fill in before sending, and others the party fills in while signing, such as an address or a start date.
 
-A FORM field holds a grid of inputs, called subfields. A subfield with a `partyId` in its `fieldMeta` belongs to that party: it's empty when you send the document, and the party fills it in on the signing page. A subfield without a `partyId` is yours: you fill it in, and the party sees the value as read-only text.
+A FORM content block holds a grid of inputs, called subfields. A subfield with a `partyId` in its `fieldMeta` belongs to that party: it's empty when you send the document, and the party fills it in on the signing page. A subfield without a `partyId` is yours: you fill it in, and the party sees the value as read-only text.
 
 ## Before you begin
 
@@ -15,18 +15,18 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
 ## Add a form with party inputs
 
 <Steps>
-  <Step title="Create the FORM field">
-    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields` with the FORM field in a `fields` array. Each subfield has an `id` that's unique in the form, a `row` and `column` in the grid, and its own `fieldMeta`. The following form has two values you fill in and two inputs for the party:
+  <Step title="Create the FORM block">
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/content` with the FORM block in a `content` array. Each subfield has an `id` that's unique in the form, a `row` and `column` in the grid, and its own `fieldMeta`. The following form has two values you fill in and two inputs for the party:
 
     <CodeGroup>
 
     ```bash curl
-    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "fields": [
+        "content": [
           {
             "type": "FORM",
             "position": 1,
@@ -53,7 +53,7 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
     const documentId = "DOCUMENT_ID";
     const partyId = "PARTY_ID";
 
-    const response = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}/fields`, {
+    const response = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}/content`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
@@ -61,7 +61,7 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        fields: [
+        content: [
           {
             type: "FORM",
             position: 1,
@@ -99,13 +99,13 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
     party_id = "PARTY_ID"
 
     response = requests.post(
-        f"https://app.sajn.se/api/v1/documents/{document_id}/fields",
+        f"https://app.sajn.se/api/v1/documents/{document_id}/content",
         headers={
             "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
             "Sajn-Version": "2026-10",
         },
         json={
-            "fields": [
+            "content": [
                 {
                     "type": "FORM",
                     "position": 1,
@@ -145,9 +145,9 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
     - `DOCUMENT_ID`: the ID of the draft document.
     - `PARTY_ID`: the `id` of the party who fills in the inputs.
 
-    The response has the created FORM field in `data`. `position` is the field's 0-based place among the document's content blocks.
+    The response has the created FORM block in `data`. `position` is the block's 0-based place among the document's content blocks.
 
-    A subfield's `key` lets you fill it in later without knowing the field ID. Keys can contain lowercase letters, digits, hyphens, and underscores.
+    A subfield's `key` lets you fill it in later without knowing the block ID. Keys can contain lowercase letters, digits, hyphens, and underscores.
   </Step>
 
   <Step title="Change your values before sending">
@@ -161,7 +161,7 @@ A FORM field holds a grid of inputs, called subfields. A subfield with a `partyI
       -d '{ "values": [ { "key": "role", "value": "Senior developer" } ] }'
     ```
 
-    The response lists the outcome for each key in `results`. A value that the party fills in, such as `address`, is read-only through this endpoint: its result has `success` set to `false` and an `error` with the code `INVALID_STATE`. The other values in the request are still written.
+    The response lists the outcome for each key in `results`. You can also send a value for an input that the party fills in, such as `address`. While the document is a draft, that value prefills the input, and the party can change it before signing.
   </Step>
 
   <Step title="Send the document">
@@ -192,14 +192,14 @@ When a document has several signing parties, set each subfield's `partyId` to th
 
 ## Change who fills in a subfield
 
-To move a subfield to another party, or back to yourself, update the FORM field that holds it. A `PATCH` request replaces the field's whole `fieldMeta`, so start from the stored one:
+To move a subfield to another party, or back to yourself, update the FORM block that holds it. A `PATCH` request replaces the block's whole `fieldMeta`, so start from the stored one:
 
-1. To find the FORM field by the subfield's key, call `GET /api/v1/documents/DOCUMENT_ID/fields?key=address`. The field is in `data`.
+1. To find the FORM block by the subfield's key, call `GET /api/v1/documents/DOCUMENT_ID/content?key=address`. The block is in `data`.
 2. In its `fieldMeta.fields`, change the subfield's `partyId`. To fill the subfield in yourself, set `partyId` to `null` and set `value`.
-3. Send the whole `fieldMeta` to [Update a document field](/api-reference/update-a-document-field):
+3. Send the whole `fieldMeta` to [Update a document content block](/api-reference/update-a-document-content-block):
 
 ```bash
-curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID \
+curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content/CONTENT_ID \
   -H "Authorization: Bearer $SAJN_API_KEY" \
   -H "Sajn-Version: 2026-10" \
   -H "Content-Type: application/json" \
@@ -221,13 +221,45 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID \
   }'
 ```
 
-Replace `FIELD_ID` with the FORM field's `id`. The response is the updated FORM field. A field is addressed by its ID only; to change a value without changing who fills it in, use [Fill in values on a document](/api-reference/fill-in-values-on-a-document) instead.
+Replace `CONTENT_ID` with the FORM block's `id`. The response is the updated FORM block. A block is addressed by its ID only; to change a value without changing who fills it in, use [Fill in values on a document](/api-reference/fill-in-values-on-a-document) instead.
+
+## Inline fields in text
+
+To let a party fill in a value in the middle of a sentence, such as their personal address in an agreement, put a `<sajn-field>` tag in the `content` of a `TEXT` or `HTML` block:
+
+```json
+{
+  "content": [
+    {
+      "type": "HTML",
+      "position": 0,
+      "fieldMeta": {
+        "type": "HTML",
+        "content": "<p>The employee lives at <sajn-field key=\"home-address\" party=\"PARTY_ID\" type=\"TEXT\" label=\"Home address\"></sajn-field> and starts on <sajn-field key=\"start-date\" party=\"PARTY_ID\" type=\"DATE\" label=\"Start date\"></sajn-field>.</p>"
+      }
+    }
+  ]
+}
+```
+
+Replace `PARTY_ID` with the `id` of the party. A `<sajn-field>` tag takes the following attributes:
+
+- `key`: a stable name for the field, such as `home-address`.
+- `party`: the `id` of the party who fills it in.
+- `type`: `TEXT`, `DATE`, or `SELECT`. Default: `TEXT`.
+- `label`: the text the party sees in the empty field.
+- `description`: optional help text for the party.
+- `required`: `true` or `false`. If `true`, the party can't sign until the field is filled in. Default: `true`.
+- `options`: for `SELECT`, the choices, separated by commas, such as `options="Full time, Part time"`.
+- `value`: the party's answer. sajn sets it when the party signs.
+
+sajn returns the tag in the same form in `TEXT` and `HTML` content. HTML attribute values stay HTML-escaped, so a quotation mark in a label is `&quot;`. [List the fillable values on a document](/api-reference/list-the-fillable-values-on-a-document) lists inline fields with `kind` set to `INLINE`, so you can prefill them by `key` and read the party's answer after signing. The answer is also in the `value` attribute of the tag. A `key` names one field in the document, but you can place the same `<sajn-field>` again for the same party, such as a name that appears twice.
 
 ## Handle errors
 
 - `400 VALIDATION_FAILED`: a subfield is invalid, for example without `row`, with an unknown or lowercase `type`, or with `signerId` instead of `partyId`. Read `issues` for the path.
-- `409 INVALID_STATE`: the document isn't a `DRAFT`. Fields can change only before sending.
-- `404 NOT_FOUND`: no field on the document has the ID.
+- `409 INVALID_STATE`: the document isn't a `DRAFT`. Content can change only before sending.
+- `404 NOT_FOUND`: no content block on the document has the ID.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 
@@ -240,10 +272,10 @@ For the error shape and every code, see [Errors](/api-fundamentals/errors).
   <Card title="Templates and forms" icon="file-lines" href="/guides/templates/templates-and-forms">
     Reuse a form across documents.
   </Card>
-  <Card title="Fields" icon="lightbulb" href="/concepts/fields">
-    Learn how the field model works.
+  <Card title="Content and fields" icon="lightbulb" href="/concepts/fields">
+    Learn how content and fields work.
   </Card>
-  <Card title="Create document fields" icon="code" href="/api-reference/create-document-fields">
-    See every field type in the API reference.
+  <Card title="Create document content" icon="code" href="/api-reference/create-document-content">
+    See every content block type in the API reference.
   </Card>
 </CardGroup>

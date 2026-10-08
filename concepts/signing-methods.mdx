@@ -3,7 +3,7 @@ title: "Signing methods"
 description: "What each signature method proves about the signer, and which one to choose"
 ---
 
-A party's `requiredSignature` decides how they sign. The methods differ in what they prove: that someone intended to sign, or that a verified person signed. Whichever method you choose, sajn seals the completed PDF with a PAdES seal, so any change to the file after signing is detectable.
+A party's `signatureMethod` decides how they sign. The methods differ in what they prove: that someone intended to sign, or that a verified person signed. Whichever method you choose, sajn seals the completed PDF with a PAdES seal, so any change to the file after signing is detectable.
 
 ## Signature levels
 
@@ -33,7 +33,7 @@ For most everyday agreements, a simple signature is enough. Use an eID when you 
 | `NL_IDIN` | Dutch iDIN, through the signer's bank | AES | A Dutch bank that supports iDIN |
 | `MANUAL` | Signed on paper, outside sajn | None in sajn | Nothing. Used for documents imported into the archive. |
 
-eID schemes are switched on market by market. A `requiredSignature` that your account can't use yet fails with `400 VALIDATION_FAILED`, and the issue's message is `This eID scheme is not yet available`.
+eID schemes are switched on market by market. A `signatureMethod` that your account can't use yet fails with `400 VALIDATION_FAILED`, and the issue's message is `This eID scheme is not yet available`.
 
 ## List the available methods
 
@@ -54,7 +54,7 @@ The list leaves out `MANUAL`, and `NONE`, which a party gets when its role doesn
 
 ## Set the method on a party
 
-Set `requiredSignature` on each party when you add or update it. Parties on the same document can use different methods:
+Set `signatureMethod` on each party when you add or update it. Parties on the same document can use different methods:
 
 ```json
 {
@@ -64,20 +64,20 @@ Set `requiredSignature` on each party when you add or update it. Parties on the 
       "email": "alex@example.com",
       "role": "SIGNER",
       "signingOrder": 1,
-      "requiredSignature": "SE_BANKID"
+      "signatureMethod": "SE_BANKID"
     },
     {
       "name": "Mette Hansen",
       "email": "mette@example.com",
       "role": "SIGNER",
       "signingOrder": 2,
-      "requiredSignature": "DK_MITID"
+      "signatureMethod": "DK_MITID"
     }
   ]
 }
 ```
 
-If you leave out `requiredSignature`, the party gets your organization's default method.
+If you leave out `signatureMethod`, the party gets your organization's default method.
 
 ## Check who signed
 
@@ -87,7 +87,7 @@ To read the identity that each eID verified, call [`GET /documents/{id}/signatur
 
 ## Verify before signing
 
-A signature method controls how the party signs. To check the party's identity before the document even opens, set `twoStepVerification`, for example to `SE_BANKID_BEFORE_SIGNING` or `SMS_BEFORE_SIGNING`. You can combine the two: a click-to-sign document behind a BankID check gives you a verified identity with a fast signing step. For the values, see [Parties](/concepts/parties#verification-before-opening).
+A signature method controls how the party signs. To check the party's identity before they sign, set the party's `signVerification`, for example to `SE_BANKID` or `SMS`. You can combine the two: a click-to-sign signature behind a BankID check gives you a verified identity with a fast signing step. For the values, see [Parties](/concepts/parties#verification-before-signing). To check every party before the document opens, set `documentMeta.openVerification`.
 
 ## Choose a method
 
@@ -111,13 +111,13 @@ A signature method controls how the party signs. To check the party's identity b
     Use `DRAWING` or `CLICK_TO_SIGN`. `SE_BANKID` works only for people with Swedish BankID.
   </Accordion>
   <Accordion title="The signer is in the room with you">
-    Set the party's `deliveryMethod` to `IN_APP`. The party signs in person on your device.
+    Set the party's `delivery` to `["IN_APP"]`. The party signs in person on your device.
   </Accordion>
 </AccordionGroup>
 
 ## Swedish BankID codes
 
-Swedish BankID is `SE_BANKID`, and its verification check is `SE_BANKID_BEFORE_SIGNING`. API version `2026-10` rejects the older codes `BANKID` and `BANKID_BEFORE_SIGNING`. In API version `2026-09`, the API returns `BANKID` and `BANKID_BEFORE_SIGNING`, and accepts both spellings on input.
+Swedish BankID is `SE_BANKID`, both as a signature method and as a verification method. API version `2026-10` rejects the older codes `BANKID` and `BANKID_BEFORE_SIGNING`. In API version `2026-09`, the API returns `BANKID` and `BANKID_BEFORE_SIGNING`, and accepts both spellings on input.
 
 ## Next steps
 

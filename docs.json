@@ -449,6 +449,7 @@
                       "GET /api/v1/documents/{id}",
                       "PATCH /api/v1/documents/{id}",
                       "DELETE /api/v1/documents/{id}",
+                      "GET /api/v1/documents/{id}/readiness",
                       "POST /api/v1/documents/{id}/send",
                       "POST /api/v1/documents/{id}/withdraw",
                       "POST /api/v1/documents/{id}/extend-expiration",
@@ -476,14 +477,14 @@
                     ]
                   },
                   {
-                    "group": "Document fields",
+                    "group": "Document content",
                     "pages": [
-                      "GET /api/v1/documents/{id}/fields",
-                      "POST /api/v1/documents/{id}/fields",
-                      "GET /api/v1/documents/{id}/fields/{fieldId}",
-                      "PATCH /api/v1/documents/{id}/fields/{fieldId}",
-                      "PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields",
-                      "DELETE /api/v1/documents/{id}/fields/{fieldId}",
+                      "GET /api/v1/documents/{id}/content",
+                      "POST /api/v1/documents/{id}/content",
+                      "GET /api/v1/documents/{id}/content/{contentId}",
+                      "PATCH /api/v1/documents/{id}/content/{contentId}",
+                      "PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields",
+                      "DELETE /api/v1/documents/{id}/content/{contentId}",
                       "GET /api/v1/documents/{id}/field-values",
                       "PATCH /api/v1/documents/{id}/field-values"
                     ]
@@ -561,12 +562,12 @@
                       "PATCH /api/v1/templates/{id}",
                       "DELETE /api/v1/templates/{id}",
                       "POST /api/v1/templates/{id}/duplicate",
-                      "GET /api/v1/templates/{id}/fields",
-                      "POST /api/v1/templates/{id}/fields",
-                      "GET /api/v1/templates/{id}/fields/{fieldId}",
-                      "PATCH /api/v1/templates/{id}/fields/{fieldId}",
-                      "PATCH /api/v1/templates/{id}/fields/{fieldId}/placed-fields",
-                      "DELETE /api/v1/templates/{id}/fields/{fieldId}",
+                      "GET /api/v1/templates/{id}/content",
+                      "POST /api/v1/templates/{id}/content",
+                      "GET /api/v1/templates/{id}/content/{contentId}",
+                      "PATCH /api/v1/templates/{id}/content/{contentId}",
+                      "PATCH /api/v1/templates/{id}/content/{contentId}/placed-fields",
+                      "DELETE /api/v1/templates/{id}/content/{contentId}",
                       "GET /api/v1/templates/{id}/parties",
                       "POST /api/v1/templates/{id}/parties",
                       "PATCH /api/v1/templates/{id}/parties/{partyId}",
@@ -589,7 +590,7 @@
                       "PUT /api/v1/forms/{id}/respondent",
                       "GET /api/v1/forms/{id}/template",
                       "PATCH /api/v1/forms/{id}/template",
-                      "PUT /api/v1/forms/{id}/template/fields",
+                      "PUT /api/v1/forms/{id}/template/content",
                       "PUT /api/v1/forms/{id}/template/parties",
                       "GET /api/v1/forms/{id}/submissions",
                       "GET /api/v1/forms/{id}/submissions/{submissionId}"
@@ -720,6 +721,21 @@
                           "webhook document.party.added",
                           "webhook document.party.removed",
                           "webhook document.party.reminded"
+                        ]
+                      },
+                      {
+                        "group": "Bundles",
+                        "pages": [
+                          "webhook bundle.sent",
+                          "webhook bundle.party.signed",
+                          "webhook bundle.completed"
+                        ]
+                      },
+                      {
+                        "group": "Archive imports",
+                        "pages": [
+                          "webhook archive_import.completed",
+                          "webhook archive_import.undone"
                         ]
                       },
                       {
@@ -1347,6 +1363,62 @@
     {
       "source": "/guides/webhooks",
       "destination": "/webhooks/overview"
+    },
+    {
+      "source": "/api-reference/list-document-fields",
+      "destination": "/api-reference/list-document-content"
+    },
+    {
+      "source": "/api-reference/create-document-fields",
+      "destination": "/api-reference/create-document-content"
+    },
+    {
+      "source": "/api-reference/get-a-document-field",
+      "destination": "/api-reference/get-a-document-content-block"
+    },
+    {
+      "source": "/api-reference/update-a-document-field",
+      "destination": "/api-reference/update-a-document-content-block"
+    },
+    {
+      "source": "/api-reference/delete-a-document-field",
+      "destination": "/api-reference/delete-a-document-content-block"
+    },
+    {
+      "source": "/api-reference/add-update-or-remove-boxes-on-a-pdf-field",
+      "destination": "/api-reference/add-update-or-remove-boxes-on-a-pdf-block"
+    },
+    {
+      "source": "/api-reference/list-template-fields",
+      "destination": "/api-reference/list-template-content"
+    },
+    {
+      "source": "/api-reference/create-a-template-field",
+      "destination": "/api-reference/create-template-content"
+    },
+    {
+      "source": "/api-reference/get-a-template-field",
+      "destination": "/api-reference/get-a-template-content-block"
+    },
+    {
+      "source": "/api-reference/update-a-template-field",
+      "destination": "/api-reference/update-a-template-content-block"
+    },
+    {
+      "source": "/api-reference/delete-a-template-field",
+      "destination": "/api-reference/delete-a-template-content-block"
+    },
+    {
+      "source": "/api-reference/add-update-or-remove-boxes-on-a-template-pdf-field",
+      "destination": "/api-reference/add-update-or-remove-boxes-on-a-template-pdf-block"
+    },
+    {
+      "source": "/api-reference/replace-the-form-templates-fields",
+      "destination": "/api-reference/replace-the-form-templates-content"
+    },
+    {
+      "source": "/api-reference/list-selectable-verification-gates",
+      "destination": "/api-reference/list-selectable-verification-methods"
     }
   ],
   "contextual": {

@@ -5,7 +5,7 @@ description: "What a document is made of, and every status it passes through fro
 
 A **document** is an agreement that one or more people sign. It combines three things:
 
-- **Content**: an ordered list of [fields](/concepts/fields), such as text, an uploaded PDF, a form, or a product table.
+- **Content**: an ordered list of [content blocks](/concepts/fields), such as text, an uploaded PDF, a form, or a product table.
 - **Parties**: the people who sign, review, or organize the document. For more information, see [Parties](/concepts/parties).
 - **Settings**: the expiration date in `expiresAt`, and the signing order, invitation message, language, and other options in `documentMeta`.
 
@@ -96,7 +96,7 @@ A `DRAFT` document accepts every change. After you send it, what you can change 
 
 - `name`, `externalId`, `responsibleUserId`, and `value` can always change.
 - Reminders, subject, message, and the redirect URL can change until the document is completed, rejected, or cancelled.
-- `forceReadFullDocument`, `accessVerification`, and `language` can change until someone has signed.
+- `forceReadFullDocument`, `openVerification`, and `language` can change until someone has signed.
 - `signingMode` can't change. Withdraw the document first.
 
 To change the content or settings that are locked, [withdraw](/api-reference/withdraw-a-sent-document) the document, change it, and send it again.
@@ -113,7 +113,7 @@ The `documentMeta` object holds the settings that control signing. The most comm
 | `forceReadFullDocument` | If `true`, a party must scroll through the whole document before signing. |
 | `reminderIntervalDays` | Days between automatic reminders, as an integer. `0` turns them off, and `null` uses the default of 3 days. |
 | `redirectUrl` | Where to send a party after signing. |
-| `accessVerification` | A verification that every party passes before the document opens. |
+| `openVerification` | A verification that every party passes before the document opens, such as `SMS` or `SE_BANKID`. `null` means none. |
 | `value` | The monetary value of the agreement. |
 
 For every field, see [Create a document](/api-reference/create-a-new-document).
@@ -160,8 +160,8 @@ A workspace can turn on a retention policy that moves completed documents to the
   <Card title="Parties" icon="users" href="/concepts/parties">
     Roles, signing order, delivery, and verification.
   </Card>
-  <Card title="Fields" icon="table-cells" href="/concepts/fields">
-    The content of a document, and the values parties fill in.
+  <Card title="Content and fields" icon="table-cells" href="/concepts/fields">
+    The content of a document, and the fields parties fill in.
   </Card>
   <Card title="Create a document" icon="file-circle-plus" href="/guides/documents/create-document">
     Create documents from scratch or from a template.

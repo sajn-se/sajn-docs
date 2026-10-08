@@ -10,7 +10,7 @@ A template holds the content, the parties, and the settings that every document 
 ## Before you begin
 
 - Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
-- Create a template in the sajn app with FORM fields that have keys, and with the parties the document needs, such as `Employee`. To find the template's ID, call [List all templates](/api-reference/list-all-templates) with `query` set to part of its name.
+- Create a template in the sajn app with FORM blocks whose subfields have keys, and with the parties the document needs, such as `Employee`. To find the template's ID, call [List all templates](/api-reference/list-all-templates) with `query` set to part of its name.
 
 ## Create, fill in, and send
 
@@ -90,7 +90,7 @@ A template holds the content, the parties, and the settings that every document 
       -H "Sajn-Version: 2026-10"
     ```
 
-    Replace `DOCUMENT_ID` with the document `id`. The response lists the values in `data`. Each value has a `key`, a `label`, a `type`, and `filledBy`. You can write values where `filledBy` is `SENDER`. A party fills in the values where `filledBy` is `SIGNER`:
+    Replace `DOCUMENT_ID` with the document `id`. The response lists the values in `data`. Each value has a `key`, a `label`, a `type`, and `filledBy`. You fill in the values where `filledBy` is `SENDER`. A party fills in the values where `filledBy` is `SIGNER`; a value you send for one of them prefills it, and the party can change it:
 
     ```json
     {
@@ -157,7 +157,7 @@ A template holds the content, the parties, and the settings that every document 
     }
     ```
 
-    The example leaves out the `data` list. Check each result's `success`. A value fails, and the others are still written, when its key doesn't exist, two fields share the key, a party fills it in, or it doesn't match the type or the `options`. Send at most 100 values per request. A FORM `CHECKBOX` value is a list of the selected options, such as `["Remote", "Parking"]`.
+    The example leaves out the `data` list. Check each result's `success`. A value fails, and the others are still written, when its key doesn't exist, two fields share the key, or it doesn't match the type or the `options`. Send at most 100 values per request. A FORM `CHECKBOX` value is a list of the selected options, such as `["Remote", "Parking"]`.
   </Step>
 
   <Step title="Put the right people in the parties">
@@ -192,12 +192,12 @@ A template holds the content, the parties, and the settings that every document 
 
 ## Change other properties of FORM subfields
 
-The `field-values` endpoint writes values only. To change other properties of a FORM subfield, such as its `label` or the party who fills it in, update the FORM field that holds it.
+The `field-values` endpoint writes values only. To change other properties of a FORM subfield, such as its `label` or the party who fills it in, update the FORM block that holds it.
 
-1. Find the field with `GET /api/v1/documents/DOCUMENT_ID/fields?key=start-date`. The response lists the FORM field in `data`, with every subfield in `fieldMeta.fields`.
-2. Change the subfield in that `fieldMeta`, and send the whole `fieldMeta` in a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID`. The update replaces the field's `fieldMeta`, so a subfield you leave out is removed.
+1. Find the block with `GET /api/v1/documents/DOCUMENT_ID/content?key=start-date`. The response lists the FORM block in `data`, with every subfield in `fieldMeta.fields`.
+2. Change the subfield in that `fieldMeta`, and send the whole `fieldMeta` in a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/content/CONTENT_ID`. The update replaces the block's `fieldMeta`, so a subfield you leave out is removed.
 
-Replace `FIELD_ID` with the `id` of the FORM field. The response is the updated field.
+Replace `CONTENT_ID` with the `id` of the FORM block. The response is the updated block.
 
 ## Handle errors
 

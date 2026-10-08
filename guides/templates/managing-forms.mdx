@@ -75,7 +75,7 @@ An OAuth app requests the following scopes. An API key uses its user's workspace
     Read `GET /api/v1/forms/FORM_ID/template` for the template's settings, content blocks, and parties. Then change them with the form's template endpoints:
 
     - `PATCH /api/v1/forms/FORM_ID/template`: change `name` and `templateMeta`, such as `signingMode`. The response is the template.
-    - `PUT /api/v1/forms/FORM_ID/template/fields`: replace `fields` with the complete ordered list of content blocks. Include the IDs of fields to keep, and leave out IDs for new fields. Fields you leave out are deleted, and existing fields can't change type.
+    - `PUT /api/v1/forms/FORM_ID/template/content`: replace `content` with the complete ordered list of content blocks. Include the IDs of blocks to keep, and leave out IDs for new blocks. Blocks you leave out are deleted, and existing blocks can't change type.
     - `PUT /api/v1/forms/FORM_ID/template/parties`: replace `parties`. Include the IDs of parties to keep, and leave out IDs for new parties. Properties you leave out on kept parties, including contact links and write-only PINs, stay unchanged, and `null` clears a property. Parties you leave out are deleted. Like other parties, these nest their company in `company`, with `name`, `orgNumber`, and `role`.
     - `PUT /api/v1/forms/FORM_ID/respondent` with `{ "partyId": "PARTY_ID" }`: choose which `SIGNER` party the visitor becomes.
 

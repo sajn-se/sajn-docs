@@ -11,7 +11,7 @@ The following table lists what `data` holds for each group of events:
 
 | Events | `data.object` | Added fields |
 |--------|---------------|--------------|
-| `document.*` | The document, as [`GET /api/v1/documents/{id}`](/api-reference/get-a-document-by-id) returns it | `source` on `document.created`, `previousAttributes` on `document.expiration_extended` |
+| `document.*` | The document, as [`GET /api/v1/documents/{id}`](/api-reference/get-a-document-by-id) returns it | `source` on `document.created`, `previousAttributes` on `document.expiration_extended`, `fieldValues` on `document.completed` |
 | `document.party.*` | The document | `party`, plus extras on some events; see [Party events](#party-events) |
 | `document.comment.created` | The comment, as an item of `messages` in [`GET /api/v1/documents/{id}/comments/{threadId}`](/api-reference/get-a-comment-thread) | `thread` |
 | `approval_request.*` | The approval request, as [`GET /api/v1/approval-requests/{id}`](/api-reference/get-an-approval-request) returns it | None |
@@ -32,7 +32,7 @@ Each event also has a reference page with its full schema, such as [`document.co
 
 ## Document events
 
-`data.object` is the document. It has the same fields as `GET /api/v1/documents/{id}` without `expand`, so `fields` is `null`, and `productTables` holds the product tables with the recipient's selection and quantities:
+`data.object` is the document. It has the same fields as `GET /api/v1/documents/{id}` without `expand`, so `content` is `null`, and `productTables` holds the product tables with the recipient's selection and quantities:
 
 ```json
 {
@@ -72,13 +72,15 @@ Each event also has a reference page with its full schema, such as [`document.co
         "signingOrder": 1,
         "signingStatus": "SIGNED",
         "signedAt": "2026-09-29T07:41:00.000Z",
-        "requiredSignature": "SE_BANKID",
+        "delivery": ["EMAIL"],
+        "signatureMethod": "SE_BANKID",
+        "signVerification": null,
         "createdAt": "2026-09-28T09:12:00.000Z"
       }
     ],
     "tags": [],
     "customFields": [],
-    "fields": null,
+    "content": null,
     "productTables": []
   }
 }
@@ -109,6 +111,32 @@ The `documentMeta` and the party in this example are shortened. For every field,
   "previousAttributes": { "expiresAt": "2026-10-28T22:00:00.000Z" }
 }
 ```
+
+### Field values
+
+`document.completed` and `document.party.signed` add `fieldValues`, every value on the document after the event, in the shape that [`GET /api/v1/documents/{id}/field-values`](/api-reference/list-the-fillable-values-on-a-document) lists them. Read what the parties filled in from it, without another request:
+
+```json
+{
+  "object": { "id": "cm4k2x9p10003abcd1234efgh", "status": "COMPLETED" },
+  "fieldValues": [
+    {
+      "key": "delivery-address",
+      "label": "Delivery address",
+      "kind": "INLINE",
+      "fieldId": "cm4k2x9p10009abcd1234efgh",
+      "type": "TEXT",
+      "required": true,
+      "options": null,
+      "value": "Storgatan 1, 111 22 Stockholm",
+      "filledBy": "SIGNER",
+      "partyId": "cm4k2x9p10004abcd1234efgh"
+    }
+  ]
+}
+```
+
+On `document.party.signed`, `fieldValues` holds the values filled in so far.
 
 ### Comment created
 
@@ -172,6 +200,7 @@ Some party events add fields:
 | `document.party.auth_failed` | `method`, which is `SMS_OTP`, `EMAIL_OTP`, `PIN`, or an eID scheme such as `SE_BANKID`. `hintCode`, why the verification failed as the method reports it, such as `invalid_code` or `too_many_attempts`. |
 | `document.party.updated` | `previousAttributes`, the earlier values of the fields that changed: `name`, `email`, or `phone`. Only the changed fields are present. |
 | `document.party.delegated` | `delegation`, with `id`, `delegate` (`name`, `email`, and `phone`), `reason`, and `delegatedAt`. `party` is the party who delegated. |
+| `document.party.signed` | `fieldValues`, every value filled in so far. See [Field values](#field-values). |
 | `document.party.reminded` | `trigger`, which is `AUTOMATIC` for a scheduled reminder and `MANUAL` for one that someone sent from the dashboard or the API. |
 
 For example, a `document.party.updated` event after an email correction carries the following extra field:
@@ -253,7 +282,7 @@ On `approval_request.cancelled`, `status` is `CANCELLED`. sajn deletes a cancell
 
 ## Template events
 
-`data.object` is the template, with `fields` set to `null`. `template.updated` adds `previousAttributes`, with the earlier values of the fields of `object` that changed. A change to a setting outside `object` sends it empty:
+`data.object` is the template, with `content` set to `null`. `template.updated` adds `previousAttributes`, with the earlier values of the fields of `object` that changed. A change to a setting outside `object` sends it empty:
 
 ```json
 {

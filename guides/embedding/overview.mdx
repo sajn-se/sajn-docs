@@ -29,7 +29,7 @@ The list starts empty, and an empty list allows no domains outside sajn. The lis
 
 <Steps>
   <Step title="Create the document on your server">
-    Create the document with the party's `deliveryMethod` set to `NONE`, so sajn doesn't also email an invitation, and send it:
+    Create the document with the party's `delivery` set to `[]`, so sajn doesn't also email an invitation, and send it:
 
     ```bash
     curl -X POST https://app.sajn.se/api/v1/documents \
@@ -40,7 +40,7 @@ The list starts empty, and an empty list allows no domains outside sajn. The lis
         "name": "Service agreement",
         "templateId": "TEMPLATE_ID",
         "parties": [
-          { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER", "deliveryMethod": "NONE" }
+          { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER", "delivery": [] }
         ]
       }'
 
@@ -143,7 +143,7 @@ In the event data, `signerId` is the party's `id`; the embed packages keep this 
 - Only domains in the workspace's allowlist can embed the signing page.
 - The token is checked on the server before the page renders.
 - If the party verifies with an eID or a camera-based check, the iframe needs the `allow="camera"` attribute.
-- If the document has `accessVerification`, the party passes that check inside the iframe before any content loads, the same as on the hosted page. Your application has usually signed the user in already, so consider leaving `accessVerification` off for embedded documents. A party's own `twoStepVerification` always applies.
+- If the document has `openVerification`, the party passes that check inside the iframe before any content loads, the same as on the hosted page. Your application has usually signed the user in already, so consider leaving `openVerification` set to `null` for embedded documents. A party's own `signVerification` always applies before they sign.
 
 ## Handle errors
 

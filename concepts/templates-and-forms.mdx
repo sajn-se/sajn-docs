@@ -23,7 +23,7 @@ flowchart LR
 
 ## Templates
 
-A template holds the fields, parties, and settings of a kind of document, such as an employment contract or an NDA. Templates have their own fields and parties, managed with the `/templates/{id}/fields` and `/templates/{id}/parties` endpoints. Fields have the same shape as on a document, and a template party nests its company in `company`, as a document party does.
+A template holds the content, parties, and settings of a kind of document, such as an employment contract or an NDA. Templates have their own content and parties, managed with the `/templates/{id}/content` and `/templates/{id}/parties` endpoints. Content blocks have the same shape as on a document, and a template party nests its company in `company`, as a document party does.
 
 To create a document from a template, send `templateId` to [`POST /documents`](/api-reference/create-a-new-document):
 
@@ -68,7 +68,7 @@ Every submission creates an ordinary document. It follows the normal [document l
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Fields" icon="table-cells" href="/concepts/fields">
+  <Card title="Content and fields" icon="table-cells" href="/concepts/fields">
     Field types, keys, and the values parties fill in.
   </Card>
   <Card title="Templates and forms guide" icon="copy" href="/guides/templates/templates-and-forms">

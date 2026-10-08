@@ -149,7 +149,7 @@
                 "me"
               ]
             },
-            "description": "Returns the authenticated user, the workspace the API token is bound to, and the parent organization. Used by Zapier and other integrations to verify the connection and label it for users."
+            "description": "Returns the authenticated user, the workspace the request acts in (the `Sajn-Workspace` header, or the token's default workspace), and the parent organization. Used by Zapier and other integrations to verify the connection and label it for users."
           },
           "response": []
         }
@@ -254,7 +254,7 @@
                 }
               ]
             },
-            "description": "Returns the workspaces in the authenticated user's organization that they are a member of. The workspace bound to the current API token is marked with `isCurrent: true`."
+            "description": "Returns the workspaces in the authenticated user's organization that they are a member of. The workspace the request acts in is marked with `isCurrent: true`; send another workspace's ID in the `Sajn-Workspace` header to act there."
           },
           "response": []
         }
@@ -1027,10 +1027,10 @@
                 "documents"
               ]
             },
-            "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. The template's fields and parties are copied. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on the PDF for the template's parties are removed.\n\n**CRM Link:** Use `integrationLink` to link the document to a CRM record (currently HubSpot deals). When the workspace has a field mapping configured for the integration, mapped custom fields and product-table rows are prefilled from the record, and signing status is written back to it. Explicit `customFields` in the request take precedence over prefilled values.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"deliveryMethod\": \"SMS\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `deliveryMethod` and `requiredSignature` settings\n3. **Fill in values** by key, all in one request: `PATCH /api/v1/documents/{docId}/field-values`. To list the keys, call `GET /api/v1/documents/{docId}/field-values`.\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\n**Note:** Each party can have their own `deliveryMethod` (EMAIL, SMS, NONE) and `requiredSignature` (DRAWING, SE_BANKID, CLICK_TO_SIGN) configured when adding them.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill in values by key\nPATCH /api/v1/documents/{docId}/field-values\n{\n  \"values\": [\n    {\"key\": \"name\", \"value\": \"Alex Andersson\"},\n    {\"key\": \"phone\", \"value\": \"+46700000000\"}\n  ]\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document in the same shape as `GET /api/v1/documents/{id}`, without `fields`. To get a party's signing URL, call `GET /api/v1/documents/{id}/parties/{partyId}`.",
+            "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. The template's fields and parties are copied. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on the PDF for the template's parties are removed.\n\n**CRM Link:** Use `integrationLink` to link the document to a CRM record (currently HubSpot deals). When the workspace has a field mapping configured for the integration, mapped custom fields and product-table rows are prefilled from the record, and signing status is written back to it. Explicit `customFields` in the request take precedence over prefilled values.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"delivery\": [\"EMAIL\"],\n      \"signatureMethod\": \"SE_BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"delivery\": [\"SMS\"],\n      \"signatureMethod\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `delivery` - How the party gets the invitation: `[\"EMAIL\"]` (default), `[\"SMS\"]`, `[\"IN_APP\"]` to sign in person on your device, or `[]` to send nothing and share the signing URL yourself\n- `signatureMethod` - How the party signs: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market, so call `GET /api/v1/helpers/signature-methods` for the set your account can use\n- `signVerification` - Verification the party passes before signing: `PIN`, `SMS`, `EMAIL`, or an eID such as `SE_BANKID`. null (default) means none. Call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `delivery` and `signatureMethod` settings\n3. **Fill in values** by key, all in one request: `PATCH /api/v1/documents/{docId}/field-values`. To list the keys, call `GET /api/v1/documents/{docId}/field-values`.\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\nEach party has its own `delivery` and `signatureMethod`.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"delivery\": [\"EMAIL\"],\n      \"signatureMethod\": \"SE_BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill in values by key\nPATCH /api/v1/documents/{docId}/field-values\n{\n  \"values\": [\n    {\"key\": \"name\", \"value\": \"Alex Andersson\"},\n    {\"key\": \"phone\", \"value\": \"+46700000000\"}\n  ]\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document in the same shape as `GET /api/v1/documents/{id}`, without `fields`. To get a party's signing URL, call `GET /api/v1/documents/{id}/parties/{partyId}`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal \u2013 Kai Lindqvist\",\n  \"type\": \"SIGNABLE\",\n  \"expiresAt\": \"2027-03-31T22:00:00.000Z\",\n  \"documentMeta\": {\n    \"subject\": \"Ditt anst\u00e4llningsavtal fr\u00e5n Exempelbolaget AB\",\n    \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal.\",\n    \"signingMode\": \"PARALLEL\",\n    \"language\": \"sv\"\n  },\n  \"parties\": [\n    {\n      \"name\": \"Maja Holm\",\n      \"email\": \"maja.holm@example.com\",\n      \"role\": \"SIGNER\",\n      \"company\": {\n        \"name\": \"Exempelbolaget AB\",\n        \"orgNumber\": \"5561234567\",\n        \"role\": \"HR-chef\"\n      },\n      \"country\": \"SE\",\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"DRAWING\"\n    }\n  ]\n}",
+              "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal \u2013 Kai Lindqvist\",\n  \"type\": \"SIGNABLE\",\n  \"expiresAt\": \"2027-03-31T22:00:00.000Z\",\n  \"documentMeta\": {\n    \"subject\": \"Ditt anst\u00e4llningsavtal fr\u00e5n Exempelbolaget AB\",\n    \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal.\",\n    \"signingMode\": \"PARALLEL\",\n    \"language\": \"sv\"\n  },\n  \"parties\": [\n    {\n      \"name\": \"Maja Holm\",\n      \"email\": \"maja.holm@example.com\",\n      \"role\": \"SIGNER\",\n      \"company\": {\n        \"name\": \"Exempelbolaget AB\",\n        \"orgNumber\": \"5561234567\",\n        \"role\": \"HR-chef\"\n      },\n      \"country\": \"SE\",\n      \"delivery\": [\n        \"EMAIL\"\n      ],\n      \"signatureMethod\": \"DRAWING\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1083,13 +1083,13 @@
               "query": [
                 {
                   "key": "expand",
-                  "value": "fields",
-                  "description": "Related data to include in the response, comma-separated or repeated. `fields` adds the document's content blocks.",
+                  "value": "content",
+                  "description": "Related data to include in the response, comma-separated or repeated. `content` adds the document's content blocks.",
                   "disabled": true
                 }
               ]
             },
-            "description": "Retrieve detailed information about a specific document including all parties, tags, and custom field values.\n\nThe response includes:\n- Document metadata (subject, message, signing order, etc.)\n- All document parties with their status\n- Applied tags\n- Custom field values\n- Product tables with their resolved totals\n- Document timestamps (created, updated, completed, archived)\n\n**Content blocks:** The response leaves out `fields` unless you pass `expand=fields`. To poll a document's status, leave it out. To read the content, pass `expand=fields` or call `GET /api/v1/documents/{id}/fields`."
+            "description": "Retrieve detailed information about a specific document including all parties, tags, and custom field values.\n\nThe response includes:\n- Document metadata (subject, message, signing order, etc.)\n- All document parties with their status\n- Applied tags\n- Custom field values\n- Product tables with their resolved totals\n- Document timestamps (created, updated, completed, archived)\n\n**Content blocks:** `content` is null unless you pass `expand=content`. To poll a document's status, leave it out. To read the content, pass `expand=content` or call `GET /api/v1/documents/{id}/content`."
           },
           "response": []
         },
@@ -1124,7 +1124,7 @@
                 "{{documentId}}"
               ]
             },
-            "description": "Update document properties. A DRAFT document accepts every field. After sending, what you can change depends on the field, and a locked field returns `409 INVALID_STATE` with the reason.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `responsibleUserId` - User ID of responsible team member (must be in your organization)\n- `documentMeta` - Metadata, such as the subject, the message, and the signing mode\n- `customFields` - Custom field values\n\n**Per-party settings:** Delivery method and signature type are set per party through the parties endpoints, not at the document level.\n\n**After sending:**\n- `name`, `externalId`, `responsibleUserId`, `value` and `documentCategoryId` can always change.\n- Reminders, subject, message, redirect, chat, delegation, internal recipients and `signableAfterExpired` can change until the document is completed, cancelled or rejected.\n- `expiresAt` moves the deadline (at least 24 hours ahead) and notifies the parties, like `POST /api/v1/documents/{id}/extend-expiration`.\n- `accessVerification`, `forceReadFullDocument` and `language` can change until someone has signed.\n- `signingMode`, `nationalIdDisplayMode`, `sameDeviceSigning` and `documentStyle` can't change; withdraw the document first.\n\n**Response:** Returns the updated document in the same shape as `GET /api/v1/documents/{id}`, without `fields`.",
+            "description": "Update document properties. A DRAFT document accepts every field. After sending, what you can change depends on the field, and a locked field returns `409 INVALID_STATE` with the reason.\n\n**Updatable Fields:**\n- `name` - Document title\n- `externalId` - Your external reference ID\n- `expiresAt` - Document expiration date\n- `responsibleUserId` - User ID of responsible team member (must be in your organization)\n- `documentMeta` - Metadata, such as the subject, the message, and the signing mode\n- `customFields` - Custom field values\n\n**Per-party settings:** Delivery method and signature type are set per party through the parties endpoints, not at the document level.\n\n**After sending:**\n- `name`, `externalId`, `responsibleUserId`, `value` and `documentCategoryId` can always change.\n- Reminders, subject, message, redirect, chat, delegation, internal recipients and `signableAfterExpired` can change until the document is completed, cancelled or rejected.\n- `expiresAt` moves the deadline (at least 24 hours ahead) and notifies the parties, like `POST /api/v1/documents/{id}/extend-expiration`.\n- `openVerification`, `forceReadFullDocument` and `language` can change until someone has signed.\n- `signingMode`, `nationalIdDisplayMode`, `sameDeviceSigning` and `documentStyle` can't change; withdraw the document first.\n\n**Response:** Returns the updated document in the same shape as `GET /api/v1/documents/{id}`, without `fields`.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"expiresAt\": \"2026-11-15T22:00:00.000Z\",\n  \"documentMeta\": {\n    \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal med det nya startdatumet.\"\n  }\n}",
@@ -1169,6 +1169,33 @@
           "response": []
         },
         {
+          "name": "Check whether a document is ready to send",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/readiness",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "documents",
+                "{{documentId}}",
+                "readiness"
+              ]
+            },
+            "description": "Runs the checks `POST /api/v1/documents/{id}/send` runs before it sends, without sending. `ready` is true when no `BLOCKER` remains. Each issue has a `code`, such as `MISSING_EMAIL` or `NO_EXPIRATION`, an English `message`, and a Swedish `userMessage` that names the party or field.\n\nWhen a send fails the same checks, it returns an HTTP `409 Conflict` status code with code `DOCUMENT_NOT_READY` and this list in `readiness`."
+          },
+          "response": []
+        },
+        {
           "name": "Send document for signing",
           "request": {
             "method": "POST",
@@ -1200,7 +1227,7 @@
                 "send"
               ]
             },
-            "description": "Send a document to signers for signing.\n\n**Request Body:**\n- `customMessage` (optional) - Custom message to include in the signing invitation emails/SMS. Supports newline characters (`\\n`) for line breaks. Available template variables (use `{{variableName}}` syntax): `{{firstName}}`, `{{lastName}}`, `{{fullName}}`, `{{recipientFirstName}}`, `{{recipientLastName}}`, `{{recipientFullName}}`, `{{recipientEmail}}`, `{{recipientPhone}}`, `{{recipientCompanyName}}`, `{{recipientCompanyRole}}`, `{{recipientCompanyOrgNumber}}`, `{{recipientRole}}`, `{{senderFirstName}}`, `{{senderLastName}}`, `{{senderFullName}}`, `{{senderEmail}}`, `{{senderCompanyName}}`, `{{documentName}}`, `{{documentId}}`, `{{documentValue}}`, `{{documentCreatedDate}}`, `{{expirationDate}}`, `{{signUrl}}`. Custom fields are available as `{{custom.<field-slug>}}` using the slugified field name (e.g. \"Avtalsdatum (demo)\" becomes `{{custom.avtalsdatum-demo}}`); secured fields are excluded.\n\n**Prerequisites:**\n- Document must have at least one signer added via `POST /documents/{id}/parties` or when creating the document\n- Each signer's delivery method (`EMAIL`, `SMS`, or `NONE`) and signature type (`DRAWING`, `SE_BANKID`, `CLICK_TO_SIGN`) are configured per-signer when adding them\n\n**Responses:**\n- **200** - The document is sent. Returns the document in the same shape as `GET /api/v1/documents/{id}`, without `fields`.\n- **409** with `code: \"APPROVAL_REQUIRED\"` - You lack the `SEND_WITHOUT_APPROVAL` permission, so the document needs an approval first. Request one with `POST /api/v1/approval-requests`; the document is sent when it's approved.\n- **409** with `code: \"INVALID_STATE\"` - The document isn't a draft, or its approval request is still pending.\n\n**Approved documents:** A document whose approval request is `APPROVED` but that wasn't sent automatically (`autoSend` false) stays `PENDING_APPROVAL`. The user who requested the approval sends it with this endpoint, and the invitation uses the message stored on the approval request.\n\n**What happens when you send:**\n1. Document status changes from `DRAFT` to `PENDING`\n2. Signing invitations are sent to each signer based on their individual `deliveryMethod` setting\n3. Signers with `deliveryMethod: NONE` won't receive notifications - use their signing URLs directly",
+            "description": "Send a document to signers for signing.\n\n**Request Body:**\n- `customMessage` (optional) - Custom message to include in the signing invitation emails/SMS. Supports newline characters (`\\n`) for line breaks. Available template variables (use `{{variableName}}` syntax): `{{firstName}}`, `{{lastName}}`, `{{fullName}}`, `{{recipientFirstName}}`, `{{recipientLastName}}`, `{{recipientFullName}}`, `{{recipientEmail}}`, `{{recipientPhone}}`, `{{recipientCompanyName}}`, `{{recipientCompanyRole}}`, `{{recipientCompanyOrgNumber}}`, `{{recipientRole}}`, `{{senderFirstName}}`, `{{senderLastName}}`, `{{senderFullName}}`, `{{senderEmail}}`, `{{senderCompanyName}}`, `{{documentName}}`, `{{documentId}}`, `{{documentValue}}`, `{{documentCreatedDate}}`, `{{expirationDate}}`, `{{signUrl}}`. Custom fields are available as `{{custom.<field-slug>}}` using the slugified field name (e.g. \"Avtalsdatum (demo)\" becomes `{{custom.avtalsdatum-demo}}`); secured fields are excluded.\n\n**Prerequisites:**\n- Document must have at least one signer added via `POST /documents/{id}/parties` or when creating the document\n- Each signer's delivery method (`EMAIL`, `SMS`, or `NONE`) and signature type (`DRAWING`, `SE_BANKID`, `CLICK_TO_SIGN`) are configured per-signer when adding them\n\n**Responses:**\n- **200** - The document is sent. Returns the document in the same shape as `GET /api/v1/documents/{id}`, without `fields`.\n- **409** with `code: \"APPROVAL_REQUIRED\"` - You lack the `SEND_WITHOUT_APPROVAL` permission, so the document needs an approval first. Request one with `POST /api/v1/approval-requests`; the document is sent when it's approved.\n- **409** with `code: \"INVALID_STATE\"` - The document isn't a draft, or its approval request is still pending.\n\n**Approved documents:** A document whose approval request is `APPROVED` but that wasn't sent automatically (`autoSend` false) stays `PENDING_APPROVAL`. The user who requested the approval sends it with this endpoint, and the invitation uses the message stored on the approval request.\n\n**What happens when you send:**\n1. Document status changes from `DRAFT` to `PENDING`\n2. sajn sends each party an invitation through the channels in its `delivery`\n3. A party with `delivery: []` gets no invitation, so share its signing URL yourself",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"customMessage\": \"Hej! H\u00e4r \u00e4r anst\u00e4llningsavtalet. L\u00e4s igenom det och signera.\"\n}",
@@ -1245,7 +1272,7 @@
                 "withdraw"
               ]
             },
-            "description": "Withdraw (cancel) a document that has been sent out for signing. The document is returned to `DRAFT` status and signers are notified.\n\n**Status Requirements:**\n- Document must be in `PENDING` or `SENDING` status; any other status returns `409 INVALID_STATE`. Use `DELETE /api/v1/documents/{id}` for documents in `DRAFT`, and `POST /api/v1/approval-requests/{id}/cancel` for `PENDING_APPROVAL`.\n\n**Permissions:**\n- Requires the `WITHDRAW_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `reason` (optional) - Free-text reason. Included in withdrawal emails to signers and stored on the audit log.\n\n**What happens when you withdraw:**\n1. Document status is set back to `DRAFT`\n2. Any existing signatures and signer verifications are removed\n3. Each signer's signing/sending/read status is reset\n4. Pending signing reminders are cancelled\n5. A withdrawal email is sent to every signer that had been notified\n6. The `document.withdrawn` webhook is triggered\n\n**Response:** Returns the document in the same shape as `GET /api/v1/documents/{id}`, without `fields`.",
+            "description": "Withdraw (cancel) a document that has been sent out for signing. The document is returned to `DRAFT` status and signers are notified.\n\n**Status Requirements:**\n- Document must be in `PENDING` status; any other status returns `409 INVALID_STATE`. Use `DELETE /api/v1/documents/{id}` for documents in `DRAFT`, and `POST /api/v1/approval-requests/{id}/cancel` for `PENDING_APPROVAL`.\n\n**Permissions:**\n- Requires the `WITHDRAW_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `reason` (optional) - Free-text reason. Included in withdrawal emails to signers and stored on the audit log.\n\n**What happens when you withdraw:**\n1. Document status is set back to `DRAFT`\n2. Any existing signatures and signer verifications are removed\n3. Each signer's signing/sending/read status is reset\n4. Pending signing reminders are cancelled\n5. A withdrawal email is sent to every signer that had been notified\n6. The `document.withdrawn` webhook is triggered\n\n**Response:** Returns the document in the same shape as `GET /api/v1/documents/{id}`, without `fields`.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"reason\": \"Fel startdatum i avtalet.\"\n}",
@@ -1745,10 +1772,10 @@
                 "parties"
               ]
             },
-            "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n\n**Per-Party Settings:**\n- `deliveryMethod` - How to notify: `EMAIL` (default), `SMS`, or `NONE` (use signing URL directly)\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE` (default), `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party, with its `signingUrl`, in the shape of `GET /api/v1/documents/:id/parties/:partyId`. sajn logs that you read the signing URL in the document's audit trail.",
+            "description": "Add a party (signer/participant) to a document. The party must reference an existing contact.\n\n**Party Roles:**\n- `SIGNER` - Must sign the document\n- `ORGANIZER` - Document organizer (no signature required)\n- `REVIEWER` - Reviews document (no signature required)\n\n**Per-Party Settings:**\n- `delivery` - How the party gets the invitation: `[\"EMAIL\"]` (default), `[\"SMS\"]`, `[\"IN_APP\"]` to sign in person on your device, or `[]` to send nothing and share the signing URL yourself\n- `signatureMethod` - How the party signs: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market, so call `GET /api/v1/helpers/signature-methods` for the set your account can use\n- `signVerification` - Verification the party passes before signing: `PIN`, `SMS`, `EMAIL`, or an eID such as `SE_BANKID`. null (default) means none. Call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Signing Order:** For SEQUENTIAL signing, specify the order (1, 2, 3...). For PARALLEL signing, order is ignored.\n\n**Response:** Returns the created party, with its `signingUrl`, in the shape of `GET /api/v1/documents/:id/parties/:partyId`. sajn logs that you read the signing URL in the document's audit trail.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"deliveryMethod\": \"EMAIL\",\n  \"requiredSignature\": \"DRAWING\"\n}",
+              "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"delivery\": [\n    \"EMAIL\"\n  ],\n  \"signatureMethod\": \"DRAWING\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1855,10 +1882,10 @@
                 "{{partyId}}"
               ]
             },
-            "description": "Update party information. Most fields can only be updated before the document is sent.\n\nAfter the document is sent, you can change only `name`, `email`, and `phone`, and only for a party that hasn't signed. Other parties' signatures stay valid. Replacing an email address or phone number issues a new signing link, so the old link stops working, and a party who already got the invitation through that channel gets it again. Any other property returns `409 INVALID_STATE`.\n\nA field you leave out keeps its value. To clear `phone`, `externalId`, `nationalId`, or a key of `company`, pass `null`.\n\n**Updatable Fields:**\n- `name` - Party's full name\n- `email` - Party's email address\n- `phone` - Party's phone number\n- `company` - The company the party signs for: `id` links a company in your workspace, and `name`, `orgNumber`, and `role` describe it. Pass `company: null` to make the party a private individual.\n- `externalId` - Your external reference ID for the party\n- `nationalId` - National identity number, such as a Swedish personnummer, matched against the eID at signing\n- `role` - Party role (SIGNER, ORGANIZER, REVIEWER)\n- `signingOrder` - Order for sequential signing\n- `deliveryMethod` - How to notify: `EMAIL`, `SMS`, or `NONE`\n- `requiredSignature` - Signature type: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market \u2014 call `GET /api/v1/helpers/signature-methods` for the set your account can actually use rather than hard-coding a list\n- `twoStepVerification` - identity gate passed BEFORE the document opens: `NONE`, `PIN_BEFORE_SIGNING`, `SMS_BEFORE_SIGNING`, `EMAIL_BEFORE_SIGNING`, or an eID gate such as `SE_BANKID_BEFORE_SIGNING` \u2014 call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Restrictions:** Cannot update after party has signed the document.",
+            "description": "Update party information. Most fields can only be updated before the document is sent.\n\nAfter the document is sent, you can change only `name`, `email`, and `phone`, and only for a party that hasn't signed. Other parties' signatures stay valid. Replacing an email address or phone number issues a new signing link, so the old link stops working, and a party who already got the invitation through that channel gets it again. Any other property returns `409 INVALID_STATE`.\n\nA field you leave out keeps its value. To clear `phone`, `externalId`, `nationalId`, or a key of `company`, pass `null`.\n\n**Updatable Fields:**\n- `name` - Party's full name\n- `email` - Party's email address\n- `phone` - Party's phone number\n- `company` - The company the party signs for: `id` links a company in your workspace, and `name`, `orgNumber`, and `role` describe it. Pass `company: null` to make the party a private individual.\n- `externalId` - Your external reference ID for the party\n- `nationalId` - National identity number, such as a Swedish personnummer, matched against the eID at signing\n- `role` - Party role (SIGNER, ORGANIZER, REVIEWER)\n- `signingOrder` - Order for sequential signing\n- `delivery` - How the party gets the invitation: `[\"EMAIL\"]`, `[\"SMS\"]`, `[\"IN_APP\"]` to sign in person on your device, or `[]` to send nothing and share the signing URL yourself\n- `signatureMethod` - How the party signs: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market, so call `GET /api/v1/helpers/signature-methods` for the set your account can use\n- `signVerification` - Verification the party passes before signing: `PIN`, `SMS`, `EMAIL`, or an eID such as `SE_BANKID`. null means none. Call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Restrictions:** Cannot update after party has signed the document.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"phone\": \"+46701740605\",\n  \"deliveryMethod\": \"SMS\"\n}",
+              "raw": "{\n  \"phone\": \"+46701740605\",\n  \"delivery\": [\n    \"SMS\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1904,10 +1931,10 @@
       ]
     },
     {
-      "name": "Document fields",
+      "name": "Document content",
       "item": [
         {
-          "name": "List document fields",
+          "name": "List document content",
           "request": {
             "method": "GET",
             "header": [
@@ -1917,7 +1944,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields",
+              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/content",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1926,7 +1953,7 @@
                 "v1",
                 "documents",
                 "{{documentId}}",
-                "fields"
+                "content"
               ],
               "query": [
                 {
@@ -1942,7 +1969,7 @@
           "response": []
         },
         {
-          "name": "Create document fields",
+          "name": "Create document content",
           "request": {
             "method": "POST",
             "header": [
@@ -1961,7 +1988,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields",
+              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/content",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1970,13 +1997,13 @@
                 "v1",
                 "documents",
                 "{{documentId}}",
-                "fields"
+                "content"
               ]
             },
-            "description": "Adds fields to a document. Send the fields in `fields`, even when you create one.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has a unique `id`, `page` (0-based), `rect` (`x`, `y`, `width`, `height` in PDF points, origin at the bottom-left corner of the page), and a `kind`. The server fills `pageWidth`, `pageHeight`, and `pageRotation` from the PDF page when you omit them. If you send `pageWidth` and `pageHeight`, `rect` is measured on a page of that size and scaled to the real page. The box kinds are the following:\n- `INPUT` with `inputType` `SIGNATURE` or `INITIALS` and a `partyId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `INPUT` with `inputType` `TEXT`, `DATE`, `CHECKBOX` or `SELECT` and a `partyId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `STATIC` with `content` (HTML): fixed text stamped at that position.\n\nSet `key` on an `INPUT` box to fill it in by that key through `PATCH /api/v1/documents/{id}/field-values`. A key can contain lowercase letters, digits, hyphens, and underscores.\n\nThe following example creates a PDF field with a signature box:\n\n```json\n{\n  \"fields\": [\n    {\n      \"type\": \"PDF\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"PDF\",\n        \"value\": \"f/org_123/abc123def/contract.pdf\",\n        \"placedFields\": [\n          {\n            \"id\": \"sig-1\",\n            \"kind\": \"INPUT\",\n            \"inputType\": \"SIGNATURE\",\n            \"page\": 2,\n            \"rect\": { \"x\": 72, \"y\": 96, \"width\": 200, \"height\": 48 },\n            \"pageWidth\": 595.28,\n            \"pageHeight\": 841.89,\n            \"partyId\": \"PARTY_ID\",\n            \"required\": true\n          }\n        ]\n      }\n    }\n  ]\n}\n```\n\nThe request fails with an HTTP `400 Bad Request` status code, and writes nothing, when a box has a `page` the PDF doesn't have, doesn't fit on its page, names a `partyId` that isn't a party on the document, or is a `SIGNATURE` or `INITIALS` box without a party with the `SIGNER` role. The `issues` array in the response lists every problem with its path, such as `fields.0.fieldMeta.placedFields.2.rect`.\n\nThe response lists the created fields in request order, each in the same shape as `GET /api/v1/documents/{id}/fields/{fieldId}`. To add, move, or remove single boxes later, use `PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields`.\n\n**Product tables:** a `PRODUCT_TABLE` field's `price` values are decimal amounts in the table's `currency`, such as `1499.5`, not minor units. `vat` is a rate in percent, such as `25`.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
+            "description": "Adds content blocks to a document. Send the blocks in `content`, even when you create one.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has a unique `id`, a `page` counted from 1, a `rect` (`x`, `y`, `width`, `height`), and a `kind`. By default, `rect` is in fractions of the page from 0 to 1, measured from its top-left corner, so `{ \"x\": 0.1, \"y\": 0.8, \"width\": 0.3, \"height\": 0.05 }` is a box near the bottom left. To send PDF points from the bottom-left corner instead, set `unit` to `POINTS` and `origin` to `BOTTOM_LEFT`. The server fills `pageWidth`, `pageHeight`, and `pageRotation` from the PDF page when you omit them, and responses always return relative values from the top-left corner. The box kinds are the following:\n- `INPUT` with `inputType` `SIGNATURE` or `INITIALS` and a `partyId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `INPUT` with `inputType` `TEXT`, `DATE`, `CHECKBOX` or `SELECT` and a `partyId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `STATIC` with `content` (HTML): fixed text stamped at that position.\n\nSet `key` on an `INPUT` box to fill it in by that key through `PATCH /api/v1/documents/{id}/field-values`. A key can contain lowercase letters, digits, hyphens, and underscores.\n\nThe following example creates a PDF field with a signature box:\n\n```json\n{\n  \"content\": [\n    {\n      \"type\": \"PDF\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"PDF\",\n        \"value\": \"f/org_123/abc123def/contract.pdf\",\n        \"placedFields\": [\n          {\n            \"id\": \"sig-1\",\n            \"kind\": \"INPUT\",\n            \"inputType\": \"SIGNATURE\",\n            \"page\": 2,\n            \"rect\": { \"x\": 0.12, \"y\": 0.83, \"width\": 0.34, \"height\": 0.06 },\n            \"partyId\": \"PARTY_ID\",\n            \"required\": true\n          }\n        ]\n      }\n    }\n  ]\n}\n```\n\nThe request fails with an HTTP `400 Bad Request` status code, and writes nothing, when a box has a `page` the PDF doesn't have, doesn't fit on its page, names a `partyId` that isn't a party on the document, or is a `SIGNATURE` or `INITIALS` box without a party with the `SIGNER` role. The `issues` array in the response lists every problem with its path, such as `content.0.fieldMeta.placedFields.2.rect`.\n\nThe response lists the created fields in request order, each in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`. To add, move, or remove single boxes later, use `PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields`.\n\n**Product tables:** a `PRODUCT_TABLE` field's `price` values are decimal amounts in the table's `currency`, such as `1499.5`, not minor units. `vat` is a rate in percent, such as `25`.\n\n**Fields a party fills in:** In `TEXT` or `HTML` content, place a field with a `<sajn-field>` tag, such as `<sajn-field key=\"buyer-phone\" party=\"PARTY_ID\" type=\"TEXT\" label=\"Phone\"></sajn-field>`. `key` names the field, and `party` is the party who fills it in. `type` is `TEXT` (default), `DATE`, or `SELECT` with its choices in `options`, separated by commas. A field is required unless you set `required=\"false\"`, and `value` prefills it. Responses return the same tag.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fields\": [\n    {\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
+              "raw": "{\n  \"content\": [\n    {\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1987,7 +2014,7 @@
           "response": []
         },
         {
-          "name": "Get a document field",
+          "name": "Get a document content block",
           "request": {
             "method": "GET",
             "header": [
@@ -1997,7 +2024,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}",
+              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/content/{{contentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2006,8 +2033,8 @@
                 "v1",
                 "documents",
                 "{{documentId}}",
-                "fields",
-                "{{fieldId}}"
+                "content",
+                "{{contentId}}"
               ]
             },
             "description": "Get one content block of a document by its field ID, with full type-specific metadata."
@@ -2015,7 +2042,7 @@
           "response": []
         },
         {
-          "name": "Update a document field",
+          "name": "Update a document content block",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2034,7 +2061,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}",
+              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/content/{{contentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2043,11 +2070,11 @@
                 "v1",
                 "documents",
                 "{{documentId}}",
-                "fields",
-                "{{fieldId}}"
+                "content",
+                "{{contentId}}"
               ]
             },
-            "description": "Updates a document field by its ID. Only DRAFT documents can be changed. To fill in a value, such as a FORM subfield, use `PATCH /api/v1/documents/{id}/field-values` instead. To find the field that holds a key, call `GET /api/v1/documents/{id}/fields?key=KEY`.\n\n**Updatable properties:**\n- `type` - Field type\n- `position` - Field order\n- `fieldMeta` - The full metadata for the field type, which replaces the stored metadata\n\nThe following example updates an HTML field:\n\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1>Contract title</h1><p>Custom styled content</p></div>\"\n  }\n}\n```\n\nThe response is the updated field, in the same shape as `GET /api/v1/documents/{id}/fields/{fieldId}`.",
+            "description": "Updates a document field by its ID. Only DRAFT documents can be changed. To fill in a value, such as a FORM subfield, use `PATCH /api/v1/documents/{id}/field-values` instead. To find the field that holds a key, call `GET /api/v1/documents/{id}/content?key=KEY`.\n\n**Updatable properties:**\n- `type` - Field type\n- `position` - Field order\n- `fieldMeta` - The full metadata for the field type, which replaces the stored metadata\n\nThe following example updates an HTML field:\n\n```json\nPATCH /api/v1/documents/{docId}/content/{contentId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1>Contract title</h1><p>Custom styled content</p></div>\"\n  }\n}\n```\n\nThe response is the updated field, in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"type\": \"TEXT\",\n  \"position\": 0,\n  \"fieldMeta\": {\n    \"type\": \"TEXT\",\n    \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n    \"locked\": false,\n    \"sectionStyle\": {\n      \"background\": \"NONE\",\n      \"padding\": \"NONE\",\n      \"bleed\": false,\n      \"border\": false\n    },\n    \"hidden\": false\n  }\n}",
@@ -2061,7 +2088,7 @@
           "response": []
         },
         {
-          "name": "Add, update, or remove boxes on a PDF field",
+          "name": "Add, update, or remove boxes on a PDF block",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2080,7 +2107,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}/placed-fields",
+              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/content/{{contentId}}/placed-fields",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2089,15 +2116,15 @@
                 "v1",
                 "documents",
                 "{{documentId}}",
-                "fields",
-                "{{fieldId}}",
+                "content",
+                "{{contentId}}",
                 "placed-fields"
               ]
             },
-            "description": "Changes individual boxes on a PDF field without sending the whole field. Only DRAFT documents can be changed.\n\nEach box in `upsert` has the same shape as an entry in `fieldMeta.placedFields` on `POST /api/v1/documents/{id}/fields`, and is checked the same way. The response is the updated field, in the same shape as `GET /api/v1/documents/{id}/fields/{fieldId}`. A box whose `id` already exists on the field replaces that box and keeps its stacking order. A box with a new `id` is added on top. `remove` lists the ids of boxes to delete. Boxes you don't mention stay as they are.\n\nThe change is atomic: if any box is invalid, nothing is written and the response lists every problem in `issues`. If another edit changes the field while the request runs, the request fails with an HTTP `409 Conflict` status code and code `INVALID_STATE`; send it again.\n\n**Example - move one box and remove another:**\n```json\nPATCH /api/v1/documents/{docId}/fields/{fieldId}/placed-fields\n{\n  \"upsert\": [\n    {\n      \"id\": \"sig-1\",\n      \"kind\": \"INPUT\",\n      \"inputType\": \"SIGNATURE\",\n      \"page\": 2,\n      \"rect\": { \"x\": 72, \"y\": 120, \"width\": 200, \"height\": 48 },\n      \"partyId\": \"PARTY_ID\"\n    }\n  ],\n  \"remove\": [\"initials-3\"]\n}\n```",
+            "description": "Changes individual boxes on a PDF field without sending the whole field. Only DRAFT documents can be changed.\n\nEach box in `upsert` has the same shape as an entry in `fieldMeta.placedFields` on `POST /api/v1/documents/{id}/content`, and is checked the same way. The response is the updated field, in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`. A box whose `id` already exists on the field replaces that box and keeps its stacking order. A box with a new `id` is added on top. `remove` lists the ids of boxes to delete. Boxes you don't mention stay as they are.\n\nThe change is atomic: if any box is invalid, nothing is written and the response lists every problem in `issues`. If another edit changes the field while the request runs, the request fails with an HTTP `409 Conflict` status code and code `INVALID_STATE`; send it again.\n\n**Example - move one box and remove another:**\n```json\nPATCH /api/v1/documents/{docId}/content/{contentId}/placed-fields\n{\n  \"upsert\": [\n    {\n      \"id\": \"sig-1\",\n      \"kind\": \"INPUT\",\n      \"inputType\": \"SIGNATURE\",\n      \"page\": 2,\n      \"rect\": { \"x\": 0.12, \"y\": 0.8, \"width\": 0.34, \"height\": 0.06 },\n      \"partyId\": \"PARTY_ID\"\n    }\n  ],\n  \"remove\": [\"initials-3\"]\n}\n```",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"upsert\": [\n    {\n      \"id\": \"signatur-kai\",\n      \"kind\": \"INPUT\",\n      \"inputType\": \"SIGNATURE\",\n      \"page\": 3,\n      \"rect\": {\n        \"x\": 72,\n        \"y\": 96,\n        \"width\": 200,\n        \"height\": 48\n      },\n      \"pageWidth\": 595.28,\n      \"pageHeight\": 841.89,\n      \"partyId\": \"cm4k2x9p10004abcd1234efgh\",\n      \"required\": true\n    }\n  ],\n  \"remove\": [\n    \"initialer-kai\"\n  ]\n}",
+              "raw": "{\n  \"upsert\": [\n    {\n      \"id\": \"cm4k2x9p10009abcd1234efgh\",\n      \"page\": 1,\n      \"rect\": {\n        \"x\": 0.12,\n        \"y\": 0.76,\n        \"width\": 0.3,\n        \"height\": 0.06\n      },\n      \"pageWidth\": 595.28,\n      \"pageHeight\": 841.89,\n      \"pageRotation\": 0,\n      \"name\": \"Anst\u00e4llningsvillkor\",\n      \"key\": \"startdatum\",\n      \"locked\": false,\n      \"style\": {\n        \"fontSize\": 6,\n        \"color\": \"#2563EB\",\n        \"bold\": false,\n        \"italic\": false,\n        \"align\": \"LEFT\"\n      },\n      \"kind\": \"INPUT\",\n      \"inputType\": \"TEXT\",\n      \"label\": \"Startdatum\",\n      \"fillSource\": \"SIGNER\",\n      \"partyId\": \"cm4k2x9p10004abcd1234efgh\",\n      \"variableId\": \"startdatum\",\n      \"required\": true,\n      \"options\": [\n        \"Heltid\"\n      ],\n      \"multiline\": false,\n      \"unit\": \"RELATIVE\",\n      \"origin\": \"TOP_LEFT\"\n    }\n  ],\n  \"remove\": [\n    \"Anst\u00e4llningsvillkor\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2108,7 +2135,7 @@
           "response": []
         },
         {
-          "name": "Delete a document field",
+          "name": "Delete a document content block",
           "request": {
             "method": "DELETE",
             "header": [
@@ -2123,7 +2150,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/fields/{{fieldId}}",
+              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/content/{{contentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2132,8 +2159,8 @@
                 "v1",
                 "documents",
                 "{{documentId}}",
-                "fields",
-                "{{fieldId}}"
+                "content",
+                "{{contentId}}"
               ]
             },
             "description": "Deletes a field from a document. Only DRAFT documents can be changed. The response holds the ID of the deleted field; to keep its content, read the field before you delete it."
@@ -2207,7 +2234,7 @@
                 "field-values"
               ]
             },
-            "description": "Fills in values by key. The same request shape works for FORM subfields, AcroForm fields, and boxes placed on a PDF. Only documents with the status DRAFT or IMPORTED can be filled in.\n\nKeys must match exactly. To find the keys, call `GET /api/v1/documents/{id}/field-values`. Set a key in the editor on a FORM subfield or a placed box, or send `key` when you create a placed box through the API, so that the key stays the same for every document created from a template.\n\nThe following example fills in a FORM subfield, a placed text box, and a PDF checkbox:\n\n```json\n{\n  \"values\": [\n    { \"key\": \"customer-name\", \"value\": \"Example AB\" },\n    { \"key\": \"org-number\", \"value\": \"556000-0000\" },\n    { \"key\": \"accept-terms\", \"value\": true }\n  ]\n}\n```\n\nA value fails, and the other values are still written, when its key doesn't exist, when two fields share the key, when a party fills in the value at signing, or when the value doesn't match the type or the allowed options. `results` lists the outcome for each key, with an `error` that has a `code` from the error catalogue, and `data` holds every value on the document after the write, as `GET /api/v1/documents/{id}/field-values` returns them.\n\nIf another edit changes one of the fields while the request runs, nothing is written and the request fails with an HTTP `409 Conflict` status code. Send the request again.",
+            "description": "Fills in values by key. The same request shape works for FORM subfields, AcroForm fields, and boxes placed on a PDF. Only documents with the status DRAFT or IMPORTED can be filled in.\n\nKeys must match exactly. To find the keys, call `GET /api/v1/documents/{id}/field-values`. Set a key in the editor on a FORM subfield or a placed box, or send `key` when you create a placed box through the API, so that the key stays the same for every document created from a template.\n\nThe following example fills in a FORM subfield, a placed text box, and a PDF checkbox:\n\n```json\n{\n  \"values\": [\n    { \"key\": \"customer-name\", \"value\": \"Example AB\" },\n    { \"key\": \"org-number\", \"value\": \"556000-0000\" },\n    { \"key\": \"accept-terms\", \"value\": true }\n  ]\n}\n```\n\nA value fails, and the other values are still written, when its key doesn't exist, when two fields share the key, when a party fills in the value and the document is no longer a draft, or when the value doesn't match the type or the allowed options. `results` lists the outcome for each key, with an `error` that has a `code` from the error catalogue, and `data` holds every value on the document after the write, as `GET /api/v1/documents/{id}/field-values` returns them.\n\nIf another edit changes one of the fields while the request runs, nothing is written and the request fails with an HTTP `409 Conflict` status code. Send the request again.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"values\": [\n    {\n      \"key\": \"startdatum\",\n      \"value\": \"2026-11-01\"\n    }\n  ]\n}",
@@ -3726,10 +3753,10 @@
                 "templates"
               ]
             },
-            "description": "Create a new template in your workspace.\n\n**Required Fields:**\n- `name` - Template name\n\n**Optional Fields:**\n- `initialFields` - Array of fields to create with the template. Each field has `type`, `position`, and `fieldMeta`.\n\n**Usage:** After creating a template, add default parties via `POST /api/v1/templates/:id/parties` and tags via `POST /api/v1/templates/:id/tags`. Then create documents from it using `POST /api/v1/documents` with `templateId`.",
+            "description": "Create a new template in your workspace.\n\n**Required Fields:**\n- `name` - Template name\n\n**Optional Fields:**\n- `initialContent` - Content blocks to create with the template, each with `type`, `position`, and `fieldMeta`, in the same shape as `POST /api/v1/templates/{id}/content`.\n\n**Usage:** After creating a template, add default parties via `POST /api/v1/templates/:id/parties` and tags via `POST /api/v1/templates/:id/tags`. Then create documents from it using `POST /api/v1/documents` with `templateId`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal\",\n  \"initialFields\": [\n    {\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
+              "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal\",\n  \"initialContent\": [\n    {\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3763,13 +3790,13 @@
               "query": [
                 {
                   "key": "expand",
-                  "value": "fields",
-                  "description": "Related data to include in the response, comma-separated or repeated. `fields` adds the template's content blocks.",
+                  "value": "content",
+                  "description": "Related data to include in the response, comma-separated or repeated. `content` adds the template's content blocks.",
                   "disabled": true
                 }
               ]
             },
-            "description": "Gets a template with its settings, parties, and tags. To include its content blocks, pass `expand=fields`."
+            "description": "Gets a template with its settings, parties, and tags. To include its content blocks, pass `expand=content`."
           },
           "response": []
         },
@@ -3807,7 +3834,7 @@
             "description": "Update template properties.\n\n**Updatable Fields:**\n- `name` - Template name\n- `templateMeta` - Default settings for documents created from this template, such as `signingMode` and `language`\n\nThe response is the template, in the same shape as `GET /api/v1/templates/:id`. A locked template can't be updated: the request fails with an HTTP `409 Conflict` status code and the code `INVALID_STATE`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal\",\n  \"templateMeta\": {\n    \"signingMode\": \"PARALLEL\",\n    \"forceReadFullDocument\": false,\n    \"showChatToSigners\": false,\n    \"value\": \"540000\",\n    \"signableAfterExpired\": false,\n    \"sendPlainTextEmailOnly\": false,\n    \"allowDelegation\": false,\n    \"responsibleUserId\": \"cm4k2x9p10002abcd1234efgh\",\n    \"accessVerification\": \"NONE\",\n    \"internalRecipients\": [\n      \"hr@example.com\"\n    ],\n    \"visibility\": \"EVERYONE\",\n    \"selectedUserIds\": [\n      \"cm4k2x9p10008abcd1234efgh\"\n    ],\n    \"language\": \"sv\",\n    \"reminderIntervalDays\": 3,\n    \"nationalIdDisplayMode\": \"FULL\",\n    \"sameDeviceSigning\": false,\n    \"documentCategoryId\": \"cm4k2x9p10017abcd1234efgh\"\n  }\n}",
+              "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal\",\n  \"templateMeta\": {\n    \"signingMode\": \"PARALLEL\",\n    \"forceReadFullDocument\": false,\n    \"showChatToSigners\": false,\n    \"value\": \"540000\",\n    \"signableAfterExpired\": false,\n    \"sendPlainTextEmailOnly\": false,\n    \"allowDelegation\": false,\n    \"responsibleUserId\": \"cm4k2x9p10002abcd1234efgh\",\n    \"internalRecipients\": [\n      \"hr@example.com\"\n    ],\n    \"visibility\": \"EVERYONE\",\n    \"selectedUserIds\": [\n      \"cm4k2x9p10008abcd1234efgh\"\n    ],\n    \"language\": \"sv\",\n    \"reminderIntervalDays\": 3,\n    \"openVerification\": \"PIN\",\n    \"nationalIdDisplayMode\": \"FULL\",\n    \"sameDeviceSigning\": false,\n    \"documentCategoryId\": \"cm4k2x9p10017abcd1234efgh\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3881,7 +3908,7 @@
           "response": []
         },
         {
-          "name": "List template fields",
+          "name": "List template content",
           "request": {
             "method": "GET",
             "header": [
@@ -3891,7 +3918,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/fields",
+              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/content",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -3900,7 +3927,7 @@
                 "v1",
                 "templates",
                 "{{templateId}}",
-                "fields"
+                "content"
               ],
               "query": [
                 {
@@ -3916,7 +3943,7 @@
           "response": []
         },
         {
-          "name": "Create a template field",
+          "name": "Create template content",
           "request": {
             "method": "POST",
             "header": [
@@ -3935,7 +3962,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/fields",
+              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/content",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -3944,13 +3971,13 @@
                 "v1",
                 "templates",
                 "{{templateId}}",
-                "fields"
+                "content"
               ]
             },
-            "description": "Adds fields to a template. Send the fields in `fields`, the same way as `POST /api/v1/documents/{id}/fields`.",
+            "description": "Adds content blocks to a template. Send the blocks in `content`, the same way as `POST /api/v1/documents/{id}/content`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fields\": [\n    {\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
+              "raw": "{\n  \"content\": [\n    {\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3961,7 +3988,7 @@
           "response": []
         },
         {
-          "name": "Get a template field",
+          "name": "Get a template content block",
           "request": {
             "method": "GET",
             "header": [
@@ -3971,7 +3998,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/fields/{{fieldId}}",
+              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/content/{{contentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -3980,8 +4007,8 @@
                 "v1",
                 "templates",
                 "{{templateId}}",
-                "fields",
-                "{{fieldId}}"
+                "content",
+                "{{contentId}}"
               ]
             },
             "description": "Get one content block of a template by its field ID."
@@ -3989,7 +4016,7 @@
           "response": []
         },
         {
-          "name": "Update a template field",
+          "name": "Update a template content block",
           "request": {
             "method": "PATCH",
             "header": [
@@ -4008,7 +4035,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/fields/{{fieldId}}",
+              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/content/{{contentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -4017,11 +4044,11 @@
                 "v1",
                 "templates",
                 "{{templateId}}",
-                "fields",
-                "{{fieldId}}"
+                "content",
+                "{{contentId}}"
               ]
             },
-            "description": "Updates a template field by its ID, the same way as `PATCH /api/v1/documents/{id}/fields/{fieldId}`. The response is the updated field.",
+            "description": "Updates a template field by its ID, the same way as `PATCH /api/v1/documents/{id}/content/{contentId}`. The response is the updated field.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"type\": \"TEXT\",\n  \"position\": 0,\n  \"fieldMeta\": {\n    \"type\": \"TEXT\",\n    \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n    \"locked\": false,\n    \"sectionStyle\": {\n      \"background\": \"NONE\",\n      \"padding\": \"NONE\",\n      \"bleed\": false,\n      \"border\": false\n    },\n    \"hidden\": false\n  }\n}",
@@ -4035,7 +4062,7 @@
           "response": []
         },
         {
-          "name": "Add, update, or remove boxes on a template PDF field",
+          "name": "Add, update, or remove boxes on a template PDF block",
           "request": {
             "method": "PATCH",
             "header": [
@@ -4054,7 +4081,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/fields/{{fieldId}}/placed-fields",
+              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/content/{{contentId}}/placed-fields",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -4063,15 +4090,15 @@
                 "v1",
                 "templates",
                 "{{templateId}}",
-                "fields",
-                "{{fieldId}}",
+                "content",
+                "{{contentId}}",
                 "placed-fields"
               ]
             },
-            "description": "Changes individual boxes on a template PDF field, the same way as `PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields`, with `partyId` referring to a template party. The response is the updated field.",
+            "description": "Changes individual boxes on a template PDF field, the same way as `PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields`, with `partyId` referring to a template party. The response is the updated field.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"upsert\": [\n    {\n      \"id\": \"signatur-kai\",\n      \"kind\": \"INPUT\",\n      \"inputType\": \"SIGNATURE\",\n      \"page\": 3,\n      \"rect\": {\n        \"x\": 72,\n        \"y\": 96,\n        \"width\": 200,\n        \"height\": 48\n      },\n      \"pageWidth\": 595.28,\n      \"pageHeight\": 841.89,\n      \"partyId\": \"cm4k2x9p10004abcd1234efgh\",\n      \"required\": true\n    }\n  ],\n  \"remove\": [\n    \"initialer-kai\"\n  ]\n}",
+              "raw": "{\n  \"upsert\": [\n    {\n      \"id\": \"cm4k2x9p10009abcd1234efgh\",\n      \"page\": 1,\n      \"rect\": {\n        \"x\": 0.12,\n        \"y\": 0.76,\n        \"width\": 0.3,\n        \"height\": 0.06\n      },\n      \"pageWidth\": 595.28,\n      \"pageHeight\": 841.89,\n      \"pageRotation\": 0,\n      \"name\": \"Anst\u00e4llningsvillkor\",\n      \"key\": \"startdatum\",\n      \"locked\": false,\n      \"style\": {\n        \"fontSize\": 6,\n        \"color\": \"#2563EB\",\n        \"bold\": false,\n        \"italic\": false,\n        \"align\": \"LEFT\"\n      },\n      \"kind\": \"INPUT\",\n      \"inputType\": \"TEXT\",\n      \"label\": \"Startdatum\",\n      \"fillSource\": \"SIGNER\",\n      \"partyId\": \"cm4k2x9p10004abcd1234efgh\",\n      \"variableId\": \"startdatum\",\n      \"required\": true,\n      \"options\": [\n        \"Heltid\"\n      ],\n      \"multiline\": false,\n      \"unit\": \"RELATIVE\",\n      \"origin\": \"TOP_LEFT\"\n    }\n  ],\n  \"remove\": [\n    \"Anst\u00e4llningsvillkor\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4082,7 +4109,7 @@
           "response": []
         },
         {
-          "name": "Delete a template field",
+          "name": "Delete a template content block",
           "request": {
             "method": "DELETE",
             "header": [
@@ -4097,7 +4124,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/fields/{{fieldId}}",
+              "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}/content/{{contentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -4106,8 +4133,8 @@
                 "v1",
                 "templates",
                 "{{templateId}}",
-                "fields",
-                "{{fieldId}}"
+                "content",
+                "{{contentId}}"
               ]
             },
             "description": "Deletes a field from a template. The response holds the ID of the deleted field."
@@ -4176,7 +4203,7 @@
             "description": "Add a default party/signer to a template. You can either reference an existing contact via `contactId`, or provide `name` with optional email/phone/company details manually.\n\nThese parties are inherited as signers when a document is created from this template (unless overridden).",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"signingOrder\": 1,\n  \"deliveryMethod\": \"EMAIL\",\n  \"requiredSignature\": \"SE_BANKID\",\n  \"twoStepVerification\": \"NONE\"\n}",
+              "raw": "{\n  \"contactId\": \"{{contactId}}\",\n  \"role\": \"SIGNER\",\n  \"signingOrder\": 1,\n  \"delivery\": [\n    \"EMAIL\"\n  ],\n  \"signatureMethod\": \"SE_BANKID\",\n  \"signVerification\": \"PIN\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4222,7 +4249,7 @@
             "description": "Updates a template party. A property you leave out stays unchanged, and `null` clears it. A locked template can't be changed: the request fails with an HTTP `409 Conflict` status code and the code `INVALID_STATE`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Den anst\u00e4llde\",\n  \"requiredSignature\": \"SE_BANKID\"\n}",
+              "raw": "{\n  \"name\": \"Den anst\u00e4llde\",\n  \"signatureMethod\": \"SE_BANKID\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4782,7 +4809,7 @@
             "description": "Change the template's name, signing order and document defaults, and return the template. Settings you omit stay unchanged. Changes apply to future submissions only. Requires forms:write and documents:write, including for drafts.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Intresseanm\u00e4lan\",\n  \"templateMeta\": {\n    \"signingMode\": \"PARALLEL\",\n    \"forceReadFullDocument\": false,\n    \"showChatToSigners\": false,\n    \"value\": \"540000\",\n    \"signableAfterExpired\": false,\n    \"sendPlainTextEmailOnly\": false,\n    \"allowDelegation\": false,\n    \"responsibleUserId\": \"cm4k2x9p10002abcd1234efgh\",\n    \"accessVerification\": \"NONE\",\n    \"internalRecipients\": [\n      \"hr@example.com\"\n    ],\n    \"visibility\": \"EVERYONE\",\n    \"selectedUserIds\": [\n      \"cm4k2x9p10023abcd1234efgh\"\n    ],\n    \"language\": \"sv\",\n    \"reminderIntervalDays\": 3,\n    \"nationalIdDisplayMode\": \"FULL\",\n    \"sameDeviceSigning\": false,\n    \"documentCategoryId\": \"cm4k2x9p10017abcd1234efgh\"\n  }\n}",
+              "raw": "{\n  \"name\": \"Intresseanm\u00e4lan\",\n  \"templateMeta\": {\n    \"signingMode\": \"PARALLEL\",\n    \"forceReadFullDocument\": false,\n    \"showChatToSigners\": false,\n    \"value\": \"540000\",\n    \"signableAfterExpired\": false,\n    \"sendPlainTextEmailOnly\": false,\n    \"allowDelegation\": false,\n    \"responsibleUserId\": \"cm4k2x9p10002abcd1234efgh\",\n    \"internalRecipients\": [\n      \"hr@example.com\"\n    ],\n    \"visibility\": \"EVERYONE\",\n    \"selectedUserIds\": [\n      \"cm4k2x9p10023abcd1234efgh\"\n    ],\n    \"language\": \"sv\",\n    \"reminderIntervalDays\": 3,\n    \"openVerification\": \"PIN\",\n    \"nationalIdDisplayMode\": \"FULL\",\n    \"sameDeviceSigning\": false,\n    \"documentCategoryId\": \"cm4k2x9p10017abcd1234efgh\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4793,7 +4820,7 @@
           "response": []
         },
         {
-          "name": "Replace the form template's fields",
+          "name": "Replace the form template's content",
           "request": {
             "method": "PUT",
             "header": [
@@ -4812,7 +4839,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/forms/{{formId}}/template/fields",
+              "raw": "{{baseUrl}}/api/v1/forms/{{formId}}/template/content",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -4822,13 +4849,13 @@
                 "forms",
                 "{{formId}}",
                 "template",
-                "fields"
+                "content"
               ]
             },
-            "description": "Replace the complete ordered list of content blocks, and return the template. Include existing IDs to keep fields; omit an ID to create a field. Fields you leave out are deleted. An existing field's type can't change. PDF ownership, metadata and section locks are validated. Read the form again to see the keys a question can bind to. Requires forms:write and documents:write, including for drafts.",
+            "description": "Replace the complete ordered list of content blocks, and return the template. Include existing IDs to keep blocks; omit an ID to create a block. Blocks you leave out are deleted. An existing block's type can't change. PDF ownership, metadata, section locks, and boxes placed on a PDF are validated. Read the form again to see the keys a question can bind to. Requires forms:write and documents:write, including for drafts.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fields\": [\n    {\n      \"id\": \"cm4k2x9p10009abcd1234efgh\",\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
+              "raw": "{\n  \"content\": [\n    {\n      \"id\": \"cm4k2x9p10009abcd1234efgh\",\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4874,7 +4901,7 @@
             "description": "Replace the complete party list, and return the template. Include IDs to keep parties; omit IDs to create them. Properties you omit on a kept party, including its PIN, stay unchanged, and null clears a nullable property. Parties you leave out are deleted. If you remove the respondent, select another SIGNER before publishing. Existing submissions are unchanged. Requires forms:write and documents:write, including for drafts.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"parties\": [\n    {\n      \"name\": \"Kai Lindqvist\",\n      \"email\": \"kai@example.com\",\n      \"phone\": \"+46701740605\",\n      \"company\": null,\n      \"externalId\": \"HR-2026-0142\",\n      \"nationalId\": \"191212121212\",\n      \"country\": \"SE\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"deliveryMethod\": \"EMAIL\",\n      \"requiredSignature\": \"SE_BANKID\",\n      \"twoStepVerification\": \"NONE\",\n      \"id\": \"cm4k2x9p10004abcd1234efgh\",\n      \"contactId\": \"cm4k2x9p10006abcd1234efgh\",\n      \"type\": \"INDIVIDUAL\",\n      \"signPin\": \"4821\"\n    }\n  ]\n}",
+              "raw": "{\n  \"parties\": [\n    {\n      \"name\": \"Kai Lindqvist\",\n      \"email\": \"kai@example.com\",\n      \"phone\": \"+46701740605\",\n      \"company\": null,\n      \"externalId\": \"HR-2026-0142\",\n      \"nationalId\": \"191212121212\",\n      \"country\": \"SE\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"delivery\": [\n        \"EMAIL\"\n      ],\n      \"signatureMethod\": \"SE_BANKID\",\n      \"signVerification\": \"PIN\",\n      \"id\": \"cm4k2x9p10004abcd1234efgh\",\n      \"contactId\": \"cm4k2x9p10006abcd1234efgh\",\n      \"type\": \"INDIVIDUAL\",\n      \"signPin\": \"4821\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5638,6 +5665,37 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Delete a tag",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tags/{{tagId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tags",
+                "{{tagId}}"
+              ]
+            },
+            "description": "Deletes a tag and removes it from every document, template, and contact it was attached to."
+          },
+          "response": []
         }
       ]
     },
@@ -6208,7 +6266,7 @@
                 "webhooks"
               ]
             },
-            "description": "Create a new webhook subscription for your workspace.\n\n**Required Fields:**\n- `url` - URL that receives a POST request for each event\n- `events` - The event types to subscribe to, such as `document.completed`\n\n**Optional Fields:**\n- `secret` - Signing secret in the Standard Webhooks format, `whsec_<base64>`. sajn generates one when omitted, and the response returns it once\n- `enabled` - Whether the webhook is active (default: true)\n- `apiVersion` - API version, such as `2026-10`, that determines the body this endpoint receives. Defaults to your organization's API version. The endpoint keeps this version until you change it with `PATCH /api/v1/webhooks/:id`\n\n**Delivery:** each event is a POST with the body `{ id, type, createdAt, apiVersion, workspaceId, environment, actor, data }`, the same object `GET /api/v1/events/:id` returns. `data.object` is the resource the event is about. The request follows [Standard Webhooks](https://www.standardwebhooks.com): `webhook-id` is the event `id`, `webhook-timestamp` is the send time in Unix seconds, and `webhook-signature` is `v1,<base64 HMAC-SHA256>` over `<webhook-id>.<webhook-timestamp>.<raw body>`, keyed with the base64-decoded secret after `whsec_`. Any Standard Webhooks library verifies it. Return a 2xx status code within 30 seconds. sajn retries any other answer, a timeout, and a network error with backoff for about three days, and stops at once on `410 Gone`. Delivery is at least once, so deduplicate on `webhook-id`.\n\n**Event types:** `events` takes the following values:\n- Document, with the document in `data.object`: `document.created` (with `data.source`), `document.sent`, `document.fully_signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.updated`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration_extended`, `document.expiring_soon`, and `document.comment.created`, with the comment in `data.object`\n- Party, with the document in `data.object` and the party in `data.party`: `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`, `document.party.verified`, `document.party.updated`, `document.party.added`, `document.party.removed`, `document.party.reminded`\n- Approval: `approval_request.created`, `approval_request.approved`, `approval_request.rejected`, `approval_request.cancelled`\n- Identity check: `identity_check.created`, `identity_check.sent`, `identity_check.opened`, `identity_check.verified`, `identity_check.failed`, `identity_check.cancelled`\n- Contact, company and template: `contact.created`, `contact.updated`, `contact.deleted`, `company.created`, `company.updated`, `company.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`\n- Form: `form.submitted`, with the same fields as `GET /api/v1/forms/:id/submissions/:submissionId`\n- Workspace: `workspace.created`, `member.added`, `member.invited`, `member.invite_accepted`\n- sajn Login: `login.completed`, `login.failed`, with the login session in `data.object`\n- Security, a feed for a SIEM: `security.document_downloaded`, `security.documents_exported`, `security.signature_identity_accessed`, `security.member_removed`, `security.member_role_changed`, `security.role_updated`, `security.workspace_retention_updated`\n- Usage: `usage.limit_reached`\n\n**Plan Requirement:** Requires the Team plan or higher, or a sandbox organization.",
+            "description": "Create a new webhook subscription for your workspace.\n\n**Required Fields:**\n- `url` - URL that receives a POST request for each event\n- `events` - The event types to subscribe to, such as `document.completed`\n\n**Optional Fields:**\n- `secret` - Signing secret in the Standard Webhooks format, `whsec_<base64>`. sajn generates one when omitted, and the response returns it once\n- `enabled` - Whether the webhook is active (default: true)\n- `apiVersion` - API version, such as `2026-10`, that determines the body this endpoint receives. Defaults to the API version of this request. The endpoint keeps this version until you change it with `PATCH /api/v1/webhooks/:id`\n\n**Delivery:** each event is a POST with the body `{ id, type, createdAt, apiVersion, workspaceId, environment, actor, data }`, the same object `GET /api/v1/events/:id` returns. `data.object` is the resource the event is about. The request follows [Standard Webhooks](https://www.standardwebhooks.com): `webhook-id` is the event `id`, `webhook-timestamp` is the send time in Unix seconds, and `webhook-signature` is `v1,<base64 HMAC-SHA256>` over `<webhook-id>.<webhook-timestamp>.<raw body>`, keyed with the base64-decoded secret after `whsec_`. Any Standard Webhooks library verifies it. Return a 2xx status code within 30 seconds. sajn retries any other answer, a timeout, and a network error with backoff for about three days, and stops at once on `410 Gone`. Delivery is at least once, so deduplicate on `webhook-id`.\n\n**Event types:** `events` takes the following values:\n- Document, with the document in `data.object`: `document.created` (with `data.source`), `document.sent`, `document.fully_signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.updated`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration_extended`, `document.expiring_soon`, and `document.comment.created`, with the comment in `data.object`\n- Party, with the document in `data.object` and the party in `data.party`: `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`, `document.party.verified`, `document.party.updated`, `document.party.added`, `document.party.removed`, `document.party.reminded`\n- Bundle, with the bundle in `data.object`: `bundle.sent`, `bundle.party.signed`, `bundle.completed`\n- Archive import, with the import in `data.object`: `archive_import.completed`, once per run, and `archive_import.undone`\n- Approval: `approval_request.created`, `approval_request.approved`, `approval_request.rejected`, `approval_request.cancelled`\n- Identity check: `identity_check.created`, `identity_check.sent`, `identity_check.opened`, `identity_check.verified`, `identity_check.failed`, `identity_check.cancelled`\n- Contact, company and template: `contact.created`, `contact.updated`, `contact.deleted`, `company.created`, `company.updated`, `company.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`\n- Form: `form.submitted`, with the same fields as `GET /api/v1/forms/:id/submissions/:submissionId`\n- Workspace: `workspace.created`, `member.added`, `member.invited`, `member.invite_accepted`\n- sajn Login: `login.completed`, `login.failed`, with the login session in `data.object`\n- Security, a feed for a SIEM: `security.document_downloaded`, `security.documents_exported`, `security.signature_identity_accessed`, `security.member_removed`, `security.member_role_changed`, `security.role_updated`, `security.workspace_retention_updated`\n- Usage: `usage.limit_reached`\n\n**Plan Requirement:** Requires the Team plan or higher, or a sandbox organization.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"url\": \"https://example.com/webhooks/sajn\",\n  \"events\": [\n    \"document.fully_signed\",\n    \"document.completed\"\n  ],\n  \"failureNotificationEmail\": \"dev@example.com\",\n  \"apiVersion\": \"2026-10\"\n}",
@@ -6770,12 +6828,12 @@
                 "signature-methods"
               ]
             },
-            "description": "Returns the signature methods you can offer a signer, with display labels \u2014 the generic methods plus every currently-available eID scheme.\n\nThis is the *pickable* set, not every accepted value. `NONE` and `MANUAL` are still accepted on `requiredSignature` but are omitted here because the app derives them rather than offering them: `NONE` is what a party gets when its role isn't a signing role, and `MANUAL` is for an imported archive document that was already signed on paper.\n\nBuild signature-method pickers from this rather than hard-coding the list: eID schemes are switched on per market over time, and sending a scheme that isn't available yet is rejected with *\"This eID scheme is not yet available\"*.\n\n`SE_BANKID` is Swedish BankID. API version `2026-09` calls it `BANKID`."
+            "description": "Returns the signature methods you can offer a signer, with display labels \u2014 the generic methods plus every currently-available eID scheme.\n\nThis is the *pickable* set, not every accepted value. `NONE` and `MANUAL` are still accepted on `signatureMethod` but are omitted here because the app derives them rather than offering them: `NONE` is what a party gets when its role isn't a signing role, and `MANUAL` is for an imported archive document that was already signed on paper.\n\nBuild signature-method pickers from this rather than hard-coding the list: eID schemes are switched on per market over time, and sending a scheme that isn't available yet is rejected with *\"This eID scheme is not yet available\"*.\n\n`SE_BANKID` is Swedish BankID. API version `2026-09` calls it `BANKID`."
           },
           "response": []
         },
         {
-          "name": "List selectable verification gates",
+          "name": "List selectable verification methods",
           "request": {
             "method": "GET",
             "header": [
@@ -6796,7 +6854,199 @@
                 "two-step-verifications"
               ]
             },
-            "description": "Returns the values accepted by a party's `twoStepVerification` \u2014 the gate a signer passes *before* the document opens \u2014 with display labels.\n\nSame rule as `/helpers/signature-methods`: build pickers from this rather than hard-coding, since the eID-backed gates become available as those schemes go live per market.\n\n`SE_BANKID_BEFORE_SIGNING` is Swedish BankID. API version `2026-09` calls it `BANKID_BEFORE_SIGNING`."
+            "description": "Returns the methods accepted by a party's `signVerification` and a document's `openVerification`, with display labels. `signVerification` runs before the party signs; `openVerification` runs before the document opens. null on either means no verification, so it isn't listed.\n\nSame rule as `/helpers/signature-methods`: build pickers from this rather than hard-coding, since the eID-backed methods become available as those schemes go live per market."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Other",
+      "item": [
+        {
+          "name": "Send documents as a bundle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles"
+              ]
+            },
+            "description": "Sends 2 to 50 draft documents as one bundle. Each person gets one invitation and signs all of their documents with one signature.\n\nYou don't pass parties. sajn derives them from the documents, one per email address. The per-document signing URLs keep working alongside the bundle.\n\nsajn checks every document before it sends any of them, and returns `409 INVALID_STATE` with the reasons in `userMessage` if the bundle can't be sent. For example, a document isn't a `DRAFT`, is already in a bundle, needs approval, or a person signs with different methods on different documents.\n\nA document that fails to send after the checks stays `DRAFT` and isn't part of the bundle, so compare `documents` with the IDs you sent. If every document fails, the request returns `409 INVALID_STATE`.\n\n**Permission required:** `SEND_DOCUMENT` and `SEND_WITHOUT_APPROVAL` on the workspace. Requires a Team plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentIds\": [\n    \"cm4k2x9p10003abcd1234efgh\"\n  ],\n  \"name\": \"Kai Lindqvist\",\n  \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal. Signera det med BankID senast den 28 oktober.\",\n  \"expiresAt\": \"2026-10-28T22:00:00.000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List bundles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Maximum number of items to return, from 1 to 100. Default: 25.",
+                  "disabled": true
+                },
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "description": "The `nextCursor` from the previous response, to get the next page. Keep the other parameters unchanged.",
+                  "disabled": true
+                },
+                {
+                  "key": "include",
+                  "value": "total",
+                  "description": "`total` adds the number of items that match the filters. Counting takes time, so ask for it only when you need it.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lists the bundles sent from the workspace, newest first. A bundle is listed only if you can read at least one of its documents, and it shows only the documents you can read."
+          },
+          "response": []
+        },
+        {
+          "name": "Get a bundle",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}"
+              ]
+            },
+            "description": "Gets a bundle with the signing status of every party on every document you can read.\n\nSigning URLs aren't included. To get a party's signing URL, call `GET /api/v1/bundles/{id}/parties/{partyId}`."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel a bundle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "cancel"
+              ]
+            },
+            "description": "Cancels a bundle and withdraws every document in it that isn't signed yet. Withdrawn documents return to `DRAFT` and leave the bundle, and each fires `document.withdrawn`. Documents that are already signed stay signed and stay in the bundle.\n\nReturns the bundle. Its `status` is `CANCELED` when every unsigned document was withdrawn. If a document can't be withdrawn, the bundle stays `OPEN` and that document stays in `documents` with its current status. A bundle that is already canceled returns `409 INVALID_STATE`.\n\n**Permission required:** `WITHDRAW_DOCUMENT` on the workspace.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get a bundle party with signing URL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/parties/{{partyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "parties",
+                "{{partyId}}"
+              ]
+            },
+            "description": "Gets one party of a bundle, including their signing URL. The URL opens every document the person signs in the bundle, so it's returned only if you can read all of those documents, and the call needs the permission to send documents.\n\n**Security note:** each call writes an audit entry on every document the party signs in the bundle."
           },
           "response": []
         }
@@ -6825,11 +7075,19 @@
       "value": ""
     },
     {
+      "key": "bundleId",
+      "value": ""
+    },
+    {
       "key": "companyId",
       "value": ""
     },
     {
       "key": "contactId",
+      "value": ""
+    },
+    {
+      "key": "contentId",
       "value": ""
     },
     {
@@ -6846,10 +7104,6 @@
     },
     {
       "key": "eventId",
-      "value": ""
-    },
-    {
-      "key": "fieldId",
       "value": ""
     },
     {

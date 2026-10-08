@@ -21,6 +21,10 @@ An internal approval of a draft document by workspace members before sajn sends 
 
 A reusable record of a person you send documents to. A party created from a contact copies its details. See [Contacts](/concepts/contacts).
 
+### Content
+
+The ordered list of content blocks that a document or template is built from, such as text, an uploaded PDF, a form, or a product table. Each block has a `type`, a `position`, and a `fieldMeta`. Documents and templates return it in `content` when you pass `expand=content`. See [Content and fields](/concepts/fields).
+
 ### Document
 
 One agreement with content, parties, and settings, which moves from `DRAFT` to `COMPLETED` as it's sent and signed. See [Documents](/concepts/documents).
@@ -35,11 +39,11 @@ A record of something that happened, with a dotted type such as `document.comple
 
 ### Field
 
-One content block of a document or template, such as text, an uploaded PDF, a form, or a product table. See [Fields](/concepts/fields).
+A value in a document's content that someone fills in: a FORM subfield, a box placed on a PDF, a form field inside a PDF, or an inline `<sajn-field>` tag in text. See [Content and fields](/concepts/fields#values-that-someone-fills-in).
 
 ### Field metadata
 
-The `fieldMeta` object of a field: its type-specific content and settings. Its `type` always equals the field's `type`. See [Fields](/concepts/fields#field-anatomy).
+The `fieldMeta` object of a content block: its type-specific content and settings. Its `type` always equals the block's `type`. See [Content and fields](/concepts/fields#content-block-anatomy).
 
 ### Form
 
@@ -47,7 +51,7 @@ A public link with questions. Each submission creates a document that the visito
 
 ### Key
 
-A stable name, such as `customer-name`, on a value in a FORM subfield, a placed field, or a PDF form field. You fill in values by key. See [Fields](/concepts/fields#fill-in-values-by-key).
+A stable name, such as `customer-name`, on a value in a FORM subfield, a placed field, a PDF form field, or an inline field. A key names one field within a document or template. You fill in values by key. See [Content and fields](/concepts/fields#fill-in-values-by-key).
 
 ### Organization
 
@@ -59,15 +63,15 @@ A party with the role `ORGANIZER`. Organizers follow the document but don't sign
 
 ### Party
 
-A person on a document, with a role, a delivery method, and a signature method. See [Parties](/concepts/parties).
+A person on a document, with a role, a delivery channel, and a signature method. See [Parties](/concepts/parties).
 
 ### Placed field
 
-A box on a page of a PDF field, such as a signature mark, a text input, or fixed text. Placed fields are in the PDF field's `fieldMeta.placedFields`. See [PDF field placement](/guides/fields/pdf-field-placement).
+A box on a page of a PDF block, such as a signature mark, a text input, or fixed text. Placed fields are in the PDF block's `fieldMeta.placedFields`, with a `page` counted from 1 and a `rect` in fractions of the page. See [Place fields on a PDF](/guides/fields/pdf-field-placement).
 
 ### Product table
 
-A field that lists products or services with prices, quantities, discounts, and totals. A party can choose rows and quantities. See [Product tables](/guides/fields/product-tables).
+A content block that lists products or services with prices, quantities, discounts, and totals. A party can choose rows and quantities. See [Product tables](/guides/fields/product-tables).
 
 ### Reviewer
 
