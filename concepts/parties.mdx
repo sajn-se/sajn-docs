@@ -50,10 +50,10 @@ To add a company party by name, send `company` with `name`, `orgNumber`, and opt
 
 You can add parties when you create the document, or afterward:
 
-- **When you create the document**, each entry in `parties` takes either a `contactId`, or a `name` and an `email`.
+- **When you create the document**, each entry in `parties` takes an optional `contactId`, and the party's details beside it: `name`, `email`, `phone`, `nationalId`, `externalId`, `company`, and `country`. Details you send override the contact's for this document. Without a `contactId`, a party needs a `name`, and an `email` or a `phone`.
 - **After you create it**, [`POST /documents/{id}/parties`](/api-reference/add-a-party-to-document) takes a `contactId`. To add someone who isn't a contact yet, [create the contact](/api-reference/create-a-new-contact) first.
 
-A party added from a contact gets its name, email, phone number, national ID, and company from the contact. It keeps its own copy: changing the contact later doesn't change the party.
+A party added from a contact gets its name, email, phone number, national ID, and company from the contact, except the details you send yourself. It keeps its own copy: changing the contact later doesn't change the party.
 
 The following request creates a document with two parties, one from a contact and one by name:
 
@@ -67,20 +67,22 @@ The following request creates a document with two parties, one from a contact an
       "contactId": "cm4k2x9p40006abcd3456qrst",
       "role": "SIGNER",
       "signingOrder": 1,
-      "requiredSignature": "SE_BANKID"
+      "signatureMethod": "SE_BANKID"
     },
     {
       "name": "Quinn Holm",
       "email": "quinn@example.com",
+      "phone": "+46705550123",
+      "nationalId": "199001011234",
       "role": "SIGNER",
       "signingOrder": 2,
-      "requiredSignature": "CLICK_TO_SIGN"
+      "signatureMethod": "CLICK_TO_SIGN"
     }
   ]
 }
 ```
 
-To set a phone number or national ID on a party you added by name, [update the party](/api-reference/update-a-party).
+To change a party's details later, [update the party](/api-reference/update-a-party).
 
 ## Signing order
 
@@ -103,20 +105,21 @@ flowchart LR
 
 ## Delivery
 
-The `deliveryMethod` field decides how a party receives the signing invitation:
+The `delivery` field decides how a party receives the signing invitation. It's a list of channels:
 
 | Value | Delivery |
 |-------|----------|
-| `EMAIL` | An email with the signing link. The default. Requires an email address. |
-| `SMS` | A text message with the signing link. Requires a phone number. |
-| `NONE` | Nothing. You get the signing URL from the API and give it to the party yourself. |
-| `IN_APP` | Nothing. The party signs in person, on your device. |
+| `["EMAIL"]` | An email with the signing link. The default. Requires an email address. |
+| `["SMS"]` | A text message with the signing link. Requires a phone number. |
+| `["EMAIL", "SMS"]` | Both an email and a text message. Requires an email address and a phone number. |
+| `["IN_APP"]` | Nothing. The party signs in person, on your device. |
+| `[]` | Nothing. You get the signing URL from the API and give it to the party yourself. |
 
-You can mix delivery methods on one document.
+`IN_APP` can't be combined with another channel. Parties on one document can use different channels.
 
 ## Signature method
 
-The `requiredSignature` field decides how a party signs. The method also decides the legal level of the signature:
+The `signatureMethod` field decides how a party signs. The method also decides the legal level of the signature:
 
 | Value | Method |
 |-------|--------|
@@ -133,23 +136,29 @@ eID schemes are switched on market by market. To build a picker, call [`GET /hel
 
 To check that the right person signs with an eID, set the party's `nationalId`. sajn compares it with the identity the eID returns. Without it, sajn compares names. The identity the eID verified is available from [`GET /documents/{id}/signatures`](/api-reference/get-verified-signer-identities).
 
-## Verification before opening
+## Verification before signing
 
-The `twoStepVerification` field adds a check that the party must pass **before** the document opens. It's independent of `requiredSignature`, so you can, for example, put a BankID check in front of a click-to-sign document:
+The `signVerification` field adds a check that the party must pass **before** they sign. It's independent of `signatureMethod`, so you can, for example, put a BankID check in front of a click-to-sign signature:
 
 | Value | Check |
 |-------|-------|
-| `NONE` | No check. The default. |
-| `SMS_BEFORE_SIGNING` | A code sent by SMS. Requires a phone number. |
-| `EMAIL_BEFORE_SIGNING` | A code sent by email. Requires an email address. |
-| `PIN_BEFORE_SIGNING` | A PIN that you share with the party yourself |
-| `SE_BANKID_BEFORE_SIGNING` | Swedish BankID |
-| `DK_MITID_BEFORE_SIGNING`, `DK_MITID_ERHVERV_BEFORE_SIGNING` | Danish MitID |
-| `FI_FTN_BEFORE_SIGNING` | Finnish Trust Network |
-| `NO_BANKID_BIOMETRIC_BEFORE_SIGNING`, `NO_BANKID_HIGH_BEFORE_SIGNING` | Norwegian BankID |
-| `NL_IDIN_BEFORE_SIGNING` | Dutch iDIN |
+| `null` | No check. The default. |
+| `SMS` | A code sent by SMS. Requires a phone number. |
+| `EMAIL` | A code sent by email. Requires an email address. |
+| `PIN` | A PIN that you share with the party yourself |
+| `SE_BANKID` | Swedish BankID |
+| `DK_MITID`, `DK_MITID_ERHVERV` | Danish MitID |
+| `FI_FTN` | Finnish Trust Network |
+| `NO_BANKID_BIOMETRIC`, `NO_BANKID_HIGH` | Norwegian BankID |
+| `NL_IDIN` | Dutch iDIN |
 
-For the list your account can use, call [`GET /helpers/two-step-verifications`](/api-reference/list-selectable-verification-gates). To require the same check from every party, set `documentMeta.accessVerification` instead. For more information, see [Identity verification](/guides/identity/identity-verification).
+For the list your account can use, call [`GET /helpers/two-step-verifications`](/api-reference/list-selectable-verification-methods).
+
+## Verification before opening
+
+To require a check before the document opens, set `documentMeta.openVerification` on the document. Every party passes it, and it takes the same values as `signVerification`.
+
+To give one party a different check before opening, set the party's own `openVerification`. It overrides the document's for that party, and `null` uses the document's. A party's `openVerification` can't be `PIN`, because a PIN only gates signing; use `signVerification` for a PIN. For more information, see [Identity verification](/guides/identity/identity-verification).
 
 ## Party status
 

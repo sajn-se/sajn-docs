@@ -71,16 +71,16 @@ Some lists take `orderBy` and `orderDirection`. For the lists and their sort fie
 
 ## Expand related data
 
-An endpoint can leave out related data that's expensive to load, and add it when you ask for it with `expand`. `expand` takes a comma-separated list or a repeated parameter. For example, [`GET /api/v1/documents/{id}`](/api-reference/get-a-document-by-id) leaves out the document's content blocks unless you send `expand=fields`:
+An endpoint can leave out related data that's expensive to load, and add it when you ask for it with `expand`. `expand` takes a comma-separated list or a repeated parameter. For example, [`GET /api/v1/documents/{id}`](/api-reference/get-a-document-by-id) leaves out the document's content blocks unless you send `expand=content`:
 
 ```bash
 curl -G https://app.sajn.se/api/v1/documents/cm4k2x9p10001abcd1234efgh \
   -H "Authorization: Bearer $SAJN_API_KEY" \
   -H "Sajn-Version: 2026-10" \
-  --data-urlencode "expand=fields"
+  --data-urlencode "expand=content"
 ```
 
-[`GET /api/v1/templates/{id}`](/api-reference/get-a-template-by-id) takes `expand=fields` too. The API reference lists the values each endpoint accepts.
+[`GET /api/v1/templates/{id}`](/api-reference/get-a-template-by-id) takes `expand=content` too. The API reference lists the values each endpoint accepts.
 
 ## Unknown parameters
 

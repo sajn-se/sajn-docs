@@ -151,7 +151,7 @@ Replace `HUBSPOT_DEAL_ID` with the HubSpot deal ID. sajn prefills the custom fie
 
     The function returns `remaining`, the required values that are still empty. Values can change only while the document is a `DRAFT`, so stop syncing after you send it.
 
-    The keys address form values. To replace a whole text section, such as the terms, update that `TEXT` or `HTML` field by its `id` with `PATCH /api/v1/documents/DOCUMENT_ID/fields/FIELD_ID`. Find the ID in `GET /api/v1/documents/DOCUMENT_ID/fields`.
+    The keys address form values. To replace a whole text section, such as the terms, update that `TEXT` or `HTML` block by its `id` with `PATCH /api/v1/documents/DOCUMENT_ID/content/CONTENT_ID`. Find the ID in `GET /api/v1/documents/DOCUMENT_ID/content`.
   </Step>
 
   <Step title="Write the signing status back to the CRM">

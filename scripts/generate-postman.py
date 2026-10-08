@@ -43,16 +43,16 @@ REQUEST_OVERRIDES = {
                 "role": "SIGNER",
                 "company": {"name": "Exempelbolaget AB", "orgNumber": "5561234567", "role": "HR-chef"},
                 "country": "SE",
-                "deliveryMethod": "EMAIL",
-                "requiredSignature": "DRAWING",
+                "delivery": ["EMAIL"],
+                "signatureMethod": "DRAWING",
             }
         ],
     },
     ("post", "/api/v1/documents/{id}/parties"): {
         "contactId": "{{contactId}}",
         "role": "SIGNER",
-        "deliveryMethod": "EMAIL",
-        "requiredSignature": "DRAWING",
+        "delivery": ["EMAIL"],
+        "signatureMethod": "DRAWING",
     },
     ("post", "/api/v1/documents/{id}/send"): {
         "customMessage": "Hej! Här är anställningsavtalet. Läs igenom det och signera.",

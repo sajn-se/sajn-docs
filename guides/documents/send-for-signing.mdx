@@ -9,11 +9,45 @@ In this guide, you send a draft document to its parties. You personalize the inv
 
 - Store your API key in the `SAJN_API_KEY` environment variable. To create a key, go to workspace settings in the sajn app, then **Utvecklare** (Developer) > **API-nycklar** (API keys).
 - Have a `DRAFT` document with content and at least one party. For more information, see [Create a document](/guides/documents/create-document).
-- Give each party an address for its delivery method: an email address for `EMAIL`, a phone number for `SMS`.
+- Give each party an address for each of its delivery channels: an email address for `EMAIL`, and a phone number for `SMS`. A party with `["EMAIL", "SMS"]` needs both.
 
 ## Send the document
 
 <Steps>
+  <Step title="Optional: Check that the document is ready">
+    To find what would stop the send, without sending, call `GET /api/v1/documents/DOCUMENT_ID/readiness`:
+
+    ```bash
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/readiness \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    The response lists the issues, blockers first:
+
+    ```json
+    {
+      "ready": false,
+      "issues": [
+        {
+          "code": "MISSING_PHONE",
+          "severity": "BLOCKER",
+          "message": "A party invited by SMS has no phone number.",
+          "userMessage": "Alex Andersson saknar telefonnummer för SMS-leverans."
+        },
+        {
+          "code": "EMAIL_TYPO",
+          "severity": "WARNING",
+          "message": "A party's email address looks like a typo.",
+          "userMessage": "Kontrollera e-postadressen till Alex Andersson: ”alex@exmaple.com” ser ut som ett stavfel för ”alex@example.com”."
+        }
+      ]
+    }
+    ```
+
+    `ready` is `true` when no `BLOCKER` remains; a `WARNING` doesn't stop the send. Branch on `code`, such as `NO_EXPIRATION`, `MISSING_EMAIL`, `MISSING_PHONE`, `MISSING_VERIFICATION_PHONE`, `MISSING_ACCESS_VERIFICATION_PHONE`, `MISSING_ACCESS_VERIFICATION_EMAIL`, or `DUPLICATE_KEY`. sajn can add codes, so treat an unknown code by its `severity`. Show `userMessage` to your users; it names the party or field in Swedish.
+  </Step>
+
   <Step title="Send the draft">
     Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/send`. The optional `customMessage` replaces the invitation message:
 
@@ -83,7 +117,7 @@ In this guide, you send a draft document to its parties. You personalize the inv
 
     Replace `DOCUMENT_ID` with the ID of your draft. The `Idempotency-Key` header makes a retry of the same request safe: the API replays the first response instead of sending the document twice.
 
-    The response is the document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id) without `fields`. The following example leaves out `documentMeta` and `parties`:
+    The response is the document, in the same shape as [Get a document by ID](/api-reference/get-a-document-by-id) without `content`. The following example leaves out `documentMeta` and `parties`:
 
     ```json
     {
@@ -100,7 +134,7 @@ In this guide, you send a draft document to its parties. You personalize the inv
     }
     ```
 
-    The document's status is `PENDING`. Each party is invited on its own `deliveryMethod`. With `SEQUENTIAL` signing, only the first party in `signingOrder` is invited.
+    The document's status is `PENDING`. Each party is invited on the channels in its own `delivery`. With `SEQUENTIAL` signing, only the first party in `signingOrder` is invited.
 
     If you lack the permission to send without approval, the request fails with `409 APPROVAL_REQUIRED` and the document stays a `DRAFT`. Request an approval instead, as described in the following step.
   </Step>
@@ -125,7 +159,7 @@ In this guide, you send a draft document to its parties. You personalize the inv
   </Step>
 
   <Step title="Share signing links for parties you reach yourself">
-    A party with `"deliveryMethod": "NONE"` gets no invitation. To show the signing page in your own app or send the link yourself, get the party's `signingUrl`:
+    A party with `"delivery": []` gets no invitation. To show the signing page in your own app or send the link yourself, get the party's `signingUrl`:
 
     ```bash
     curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID \
@@ -142,7 +176,7 @@ In this guide, you send a draft document to its parties. You personalize the inv
       "name": "Alex Andersson",
       "email": "alex@example.com",
       "role": "SIGNER",
-      "deliveryMethod": "NONE",
+      "delivery": [],
       "signingStatus": "NOT_SIGNED",
       "signingUrl": "https://app.sajn.se/sign/cm4k2x9p10001abcd1234efgh?token=K7xq2m9VbN4pR8sT1wY6zA3c"
     }
@@ -231,6 +265,7 @@ The document returns to `DRAFT`, existing signatures are removed, and every part
 
 Branch on the error `code`:
 
+- `409 DOCUMENT_NOT_READY`: a readiness check found a blocker, such as a party invited by SMS without a phone number, or two fields that share a key. The error's `readiness` lists the blockers, in the shape of the `issues` from the readiness check. Fix each one, and then send again.
 - `409 INVALID_STATE`: the document isn't a `DRAFT`, or its approval request is still pending. A document in `PENDING_APPROVAL` is sent when the request is approved.
 - `409 APPROVAL_REQUIRED`: you lack the permission to send without approval. Request an approval with [Request approval of a document](/api-reference/request-approval-of-a-document).
 - `403 LIMIT_EXCEEDED`: the organization reached its monthly limit of sent documents.

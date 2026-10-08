@@ -9,11 +9,11 @@ A product table can also ask a party to choose. Mark rows as optional, group alt
 
 ## How a product table is structured
 
-A product table is a document field of type `PRODUCT_TABLE`. The field's `fieldMeta` object holds the whole table:
+A product table is a content block of type `PRODUCT_TABLE`. The block's `fieldMeta` object holds the whole table:
 
 | Property | Type | Required | Description |
 |---|---|---|---|
-| `type` | string | Yes | Always `PRODUCT_TABLE`. Must match the field's `type`. |
+| `type` | string | Yes | Always `PRODUCT_TABLE`. Must match the block's `type`. |
 | `name` | string | Yes | The table's name. Shown above the table when `enableName` is `true`. |
 | `columns` | object | Yes | The columns to render, keyed by column key. See [Columns](#columns). |
 | `products` | array | Yes | The rows. See [Product rows](#product-rows). |
@@ -42,15 +42,15 @@ A product table is a document field of type `PRODUCT_TABLE`. The field's `fieldM
 
 <Steps>
   <Step title="Add the table to the document">
-    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields` with a `PRODUCT_TABLE` field in the `fields` array:
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/content` with a `PRODUCT_TABLE` block in the `content` array:
 
     ```bash
-    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "fields": [
+        "content": [
           {
             "type": "PRODUCT_TABLE",
             "position": 1,
@@ -100,9 +100,9 @@ A product table is a document field of type `PRODUCT_TABLE`. The field's `fieldM
     ```
 
 
-    Replace `DOCUMENT_ID` with the document ID. The response has the created field in `data`. Store its `id` to update the table later.
+    Replace `DOCUMENT_ID` with the document ID. The response has the created block in `data`. Store its `id` to update the table later.
 
-    `price` is a decimal amount in the table's `currency`, such as `1499.5`, not minor units, and `vat` is a rate in percent. `position` is the field's 0-based place among the document's content blocks, not a coordinate. To create several fields in one request, add more entries to the `fields` array.
+    `price` is a decimal amount in the table's `currency`, such as `1499.5`, not minor units, and `vat` is a rate in percent. `position` is the block's 0-based place among the document's content blocks, not a coordinate. To create several blocks in one request, add more entries to the `content` array.
   </Step>
 
   <Step title="Check the totals">
@@ -118,7 +118,7 @@ A product table is a document field of type `PRODUCT_TABLE`. The field's `fieldM
   </Step>
 </Steps>
 
-You can add and change fields only while the document is a `DRAFT`. A request against a sent document returns `409 INVALID_STATE`.
+You can add and change content only while the document is a `DRAFT`. A request against a sent document returns `409 INVALID_STATE`.
 
 ## Product rows
 
@@ -301,7 +301,7 @@ The deduction is per row. Mark the labor rows and leave materials as `GOODS`, be
 To change a table, send a `PATCH` request with the complete `fieldMeta` object. The request replaces the metadata rather than merging into it, so include every property you want to keep:
 
 ```bash
-curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID \
+curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content/CONTENT_ID \
   -H "Authorization: Bearer $SAJN_API_KEY" \
   -H "Sajn-Version: 2026-10" \
   -H "Content-Type: application/json" \
@@ -320,18 +320,18 @@ curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID \
 Replace the following:
 
 - `DOCUMENT_ID`: the document ID.
-- `FIELD_ID`: the product table field's `id`.
+- `CONTENT_ID`: the product table block's `id`.
 
-The response is the updated field.
+The response is the updated block.
 
 ## Handle errors
 
-Each error response has a `code`. A `VALIDATION_FAILED` error lists every problem in `issues`, each with the `path` of the property that failed. On a `POST` request, each path starts with `fields.N.`, where `N` is the field's index in the request. For every code, see [Errors](/api-fundamentals/errors).
+Each error response has a `code`. A `VALIDATION_FAILED` error lists every problem in `issues`, each with the `path` of the property that failed. On a `POST` request, each path starts with `content.N.`, where `N` is the block's index in the request. For every code, see [Errors](/api-fundamentals/errors).
 
 | Code | Issue path | Cause |
 |---|---|---|
 | `VALIDATION_FAILED` | `fieldMeta` | The request omitted `fieldMeta`. Product tables always need it. |
-| `VALIDATION_FAILED` | `fieldMeta.type` | The `fieldMeta.type` value doesn't match the field's `type` value. Both must be `PRODUCT_TABLE`. |
+| `VALIDATION_FAILED` | `fieldMeta.type` | The `fieldMeta.type` value doesn't match the block's `type` value. Both must be `PRODUCT_TABLE`. |
 | `VALIDATION_FAILED` | Under `fieldMeta` | The metadata failed validation. Check that `name`, `columns`, and `products` are present, that every column's `key` value names a product property or `lineTotal`, and that no property uses a 2026-09 name such as `moms` or `selectionSignerId`. |
 | `INVALID_STATE` | None | The document was already sent. Fields change only in `DRAFT` status. |
 
@@ -344,8 +344,8 @@ Each error response has a `code`. A `VALIDATION_FAILED` error lists every proble
   <Card title="Templates and forms" icon="file-lines" href="/guides/templates/templates-and-forms">
     Reuse a product table across documents.
   </Card>
-  <Card title="Document fields API" icon="code" href="/api-reference/create-document-fields">
-    Read the full field reference.
+  <Card title="Document content API" icon="code" href="/api-reference/create-document-content">
+    Read the full content block reference.
   </Card>
   <Card title="Send for signing" icon="paper-plane" href="/guides/documents/send-for-signing">
     Send the document to its parties.

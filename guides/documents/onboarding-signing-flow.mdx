@@ -14,7 +14,7 @@ The flow has two tracks:
 graph LR
     A[User submits<br/>signup form] --> B[Create document<br/>from template]
     B --> C[Fill in values<br/>by key]
-    C --> D[Send with<br/>deliveryMethod NONE]
+    C --> D[Send with<br/>no delivery channel]
     D --> E[Open the<br/>signing URL]
     E --> F[Party signs and<br/>is redirected back]
     F --> G[document.completed<br/>webhook]
@@ -32,7 +32,7 @@ graph LR
 
 <Steps>
   <Step title="Create the document from the template">
-    When the user submits your form, create a document from the template with the user as the only party. `"deliveryMethod": "NONE"` stops sajn from emailing an invitation, because you show the signing page yourself:
+    When the user submits your form, create a document from the template with the user as the only party. `"delivery": []` stops sajn from emailing an invitation, because you show the signing page yourself:
 
     ```bash
     curl -X POST https://app.sajn.se/api/v1/documents \
@@ -52,8 +52,8 @@ graph LR
             "name": "Alex Andersson",
             "email": "alex@example.com",
             "role": "SIGNER",
-            "deliveryMethod": "NONE",
-            "requiredSignature": "SE_BANKID"
+            "delivery": [],
+            "signatureMethod": "SE_BANKID"
           }
         ]
       }'
@@ -98,7 +98,7 @@ graph LR
   </Step>
 
   <Step title="Send the document and get the signing URL">
-    Send the document. Because the party has `"deliveryMethod": "NONE"`, no email goes out. Then get the party's signing URL:
+    Send the document. Because the party has `"delivery": []`, no email goes out. Then get the party's signing URL:
 
     ```bash
     curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/send \
@@ -189,7 +189,7 @@ graph LR
 
 ## Design choices
 
-- **Why `NONE` instead of `EMAIL`?** The user is already in your app. An email detour costs conversions. For a party who isn't present, such as a co-signer, use `EMAIL` or `SMS` on that party; the delivery method is per party.
+- **Why `[]` instead of `["EMAIL"]`?** The user is already in your app. An email detour costs conversions. For a party who isn't present, such as a co-signer, set that party's `delivery` to `["EMAIL"]` or `["SMS"]`; delivery is per party.
 - **Why a template?** The legal team edits the content in the sajn app without a deploy, and the FORM field keys stay the same when the text around them changes.
 - **Why both a redirect and a webhook?** The redirect decides what the user sees next. The webhook decides whether the signup is complete. With only the redirect, a closed tab leaves an orphaned signup. With only the webhook, the user sees no confirmation.
 - **Which signing method?** For identity you rely on later, such as KYC, use an eID such as `SE_BANKID`. For accepting terms of service, `CLICK_TO_SIGN` or `DRAWING` has no eID requirement. For more information, see [Set the signing method](/guides/identity/signing-methods).

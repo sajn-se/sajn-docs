@@ -166,6 +166,7 @@ LATEST_ENDPOINT_GROUPS = [
         "GET /api/v1/documents/{id}",
         "PATCH /api/v1/documents/{id}",
         "DELETE /api/v1/documents/{id}",
+        "GET /api/v1/documents/{id}/readiness",
         "POST /api/v1/documents/{id}/send",
         "POST /api/v1/documents/{id}/withdraw",
         "POST /api/v1/documents/{id}/extend-expiration",
@@ -188,13 +189,13 @@ LATEST_ENDPOINT_GROUPS = [
         "PATCH /api/v1/documents/{id}/parties/{partyId}",
         "DELETE /api/v1/documents/{id}/parties/{partyId}",
     ]},
-    {"group": "Document fields", "pages": [
-        "GET /api/v1/documents/{id}/fields",
-        "POST /api/v1/documents/{id}/fields",
-        "GET /api/v1/documents/{id}/fields/{fieldId}",
-        "PATCH /api/v1/documents/{id}/fields/{fieldId}",
-        "PATCH /api/v1/documents/{id}/fields/{fieldId}/placed-fields",
-        "DELETE /api/v1/documents/{id}/fields/{fieldId}",
+    {"group": "Document content", "pages": [
+        "GET /api/v1/documents/{id}/content",
+        "POST /api/v1/documents/{id}/content",
+        "GET /api/v1/documents/{id}/content/{contentId}",
+        "PATCH /api/v1/documents/{id}/content/{contentId}",
+        "PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields",
+        "DELETE /api/v1/documents/{id}/content/{contentId}",
         "GET /api/v1/documents/{id}/field-values",
         "PATCH /api/v1/documents/{id}/field-values",
     ]},
@@ -248,12 +249,12 @@ LATEST_ENDPOINT_GROUPS = [
         "PATCH /api/v1/templates/{id}",
         "DELETE /api/v1/templates/{id}",
         "POST /api/v1/templates/{id}/duplicate",
-        "GET /api/v1/templates/{id}/fields",
-        "POST /api/v1/templates/{id}/fields",
-        "GET /api/v1/templates/{id}/fields/{fieldId}",
-        "PATCH /api/v1/templates/{id}/fields/{fieldId}",
-        "PATCH /api/v1/templates/{id}/fields/{fieldId}/placed-fields",
-        "DELETE /api/v1/templates/{id}/fields/{fieldId}",
+        "GET /api/v1/templates/{id}/content",
+        "POST /api/v1/templates/{id}/content",
+        "GET /api/v1/templates/{id}/content/{contentId}",
+        "PATCH /api/v1/templates/{id}/content/{contentId}",
+        "PATCH /api/v1/templates/{id}/content/{contentId}/placed-fields",
+        "DELETE /api/v1/templates/{id}/content/{contentId}",
         "GET /api/v1/templates/{id}/parties",
         "POST /api/v1/templates/{id}/parties",
         "PATCH /api/v1/templates/{id}/parties/{partyId}",
@@ -273,7 +274,7 @@ LATEST_ENDPOINT_GROUPS = [
         "PUT /api/v1/forms/{id}/respondent",
         "GET /api/v1/forms/{id}/template",
         "PATCH /api/v1/forms/{id}/template",
-        "PUT /api/v1/forms/{id}/template/fields",
+        "PUT /api/v1/forms/{id}/template/content",
         "PUT /api/v1/forms/{id}/template/parties",
         "GET /api/v1/forms/{id}/submissions",
         "GET /api/v1/forms/{id}/submissions/{submissionId}",
@@ -295,6 +296,7 @@ LATEST_ENDPOINT_GROUPS = [
         "GET /api/v1/tags",
         "POST /api/v1/tags",
         "PATCH /api/v1/tags/{id}",
+        "DELETE /api/v1/tags/{id}",
     ]},
     {"group": "Document categories", "pages": ["GET /api/v1/document-categories"]},
     {"group": "Custom fields", "pages": [
@@ -370,7 +372,11 @@ def endpoint_groups(groups, ops):
 
 base = lenient(subprocess.check_output(["git", "show", "origin/main:docs.json"], text=True))
 base_tab = next(t for t in base["navigation"]["tabs"] if t["tab"] == "API")
-base_groups = base_tab["groups"]
+# Once the tab is wired, the frozen version's groups live in its dropdown with the spec path prefixed.
+base_groups = base_tab.get("groups") or [
+    {**group, "pages": [page.removeprefix(f"{LEGACY_SPEC} ") for page in group["pages"]]}
+    for group in next(d for d in base_tab["dropdowns"] if d["dropdown"] == "2026-09")["groups"]
+]
 
 latest_ops = operations("api/openapi.json")
 legacy_ops = operations(LEGACY_SPEC)

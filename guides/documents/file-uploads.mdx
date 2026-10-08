@@ -94,15 +94,15 @@ In this guide, you upload a PDF file to sajn and attach it to a draft document. 
   </Step>
 
   <Step title="Attach the file to the document">
-    Create a `PDF` field whose `fieldMeta.value` is the storage `key`:
+    Create a `PDF` content block whose `fieldMeta.value` is the storage `key`:
 
     ```bash
-    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "fields": [
+        "content": [
           {
             "type": "PDF",
             "position": 0,
@@ -117,7 +117,7 @@ In this guide, you upload a PDF file to sajn and attach it to a draft document. 
     - `DOCUMENT_ID`: the ID of the draft document.
     - `STORAGE_KEY`: the `key` from the file record.
 
-    The response has the created field in `data`, in the same shape as [Get a document field](/api-reference/get-a-document-field). To replace the PDF of an existing field, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID` with the full `fieldMeta`.
+    The response has the created block in `data`, in the same shape as [Get a document content block](/api-reference/get-a-document-content-block). To replace the PDF of an existing block, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/content/CONTENT_ID` with the full `fieldMeta`.
 
     To place signature boxes and input fields on the PDF's pages, see [Place fields on a PDF](/guides/fields/pdf-field-placement).
   </Step>
@@ -153,8 +153,8 @@ curl -sf -X PUT "$(echo "$CREATED" | jq -r .uploadUrl)" \
 
 curl -sf -X POST "$API/files/$FILE_ID/confirm" "${HEADERS[@]}"
 
-curl -sf -X POST "$API/documents/$DOCUMENT_ID/fields" "${HEADERS[@]}" -d "{
-  \"fields\": [{
+curl -sf -X POST "$API/documents/$DOCUMENT_ID/content" "${HEADERS[@]}" -d "{
+  \"content\": [{
     \"type\": \"PDF\", \"position\": 0,
     \"fieldMeta\": { \"type\": \"PDF\", \"value\": \"$KEY\" }
   }]
@@ -200,10 +200,10 @@ if (!upload.ok) throw new Error(`Upload failed: ${upload.status}`);
 
 await post(`/files/${fileId}/confirm`);
 
-const { data: fields } = await post(`/documents/${process.env.DOCUMENT_ID}/fields`, {
-  fields: [{ type: "PDF", position: 0, fieldMeta: { type: "PDF", value: key } }],
+const { data: content } = await post(`/documents/${process.env.DOCUMENT_ID}/content`, {
+  content: [{ type: "PDF", position: 0, fieldMeta: { type: "PDF", value: key } }],
 });
-console.log(fields[0].id);
+console.log(content[0].id);
 ```
 
 ```python Python
@@ -246,12 +246,12 @@ upload.raise_for_status()
 
 post(f"/files/{created['id']}/confirm")
 
-fields = post(f"/documents/{os.environ['DOCUMENT_ID']}/fields", {
-    "fields": [
+content = post(f"/documents/{os.environ['DOCUMENT_ID']}/content", {
+    "content": [
         {"type": "PDF", "position": 0, "fieldMeta": {"type": "PDF", "value": created["key"]}},
     ],
 })["data"]
-print(fields[0]["id"])
+print(content[0]["id"])
 ```
 
 </CodeGroup>

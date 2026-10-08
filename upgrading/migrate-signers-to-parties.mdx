@@ -124,7 +124,7 @@ The following fields keep their `2026-09` names until you switch to `2026-10`:
 | `fieldMeta` of a PRODUCT_TABLE, and `productTables` on documents and webhooks | `selectionSignerId` | `selectionPartyId` |
 | `DOCUMENT_PARTY_AUTH_FAILED` and `DOCUMENT_PARTY_DELEGATED` webhook payloads | `documentId`, `documentName`, `signerId` | `document` and `party` |
 
-The `fieldMeta` renames apply to every request and response that carries `fieldMeta`, including `upsert` on the placed-fields endpoints and `initialFields` on `POST /api/v1/templates`. On `2026-10`, a request that sends `signerId` or `selectionSignerId` inside `fieldMeta` fails with `400 VALIDATION_FAILED`.
+The `fieldMeta` renames apply to every request and response that carries `fieldMeta`, including `upsert` on the placed-fields endpoints and `initialFields` (`initialContent` on `2026-10`) on `POST /api/v1/templates`. On `2026-10`, a request that sends `signerId` or `selectionSignerId` inside `fieldMeta` fails with `400 VALIDATION_FAILED`.
 
 For example, on `2026-10` you read the IDs from the `POST /api/v1/documents` response like this:
 

@@ -59,9 +59,9 @@ something, check the reference, and list what you couldn't resolve.
   /documents/{id}/comments. Read every page if you relied on one response.
 - Lists bounded by a parent return every item in one response, as
   { data, hasMore: false, nextCursor: null }, and take no limit or cursor:
-  a document's parties, fields, signatures, files, links, reminders and
+  a document's parties, content, signatures, files, links, reminders and
   delegations, GET /documents/{id}/field-values, a template's parties and
-  fields, /roles, /permissions, /helpers/*.
+  content, /roles, /permissions, /helpers/*.
 - Default order is createdAt descending everywhere, including
   GET /documents (was updatedAt) and GET /forms and /forms/{id}/submissions
   (were updatedAt ascending). Pass orderBy and orderDirection to keep an
@@ -106,7 +106,7 @@ something, check the reference, and list what you couldn't resolve.
   expired or revoked token; a valid token without permission gets
   403 PERMISSION_DENIED (was 401). State conflicts are 409 INVALID_STATE
   (were 400), including editing a non-draft document, editing a locked
-  template or its fields or parties (were 401/403), extending the
+  template or its content or parties (were 401/403), extending the
   expiration of a document that isn't PENDING or EXPIRED, and fetching a
   document file that isn't produced yet (was 404). Monthly send limit:
   403 LIMIT_EXCEEDED (was 400). Deactivated user: 403 ACCOUNT_INACTIVE (was
@@ -120,7 +120,7 @@ something, check the reference, and list what you couldn't resolve.
   .../extend-expiration, POST /documents/{id}/tags and
   DELETE /documents/{id}/tags/{tagId} (were { success: true }) also return
   the document; DELETE /documents/{id} returns it with deletedAt set.
-  "fields" is null unless ?expand=fields.
+  "content" is null unless ?expand=content (see 6. CONTENT AND FIELDS).
 - A document adds deletedAt, templateId, folderId, responsibleUserId and,
   on the full document, approvalRequestId. List items in GET /documents
   include parties (id, name, email, role, signingStatus, signedAt) and tags.
@@ -139,6 +139,40 @@ something, check the reference, and list what you couldn't resolve.
   400. In a PATCH, null clears phone, externalId, nationalId or a company
   key, and company: null clears the company.
 - A document party has createdAt, when it was added to the document.
+- Party settings, on document parties, template parties, form template
+  parties and webhooks: deliveryMethod -> delivery, a list of channels:
+  "EMAIL" -> ["EMAIL"], "SMS" -> ["SMS"], "IN_APP" -> ["IN_APP"],
+  "NONE" -> []; ["EMAIL", "SMS"] invites by both, and each channel needs
+  its contact detail. requiredSignature -> signatureMethod (same
+  values). twoStepVerification -> signVerification (gates signing);
+  documentMeta.accessVerification and templateMeta.accessVerification ->
+  openVerification (gates opening). Both verifications drop the
+  "_BEFORE_SIGNING" suffix (SMS_BEFORE_SIGNING -> SMS, PIN_BEFORE_SIGNING
+  -> PIN, SE_BANKID_BEFORE_SIGNING -> SE_BANKID, ...) and use null instead
+  of "NONE". GET /helpers/two-step-verifications returns the plain codes
+  and no NONE entry. The old keys return 400.
+- A document party can have its own openVerification, which overrides
+  documentMeta.openVerification for that party; null uses the document's.
+  PIN is rejected there (a PIN only gates signing).
+- Party input on POST /documents is one shape: contactId is optional;
+  name, email, phone, nationalId, externalId, company and country beside
+  it override the contact's for this document. Without contactId, a party
+  needs name and an email or phone.
+- POST /documents can create and send in one call: parties[].ref (such as
+  "buyer"), content[] in the shape of POST /documents/{id}/content
+  (position optional) that names parties by ref in partyId or in
+  <sajn-field party="buyer">, and send: true. Content is checked before
+  anything is created: an unknown ref or a duplicate key returns 400. If
+  the send fails, the document stays a DRAFT and the error message names
+  its ID.
+- GET /documents/{id}/readiness returns { ready, issues: [{ code,
+  severity: BLOCKER|WARNING, message, userMessage }] }. A send that fails
+  those checks returns 409 DOCUMENT_NOT_READY with the blockers as an
+  array of those issues in "readiness" (was a 400 with one joined
+  message). Codes include
+  MISSING_EMAIL, MISSING_PHONE, MISSING_ACCESS_VERIFICATION_PHONE,
+  MISSING_ACCESS_VERIFICATION_EMAIL and DUPLICATE_KEY; new codes can be
+  added.
 - documentMeta.preferredLanguage and templateMeta.preferredLanguage ->
   language. Sending preferredLanguage returns 400.
 - documentMeta.reminderIntervalDays and templateMeta.reminderIntervalDays
@@ -175,9 +209,9 @@ something, check the reference, and list what you couldn't resolve.
 - ssn -> nationalId (parties, template parties, contacts, identity checks);
   ssnDisplayMode -> nationalIdDisplayMode; identity.match.method SSN ->
   NATIONAL_ID.
-- BANKID -> SE_BANKID (requiredSignature); BANKID_BEFORE_SIGNING ->
-  SE_BANKID_BEFORE_SIGNING (twoStepVerification, accessVerification).
-  Migrate stored values too.
+- BANKID -> SE_BANKID (signatureMethod); BANKID_BEFORE_SIGNING ->
+  SE_BANKID (signVerification, openVerification). Migrate stored values
+  too.
 - customFields[].customInputId -> customFields[].customFieldId on document
   create and update; document categories return customFieldIds.
 - signerId/signerName/signerEmail -> partyId/partyName/partyEmail
@@ -194,27 +228,61 @@ something, check the reference, and list what you couldn't resolve.
 - Custom field "options" is a string array (["Small","Large"]), not a
   JSON-encoded string, in requests and responses.
 
-6. FIELDS
-- POST /documents/{id}/fields and POST /templates/{id}/fields take
-  { "fields": [ ... ] }, also for one field, and return the created fields
-  in "data"; read the document or template ID from each field. Issue paths
-  start with "fields.".
-- PATCH .../fields/{fieldId} takes a field ID only; the "key:" path prefix
-  is removed. PATCH /documents/{id}/fields (bulk FORM-subfield update by
-  key) is removed. To find a field by key: GET .../fields?key=KEY. PATCH and
-  the placed-fields endpoints return the field. DELETE returns
-  { id, deleted: true }. The ignored "key" property on field create and
-  update bodies is removed.
+6. CONTENT AND FIELDS
+- The blocks a document or template is built from are "content"; "fields"
+  means only what a party fills in. Endpoints move:
+  /documents/{id}/fields -> /documents/{id}/content,
+  /documents/{id}/fields/{fieldId} -> /documents/{id}/content/{contentId},
+  .../fields/{fieldId}/placed-fields -> .../content/{contentId}/placed-fields,
+  and the same for /templates/{id}. PUT /forms/{id}/template/fields ->
+  PUT /forms/{id}/template/content with { "content": [ ... ] }.
+- POST /documents/{id}/content and POST /templates/{id}/content take
+  { "content": [ ... ] } (was { "fields": [ ... ] }; in 2026-09 also a
+  single block), and return the created blocks in "data"; read the
+  document or template ID from each block. Issue paths start with
+  "content.".
+- Documents, templates, blocks and form templates return their blocks in
+  "content" (was "fields"); "content" is null unless ?expand=content (was
+  expand=fields). POST /templates takes "initialContent" (was
+  "initialFields").
+- PATCH .../content/{contentId} takes a block ID only; the "key:" path
+  prefix is removed. PATCH /documents/{id}/fields (bulk FORM-subfield update
+  by key) is removed. To find the block that holds a key:
+  GET .../content?key=KEY. PATCH and the placed-fields endpoints return the
+  block. DELETE returns { id, deleted: true }. The ignored "key" property on
+  block create and update bodies is removed.
+- Boxes on a PDF (fieldMeta.placedFields, placed-fields "upsert") and
+  AcroForm fields (fieldMeta.formFields): "page" is counted from 1 (was
+  0), and "rect" is fractions of the page from 0 to 1, measured from the
+  top-left corner (was PDF points from the bottom-left corner). To keep
+  sending points, add 1 to page and set "unit": "POINTS" and
+  "origin": "BOTTOM_LEFT" on each box. Responses are always fractions
+  from the top-left, with pageWidth and pageHeight in points; to get
+  points back: x = rect.x * pageWidth,
+  y = (1 - rect.y - rect.height) * pageHeight.
+- Inline party fields in TEXT and HTML content, in requests and
+  responses: <sajn-field key="..." party="PARTY_ID" type="TEXT|DATE|SELECT"
+  label="..." description="..." required="true|false" options="A, B"
+  value="..."></sajn-field> replaces the editor's
+  <span class="signer-variable" data-*>. type defaults to TEXT and required
+  to true; options is comma-separated.
 - Fill values only with PATCH /documents/{id}/field-values
   { values: [{ key, value }] }. The response is { results, remaining,
   data }: the values are in "data" (was "values"), and there is no
   top-level "success": check results[].success; results[].error is null or
   { code: NOT_FOUND|INVALID_STATE|VALIDATION_FAILED, message, userMessage }
   (was a Swedish string). GET /documents/{id}/field-values returns "data"
-  (was "values"), with kind FORM|PDF_ACROFORM|PDF_PLACED, filledBy
-  SENDER|SIGNER and partyId (was signerId).
+  (was "values"), with kind FORM|PDF_ACROFORM|PDF_PLACED|INLINE (INLINE
+  is a <sajn-field>), filledBy SENDER|SIGNER and partyId (was signerId).
+  On a DRAFT, a value for a SIGNER field prefills it, and the party can
+  change it.
+- A field key is unique within a document or template. A write that adds
+  a duplicate returns 400; a document that already has one can't be sent
+  (409 DOCUMENT_NOT_READY, code DUPLICATE_KEY). One AcroForm field split
+  across PDF blocks, and one <sajn-field> placed again for the same party,
+  count as one field.
 - Inside fieldMeta (requests and responses, including placed-fields
-  "upsert", POST /templates initialFields, and blocks): signerId -> partyId,
+  "upsert", POST /templates initialContent, and blocks): signerId -> partyId,
   selectionSignerId -> selectionPartyId, visibilityRule.customInputId ->
   visibilityRule.customFieldId; every enum is uppercase: placed box kind
   INPUT|STATIC, inputType (SIGNATURE, ...), fillSource (SIGNER, ...),
@@ -289,7 +357,7 @@ something, check the reference, and list what you couldn't resolve.
 10. FORMS, IDENTITY CHECKS, MESSAGES AND LOGIN
 - Form "title" -> "name" (responses and PATCH /forms/{id}).
   /forms/{id}/document, /document/fields, /document/parties ->
-  /forms/{id}/template, /template/fields, /template/parties.
+  /forms/{id}/template, /template/content, /template/parties.
   PATCH /forms/{id}/template returns the template (was { success }).
   POST /forms/{id}/unpublish and /rotate-token return the form (were
   { success } and { url }). DELETE /forms/{id} returns
@@ -366,7 +434,7 @@ something, check the reference, and list what you couldn't resolve.
   current state, and leaves the event out (GET /events/{id}: 404) if the
   resource no longer exists.
 - data.object is the resource as the REST API returns it: a document event
-  carries GET /documents/{id} without fields (was payload, or
+  carries GET /documents/{id} without content (was payload, or
   payload.document on party events; "title" is now "name"); a party event
   adds data.party (as GET /documents/{id}/parties lists it, with nested
   company and alpha-2 country); a contact event carries GET /contacts/{id};
@@ -376,7 +444,9 @@ something, check the reference, and list what you couldn't resolve.
   document.party.auth_failed adds method (SE_BANKID, ...) and hintCode;
   document.party.delegated adds delegation { id, delegate, reason,
   delegatedAt }; template.updated and document.expiration_extended have
-  previousAttributes (replacing changedFields and previousExpiresAt).
+  previousAttributes (replacing changedFields and previousExpiresAt);
+  document.party.signed and document.completed add fieldValues, the
+  entries GET /documents/{id}/field-values lists.
   Security events: who acted is in "actor"; users are { id, email, name } in
   data.object.user and data.object.member; no occurredAt. Payloads never
   contain national identity numbers.
@@ -401,8 +471,9 @@ WHEN YOU'RE DONE
 - Update types, fixtures, mocks, tests and comments to the new shapes.
 - List every change you made, and everything you couldn't migrate with
   certainty, such as stored data with old values (BANKID, SWE, signerId,
-  DOCUMENT_* event names) or code that assumed one response held a whole
-  list, which a person must review.
+  *_BEFORE_SIGNING, NONE, DOCUMENT_* event names, PDF box coordinates) or
+  code that assumed one response held a whole list, which a person must
+  review.
 ```
 
 </Accordion>
@@ -424,6 +495,8 @@ The following changes affect almost every integration:
 - [Errors have one shape](#errors), with `code` from a closed list and `userMessage` for your users.
 - [Writes return the full object](#full-objects-from-writes). `POST /api/v1/documents` returns the document with its ID in `id`.
 - [Parties nest their company](#parties-and-companies), and countries are alpha-2 codes, such as `SE`.
+- [Party settings are renamed](#party-settings): `delivery`, `signatureMethod`, `signVerification`, and `openVerification`.
+- [Content blocks move to `/content`](#content-and-fields), and boxes on a PDF are measured in fractions of the page from the top-left corner.
 - [Webhooks deliver an event](#webhooks) with a dotted `type` and the REST object in `data.object`, signed according to Standard Webhooks.
 
 ## Send the new version on your requests
@@ -566,7 +639,7 @@ Also change the following:
 
 - **`total`**: returned only when you pass `include=total`. `totalPages` is removed.
 - **Lists that returned everything**: `GET /api/v1/folders`, `/document-categories`, `/workspaces`, `/companies`, `/documents/:id/activity`, and `/documents/:id/comments` are paginated. If you read one response, read every page.
-- **Lists bounded by a parent**: a document's parties, fields, signatures, files, links, reminders, and delegations, `GET /api/v1/documents/:id/field-values`, a template's parties and fields, `/roles`, `/permissions`, and the `/helpers` lists return every item in one response, as `{ data, hasMore: false, nextCursor: null }`. They take no `limit` or `cursor`.
+- **Lists bounded by a parent**: a document's parties, content, signatures, files, links, reminders, and delegations, `GET /api/v1/documents/:id/field-values`, a template's parties and content, `/roles`, `/permissions`, and the `/helpers` lists return every item in one response, as `{ data, hasMore: false, nextCursor: null }`. They take no `limit` or `cursor`.
 - **Default order**: lists sort by `createdAt`, newest first. `GET /api/v1/documents` sorted by `updatedAt`, and `GET /api/v1/forms` and `/forms/:id/submissions` by `updatedAt` ascending. To keep an order you depend on, pass `orderBy` and `orderDirection`.
 
 #### Query strings
@@ -657,7 +730,7 @@ To update your error handling, do the following:
   |-----------|-----------|-----------|
   | A valid token that isn't allowed to do something | `401` | `403 PERMISSION_DENIED` |
   | Editing a document that isn't a draft | `400` | `409 INVALID_STATE` |
-  | Editing a locked template, its fields, or its parties | `401` or `403` | `409 INVALID_STATE` |
+  | Editing a locked template, its content, or its parties | `401` or `403` | `409 INVALID_STATE` |
   | Extending the expiration of a document that isn't `PENDING` or `EXPIRED` | `400` | `409 INVALID_STATE` |
   | Fetching a document file that isn't produced yet | `404` | `409 INVALID_STATE` |
   | Sending a document past the monthly limit | `400` | `403 LIMIT_EXCEEDED` |
@@ -708,12 +781,12 @@ In `2026-10`, the response is the document:
     }
   ],
   "tags": [],
-  "fields": null,
+  "content": null,
   "approvalRequestId": null
 }
 ```
 
-`fields` is `null` unless you pass `expand=fields`. The following endpoints also return the document: `PATCH /api/v1/documents/:id`, `POST /api/v1/documents/:id/send`, `/withdraw`, and `/extend-expiration`, `POST /api/v1/documents/:id/tags`, and `DELETE /api/v1/documents/:id/tags/:tagId`. `DELETE /api/v1/documents/:id` returns the document with `deletedAt` set.
+`content` is `null` unless you pass `expand=content`. The following endpoints also return the document: `PATCH /api/v1/documents/:id`, `POST /api/v1/documents/:id/send`, `/withdraw`, and `/extend-expiration`, `POST /api/v1/documents/:id/tags`, and `DELETE /api/v1/documents/:id/tags/:tagId`. `DELETE /api/v1/documents/:id` returns the document with `deletedAt` set.
 
 Deleting a party, a file, a document link, a contact, a custom field, a member, an invitation, or a role returns `{ "id": "...", "deleted": true }`.
 
@@ -759,7 +832,7 @@ In `2026-10`:
       "signingOrder": 1,
       "company": { "name": "Example AB", "orgNumber": "5566778899", "role": "CEO" },
       "country": "SE",
-      "requiredSignature": "SE_BANKID"
+      "signatureMethod": "SE_BANKID"
     }
   ]
 }
@@ -772,6 +845,60 @@ The same `company` object applies to template parties, on `POST /api/v1/template
 A document party has `createdAt`, the time when the party was added to the document. A template party keeps `createdAt` and `updatedAt`.
 
 On a sent document, `PATCH /api/v1/documents/:id/parties/:partyId` changes the `name`, `email`, and `phone` of a party who hasn't signed. Any other property fails with `409 INVALID_STATE`.
+
+#### Party settings
+
+A party's delivery, signature method, and verification have new names, and the verifications take plain method names. In `2026-09`, a party and its document look like the following:
+
+```json
+{
+  "documentMeta": { "accessVerification": "SMS_BEFORE_SIGNING" },
+  "parties": [
+    {
+      "name": "Alex Berg",
+      "email": "alex@example.com",
+      "role": "SIGNER",
+      "deliveryMethod": "NONE",
+      "requiredSignature": "CLICK_TO_SIGN",
+      "twoStepVerification": "SE_BANKID_BEFORE_SIGNING"
+    }
+  ]
+}
+```
+
+In `2026-10`:
+
+```json
+{
+  "documentMeta": { "openVerification": "SMS" },
+  "parties": [
+    {
+      "name": "Alex Berg",
+      "email": "alex@example.com",
+      "role": "SIGNER",
+      "delivery": [],
+      "signatureMethod": "CLICK_TO_SIGN",
+      "signVerification": "SE_BANKID"
+    }
+  ]
+}
+```
+
+The following settings change:
+
+| `2026-09` | `2026-10` |
+|-----------|-----------|
+| `deliveryMethod`: `EMAIL`, `SMS`, `IN_APP`, or `NONE` | `delivery`: `["EMAIL"]`, `["SMS"]`, `["IN_APP"]`, or `[]`. `["EMAIL", "SMS"]` invites by both, and each channel needs its contact detail. |
+| `requiredSignature` | `signatureMethod`, with the same values |
+| `twoStepVerification`, such as `SMS_BEFORE_SIGNING`, or `NONE` | `signVerification`, such as `SMS`, or `null`. It gates signing. |
+| `documentMeta.accessVerification`, `templateMeta.accessVerification` | `documentMeta.openVerification`, `templateMeta.openVerification`, with the same values as `signVerification`. It gates opening the document. |
+| `GET /api/v1/helpers/two-step-verifications` codes such as `SMS_BEFORE_SIGNING`, with a `NONE` entry | Codes such as `SMS`, without `NONE` |
+
+The new names apply to document parties, template parties, form template parties, and webhook payloads. A request with an old key fails with `400 VALIDATION_FAILED`. Migrate stored values too, such as a `NONE` delivery or a verification with the `_BEFORE_SIGNING` suffix.
+
+A document party can also have its own `openVerification`. It overrides `documentMeta.openVerification` for that party, and `null` uses the document's. It can't be `PIN`, because a PIN only gates signing.
+
+A party in `POST /api/v1/documents` has one shape. `contactId` is optional, and `name`, `email`, `phone`, `nationalId`, `externalId`, `company`, and `country` beside it override the contact's details for this document. Without a `contactId`, a party needs a `name`, and an `email` or a `phone`.
 
 #### Files
 
@@ -803,6 +930,29 @@ To list every file that's ready, call `GET /api/v1/documents/:id/files`, which r
 
 `POST /api/v1/documents/:id/send` no longer submits a document for approval. When the caller needs an approval first, it returns `409 APPROVAL_REQUIRED`, never `202`. To request an approval, see [Approvals](#approvals).
 
+When the document isn't ready, such as a party invited by SMS without a phone number, the send returns `409 DOCUMENT_NOT_READY` instead of `400` with one joined message. The error's `readiness` lists every blocker:
+
+```json
+{
+  "code": "DOCUMENT_NOT_READY",
+  "message": "A party invited by SMS has no phone number.",
+  "userMessage": "Alex Andersson saknar telefonnummer för SMS-leverans.",
+  "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
+  "readiness": [
+    {
+      "code": "MISSING_PHONE",
+      "severity": "BLOCKER",
+      "message": "A party invited by SMS has no phone number.",
+      "userMessage": "Alex Andersson saknar telefonnummer för SMS-leverans."
+    }
+  ]
+}
+```
+
+To run the same checks without sending, call `GET /api/v1/documents/:id/readiness`, which returns `{ ready, issues }` with warnings too. Branch on each issue's `code` and `severity`, `BLOCKER` or `WARNING`; sajn can add codes.
+
+`POST /api/v1/documents` can also create and send a document in one request. It takes `content`, the blocks to create, and `send: true`. A party can have a `ref`, such as `buyer`, that the blocks use in place of its ID, in `partyId` or in a `<sajn-field>` tag's `party`. For an example, see [Create and send in one request](/guides/documents/create-document#create-and-send-in-one-request).
+
 #### Other document changes
 
 | `2026-09` | `2026-10` |
@@ -814,7 +964,7 @@ To list every file that's ready, call `GET /api/v1/documents/:id/files`, which r
 | `GET /api/v1/templates/:id/documents` | `GET /api/v1/documents?templateId=` |
 | `token` on `GET /api/v1/documents/:id/parties/:partyId` | `signingUrl`, which carries it |
 | `ssn`, `ssnDisplayMode` | `nationalId`, `nationalIdDisplayMode` |
-| `BANKID`, `BANKID_BEFORE_SIGNING` | `SE_BANKID`, `SE_BANKID_BEFORE_SIGNING` |
+| `BANKID`, `BANKID_BEFORE_SIGNING` | `SE_BANKID`, both as a signature method and as a verification method |
 | `customFields[].customInputId` | `customFields[].customFieldId` |
 | `signerId`, `signerName`, `signerEmail` on signatures and reminders | `partyId`, `partyName`, `partyEmail` |
 | `originalSigner(Id)`, `delegateSigner(Id)` on delegations | `originalParty(Id)`, `delegateParty(Id)` |
@@ -826,11 +976,24 @@ To list every file that's ready, call `GET /api/v1/documents/:id/files`, which r
 
 Closed enums are uppercase everywhere, for example member `status` (`ACTIVE`), login session `status` (`COMPLETED`), form question `kind` (`NAME`), document link `origin` (`MANUAL`), and `documentStyle.theme` fonts (`OPEN_SANS`). Document and identity check statuses spell `CANCELLED`.
 
-### Fields
+### Content and fields
 
-Fields have one write path for structure and one for values.
+The blocks a document or template is built from, such as text, a PDF, or a form, are its **content**. A **field** is only a value that someone fills in. Content has one write path for structure, and fields have one for values.
 
-To create fields, send `{ "fields": [...] }`, also for one field. In `2026-09`, the body could be a single field:
+The content endpoints move from `/fields` to `/content`:
+
+| `2026-09` | `2026-10` |
+|-----------|-----------|
+| `GET`, `POST /api/v1/documents/:id/fields` | `GET`, `POST /api/v1/documents/:id/content` |
+| `GET`, `PATCH`, `DELETE /api/v1/documents/:id/fields/:fieldId` | `GET`, `PATCH`, `DELETE /api/v1/documents/:id/content/:contentId` |
+| `PATCH /api/v1/documents/:id/fields/:fieldId/placed-fields` | `PATCH /api/v1/documents/:id/content/:contentId/placed-fields` |
+| The same endpoints on `/api/v1/templates/:id/fields` | `/api/v1/templates/:id/content` |
+| `PUT /api/v1/forms/:id/template/fields` | `PUT /api/v1/forms/:id/template/content` |
+| `fields` on documents, templates, blocks, and form templates | `content` |
+| `expand=fields` on `GET /api/v1/documents/:id` and `GET /api/v1/templates/:id` | `expand=content` |
+| `initialFields` on `POST /api/v1/templates` | `initialContent` |
+
+To create content, send `{ "content": [...] }`, also for one block. In `2026-09`, the body could be a single block:
 
 ```json
 { "type": "TEXT", "position": 0, "fieldMeta": { "type": "TEXT", "content": "<p>Terms</p>" } }
@@ -840,13 +1003,13 @@ In `2026-10`:
 
 ```json
 {
-  "fields": [
+  "content": [
     { "type": "TEXT", "position": 0, "fieldMeta": { "type": "TEXT", "content": "<p>Terms</p>" } }
   ]
 }
 ```
 
-The response has the created fields in `data`, each in the shape of `GET /api/v1/documents/:id/fields/:fieldId`.
+The response has the created blocks in `data`, each in the shape of `GET /api/v1/documents/:id/content/:contentId`. The paths in `issues` start with `content.` instead of `fields.`.
 
 To fill in a value, use `PATCH /api/v1/documents/:id/field-values`. In `2026-09`, you could address a FORM subfield by key in the field path:
 
@@ -854,7 +1017,7 @@ To fill in a value, use `PATCH /api/v1/documents/:id/field-values`. In `2026-09`
 PATCH /api/v1/documents/cm4k2x9p10001abcd1234efgh/fields/key:customer_name
 ```
 
-In `2026-10`, the field path takes an ID only, and values go through field values:
+In `2026-10`, the content path takes a block ID only, and values go through field values:
 
 ```http
 PATCH /api/v1/documents/cm4k2x9p10001abcd1234efgh/field-values
@@ -880,14 +1043,15 @@ A failed result's `error` is `{ code, message, userMessage }`, with `code` `NOT_
 
 Also change the following:
 
-- **Removed**: `PATCH /api/v1/documents/:id/fields`, which updated FORM subfields by key, and the `key` property on field create and update requests. To find the field that holds a key, call `GET /api/v1/documents/:id/fields?key=KEY`.
-- **Field values list**: `GET /api/v1/documents/:id/field-values` returns `data` instead of `values`, with `partyId` instead of `signerId`, `kind` `FORM`, `PDF_ACROFORM`, or `PDF_PLACED`, and `filledBy` `SENDER` or `SIGNER`.
-- **Responses**: `PATCH` on a field and the placed-fields endpoints return the field. `DELETE` on a field returns `{ id, deleted: true }`.
-- **Names inside `fieldMeta`**: `signerId` is `partyId`, `selectionSignerId` is `selectionPartyId`, and `visibilityRule.customInputId` is `visibilityRule.customFieldId`. This includes `upsert` on the placed-fields endpoints, `initialFields` on `POST /api/v1/templates`, and blocks.
+- **Removed**: `PATCH /api/v1/documents/:id/fields`, which updated FORM subfields by key, and the `key` property on block create and update requests. To find the block that holds a key, call `GET /api/v1/documents/:id/content?key=KEY`.
+- **Field values list**: `GET /api/v1/documents/:id/field-values` returns `data` instead of `values`, with `partyId` instead of `signerId`, `kind` `FORM`, `PDF_ACROFORM`, `PDF_PLACED`, or `INLINE` for a `<sajn-field>`, and `filledBy` `SENDER` or `SIGNER`. On a draft, `PATCH` prefills a value with `filledBy` set to `SIGNER`, and the party can change it.
+- **Unique keys**: a field key names one field within a document or template. A request that adds a second field with the same key fails with `400 VALIDATION_FAILED`, and a document that already has a duplicate can't be sent: the send fails with `409 DOCUMENT_NOT_READY` and the code `DUPLICATE_KEY`. One AcroForm field split across PDF blocks, and one `<sajn-field>` placed again for the same party, count as one field.
+- **Responses**: `PATCH` on a block and the placed-fields endpoints return the block. `DELETE` on a block returns `{ id, deleted: true }`.
+- **Names inside `fieldMeta`**: `signerId` is `partyId`, `selectionSignerId` is `selectionPartyId`, and `visibilityRule.customInputId` is `visibilityRule.customFieldId`. This includes `upsert` on the placed-fields endpoints, `initialContent` on `POST /api/v1/templates`, and blocks.
 - **Enums inside `fieldMeta`**: every value is uppercase, such as `kind` `INPUT`, `inputType` `SIGNATURE`, `fillSource` `SIGNER`, `style.align` `LEFT`, and a FORM subfield `type` such as `DATEPICKER`. A lowercase value fails with `400 VALIDATION_FAILED`.
 - **VAT in product tables**: `moms` is `vat`, and `pricesIncludeMoms`, `defaultMomsRate`, `showMomsBreakdown`, and `summaryLabels.moms` are `pricesIncludeVat`, `defaultVatRate`, `showVatBreakdown`, and `summaryLabels.vat`. In `productTables` on `GET /api/v1/documents/:id`, a row's `moms` and `lineMoms` are `vat` and `lineVat`, and `momsAmount` is `vatAmount`. Prices stay decimal amounts in the table's currency.
 
-For example, a box in a PDF field's `placedFields` in `2026-09`:
+For example, a box in a PDF block's `placedFields` in `2026-09`:
 
 ```json
 { "id": "sign-alex", "kind": "input", "inputType": "signature", "fillSource": "signer", "signerId": "cm4k2x9p10002abcd1234efgh" }
@@ -898,6 +1062,44 @@ In `2026-10`:
 ```json
 { "id": "sign-alex", "kind": "INPUT", "inputType": "SIGNATURE", "fillSource": "SIGNER", "partyId": "cm4k2x9p10002abcd1234efgh" }
 ```
+
+#### Positions on a PDF
+
+Boxes in `placedFields`, and the AcroForm fields in `formFields`, count pages from 1 and measure `rect` in fractions of the page, from 0 to 1, from the top-left corner. In `2026-09`, a signature box near the bottom of the first page of an A4 PDF looks like the following:
+
+```json
+{ "id": "sign-alex", "page": 0, "rect": { "x": 72, "y": 96, "width": 200, "height": 48 } }
+```
+
+In `2026-10`:
+
+```json
+{ "id": "sign-alex", "page": 1, "rect": { "x": 0.121, "y": 0.829, "width": 0.336, "height": 0.057 } }
+```
+
+To keep sending PDF points from the bottom-left corner, add 1 to `page` and set `unit` and `origin` on each box:
+
+```json
+{ "id": "sign-alex", "page": 1, "unit": "POINTS", "origin": "BOTTOM_LEFT", "rect": { "x": 72, "y": 96, "width": 200, "height": 48 } }
+```
+
+Responses always give `rect` in fractions from the top-left corner, with `pageWidth` and `pageHeight` in points. To convert back to points from the bottom-left corner, use `x = rect.x * pageWidth` and `y = (1 - rect.y - rect.height) * pageHeight`. For the coordinate model, see [Place fields on a PDF](/guides/fields/pdf-field-placement).
+
+#### Fields in text
+
+A field that a party fills in inside `TEXT` or `HTML` content is a `<sajn-field>` tag, in responses and requests. In `2026-09`, responses returned the editor's internal markup:
+
+```html
+<span class="signer-variable" data-id="start-date" data-signer-id="cm4k2x9p10002abcd1234efgh" data-label="Start date" data-field-type="date" data-required="true">Start date</span>
+```
+
+In `2026-10`:
+
+```html
+<sajn-field key="start-date" party="cm4k2x9p10002abcd1234efgh" type="DATE" label="Start date" required="true"></sajn-field>
+```
+
+`type` is `TEXT`, `DATE`, or `SELECT`, and a `SELECT` field lists its choices in `options`, separated by commas. For every attribute, see [Inline fields in text](/guides/fields/signer-fields#inline-fields-in-text).
 
 ### Approvals
 
@@ -1045,7 +1247,7 @@ The following resources move or rename:
 | Identity check `status` `CANCELED` | `CANCELLED` |
 | `/api/v1/documents/:id/chat` | `/api/v1/documents/:id/messages` |
 | Form `title` | `name` |
-| `/api/v1/forms/:id/document`, `/document/fields`, `/document/parties` | `/api/v1/forms/:id/template`, `/template/fields`, `/template/parties` |
+| `/api/v1/forms/:id/document`, `/document/fields`, `/document/parties` | `/api/v1/forms/:id/template`, `/template/content`, `/template/parties` |
 
 For example, creating an identity check in `2026-09`:
 
@@ -1180,6 +1382,7 @@ To update your receiver, do the following:
 - When you read past events from `GET /api/v1/events`, expect `data.object` to show the resource's current state for an event that no `2026-10` endpoint subscribed to when it happened. If that resource no longer exists, the list leaves the event out.
 - Read who caused the event from `actor`: `{ type, id }`, with `type` `USER`, `API_KEY`, `OAUTH_APP`, or `SYSTEM`, or `null`.
 - Read earlier values from `data.previousAttributes` on `template.updated` and `document.expiration_extended`, instead of `changedFields` and `previousExpiresAt`.
+- Read what the parties filled in from `data.fieldValues` on `document.party.signed` and `document.completed`, in the shape of `GET /api/v1/documents/:id/field-values`.
 
 For each event's `data`, see [Payloads](/webhooks/payloads).
 

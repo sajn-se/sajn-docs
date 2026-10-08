@@ -16,7 +16,7 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
 
 <Steps>
   <Step title="Prepare the document on the server">
-    Save the following file as `server.js`. The `/api/signing-session` route creates the document with the user as a party whose `deliveryMethod` is `NONE`, sends it, and returns the document ID and the token from the party's `signingUrl`:
+    Save the following file as `server.js`. The `/api/signing-session` route creates the document with the user as a party whose `delivery` is `[]`, sends it, and returns the document ID and the token from the party's `signingUrl`:
 
     ```javascript
     // server.js
@@ -48,7 +48,7 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
           name: `Membership agreement - ${user.name}`,
           templateId: process.env.SAJN_TEMPLATE_ID,
           externalId: `membership-${user.id}`,
-          parties: [{ name: user.name, email: user.email, role: "SIGNER", deliveryMethod: "NONE" }],
+          parties: [{ name: user.name, email: user.email, role: "SIGNER", delivery: [] }],
         });
         await sajn("POST", `/documents/${document.id}/send`, {});
         const party = await sajn("GET", `/documents/${document.id}/parties/${document.parties[0].id}`);

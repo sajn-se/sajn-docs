@@ -131,8 +131,8 @@ You need the following:
             "name": "Kai Berg",
             "email": "SIGNER_EMAIL",
             "role": "SIGNER",
-            "deliveryMethod": "EMAIL",
-            "requiredSignature": "CLICK_TO_SIGN"
+            "delivery": ["EMAIL"],
+            "signatureMethod": "CLICK_TO_SIGN"
           }
         ]
       }'
@@ -149,8 +149,8 @@ You need the following:
           name: "Kai Berg",
           email: "SIGNER_EMAIL",
           role: "SIGNER",
-          deliveryMethod: "EMAIL",
-          requiredSignature: "CLICK_TO_SIGN",
+          delivery: ["EMAIL"],
+          signatureMethod: "CLICK_TO_SIGN",
         },
       ],
     });
@@ -172,8 +172,8 @@ You need the following:
                 "name": "Kai Berg",
                 "email": "SIGNER_EMAIL",
                 "role": "SIGNER",
-                "deliveryMethod": "EMAIL",
-                "requiredSignature": "CLICK_TO_SIGN",
+                "delivery": ["EMAIL"],
+                "signatureMethod": "CLICK_TO_SIGN",
             }
         ],
     })
@@ -201,8 +201,8 @@ You need the following:
           "role": "SIGNER",
           "signingStatus": "NOT_SIGNED",
           "readStatus": "NOT_OPENED",
-          "deliveryMethod": "EMAIL",
-          "requiredSignature": "CLICK_TO_SIGN"
+          "delivery": ["EMAIL"],
+          "signatureMethod": "CLICK_TO_SIGN"
         }
       ]
     }
@@ -217,17 +217,17 @@ You need the following:
   </Step>
 
   <Step title="Add content">
-    A new document has no content. [Add fields](/api-reference/create-document-fields) to it. The request takes a `fields` array, also for one field. This example adds an `HTML` field; for other content types, such as an uploaded PDF, see [Fields](/concepts/fields).
+    A new document has no content. [Add content blocks](/api-reference/create-document-content) to it. The request takes a `content` array, also for one block. This example adds an `HTML` block; for other block types, such as an uploaded PDF, see [Content and fields](/concepts/fields).
 
     <CodeGroup>
 
     ```bash curl
-    curl https://app.sajn.se/api/v1/documents/$DOCUMENT_ID/fields \
+    curl https://app.sajn.se/api/v1/documents/$DOCUMENT_ID/content \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "fields": [
+        "content": [
           {
             "type": "HTML",
             "position": 0,
@@ -241,8 +241,8 @@ You need the following:
     ```
 
     ```javascript Node.js
-    await sajn("POST", `/documents/${documentId}/fields`, {
-      fields: [
+    await sajn("POST", `/documents/${documentId}/content`, {
+      content: [
         {
           type: "HTML",
           position: 0,
@@ -258,8 +258,8 @@ You need the following:
     ```
 
     ```python Python
-    sajn("POST", f"/documents/{document_id}/fields", {
-        "fields": [
+    sajn("POST", f"/documents/{document_id}/content", {
+        "content": [
             {
                 "type": "HTML",
                 "position": 0,
@@ -277,7 +277,7 @@ You need the following:
 
     </CodeGroup>
 
-    The response lists the created fields in `data`.
+    The response lists the created blocks in `data`.
   </Step>
 
   <Step title="Send the document">

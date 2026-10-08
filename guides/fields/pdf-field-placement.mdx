@@ -5,7 +5,7 @@ description: "Put signature boxes, party inputs, and fixed text at exact positio
 
 In this guide, you place boxes on the pages of an uploaded PDF: a signature that a party draws when signing, an input that a party fills in, and fixed text that you stamp. Then you move a box and read the layout back.
 
-A `PDF` field holds one uploaded PDF. The boxes on its pages are in `fieldMeta.placedFields`, an array where each entry is one box, drawn in array order.
+A `PDF` content block holds one uploaded PDF. The boxes on its pages are in `fieldMeta.placedFields`, an array where each entry is one box, drawn in array order.
 
 ## Before you begin
 
@@ -15,18 +15,34 @@ A `PDF` field holds one uploaded PDF. The boxes on its pages are in `fieldMeta.p
 
 ## Coordinates
 
-Boxes use the PDF's own coordinate model:
+A box's position is relative to its page, so the same values work on any page size:
 
-- `page`: the 0-based page index.
-- `rect`: `x`, `y`, `width`, and `height` in PDF points (1/72 inch). The origin is the bottom-left corner of the page, and `y` grows upward.
-- `pageWidth` and `pageHeight`: optional. The page size that `rect` is measured on. A4 portrait is `595.28` by `841.89`. If you send them, sajn scales `rect` to the real page. If you leave them out, sajn reads them from the PDF.
+- `page`: the page the box is on, counted from 1.
+- `rect`: `x`, `y`, `width`, and `height` as fractions of the page, from `0` to `1`. `x` and `y` are measured from the top-left corner of the page, and `y` grows downward. For example, `{ "x": 0.5, "y": 0, "width": 0.5, "height": 0.1 }` covers the right half of the top tenth of the page.
+- `pageWidth` and `pageHeight`: the page size in PDF points (1/72 inch). A4 portrait is `595.28` by `841.89`. You can leave them out of a request; sajn reads them from the PDF.
 - `pageRotation`: optional. `0`, `90`, `180`, or `270`. If you leave it out, sajn reads it from the PDF.
 
-If your own model uses fractions measured from the top-left corner, convert them with `x = xFraction * pageWidth` and `y = pageHeight - (yFraction + heightFraction) * pageHeight`.
+### Send PDF points instead
+
+If your layout is in PDF points measured from the bottom-left corner, as in AcroForm fields and most PDF libraries, send it as is and set two properties on the box:
+
+- `unit`: `POINTS`. The default is `RELATIVE`, fractions of the page.
+- `origin`: `BOTTOM_LEFT`, where `y` grows upward. The default is `TOP_LEFT`.
+
+The following box puts a signature 72 points from the left edge and 96 points from the bottom edge of page 3:
+
+```json
+{ "id": "signature", "kind": "INPUT", "inputType": "SIGNATURE",
+  "page": 3, "unit": "POINTS", "origin": "BOTTOM_LEFT",
+  "rect": { "x": 72, "y": 96, "width": 200, "height": 48 },
+  "partyId": "PARTY_ID", "required": true }
+```
+
+`unit` and `origin` apply only to the request. Responses always give `rect` in fractions from the top-left corner, with `pageWidth` and `pageHeight` in points. To convert a response back to points from the bottom-left corner, use `x = rect.x * pageWidth` and `y = (1 - rect.y - rect.height) * pageHeight`.
 
 ## Box kinds
 
-Each box has an `id` that's unique in the field, and a `kind`:
+Each box has an `id` that's unique in the PDF block, and a `kind`:
 
 - `INPUT` with `inputType` `SIGNATURE` or `INITIALS`: a mark that the party in `partyId` draws when signing. sajn seals the mark into the PDF at this position. The party must have the `SIGNER` role.
 - `INPUT` with `inputType` `TEXT`, `DATE`, `CHECKBOX`, or `SELECT`: a value that the party in `partyId` fills in before signing. Add `options` for `SELECT` and `"multiline": true` for long text. If `required` is `true`, the party can't sign until it's filled in. Without a `partyId`, you fill the box in yourself.
@@ -37,18 +53,18 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
 ## Place the boxes
 
 <Steps>
-  <Step title="Create the PDF field with its boxes">
-    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/fields` with the PDF field in a `fields` array. The following request places a signature on page 3, a start-date input on page 1, and a reference number in the top-right corner of page 1:
+  <Step title="Create the PDF block with its boxes">
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/content` with the PDF block in a `content` array. The following request places a signature near the bottom of page 3, a start-date input on page 1, and a reference number in the top-right corner of page 1:
 
     <CodeGroup>
 
     ```bash curl
-    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+    curl -X POST https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
-        "fields": [
+        "content": [
           {
             "type": "PDF",
             "position": 0,
@@ -57,14 +73,14 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
               "value": "STORAGE_KEY",
               "placedFields": [
                 { "id": "signature", "kind": "INPUT", "inputType": "SIGNATURE",
-                  "page": 2, "rect": { "x": 72, "y": 96, "width": 200, "height": 48 },
+                  "page": 3, "rect": { "x": 0.121, "y": 0.829, "width": 0.336, "height": 0.057 },
                   "partyId": "PARTY_ID", "required": true },
                 { "id": "start-date", "key": "start-date", "kind": "INPUT", "inputType": "DATE",
-                  "label": "Start date", "page": 0,
-                  "rect": { "x": 320, "y": 640, "width": 140, "height": 22 },
+                  "label": "Start date", "page": 1,
+                  "rect": { "x": 0.538, "y": 0.214, "width": 0.235, "height": 0.026 },
                   "partyId": "PARTY_ID", "required": true },
                 { "id": "reference", "kind": "STATIC", "content": "<p>Ref: HR-2026-0142</p>",
-                  "page": 0, "rect": { "x": 400, "y": 780, "width": 150, "height": 18 },
+                  "page": 1, "rect": { "x": 0.672, "y": 0.052, "width": 0.252, "height": 0.021 },
                   "style": { "fontSize": 9, "align": "RIGHT" } }
               ]
             }
@@ -77,7 +93,7 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
     const documentId = "DOCUMENT_ID";
     const partyId = "PARTY_ID";
 
-    const response = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}/fields`, {
+    const response = await fetch(`https://app.sajn.se/api/v1/documents/${documentId}/content`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
@@ -85,7 +101,7 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        fields: [
+        content: [
           {
             type: "PDF",
             position: 0,
@@ -94,14 +110,14 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
               value: "STORAGE_KEY",
               placedFields: [
                 { id: "signature", kind: "INPUT", inputType: "SIGNATURE",
-                  page: 2, rect: { x: 72, y: 96, width: 200, height: 48 },
+                  page: 3, rect: { x: 0.121, y: 0.829, width: 0.336, height: 0.057 },
                   partyId, required: true },
                 { id: "start-date", key: "start-date", kind: "INPUT", inputType: "DATE",
-                  label: "Start date", page: 0,
-                  rect: { x: 320, y: 640, width: 140, height: 22 },
+                  label: "Start date", page: 1,
+                  rect: { x: 0.538, y: 0.214, width: 0.235, height: 0.026 },
                   partyId, required: true },
                 { id: "reference", kind: "STATIC", content: "<p>Ref: HR-2026-0142</p>",
-                  page: 0, rect: { x: 400, y: 780, width: 150, height: 18 },
+                  page: 1, rect: { x: 0.672, y: 0.052, width: 0.252, height: 0.021 },
                   style: { fontSize: 9, align: "RIGHT" } },
               ],
             },
@@ -127,13 +143,13 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
     party_id = "PARTY_ID"
 
     response = requests.post(
-        f"https://app.sajn.se/api/v1/documents/{document_id}/fields",
+        f"https://app.sajn.se/api/v1/documents/{document_id}/content",
         headers={
             "Authorization": f"Bearer {os.environ['SAJN_API_KEY']}",
             "Sajn-Version": "2026-10",
         },
         json={
-            "fields": [
+            "content": [
                 {
                     "type": "PDF",
                     "position": 0,
@@ -142,16 +158,16 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
                         "value": "STORAGE_KEY",
                         "placedFields": [
                             {"id": "signature", "kind": "INPUT", "inputType": "SIGNATURE",
-                             "page": 2,
-                             "rect": {"x": 72, "y": 96, "width": 200, "height": 48},
+                             "page": 3,
+                             "rect": {"x": 0.121, "y": 0.829, "width": 0.336, "height": 0.057},
                              "partyId": party_id, "required": True},
                             {"id": "start-date", "key": "start-date", "kind": "INPUT",
-                             "inputType": "DATE", "label": "Start date", "page": 0,
-                             "rect": {"x": 320, "y": 640, "width": 140, "height": 22},
+                             "inputType": "DATE", "label": "Start date", "page": 1,
+                             "rect": {"x": 0.538, "y": 0.214, "width": 0.235, "height": 0.026},
                              "partyId": party_id, "required": True},
                             {"id": "reference", "kind": "STATIC",
-                             "content": "<p>Ref: HR-2026-0142</p>", "page": 0,
-                             "rect": {"x": 400, "y": 780, "width": 150, "height": 18},
+                             "content": "<p>Ref: HR-2026-0142</p>", "page": 1,
+                             "rect": {"x": 0.672, "y": 0.052, "width": 0.252, "height": 0.021},
                              "style": {"fontSize": 9, "align": "RIGHT"}},
                         ],
                     },
@@ -175,48 +191,48 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
     - `STORAGE_KEY`: the `key` from the file upload.
     - `PARTY_ID`: the `id` of the signing party.
 
-    The response has the created PDF field in `data`. Store its `id` for the next step.
+    The response has the created PDF block in `data`. Store its `id` for the next step.
 
-    sajn checks every box before it writes anything. The request fails with `400 VALIDATION_FAILED`, and writes nothing, when a box's `page` doesn't exist, its `rect` doesn't fit on the page, its `partyId` isn't a party on the document, or it's a signature or initials box for a party without the `SIGNER` role.
+    sajn checks every box before it writes anything. The request fails with `400 VALIDATION_FAILED`, and writes nothing, when a box's `page` doesn't exist, its `rect` doesn't fit on the page, sajn can't read the page size from the PDF and the box has no `pageWidth` and `pageHeight`, its `partyId` isn't a party on the document, or it's a signature or initials box for a party without the `SIGNER` role.
   </Step>
 
   <Step title="Move, add, or remove single boxes">
-    To change boxes without sending the whole field again, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID/placed-fields`:
+    To change boxes without sending the whole block again, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/content/CONTENT_ID/placed-fields`:
 
     ```bash
-    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields/FIELD_ID/placed-fields \
+    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content/CONTENT_ID/placed-fields \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
       -d '{
         "upsert": [
           { "id": "signature", "kind": "INPUT", "inputType": "SIGNATURE",
-            "page": 3, "rect": { "x": 72, "y": 120, "width": 200, "height": 48 },
+            "page": 4, "rect": { "x": 0.121, "y": 0.8, "width": 0.336, "height": 0.057 },
             "partyId": "PARTY_ID" }
         ],
         "remove": ["reference"]
       }'
     ```
 
-    Replace `FIELD_ID` with the PDF field's `id`. The request works as follows:
+    Replace `CONTENT_ID` with the PDF block's `id`. The request works as follows:
 
     - A box in `upsert` with an existing `id` replaces that box and keeps its drawing order. A box with a new `id` is added on top.
     - `remove` lists the IDs of boxes to delete. Boxes you don't mention stay as they are.
     - The change is atomic: if any box is invalid, nothing is written, and `issues` lists every problem.
 
-    The response is the PDF field with its full `fieldMeta` after the change.
+    The response is the PDF block with its full `fieldMeta` after the change.
   </Step>
 
   <Step title="Read the layout back">
-    List the document's fields:
+    List the document's content:
 
     ```bash
-    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/fields \
+    curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID/content \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10"
     ```
 
-    The response lists every field in position order in `data`, and the PDF field has the `placedFields` you sent, with `pageWidth`, `pageHeight`, and `pageRotation` filled in. The following example leaves out most boxes:
+    The response lists every content block in position order in `data`. The PDF block has the `placedFields` you sent, with `rect` in fractions from the top-left corner, also for a box you sent in points, and `pageWidth`, `pageHeight`, and `pageRotation` filled in. The following example leaves out most boxes:
 
     ```json
     {
@@ -236,8 +252,8 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
                 "id": "signature",
                 "kind": "INPUT",
                 "inputType": "SIGNATURE",
-                "page": 3,
-                "rect": { "x": 72, "y": 120, "width": 200, "height": 48 },
+                "page": 4,
+                "rect": { "x": 0.121, "y": 0.8, "width": 0.336, "height": 0.057 },
                 "pageWidth": 595.28,
                 "pageHeight": 841.89,
                 "partyId": "cm4k2xa3f0002abcd5678ijkl"
@@ -251,17 +267,17 @@ Every enum value in a box is uppercase; a lowercase value, such as `input`, fail
     }
     ```
 
-    `GET /api/v1/documents/DOCUMENT_ID?expand=fields` returns the same fields in the document's `fields` array.
+    `GET /api/v1/documents/DOCUMENT_ID?expand=content` returns the same blocks in the document's `content` array.
   </Step>
 </Steps>
 
 ## Fill in boxes and PDF form fields
 
-To fill in an `INPUT` box that has no `partyId`, use [Fill in values on a document](/api-reference/fill-in-values-on-a-document) with the box's `key`. The same endpoint fills in the uploaded PDF's own form fields (AcroForm fields), which sajn lists in `fieldMeta.formFields` with an uppercase `type`: `TEXT`, `CHECKBOX`, `DROPDOWN`, or `RADIO`. To see every fillable key, call [List the fillable values on a document](/api-reference/list-the-fillable-values-on-a-document). The values are in `data`: values with `kind` set to `PDF_PLACED` are boxes, and values with `kind` set to `PDF_ACROFORM` are the PDF's own form fields.
+To fill in an `INPUT` box that has no `partyId`, use [Fill in values on a document](/api-reference/fill-in-values-on-a-document) with the box's `key`. The same endpoint fills in the uploaded PDF's own form fields (AcroForm fields), which sajn lists in `fieldMeta.formFields` with an uppercase `type`: `TEXT`, `CHECKBOX`, `DROPDOWN`, or `RADIO`. A form field's `page` and `rect` use the same model as a box: pages counted from 1, and fractions of the page from the top-left corner. To see every fillable key, call [List the fillable values on a document](/api-reference/list-the-fillable-values-on-a-document). The values are in `data`: values with `kind` set to `PDF_PLACED` are boxes, and values with `kind` set to `PDF_ACROFORM` are the PDF's own form fields.
 
 ## Use placements on templates
 
-The same requests work on templates, through `/api/v1/templates/TEMPLATE_ID/fields` and `/api/v1/templates/TEMPLATE_ID/fields/FIELD_ID/placed-fields`. On a template, `partyId` refers to a template party. A document created from the template gets the boxes, mapped to the matching document parties.
+The same requests work on templates, through `/api/v1/templates/TEMPLATE_ID/content` and `/api/v1/templates/TEMPLATE_ID/content/CONTENT_ID/placed-fields`. On a template, `partyId` refers to a template party. A document created from the template gets the boxes, mapped to the matching document parties.
 
 ## Handle errors
 
@@ -270,21 +286,21 @@ A placement error lists every invalid box in `issues`, with its path:
 ```json
 {
   "code": "VALIDATION_FAILED",
-  "message": "The box must fit on the 595.28 × 841.89 pt page, measured from its bottom-left corner, but it spans x 500 to 700 and y 96 to 144.",
+  "message": "The box must fit on page 1, which is 595.28 × 841.89 pt, but it reaches past the edge.",
   "userMessage": "Förfrågan innehåller ogiltiga värden.",
   "requestId": "req_V1StGXR8Z5jdHi6BmyT2",
   "issues": [
     {
-      "path": "fields.0.fieldMeta.placedFields.0.rect",
+      "path": "content.0.fieldMeta.placedFields.0.rect",
       "code": "INVALID_VALUE",
-      "message": "The box must fit on the 595.28 × 841.89 pt page, measured from its bottom-left corner, but it spans x 500 to 700 and y 96 to 144."
+      "message": "The box must fit on page 1, which is 595.28 × 841.89 pt, but it reaches past the edge."
     }
   ]
 }
 ```
 
-- `400 VALIDATION_FAILED`: a box is invalid, uses a lowercase enum value such as `signature`, or uses a 2026-09 name such as `signerId` instead of `partyId`.
-- `409 INVALID_STATE`: the document isn't a `DRAFT`, or another edit changed the field while the request ran. In the second case, send the request again.
+- `400 VALIDATION_FAILED`: a box is invalid, uses a lowercase enum value such as `signature`, or uses a 2026-09 name such as `signerId` instead of `partyId`. A box in 2026-09 coordinates, with `page` counted from 0 and `rect` in points, usually fails the fit check: add 1 to `page`, and set `unit` to `POINTS` and `origin` to `BOTTOM_LEFT`.
+- `409 INVALID_STATE`: the document isn't a `DRAFT`, or another edit changed the block while the request ran. In the second case, send the request again.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 
@@ -297,10 +313,10 @@ For the error shape and every code, see [Errors](/api-fundamentals/errors).
   <Card title="Fields that parties fill in" icon="pen-field" href="/guides/fields/signer-fields">
     Add form inputs outside the PDF.
   </Card>
-  <Card title="Add, update, or remove boxes" icon="code" href="/api-reference/add-update-or-remove-boxes-on-a-pdf-field">
+  <Card title="Add, update, or remove boxes" icon="code" href="/api-reference/add-update-or-remove-boxes-on-a-pdf-block">
     See the placed-fields endpoint in the API reference.
   </Card>
   <Card title="Fields" icon="lightbulb" href="/concepts/fields">
-    Learn how the field model works.
+    Learn how content and fields work.
   </Card>
 </CardGroup>

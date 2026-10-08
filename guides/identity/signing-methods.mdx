@@ -7,10 +7,10 @@ In this guide, you choose how each party signs a document and whether they verif
 
 Each party has two settings:
 
-- `requiredSignature`: how the party signs, such as with a drawn signature or with BankID.
-- `twoStepVerification`: an optional check the party passes before signing, such as an SMS code.
+- `signatureMethod`: how the party signs, such as with a drawn signature or with BankID.
+- `signVerification`: an optional check the party passes before signing, such as an SMS code.
 
-The document also has `documentMeta.accessVerification`, a check that every party passes before the document opens.
+The document also has `documentMeta.openVerification`, a check that every party passes before the document opens.
 
 For what each method proves legally, see [Signing methods](/concepts/signing-methods).
 
@@ -21,7 +21,7 @@ For what each method proves legally, see [Signing methods](/concepts/signing-met
 
 ## Signing methods
 
-The following values are available for `requiredSignature`:
+The following values are available for `signatureMethod`:
 
 | Value | Method | The party needs |
 |-------|--------|-----------------|
@@ -37,7 +37,7 @@ The following values are available for `requiredSignature`:
 
 The API accepts the Norwegian BankID values in the schema, such as `NO_BANKID_BIOMETRIC`, but rejects them with the message `This eID scheme is not yet available` until the scheme is switched on. `NONE` and `MANUAL` are derived values: a party gets `NONE` when its role doesn't sign, and `MANUAL` marks a document imported after paper signing.
 
-If you leave out `requiredSignature`, the party gets the workspace's default signing method. Without a workspace default, the party gets the national eID of your organization's country, or `DRAWING` when the country has none.
+If you leave out `signatureMethod`, the party gets the workspace's default signing method. Without a workspace default, the party gets the national eID of your organization's country, or `DRAWING` when the country has none.
 
 ## Set the methods on a document
 
@@ -102,7 +102,7 @@ If you leave out `requiredSignature`, the party gets the workspace's default sig
   </Step>
 
   <Step title="Set a method per party">
-    Parties on the same document can use different methods. Set `requiredSignature` when you add the party, or update it on a draft:
+    Parties on the same document can use different methods. Set `signatureMethod` when you add the party, or update it on a draft:
 
     ```bash
     curl -X POST https://app.sajn.se/api/v1/documents \
@@ -114,69 +114,81 @@ If you leave out `requiredSignature`, the party gets the workspace's default sig
         "templateId": "TEMPLATE_ID",
         "parties": [
           { "name": "Alex Andersson", "email": "alex@example.com", "role": "SIGNER",
-            "requiredSignature": "SE_BANKID" },
+            "signatureMethod": "SE_BANKID" },
           { "name": "Robin Laine", "email": "robin@example.net", "role": "SIGNER",
-            "requiredSignature": "FI_FTN", "country": "FI" },
+            "signatureMethod": "FI_FTN", "country": "FI" },
           { "name": "Kai Berg", "email": "kai@example.com", "role": "SIGNER",
-            "requiredSignature": "CLICK_TO_SIGN" }
+            "signatureMethod": "CLICK_TO_SIGN" }
         ]
       }'
     ```
 
-    Replace `TEMPLATE_ID` with the ID of a template. `country` is the party's ISO 3166-1 alpha-2 country code. To change the method later, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` with `requiredSignature`.
+    Replace `TEMPLATE_ID` with the ID of a template. `country` is the party's ISO 3166-1 alpha-2 country code. To change the method later, send a `PATCH` request to `/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID` with `signatureMethod`.
   </Step>
 
   <Step title="Optional: Add a verification step">
-    To make a party verify before signing, set `twoStepVerification`. The following update asks Kai for a one-time SMS code. An SMS code needs a phone number on the party:
+    To make a party verify before signing, set `signVerification`. The following update asks Kai for a one-time SMS code. An SMS code needs a phone number on the party:
 
     ```bash
     curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
-      -d '{ "phone": "+46700000000", "twoStepVerification": "SMS_BEFORE_SIGNING" }'
+      -d '{ "phone": "+46700000000", "signVerification": "SMS" }'
     ```
 
-    To make every party verify before the document even opens, set `documentMeta.accessVerification` on the document instead:
+    To make every party verify before the document even opens, set `documentMeta.openVerification` on the document instead:
 
     ```bash
     curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID \
       -H "Authorization: Bearer $SAJN_API_KEY" \
       -H "Sajn-Version: 2026-10" \
       -H "Content-Type: application/json" \
-      -d '{ "documentMeta": { "accessVerification": "SE_BANKID_BEFORE_SIGNING" } }'
+      -d '{ "documentMeta": { "openVerification": "SE_BANKID" } }'
     ```
 
-    For the values, see the following section.
+    To give one party a different check before opening, set `openVerification` on the party. It overrides the document's for that party, and `null` uses the document's:
+
+    ```bash
+    curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID/parties/PARTY_ID \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{ "openVerification": "SMS" }'
+    ```
+
+    To remove a party's `signVerification` or the document's `openVerification`, set it to `null`. For the values, see the following section.
   </Step>
 </Steps>
 
 ## Verification steps
 
-Both `twoStepVerification` and `accessVerification` take the following values. To list them with labels, call [List selectable verification gates](/api-reference/list-selectable-verification-gates).
+`signVerification`, `documentMeta.openVerification`, and a party's `openVerification` take the following values. To list the methods your account can use, with labels, call [List selectable verification methods](/api-reference/list-selectable-verification-methods).
 
 | Value | The party | Notes |
 |-------|-----------|-------|
-| `NONE` | Isn't asked to verify. | The default. |
-| `SMS_BEFORE_SIGNING` | Enters a code sent by SMS. | Needs a phone number. |
-| `EMAIL_BEFORE_SIGNING` | Enters a code sent by email. | Needs an email address. |
-| `PIN_BEFORE_SIGNING` | Enters a PIN that you gave them. | Works only as `twoStepVerification`. You set the PIN in the sajn app. |
-| `SE_BANKID_BEFORE_SIGNING` | Identifies with Swedish BankID. | |
-| `DK_MITID_BEFORE_SIGNING` | Identifies with MitID. | |
-| `DK_MITID_ERHVERV_BEFORE_SIGNING` | Identifies with MitID Erhverv. | |
-| `FI_FTN_BEFORE_SIGNING` | Identifies with FTN. | |
-| `NL_IDIN_BEFORE_SIGNING` | Identifies with iDIN. | |
+| `null` | Isn't asked to verify. | The default. |
+| `SMS` | Enters a code sent by SMS. | Needs a phone number. |
+| `EMAIL` | Enters a code sent by email. | Needs an email address. |
+| `PIN` | Enters a PIN that you gave them. | Works only as `signVerification`; a party's `openVerification` rejects it. You set the PIN in the sajn app. |
+| `SE_BANKID` | Identifies with Swedish BankID. | |
+| `DK_MITID` | Identifies with MitID. | |
+| `DK_MITID_ERHVERV` | Identifies with MitID Erhverv. | |
+| `FI_FTN` | Identifies with FTN. | |
+| `NL_IDIN` | Identifies with iDIN. | |
 
-Use `twoStepVerification` to protect the signature of one party, and `accessVerification` to protect the content of the whole document. A party who signs with an eID is already identified, so an eID verification step on top of an eID signature is a second, separately billed eID transaction.
+Use `signVerification` to protect the signature of one party, and `openVerification` to protect the content of the whole document. A party who signs with an eID is already identified, so an eID verification step on top of an eID signature is a second, separately billed eID transaction.
 
 ## eID schemes by country
 
-| Country | Signing method | Verification step |
-|---------|----------------|-------------------|
-| Sweden | `SE_BANKID` | `SE_BANKID_BEFORE_SIGNING` |
-| Denmark | `DK_MITID`, and `DK_MITID_ERHVERV` for companies | `DK_MITID_BEFORE_SIGNING`, `DK_MITID_ERHVERV_BEFORE_SIGNING` |
-| Finland | `FI_FTN` | `FI_FTN_BEFORE_SIGNING` |
-| The Netherlands | `NL_IDIN` | `NL_IDIN_BEFORE_SIGNING` |
+The same code names a scheme as a signing method and as a verification step:
+
+| Country | Code |
+|---------|------|
+| Sweden | `SE_BANKID` |
+| Denmark | `DK_MITID`, and `DK_MITID_ERHVERV` for companies |
+| Finland | `FI_FTN` |
+| The Netherlands | `NL_IDIN` |
 
 ## Plan availability
 

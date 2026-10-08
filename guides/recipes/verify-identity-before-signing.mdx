@@ -118,15 +118,11 @@ Use this flow when you must know who the customer is before they see the contrac
           name: application.name,
           email: application.email,
           role: "SIGNER",
-          requiredSignature: "SE_BANKID",
+          signatureMethod: "SE_BANKID",
+          nationalId: application.nationalId,
         }],
+        send: true,
       }, `contract-${application.id}-create`);
-
-      await sajn("PATCH", `/documents/${document.id}/parties/${document.parties[0].id}`, {
-        nationalId: application.nationalId,
-      });
-
-      await sajn("POST", `/documents/${document.id}/send`, {}, `contract-${application.id}-send`);
       console.log(`Application ${application.id}: contract ${document.id} sent`);
     });
 
@@ -136,8 +132,8 @@ Use this flow when you must know who the customer is before they see the contrac
     The handler uses the following:
 
     - `data.object` is the identity check, and its `reference` is the value you sent, so `findApplication` can look up the application. For the signature headers, see [Verify webhook signatures](/webhooks/verify-signatures).
-    - The `nationalId` on the party makes BankID match the same identity number again at signing. A party in `POST /api/v1/documents` doesn't take `nationalId`, so the handler sets it with a party update. The create request returns the whole document, so the party's `id` is in `parties`.
-    - The idempotency keys make a repeated delivery of the same event replay the first responses instead of sending a second contract.
+    - The `nationalId` on the party makes BankID match the same identity number again at signing. `send: true` sends the document in the same request. If the send fails, the document stays a draft, and the error message names its ID.
+    - The idempotency key makes a repeated delivery of the same event replay the first response instead of sending a second contract.
   </Step>
 
   <Step title="Check the party's identity afterward">
