@@ -1,0 +1,138 @@
+---
+title: "Skapa ett formulär från en ny mall"
+description: "Från tom mall till publicerad länk: bygg mallen, gör ett formulär av den och dela länken"
+---
+
+Den här guiden går hela vägen. Du bygger en mall med fält, gör ett formulär av den, väljer frågorna, publicerar och ser sidan som besökaren möter. Exemplet är en medlemsansökan där besökaren fyller i adress och startdatum och sedan signerar.
+
+Har du redan en mall med fält kan du hoppa direkt till [Skapa ett formulär](/guider/formular).
+
+## Innan du börjar
+
+- Du är inloggad i en arbetsyta där du får skapa mallar och hantera formulär.
+- Formulär kräver Solo eller högre.
+
+## Bygg mallen
+
+<Steps>
+  <Step title="Skapa en ny mall">
+    Öppna [Mallar](https://app.sajn.se/~/templates) och klicka på **Skapa ny mall**. En tom mall öppnas direkt i redigeraren.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/02-mallar.png" alt="Sidan Mallar med knappen Skapa ny mall" />
+    </Frame>
+  </Step>
+
+  <Step title="Ge mallen ett namn">
+    Klicka på **Ny mall** uppe till vänster, skriv namnet och tryck Enter. Namnet följer med till formuläret och blir rubriken som besökaren ser.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/08-tom-mall.png" alt="Tom mall med namnet Medlemsansökan" />
+    </Frame>
+  </Step>
+
+  <Step title="Lägg till parten som ska signera">
+    Öppna **Parter** och klicka på **Lägg till part eller roll**. Skriv ett namn på rollen, här *Medlem*, och klicka **Lägg till**. Lämna e-post och telefon tomma: i ett formulär hämtas de från besökarens svar.
+
+    Formuläret väljer den första signerande parten som personen som fyller i. Har mallen flera parter kan du ändra det senare under **Redigera dokument → Parter**.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/11-fyll-part.png" alt="Dialogen Lägg till part / roll med namnet Medlem" />
+    </Frame>
+  </Step>
+
+  <Step title="Skriv avtalstexten">
+    Klicka på **Lägg till sektion**, välj **Text & bild** och skriv texten som besökaren ska signera. Texten är fast och följer med oförändrad till varje svar.
+  </Step>
+
+  <Step title="Lägg till en Formulär-sektion">
+    Klicka på **Lägg till sektion** under texten och välj **Formulär**. Bara fält i en Formulär-sektion går att fråga efter i formuläret.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/18-sektionsmenyn-igen.png" alt="Menyn Lägg till sektion med alternativet Formulär" />
+    </Frame>
+  </Step>
+
+  <Step title="Lägg till fälten">
+    Klicka på **Klicka för att lägga till fält** och sedan på det nya fältet. Skriv en etikett, här *Adress*. Under **Avancerat** ser du att nyckeln fylls i automatiskt från etiketten, här `adress`. Nyckeln kopplar fältet till frågan i formuläret. Klicka **Spara**.
+
+    Klicka på den tomma rutan bredvid för nästa fält. Ge det etiketten *Startdatum* och välj **Datumväljare** under **Typ**.
+
+    Låt **Fylls i av** stå kvar på **Dig (fast värde)**. Formuläret skriver in besökarens svar i fältet.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/23-oppna-avancerat.png" alt="Rutan Redigera fält med etiketten Adress och nyckeln adress under Avancerat" />
+    </Frame>
+  </Step>
+
+  <Step title="Mallen är klar">
+    Mallen har nu en avtalstext, en part och två fält med nycklar. Ändringar sparas automatiskt.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/34-mallen-klar.png" alt="Mallen Medlemsansökan med text och fälten Adress och Startdatum" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Gör ett formulär av mallen
+
+<Steps>
+  <Step title="Välj mallen">
+    Öppna [Formulär](https://app.sajn.se/~/templates/forms) under **Mallar** och klicka på **Nytt formulär**. Sök fram mallen och klicka på den. Formuläret får en egen kopia, så ändringar i formuläret påverkar inte mallen.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/39-valj-mall.png" alt="Dialogen Nytt formulär med mallen Medlemsansökan i listan" />
+    </Frame>
+  </Step>
+
+  <Step title="Översikten visar dokumentet och formuläret">
+    De två korten är formulärets två halvor: dokumentet som signeras och formuläret som fylls i. Saknas något innan du kan publicera listas det i en ruta här.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/42-oversikt.png" alt="Formulärets översikt med korten Dokumentet som signeras och Formuläret som fylls i" />
+    </Frame>
+  </Step>
+
+  <Step title="Öppna formulärbyggaren">
+    Klicka på **Redigera formulär**. Formuläret frågar redan efter namn och e-post. Under **Fält i dokumentet** står mallens fält med sin typ: *Adress* som Kort svar och *Startdatum* som Datum.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/45-byggaren.png" alt="Formulärbyggaren med fälten Adress och Startdatum under Fält i dokumentet" />
+    </Frame>
+  </Step>
+
+  <Step title="Lägg till frågorna">
+    Klicka på **Adress** och **Startdatum** för att lägga till dem sist i formuläret, eller dra dem dit du vill ha dem. Panelen till höger styr etikett, platshållare, hjälptext, om svaret är obligatoriskt och om frågan ska ta halva raden. Klicka **Spara** uppe till höger.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/47-lagg-till-start.png" alt="Formuläret med frågorna Namn, E-post, Adress och Startdatum" />
+    </Frame>
+  </Step>
+
+  <Step title="Publicera och kopiera länken">
+    Klicka **Tillbaka till översikten** och sedan **Publicera**. Länken visas under rubriken. Kopiera den med ikonen i fältet, eller klicka **Öppna** för att se sidan själv.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/54-lanken.png" alt="Publicerat formulär med länken och knappen Öppna" />
+    </Frame>
+  </Step>
+
+  <Step title="Så ser formuläret ut för besökaren">
+    Besökaren fyller i namn, e-post, adress och startdatum och klickar **Fortsätt**. Svaren skrivs in i dokumentet och besökaren signerar direkt. Varje svar blir ett eget dokument som du hittar under fliken **Svar**.
+
+    <Frame>
+      <img src="/images/guider/formular-fran-mall/59-fyll-adress.png" alt="Den publika formulärsidan ifylld med namn, e-post, adress och startdatum" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Skapa ett formulär" icon="clipboard-list" href="/guider/formular">
+    Inställningar för åtkomst, tider och kvittens, och vad formulärets status betyder.
+  </Card>
+  <Card title="Signeringsmetoder" icon="signature" href="/guider/signing-methods">
+    Välj hur besökaren ska verifiera sig när dokumentet signeras.
+  </Card>
+</CardGroup>
