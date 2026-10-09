@@ -1,0 +1,458 @@
+{
+    "slug": "formular-fran-mall",
+    "title": "Skapa ett formulär från en ny mall",
+    "intro": "Från tom mall till publicerad länk. Du bygger en mall med fält, gör ett formulär av den, väljer frågorna, publicerar och ser sidan som besökaren möter.",
+    "audience": "Arbetsyteadministratörer",
+    "prerequisites": [
+        "Du är inloggad i en arbetsyta där du får skapa mallar och hantera formulär.",
+        "Formulär kräver Solo eller högre."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]"
+    ],
+    "hide": [
+        "[data-radix-popper-content-wrapper]:has([role='tooltip'])",
+        "[role='note']:has(button[aria-label='Dölj tips'])"
+    ],
+    "imageDir": "../../images/guider/formular-fran-mall",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "mallar",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "caption": "Öppna Mallar och skapa en ny mall"
+        },
+        {
+            "name": "skapa-mall",
+            "action": "click",
+            "selector": "button:has-text('Skapa ny mall')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-redigerare",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Parter']"
+        },
+        {
+            "name": "klicka-titel",
+            "action": "click",
+            "selector": "h3[role='button']:has-text('Ny mall')",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-titel",
+            "action": "fill",
+            "selector": "input[aria-label='Titel']",
+            "value": "Medlemsansökan",
+            "screenshot": false
+        },
+        {
+            "name": "spara-titel",
+            "action": "press",
+            "key": "Enter"
+        },
+        {
+            "name": "tom-mall",
+            "action": "screenshot",
+            "caption": "Ge mallen ett namn"
+        },
+        {
+            "name": "parter",
+            "action": "click",
+            "selector": "button[aria-label='Parter']",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-partdialogen",
+            "action": "click",
+            "selector": "button:has-text('Lägg till part eller roll')",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-part",
+            "action": "fill",
+            "selector": "[role='dialog'] input[placeholder='Ange namn eller roll']",
+            "value": "Medlem",
+            "caption": "Lägg till parten som ska fylla i och signera"
+        },
+        {
+            "name": "spara-part",
+            "action": "click",
+            "selector": "[role='dialog'] button[type='submit']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-part",
+            "action": "waitForSelector",
+            "selector": "[role='dialog']:has-text('Lägg till part / roll')",
+            "state": "hidden"
+        },
+        {
+            "name": "sektionsmenyn",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "valj-text",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] :text-is('Text & bild')",
+            "screenshot": false
+        },
+        {
+            "name": "skriv-text",
+            "action": "type",
+            "selector": ".ProseMirror",
+            "text": "Genom att signera ansöker du om medlemskap i föreningen. Medlemskapet gäller tills vidare och kan sägas upp med en månads varsel."
+        },
+        {
+            "name": "vanta-autospar",
+            "action": "wait",
+            "ms": 1000
+        },
+        {
+            "name": "sektionsmenyn-igen",
+            "action": "click",
+            "selector": "[role='button'][aria-label='Lägg till sektion']",
+            "match": "last",
+            "caption": "Lägg till en Formulär-sektion"
+        },
+        {
+            "name": "valj-formular",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] :text-is('Formulär')",
+            "screenshot": false
+        },
+        {
+            "name": "forsta-faltet",
+            "action": "clickText",
+            "text": "Klicka för att lägga till fält",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-forsta-faltet",
+            "action": "click",
+            "selector": ":text('Namnlöst fält')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-etikett-adress",
+            "action": "fill",
+            "selector": "input[placeholder='Ange etikett']",
+            "value": "Adress",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-avancerat",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button:has-text('Avancerat')",
+            "caption": "Etiketten blir fältets nyckel"
+        },
+        {
+            "name": "spara-adress",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button[type='submit']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-adress-stangd",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange etikett']",
+            "state": "hidden"
+        },
+        {
+            "name": "andra-faltet",
+            "action": "click",
+            "selector": "div[role='button'].min-h-14",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-andra-faltet",
+            "action": "click",
+            "selector": ":text('Namnlöst fält')",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-etikett-start",
+            "action": "fill",
+            "selector": "input[placeholder='Ange etikett']",
+            "value": "Startdatum",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-typ",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button[role='combobox']",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "valj-datum",
+            "action": "click",
+            "selector": "[role='option']:has-text('Datumväljare')",
+            "screenshot": false
+        },
+        {
+            "name": "spara-start",
+            "action": "click",
+            "selector": "[data-radix-popper-content-wrapper] button[type='submit']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-start-stangd",
+            "action": "waitForSelector",
+            "selector": "input[placeholder='Ange etikett']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-autospar-falt",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "mallen-klar",
+            "action": "screenshot",
+            "caption": "Mallen är klar"
+        },
+        {
+            "name": "formular",
+            "action": "goto",
+            "url": "/{workspace}/templates/forms",
+            "caption": "Öppna Formulär under Mallar"
+        },
+        {
+            "name": "nytt-formular",
+            "action": "click",
+            "selector": "button:has-text('Nytt formulär')",
+            "screenshot": false
+        },
+        {
+            "name": "sok-mall",
+            "action": "fill",
+            "selector": "[role='dialog'] input[aria-label='Sök mall']",
+            "value": "Medlemsansökan",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mall-i-listan",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Medlemsansökan')"
+        },
+        {
+            "name": "valj-mall",
+            "action": "screenshot",
+            "caption": "Välj mallen du just skapade"
+        },
+        {
+            "name": "skapa-formular",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Medlemsansökan')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-oversikt",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Redigera formulär')"
+        },
+        {
+            "name": "oversikt",
+            "action": "screenshot",
+            "caption": "Översikten visar dokumentet och formuläret"
+        },
+        {
+            "name": "oppna-byggaren",
+            "action": "click",
+            "selector": "button:has-text('Redigera formulär')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-byggare",
+            "action": "waitForSelector",
+            "selector": "aside button:has-text('Startdatum')"
+        },
+        {
+            "name": "byggaren",
+            "action": "screenshot",
+            "caption": "Mallens fält väntar i formulärbyggaren"
+        },
+        {
+            "name": "lagg-till-adress",
+            "action": "click",
+            "selector": "aside button:has-text('Adress')",
+            "screenshot": false
+        },
+        {
+            "name": "lagg-till-start",
+            "action": "click",
+            "selector": "aside button:has-text('Startdatum')",
+            "caption": "Klicka på fälten för att lägga till frågorna"
+        },
+        {
+            "name": "spara-formular",
+            "action": "click",
+            "selector": "[role='dialog'] header button:has-text('Spara')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-sparat",
+            "action": "wait",
+            "ms": 1500
+        },
+        {
+            "name": "tillbaka",
+            "action": "clickText",
+            "text": "Tillbaka till översikten",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-publicera",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Publicera')"
+        },
+        {
+            "name": "publicera",
+            "action": "click",
+            "selector": "button:has-text('Publicera')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-lank",
+            "action": "waitForSelector",
+            "selector": "input[aria-label='Formulärlänk']"
+        },
+        {
+            "name": "lanken",
+            "action": "screenshot",
+            "caption": "Publicera och kopiera länken"
+        },
+        {
+            "name": "oppna-lanken",
+            "action": "gotoLink",
+            "selector": "a:has-text('Öppna')",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-namn",
+            "action": "fill",
+            "selector": "input[autocomplete='name']",
+            "value": "Anna Andersson",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-epost",
+            "action": "fill",
+            "selector": "input[type='email']",
+            "value": "anna.andersson@example.com",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-start",
+            "action": "fill",
+            "selector": "input[type='date']",
+            "value": "2026-11-01",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-adress",
+            "action": "fill",
+            "selector": "div.grid:has(> label:has-text('Adress')) input",
+            "value": "Storgatan 1, 111 22 Stockholm",
+            "screenshot": true,
+            "caption": "Så ser formuläret ut för besökaren"
+        },
+        {
+            "name": "tillbaka-till-formular",
+            "action": "goto",
+            "url": "/{workspace}/templates/forms",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-formularet",
+            "action": "click",
+            "selector": "tr:has-text('Medlemsansökan')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-atgarder",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Fler åtgärder']"
+        },
+        {
+            "name": "oppna-atgarder",
+            "action": "click",
+            "selector": "button[aria-label='Fler åtgärder']",
+            "screenshot": false
+        },
+        {
+            "name": "ta-bort-formular",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ta bort formuläret')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-formular-borttaget",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Nytt formulär')"
+        },
+        {
+            "name": "tillbaka-till-mallar",
+            "action": "goto",
+            "url": "/{workspace}/templates",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-mallen",
+            "action": "click",
+            "selector": "a[href*='/templates/']:has-text('Medlemsansökan')",
+            "match": "first",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-mallen",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Parter']"
+        },
+        {
+            "name": "stadning-arkiv",
+            "action": "click",
+            "selector": "button:text-is('Arkiv')",
+            "screenshot": false
+        },
+        {
+            "name": "stadning-papperskorg",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Flytta till papperskorg')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-borttagsdialog",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']:has-text('Ta bort mall')"
+        },
+        {
+            "name": "stadning-bekrafta",
+            "action": "click",
+            "selector": "[role='alertdialog'] button",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-efter-stadning",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Skapa ny mall')"
+        }
+    ]
+}
