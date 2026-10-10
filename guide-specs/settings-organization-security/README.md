@@ -7,7 +7,7 @@ last_verified: 2026-09-13
 auto-generated from steps.json — edit the spec, then re-run the runner
 -->
 
-Under Team & säkerhet › Säkerhet kan du kräva tvåstegsautentisering för alla medlemmar och begränsa vilka länder som får logga in.
+Under Säkerhet kan du kräva tvåstegsautentisering för alla medlemmar och begränsa vilka länder som får logga in.
 
 ## Innan du börjar
 
@@ -15,7 +15,7 @@ Under Team & säkerhet › Säkerhet kan du kräva tvåstegsautentisering för a
 
 ## Steg
 
-### 1. Öppna Team & säkerhet och välj fliken Säkerhet
+### 1. Öppna Säkerhet under Organisation
 
 ![](../../images/guider/settings-organization-security/02-oppna-sakerhet.png)
 

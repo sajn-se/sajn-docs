@@ -12,7 +12,7 @@ En rollmall är en arbetsyteroll som du beskriver en gång på organisationsniv�
 ## Innan du börjar
 
 - Du är inloggad som kontoinnehavare eller administratör för organisationen.
-- Rollmallar ligger under Team & säkerhet, som kräver Team eller Enterprise.
+- Rollmallar ligger under Team, som kräver Team eller Enterprise.
 - Du har behörigheten Hantera roller i organisationen.
 
 ## Steg
