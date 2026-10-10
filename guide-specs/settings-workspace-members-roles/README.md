@@ -29,7 +29,7 @@ Kolumnerna är Medlem med namn och e-postadress, Roll som är arbetsyterollen, 2
 
 ![](../../images/guider/settings-workspace-members-roles/03-lagg-till.png)
 
-Bara personer som redan finns i organisationen kan läggas till här. För varje rad väljer du organisationsmedlem och roll, och Lägg till fler ger en rad till, upp till tio åt gången. Är listan tom är alla i organisationen redan med i arbetsytan; bjud i så fall in nya personer under Inställningar, Team & säkerhet, Inbjudningar. Inget händer förrän du klickar Lägg till längst ner.
+Bara personer som redan finns i organisationen kan läggas till här. För varje rad väljer du organisationsmedlem och roll, och Lägg till fler ger en rad till, upp till tio åt gången. Är listan tom är alla i organisationen redan med i arbetsytan; bjud i så fall in nya personer under Inställningar, Team, Inbjudningar. Inget händer förrän du klickar Lägg till längst ner.
 
 ### 3. Inbjudningar till arbetsytan
 

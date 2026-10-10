@@ -7,22 +7,22 @@ last_verified: 2026-09-13
 auto-generated from steps.json — edit the spec, then re-run the runner
 -->
 
-Organisationen är hela företagskontot, arbetsytorna är rummen inuti det. Under Team & säkerhet ser du alla som har tillgång till organisationen, vilken organisationsroll de har och hur många arbetsytor de är med i. Guiden ändrar ingenting.
+Organisationen är hela företagskontot, arbetsytorna är rummen inuti det. Under Team ser du alla som har tillgång till organisationen, vilken organisationsroll de har och vilka arbetsytor de är med i. Guiden ändrar ingenting.
 
 ## Innan du börjar
 
 - Du är inloggad som kontoinnehavare eller administratör för organisationen.
-- Sidan Team & säkerhet kräver Team eller Enterprise.
+- Sidan Team kräver Team eller Enterprise.
 
 ## Steg
 
-### 1. Öppna Team & säkerhet
+### 1. Öppna Team
 
 ![](../../images/guider/settings-organization-members-roles/02-medlemmar.png)
 
-Sidan ligger under Organisationsinställningar och har fyra flikar: Medlemmar, Inbjudningar, Roller och Säkerhet. Fliken Medlemmar listar alla som har tillgång till organisationen, oavsett vilken arbetsyta de arbetar i.
+Sidan ligger under Organisationsinställningar och har tre flikar: Medlemmar, Inbjudningar och Roller. Fliken Medlemmar listar alla som har tillgång till organisationen, oavsett vilken arbetsyta de arbetar i.
 
-Kolumnerna är Medlem (namn och e-postadress), Roll (organisationsrollen), Arbetsytor (hur många arbetsytor personen är med i), 2FA (På eller Av), Status och Senast aktiv. Märket Innehavare visar vem som äger kontot, och Du markerar dig själv.
+Kolumnerna är Medlem (namn och e-postadress), Roll (organisationsrollen), Arbetsytor (vilka arbetsytor personen är med i), 2FA (På eller Av), Status och Senast aktiv. Märket Innehavare visar vem som äger kontot, och Du markerar dig själv.
 
 Ovanför tabellen filtrerar knapparna Alla, Aktiva och Inaktiva, sökrutan söker på namn eller e-post och Exportera laddar ner listan som en CSV-fil.
 

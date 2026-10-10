@@ -21,9 +21,9 @@
         {
             "name": "medlemmar",
             "action": "goto",
-            "url": "/{workspace}/settings/workspace/members",
+            "url": "/{workspace}/settings/organization/members",
             "caption": "Öppna Team för arbetsytan",
-            "notes": "Sidan heter Team och har tre flikar: Medlemmar, Inbjudningar och Roller. Namnet på arbetsytan står i brödsmulan högst upp, och byter du arbetsyta får du en helt egen lista.\n\nKolumnerna är Medlem med namn och e-postadress, Roll som är arbetsyterollen, 2FA, Status och Senast aktiv. Knapparna Alla, Aktiva och Inaktiva filtrerar listan och sökrutan söker på namn eller e-postadress."
+            "notes": "Sidan heter Team och har tre flikar: Medlemmar, Inbjudningar och Roller. Välj arbetsytan i väljaren ovanför tabellen, så visar listan bara den arbetsytans medlemmar.\n\nKolumnerna är Medlem med namn och e-postadress, Roll som är arbetsyterollen, 2FA, Status och Senast aktiv. Knapparna Alla, Aktiva och Inaktiva filtrerar listan och sökrutan söker på namn eller e-postadress."
         },
         {
             "name": "lagg-till",
@@ -31,7 +31,7 @@
             "selector": "button:has-text('Lägg till')",
             "match": "first",
             "caption": "Panelen Lägg till medlemmar i arbetsytan",
-            "notes": "Bara personer som redan finns i organisationen kan läggas till här. För varje rad väljer du organisationsmedlem och roll, och Lägg till fler ger en rad till, upp till tio åt gången. Är listan tom är alla i organisationen redan med i arbetsytan; bjud i så fall in nya personer under Inställningar, Team & säkerhet, Inbjudningar. Inget händer förrän du klickar Lägg till längst ner."
+            "notes": "Bara personer som redan finns i organisationen kan läggas till här. För varje rad väljer du organisationsmedlem och roll, och Lägg till fler ger en rad till, upp till tio åt gången. Är listan tom är alla i organisationen redan med i arbetsytan; bjud i så fall in nya personer under Inställningar, Team, Inbjudningar. Inget händer förrän du klickar Lägg till längst ner."
         },
         { "name": "stang-panelen", "action": "press", "key": "Escape" },
         {
