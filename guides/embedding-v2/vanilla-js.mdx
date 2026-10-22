@@ -1,0 +1,233 @@
+---
+title: "Embed signing with JavaScript (v2)"
+description: "Embed the signing page in any web page with createSigningEmbed from @sajn/embed-js"
+tag: "Beta"
+---
+
+import EmbedV2Beta from "/snippets/embed-v2-beta.mdx";
+
+<EmbedV2Beta />
+
+In this guide, you embed the sajn signing page in a web page with the `@sajn/embed-js` package. The package has `createSigningEmbed`, `createViewingEmbed` for a read-only `viewing` session, and two Web Components. It works with any framework or none.
+
+## Before you begin
+
+- Turn on embedding for your organization and add your domain to the embed domains. For more information, see [Add your embed domains](/guides/embedding-v2/overview#add-your-embed-domains).
+- Create and send the document, and note the party's `id`. For the steps, see [Embed the signing page](/guides/embedding-v2/overview#embed-the-signing-page).
+
+## Install the package
+
+With a package manager:
+
+```bash
+npm install @sajn/embed-js@1.0.0-beta.1
+```
+
+Without a build step, load the UMD bundle from a CDN. It exposes the `sajn` global:
+
+```html
+<script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js"></script>
+```
+
+<Warning>
+  Always pin the version in a CDN URL. A URL without a version, such as `https://unpkg.com/@sajn/embed-js`, loads the newest major version the day it's published, and a major version has breaking changes.
+</Warning>
+
+To make sure that the browser runs only the file you tested, add an `integrity` attribute with the file's hash and `crossorigin="anonymous"` to the `<script>` tag.
+
+## Create a session on your server
+
+Your page never calls the sajn API. Add an endpoint to your server that creates an embed session and returns its `clientSecret`:
+
+```javascript
+// POST /api/sajn/embed-session
+app.post("/api/sajn/embed-session", requireSignedInUser, async (req, res) => {
+  const { documentId, partyId } = await findSigningForUser(req.user.id);
+
+  const response = await fetch("https://app.sajn.se/api/v1/embed-sessions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      "Sajn-Version": "2026-10",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ documentId, partyId, origins: ["https://app.example.com"] }),
+  });
+  const session = await response.json();
+  if (!response.ok) return res.status(502).json({ message: session.userMessage });
+
+  res.json({ clientSecret: session.clientSecret });
+});
+```
+
+The SDK calls this endpoint again each time a session ends, so create a new session on every call. For every field of the request, see [Create session request](/guides/embedding-v2/overview#create-session-request).
+
+## Show the signing page
+
+Call `createSigningEmbed` with a container and a `fetchClientSecret` function:
+
+```html
+<div id="signing" style="height: 80vh"></div>
+
+<script type="module">
+  import { createSigningEmbed } from "@sajn/embed-js";
+
+  const embed = createSigningEmbed({
+    container: document.querySelector("#signing"),
+    fetchClientSecret: async () => {
+      const response = await fetch("/api/sajn/embed-session", { method: "POST" });
+      if (!response.ok) throw new Error("Signing isn't available right now.");
+      const { clientSecret } = await response.json();
+      return clientSecret;
+    },
+    locale: "en",
+    onReady: () => console.log("Ready"),
+    onSigned: ({ documentId }) => {
+      window.location.href = `/signed?doc=${documentId}`;
+    },
+    onRejected: ({ reasonGiven }) => console.log("Rejected", { reasonGiven }),
+    onError: ({ code, message }) => console.error(code, message),
+  });
+</script>
+```
+
+The SDK creates the iframe inside the container right away and calls `fetchClientSecret` once. To remove the frame, call `embed.destroy()`.
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `container` | `HTMLElement` | Required | The element the frame fills. In `fixed` mode, give it a height. |
+| `fetchClientSecret` | `() => Promise<string>` | Required | Calls your server and returns a new `clientSecret`. The SDK calls it again whenever a session ends. If it throws, `onError` gets `client_secret_failed`. |
+| `host` | `string` | `https://app.sajn.se` | The sajn host. Sandboxes use the default. |
+| `appearance` | `Appearance` | None | Cosmetic values on top of the session's appearance. See [Appearance](/guides/embedding-v2/overview#appearance). |
+| `locale` | `string` | The session's locale | The frame's language: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
+| `title` | `string` | `Signera dokument` | The frame's accessible name. |
+| `fallbackHeight` | `string` | `600px` | The frame's height in `fixed` mode when the container has no height of its own. |
+| `bootstrapTimeoutMs` | `number` | `10000` | How long the SDK waits for the frame to answer before it raises `bootstrap_timeout`. |
+| `openUrl` | `(url: string) => void` | None | Opens eID pages and the BankID app link yourself. Set it where the frame can't open a window, such as a native app's web view. Without it, the frame opens them on its own. |
+
+The callbacks are `onReady`, `onSigned`, `onRejected`, `onFieldsSubmitted`, `onVerified`, `onStateChange`, `onResize`, `onSessionExpired`, and `onError`. For when each one runs and its data, see [Events](/guides/embedding-v2/overview#events).
+
+## Change the frame after it loads
+
+`createSigningEmbed` returns an object with three methods:
+
+| Method | Description |
+|--------|-------------|
+| `update({ appearance, locale })` | Changes the appearance or the language without reloading the frame. The new `appearance` merges into the current one key by key at the top level. |
+| `requestState()` | Asks the frame for a new `EmbedState`, which arrives in `onStateChange`. |
+| `destroy()` | Removes the frame and stops listening for messages. The SDK doesn't fetch a new session after this. |
+
+For example, to follow your page's dark mode:
+
+```javascript
+const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+media.addEventListener("change", (event) => {
+  embed.update({ appearance: { colorScheme: event.matches ? "dark" : "light" } });
+});
+```
+
+Features can't change from the browser. To change them, create a new session.
+
+## Use the CDN bundle
+
+The following page uses the UMD bundle:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign your agreement</title>
+    <style>
+      #signing { height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <div id="signing"></div>
+
+    <script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js"></script>
+    <script>
+      sajn.createSigningEmbed({
+        container: document.getElementById("signing"),
+        fetchClientSecret: async () => {
+          const response = await fetch("/api/sajn/embed-session", { method: "POST" });
+          if (!response.ok) throw new Error("Signing isn't available right now.");
+          return (await response.json()).clientSecret;
+        },
+        onSigned: () => {
+          window.location.href = "/thank-you";
+        },
+        onError: ({ code, message }) => console.error(code, message),
+      });
+    </script>
+  </body>
+</html>
+```
+
+## Use the Web Components
+
+`@sajn/embed-js` defines two elements when it loads: `<sajn-signing-embed>` and `<sajn-viewing-embed>`. Give the element a `client-secret-url`. The element sends a `POST` to that URL and expects `{ "clientSecret": "..." }` back:
+
+```html
+<script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js"></script>
+
+<sajn-signing-embed
+  client-secret-url="/api/sajn/embed-session"
+  appearance='{"mode":"inline","colorScheme":"system"}'
+  locale="sv"
+></sajn-signing-embed>
+
+<script>
+  document.querySelector("sajn-signing-embed").addEventListener("signed", (event) => {
+    console.log("Signed", event.detail);
+  });
+</script>
+```
+
+The element takes the attributes `client-secret-url`, `host`, `locale`, `appearance` (JSON), `fallback-height`, and `frame-title`. Changing `appearance` or `locale` updates the frame in place; any other attribute starts a new session. To fetch the secret yourself, set the `fetchClientSecret` property instead of the attribute.
+
+The element fires the callbacks as DOM events, with the callback's argument in `event.detail`: `ready`, `signed`, `rejected`, `fields-submitted`, `verified`, `state-change`, `resize`, `session-expired`, and `embed-error`.
+
+## TypeScript types
+
+The package exports its types:
+
+```typescript
+import type {
+  Appearance,
+  EmbedErrorCode,
+  EmbedIds,
+  EmbedState,
+  Locale,
+  PartyStatus,
+  SigningEmbed,
+  SigningEmbedCallbacks,
+  SigningEmbedError,
+  SigningEmbedOptions,
+} from "@sajn/embed-js";
+```
+
+`EmbedIds` is `{ documentId: string; partyId: string; externalId: string | null }`, the data of most events.
+
+## Troubleshooting
+
+- **`onError` gets `bootstrap_timeout`, and the frame is blank:** the browser most likely refused the frame. Check the session's `origins` against the page's exact origin, and your page's own `frame-src` policy. For every cause, see [Fix a blank frame](/guides/embedding-v2/overview#fix-a-blank-frame).
+- **`onError` gets `client_secret_failed`:** your `fetchClientSecret` threw an error, or returned something other than the `clientSecret` string. Check your endpoint's response.
+- **The frame is 600px high and doesn't fill the container:** the container has no height. Give it one, or set `appearance.mode` to `inline`.
+
+For the other error codes, see [Error codes](/guides/embedding-v2/overview#error-codes).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Embedded signing" icon="window" href="/guides/embedding-v2/overview">
+    See the session request, the appearance, the events, and the error codes.
+  </Card>
+  <Card title="Embed signing in your app" icon="code" href="/guides/embedding-v2/recipe">
+    Run the whole flow from server to frame.
+  </Card>
+</CardGroup>

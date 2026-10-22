@@ -1,0 +1,158 @@
+---
+title: "Migrate from embedding v1"
+description: "Move embedded signing from SDK 0.x and the party's signing token to SDK 1.0 and embed sessions"
+tag: "Beta"
+---
+
+import EmbedV2Beta from "/snippets/embed-v2-beta.mdx";
+
+<EmbedV2Beta />
+
+In this guide, you move an embedded signing integration from SDK 0.x to SDK 1.0. In 0.x, your server read the party's permanent signing token from `signingUrl`, and the browser put that token in the iframe URL. In 1.0, your server creates an embed session, and the browser gets only a client secret that the frame redeems once. The token never reaches the browser.
+
+## When v1 stops working
+
+SDK 0.x and the v1 frame routes keep working until a retirement date that sajn announces, 12 months after embed v2 is generally available. sajn announces the date in this documentation, in the changelog, and directly to each organization with embedding turned on. After that date, a v1 frame shows an error instead of the document.
+
+<Warning>
+  If you load 0.x from a CDN without a version, such as `https://unpkg.com/@sajn/embed-js`, pin it now: `https://unpkg.com/@sajn/embed-js@0.1.8`. During the beta, 1.0 is published under the `beta` tag, so a URL without a version still loads 0.x. Once 1.0 is stable, a URL without a version loads 1.0, which has no `embedSignDocument`, so your page breaks. The same goes for an npm range such as `latest` or `*`.
+</Warning>
+
+## What changes
+
+The following stays the same:
+
+- You create and send the document with the party's `delivery` set to `[]`.
+- You confirm signatures with the `document.party.signed` webhook.
+- The embed domains still decide which sites can show the frame.
+
+The following changes:
+
+- **Your server creates a session.** Instead of reading the token from the party's `signingUrl`, your server calls `POST /api/v1/embed-sessions` and returns the `clientSecret`. The endpoint needs API version `2026-10`.
+- **Options move to the server.** Rejection, signature modes, and the frame's other features are set on the session, and the browser can't change them.
+- **Events use API names.** `signerId` becomes `partyId`, and events carry `externalId` instead of the token.
+- **A wildcard no longer covers the apex.** In v1, `*.example.com` also matched `example.com`. In 1.0 it matches only subdomains. If you embed on `example.com`, add `example.com` to the embed domains.
+- **The read-only viewer is a session.** Create the session with `type: "viewing"` and show it with `ViewingEmbed` or `createViewingEmbed`. The Web Components are `<sajn-signing-embed>` and `<sajn-viewing-embed>`, and they take a `client-secret-url` instead of a token.
+
+## Migrate your integration
+
+<Steps>
+  <Step title="Replace the token lookup with a session">
+    Remove the server code that reads `token` from `signingUrl`, and create a session instead:
+
+    ```javascript
+    // sajn() is your helper that calls https://app.sajn.se/api/v1 with your API key.
+
+    // Before: 0.x
+    const party = await sajn("GET", `/documents/${documentId}/parties/${partyId}`);
+    const token = new URL(party.signingUrl).searchParams.get("token");
+    res.json({ documentId, token });
+
+    // After: 1.0
+    const session = await sajn("POST", "/embed-sessions", {
+      documentId,
+      partyId,
+      origins: ["https://app.example.com"],
+      features: { rejection: true },
+      signatureInputModes: ["DRAW", "TYPE"],
+      locale: "en",
+    });
+    res.json({ clientSecret: session.clientSecret });
+    ```
+
+    The SDK calls this endpoint again each time a session ends, so create a new session on every call. For every field, see [Create session request](/guides/embedding-v2/overview#create-session-request).
+  </Step>
+
+  <Step title="Install SDK 1.0">
+    ```bash
+    npm install @sajn/embed-js@1.0.0-beta.1
+    # or
+    npm install @sajn/embed-react@1.0.0-beta.1
+    # or
+    npm install @sajn/embed-vue@1.0.0-beta.1
+    ```
+
+    From a CDN, load `https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js`.
+  </Step>
+
+  <Step title="Replace the component">
+    Replace `documentId` and `token` with `fetchClientSecret`, and rename the callbacks:
+
+    ```tsx
+    // Before: 0.x
+    <EmbedSignDocument
+      documentId={documentId}
+      token={token}
+      language="en"
+      allowDocumentRejection
+      cssVars={{ primary: "#2563eb" }}
+      onSignerCompleted={(data) => router.push("/signed")}
+    />
+
+    // After: 1.0
+    <SigningEmbed
+      fetchClientSecret={fetchClientSecret}
+      appearance={{ colors: { primary: "#2563eb" } }}
+      onSigned={() => router.push("/signed")}
+      style={{ height: "80vh" }}
+    />
+    ```
+
+    For JavaScript, replace `embedSignDocument({ element, ... })` with `createSigningEmbed({ container, ... })`. `container` takes an element, not a CSS selector. For Vue, replace `<EmbedSignDocument>` with `<SigningEmbed>`.
+  </Step>
+
+  <Step title="Check your embed domains">
+    In the sajn app, go to **Inställningar** > **Utvecklare** > **Inbäddning** (Settings > Developer > Embedding). Make sure that every origin you send in `origins` matches a domain in the list, and add the apex domain if you embed on it.
+  </Step>
+
+  <Step title="Test in a sandbox">
+    Run the flow in a [sandbox](/get-started/sandbox): sign, reject if you turned on `rejection`, and let a session expire to see the SDK fetch a new one.
+  </Step>
+</Steps>
+
+## Options
+
+| 0.x option | 1.0 | Where |
+|------------|-----|-------|
+| `documentId`, `token` | `fetchClientSecret`, plus `documentId` and `partyId` in the session | Browser and server |
+| `element` | `container`, an `HTMLElement` | Browser, JavaScript only |
+| `host` | `host` | Browser |
+| `language` | `locale`. The default is the document's language, not `en`. | Session or browser |
+| `allowDocumentRejection` | `features.rejection` | Session |
+| `signatureInputModes` | `signatureInputModes`, in uppercase: `DRAW`, `TYPE`, and `UPLOAD` | Session |
+| `cssVars` | `appearance.colors`, hex colors only. The four 0.x names exist in 1.0. | Session or browser |
+| `className` | `className` in React, `class` in Vue. In JavaScript, style the container. | Browser |
+| `showScrollIndicator` | `appearance.scrollIndicator` | Session or browser |
+| `showDocumentId` | `appearance.documentId` | Session or browser |
+| `labels.signButton` | `appearance.labels.signButton` | Session or browser |
+| `additionalProps` | Removed: every option is typed now | |
+
+## Events
+
+| 0.x callback | 0.x event name | 1.0 callback | 1.0 Vue event |
+|--------------|----------------|--------------|---------------|
+| `onDocumentReady` | `document-ready` | `onReady` | `@ready` |
+| `onSignerCompleted` | `signer-completed` | `onSigned` | `@signed` |
+| `onVariablesSubmitted` | `variables-submitted` | `onFieldsSubmitted` | `@fields-submitted` |
+| `onSignerRejected` | `signer-rejected` | `onRejected` | `@rejected` |
+| `onDocumentError` | `document-error` | `onError` | `@error` |
+
+The event data changes as follows:
+
+- `signerId` is now `partyId`.
+- `token` is gone, and `externalId` is new.
+- `onRejected` carries `reasonGiven`, a boolean, instead of the reason text. The reason text isn't sent to the browser.
+- `onSigned` has no `failed` field. A failure arrives in `onError` with a [code](/guides/embedding-v2/overview#error-codes).
+
+1.0 also adds `onVerified`, `onStateChange`, `onResize`, and `onSessionExpired`. For all events, see [Events](/guides/embedding-v2/overview#events).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Embedded signing" icon="window" href="/guides/embedding-v2/overview">
+    See the session request, the appearance, the events, and the error codes.
+  </Card>
+  <Card title="Embed signing in your app" icon="code" href="/guides/embedding-v2/recipe">
+    Run the whole flow from server to frame.
+  </Card>
+</CardGroup>

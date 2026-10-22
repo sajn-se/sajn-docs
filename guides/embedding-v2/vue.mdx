@@ -1,0 +1,166 @@
+---
+title: "Embed signing with Vue (v2)"
+description: "Embed the signing page in a Vue or Nuxt app with the SigningEmbed component from @sajn/embed-vue"
+tag: "Beta"
+---
+
+import EmbedV2Beta from "/snippets/embed-v2-beta.mdx";
+
+<EmbedV2Beta />
+
+In this guide, you embed the sajn signing page in a Vue app with the `SigningEmbed` component from `@sajn/embed-vue`. The component wraps `createSigningEmbed` from `@sajn/embed-js`.
+
+## Before you begin
+
+- Turn on embedding for your organization and add your domain to the embed domains. For more information, see [Add your embed domains](/guides/embedding-v2/overview#add-your-embed-domains).
+- Create and send the document, and note the party's `id`. For the steps, see [Embed the signing page](/guides/embedding-v2/overview#embed-the-signing-page).
+- Vue 3.3 or later.
+
+## Install the package
+
+```bash
+npm install @sajn/embed-vue@1.0.0-beta.1
+```
+
+## Create a session on your server
+
+Your Vue code never calls the sajn API. Add a server endpoint that creates an embed session and returns its `clientSecret`. In Nuxt, use a server route:
+
+```typescript
+// server/api/sajn/embed-session.post.ts
+export default defineEventHandler(async (event) => {
+  // Replace with your own auth and your own lookup of the document and party.
+  const user = await requireSignedInUser(event);
+  const { documentId, partyId } = await findSigningForUser(user.id);
+
+  const session = await $fetch<{ clientSecret: string }>("https://app.sajn.se/api/v1/embed-sessions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      "Sajn-Version": "2026-10",
+    },
+    body: { documentId, partyId, origins: ["https://app.example.com"] },
+  });
+
+  return { clientSecret: session.clientSecret };
+});
+```
+
+The component calls this endpoint again each time a session ends, so create a new session on every call. For every field of the request, see [Create session request](/guides/embedding-v2/overview#create-session-request).
+
+## Show the signing page
+
+Render `SigningEmbed` with a `fetch-client-secret` function:
+
+```vue
+<script setup lang="ts">
+import { SigningEmbed } from "@sajn/embed-vue";
+import type { EmbedIds, SigningEmbedError } from "@sajn/embed-vue";
+
+async function fetchClientSecret() {
+  const { clientSecret } = await $fetch<{ clientSecret: string }>("/api/sajn/embed-session", { method: "POST" });
+  return clientSecret;
+}
+
+function handleSigned({ documentId }: EmbedIds) {
+  navigateTo(`/signed?doc=${documentId}`);
+}
+
+function handleError({ code, message }: SigningEmbedError) {
+  console.error(code, message);
+}
+</script>
+
+<template>
+  <SigningEmbed
+    class="signing"
+    :fetch-client-secret="fetchClientSecret"
+    @signed="handleSigned"
+    @error="handleError"
+  />
+</template>
+
+<style scoped>
+.signing {
+  height: 80vh;
+}
+</style>
+```
+
+The component renders a `div` that holds the frame. A `class` or `style` attribute applies to that `div`, so give it a height there. The component creates the frame when it mounts in the browser, so server rendering in Nuxt outputs only the empty `div`.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fetch-client-secret` | `() => Promise<string>` | Required | Calls your server and returns a new `clientSecret`. Called again whenever a session ends. |
+| `host` | `string` | `https://app.sajn.se` | The sajn host. Sandboxes use the default. |
+| `appearance` | `Appearance` | None | Cosmetic values on top of the session's appearance. See [Appearance](/guides/embedding-v2/overview#appearance). |
+| `locale` | `Locale` | The session's locale | The frame's language: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
+| `title` | `string` | `Signera dokument` | The frame's accessible name. |
+| `fallback-height` | `string` | `600px` | The frame's height in `fixed` mode when the container has no height of its own. |
+
+## Events
+
+| Event | Payload |
+|-------|---------|
+| `@ready` | `EmbedReady`: `EmbedIds` and `loadMs` |
+| `@signed` | `EmbedIds` |
+| `@rejected` | `EmbedIds` and `reasonGiven` |
+| `@fields-submitted` | `EmbedIds` |
+| `@verified` | `EmbedIds` |
+| `@state-change` | `EmbedState` |
+| `@resize` | The height in pixels |
+| `@session-expired` | None |
+| `@error` | `SigningEmbedError`: `code` and `message` |
+
+For when each event fires, see [Events](/guides/embedding-v2/overview#events). `EmbedIds` is `{ documentId: string; partyId: string; externalId: string | null }`.
+
+## Update the frame
+
+The component watches `appearance` and `locale`, and a change updates the open frame without reloading it:
+
+```vue
+<SigningEmbed
+  :fetch-client-secret="fetchClientSecret"
+  :appearance="{ colorScheme: isDark ? 'dark' : 'light', colors: { primary: '#0f766e' } }"
+  :locale="language"
+/>
+```
+
+The component reads `host`, `title`, and `fallback-height` only when it mounts. To apply a change to one of them, change the component's `key`, which mounts a new frame with a new session. Features can't change from the browser. To change them, create a new session.
+
+## TypeScript types
+
+The package exports its types:
+
+```typescript
+import type {
+  Appearance,
+  EmbedErrorCode,
+  EmbedIds,
+  EmbedState,
+  Locale,
+  PartyStatus,
+  SigningEmbedError,
+} from "@sajn/embed-vue";
+```
+
+## Troubleshooting
+
+- **`@error` gets `bootstrap_timeout`, and the frame is blank:** the browser most likely refused the frame. Check the session's `origins` against the page's exact origin, and your page's own `frame-src` policy. For every cause, see [Fix a blank frame](/guides/embedding-v2/overview#fix-a-blank-frame).
+- **`@error` gets `client_secret_failed`:** the `fetch-client-secret` function threw an error, or returned something other than the `clientSecret` string.
+- **The frame is 600px high and doesn't fill the container:** the container has no height. Set one with `class` or `style`.
+
+For the other error codes, see [Error codes](/guides/embedding-v2/overview#error-codes).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Embedded signing" icon="window" href="/guides/embedding-v2/overview">
+    See the session request, the appearance, the events, and the error codes.
+  </Card>
+  <Card title="Embed signing in your app" icon="code" href="/guides/embedding-v2/recipe">
+    Run the whole flow from server to frame.
+  </Card>
+</CardGroup>

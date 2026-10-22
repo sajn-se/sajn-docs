@@ -1,0 +1,367 @@
+---
+title: "Embedded signing (v2)"
+description: "Show the sajn signing page inside your own application, with an embed session that your server creates and the sajn embed SDK"
+tag: "Beta"
+---
+
+import EmbedV2Beta from "/snippets/embed-v2-beta.mdx";
+
+<EmbedV2Beta />
+
+In this guide, you embed the sajn signing page in your application, so a party signs without leaving it. Your server creates an embed session for one party of a sent document. Your page gives the session's client secret to the sajn embed SDK, and the SDK shows the signing page in an iframe.
+
+<Note>
+  This page describes SDK 1.0 and embed sessions. If you embed with SDK 0.x and the party's signing token, see [Migrate from embed v1](/guides/embedding-v2/migrate-from-v1).
+</Note>
+
+sajn has the following packages, all at version `1.0.0-beta.1` under the `beta` tag on npm. Pin the exact version: a later beta can break your integration.
+
+- `@sajn/embed-js`: a function for any web page. See [JavaScript](/guides/embedding-v2/vanilla-js).
+- `@sajn/embed-react`: a React component for React 18 and later. See [React](/guides/embedding-v2/react).
+- `@sajn/embed-vue`: a Vue component for Vue 3.3 and later. See [Vue](/guides/embedding-v2/vue).
+
+## How an embed session works
+
+1. The party opens a page in your application.
+1. The SDK calls your `fetchClientSecret` function, which asks your server for a client secret.
+1. Your server calls `POST /api/v1/embed-sessions` with your API key and returns the `clientSecret` from the response.
+1. The SDK opens `https://app.sajn.se/embed/v2/{id}` in an iframe and hands the client secret to the frame over `postMessage`. The frame redeems the secret once.
+1. The party signs in the frame, and the SDK calls your `onSigned` callback.
+1. Your server confirms the signature with the `document.party.signed` webhook.
+
+The session decides what the frame can do: its features, the pages that can show it, and its appearance. The browser can change only the cosmetic appearance and the language. The party's signing token never reaches the browser.
+
+## Before you begin
+
+- Embedded signing is part of the Enterprise plan, and sajn turns it on for each organization. Being on Enterprise doesn't turn it on. To get started, contact [hej@sajn.se](mailto:hej@sajn.se). If you build on sajn to send documents to your own customers, you also need a partner license.
+- A [sandbox](/get-started/sandbox) has embedded signing turned on when it's created, so you can build and test there first.
+- Store an API key in the `SAJN_API_KEY` environment variable on your server. The key needs write access to documents. Sessions need an API key: an OAuth app can't create them. To create a key, go to **Inställningar** > **Utvecklare** > **API-nycklar** (Settings > Developer > API keys) in the sajn app.
+- Send API version `2026-10` in the `Sajn-Version` header. The embed session endpoints don't exist in `2026-09`, which returns `404 ROUTE_NOT_FOUND` for them.
+
+## Add your embed domains
+
+After sajn turns on embedding, the organization's developer settings get an **Inbäddning** (Embedding) tab. The domain list belongs to the organization, so every workspace in it shares the list.
+
+1. In the sajn app, go to **Inställningar** > **Utvecklare** > **Inbäddning** (Settings > Developer > Embedding).
+1. Enter each domain whose pages show the signing page, such as `app.example.com`, and press Enter.
+1. Click **Spara ändringar** (Save changes).
+
+The list follows these rules:
+
+- `*.example.com` matches every subdomain of `example.com`, at any depth, but not `example.com` itself. To allow both, add both.
+- Only pages served over HTTPS can show the frame. `localhost` can't be added. To test from your computer, expose your local app on a public HTTPS domain, such as through a tunnel, and add that domain.
+- An empty list allows no pages, and the API refuses to create sessions.
+- sajn checks the list on every request, so removing a domain stops live sessions on it at once.
+
+## Embed the signing page
+
+<Steps>
+  <Step title="Create and send the document on your server">
+    Create the document from a template, fill in the template's party and values, and send it, all in one request. Set the party's `delivery` to `[]`, so sajn doesn't also email an invitation:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/documents \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Service agreement",
+        "templateId": "TEMPLATE_ID",
+        "parties": [
+          { "templatePartyId": "TEMPLATE_PARTY_ID", "ref": "customer",
+            "name": "Alex Andersson", "email": "alex@example.com", "delivery": [] }
+        ],
+        "fieldValues": [
+          { "key": "monthly-fee", "value": "1 200 kr" }
+        ],
+        "send": true
+      }'
+    ```
+
+    - `templatePartyId` is the ID of a party in the template's `parties`, from `GET /api/v1/templates/TEMPLATE_ID`. The document's copy of that party keeps its signature boxes and settings, and the details you send replace its own. Without `templatePartyId`, the parties you send replace the template's parties and their signature boxes are removed.
+    - `fieldValues` fills in values by `key`, in the same shape as `values` in [Fill in values on a document](/api-reference/fill-in-values-on-a-document). To list a template's keys, create a draft and call `GET /api/v1/documents/DOCUMENT_ID/field-values`.
+    - `send: true` sends the document after sajn creates it. You can create a session only for a sent document.
+
+    The response is the document with the status `PENDING`. Store its `id`, and the `id` of the party whose `ref` is `customer` in `parties`.
+  </Step>
+
+  <Step title="Create an embed session on your server">
+    Add an endpoint to your server that your page calls. The endpoint checks who the user is, creates a session for that user's party, and returns only the `clientSecret`:
+
+    ```javascript
+    // POST /api/sajn/embed-session
+    app.post("/api/sajn/embed-session", requireSignedInUser, async (req, res) => {
+      // Replace with your own lookup of the document and party for this user.
+      const { documentId, partyId } = await findSigningForUser(req.user.id);
+
+      const response = await fetch("https://app.sajn.se/api/v1/embed-sessions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+          "Sajn-Version": "2026-10",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          documentId,
+          partyId,
+          origins: ["https://app.example.com"],
+          features: { rejection: true },
+          externalId: `user-${req.user.id}`,
+        }),
+      });
+      const session = await response.json();
+
+      if (!response.ok) {
+        console.error(session.code, session.message, session.requestId);
+        return res.status(502).json({ message: session.userMessage });
+      }
+
+      res.json({ clientSecret: session.clientSecret });
+    });
+    ```
+
+    The response looks like this:
+
+    ```json
+    {
+      "id": "emb_8f14e45fceea167a5a36dedd4bea2543",
+      "clientSecret": "emb_8f14e45fceea167a5a36dedd4bea2543_secret_Zk3pQ9vX2mT7bN1c",
+      "clientSecretExpiresAt": "2026-10-19T09:22:00.000Z",
+      "expiresAt": "2026-10-20T09:12:00.000Z",
+      "documentId": "cm4k2x9p10001abcd1234efgh",
+      "partyId": "cm4k2x9p20002abcd5678ijkl"
+    }
+    ```
+
+    The SDK calls your endpoint again each time a session ends, so create a new session on every call. Never cache a client secret, log it, or put it in a URL. The session `id` isn't a secret.
+  </Step>
+
+  <Step title="Show the signing page">
+    In your page, give the SDK a container and a `fetchClientSecret` function that calls your endpoint:
+
+    ```javascript
+    import { createSigningEmbed } from "@sajn/embed-js";
+
+    const embed = createSigningEmbed({
+      container: document.querySelector("#signing"),
+      fetchClientSecret: async () => {
+        const response = await fetch("/api/sajn/embed-session", { method: "POST" });
+        if (!response.ok) throw new Error("Signing isn't available right now.");
+        const { clientSecret } = await response.json();
+        return clientSecret;
+      },
+      onSigned: ({ documentId }) => {
+        window.location.href = `/signed?doc=${documentId}`;
+      },
+      onError: ({ code, message }) => console.error(code, message),
+    });
+    ```
+
+    Give the container a height. For more information, see [Size the frame](#size-the-frame). For React and Vue, see the framework pages.
+  </Step>
+
+  <Step title="Confirm the signature on your server">
+    `onSigned` runs in the browser, so use it to update the screen, not as proof. Confirm the signature with the `document.party.signed` [webhook event](/webhooks/events). The event means that this party's signature is recorded. To act on the sealed PDF, wait for `document.completed`.
+  </Step>
+</Steps>
+
+## Session lifetime
+
+A session ends at the first of the following:
+
+- The frame didn't redeem the client secret within 10 minutes of creation. `clientSecretExpiresAt` in the response is this limit.
+- The frame had no activity for an hour. A frame in a hidden tab doesn't keep its session active.
+- 24 hours passed since creation. `expiresAt` in the response is this limit.
+- You revoked the session with `DELETE /api/v1/embed-sessions/{id}`, which returns `{ "id": "emb_…", "revoked": true }`.
+- The API key that created the session was revoked or rotated.
+
+When a session ends, the frame tells the SDK, and the SDK calls `fetchClientSecret` again for a new session. The party keeps their progress: a new session for a party who signed shows the signed state. If sessions end three times within one minute, the SDK stops and raises `session_expired`.
+
+<Warning>
+  Revoking a session doesn't stop the SDK from asking for a new one. To stop an embed for good, make your endpoint refuse the request, or call `destroy()` in the page.
+</Warning>
+
+## Create session request
+
+`POST /api/v1/embed-sessions` takes the following body:
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `type` | `"signing"` \| `"viewing"` | `"signing"` | What the frame shows. `viewing` shows a sent or completed document to any party, read-only: the frame has no sign section, and the server refuses every signing action. |
+| `documentId` | `string` | Required | A sent document. |
+| `partyId` | `string` | Required | The party who signs in the frame. For `signing`, the party must sign the document, not only receive a copy. For `viewing`, any party. |
+| `origins` | `string[]` | Every embed domain | 1 to 10 pages that can show the frame, as bare origins such as `https://app.example.com`: the scheme, the host, and an optional port, with no path. Each must match one of the organization's embed domains. |
+| `ancestorOrigins` | `string[]` | None | Up to 10 more origins further up the frame chain, when your page is itself in a frame, such as inside a CRM. Each must match an embed domain. |
+| `features` | `object` | See [Features](#features) | What the party can do besides signing. |
+| `appearance` | `object` | sajn's look | See [Appearance](#appearance). |
+| `signatureInputModes` | `("DRAW" \| "TYPE" \| "UPLOAD")[]` | The workspace setting | How the party can create a drawn signature. This field can only remove modes that the workspace allows, never add one. |
+| `locale` | `string` | The document's language | The frame's language: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
+| `externalId` | `string` | The party's `externalId` | Your own reference, up to 255 characters. Every frame event carries it. |
+| `bankIdReturnUrl` | `string` | None | Where the BankID app sends the party after signing with Swedish BankID on the same phone. Use an `https` URL on one of your embed domains, or your app's URL scheme, such as `myapp://signed`. Without it, the BankID app returns the party to the browser they came from. |
+
+The endpoint returns the following errors, in addition to the [common errors](/api-fundamentals/errors):
+
+| Status and code | Cause |
+|-----------------|-------|
+| `400 VALIDATION_FAILED` | The body is invalid, an origin isn't a bare HTTPS origin or doesn't match an embed domain, the organization has no embed domains, the document isn't sent, the party doesn't sign, or a color pair fails the contrast check. |
+| `403 PERMISSION_DENIED` | Embedded signing isn't turned on for the organization. |
+| `404 NOT_FOUND` | The document or the party doesn't exist in the workspace. |
+
+## Features
+
+sajn enforces features on the server, so the browser can't turn them on. A feature that you leave out keeps its default.
+
+| Feature | Default | Description |
+|---------|---------|-------------|
+| `rejection` | `false` | The party can reject the document. |
+| `delegation` | `false` | The party can delegate signing to someone else. |
+| `comments` | `false` | The party sees the document chat, when the document has chat turned on. |
+| `download` | `true` | The party can download the document. |
+
+## Appearance
+
+You can set `appearance` on the session and in the SDK. The SDK's values replace the session's values key by key at the top level, so an SDK `colors` object replaces the session's whole `colors` object. Custom CSS isn't supported.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `colors` | `object` | sajn's colors | Hex colors, such as `#1f2937`: `background`, `foreground`, `muted`, `mutedForeground`, `primary`, `primaryForeground`, `border`, and `destructive`. |
+| `radius` | `number` | sajn's radius | The corner radius in pixels, an integer from 0 to 24. |
+| `fontFamily` | `"default" \| "system" \| "serif"` | `"default"` | The font. |
+| `colorScheme` | `"light" \| "dark" \| "system"` | `"light"` | The color scheme. `system` follows the party's device. |
+| `mode` | `"fixed" \| "inline"` | `"fixed"` | How the frame sizes itself. See [Size the frame](#size-the-frame). |
+| `signIntro` | `boolean` | `true` | If `false`, hides the heading, the attestation, and the instruction above the signature pad. |
+| `header` | `boolean` | `true` | If `false`, hides the bar with the document name. The menu for download, delegation, and rejection then sits in the frame's top corner. |
+| `scrollIndicator` | `boolean` | `true` | Shows a hint to scroll down, with a ring that fills as the party reads, until the sign section is in view. Only in `fixed` mode. |
+| `documentId` | `boolean` | `true` | Shows the document ID under the sign button. |
+| `labels.signButton` | `string` | `Signera` | Replaces the text on the sign button, up to 64 characters. |
+
+Text must stay readable, so sajn checks two color pairs for a contrast ratio of at least 4.5:1: `foreground` on `background`, and `primaryForeground` on `primary`. If `colorScheme` isn't `dark` and you set only one color of a pair, sajn checks it against its light default for the other color. A session request that fails the check returns `400 VALIDATION_FAILED`. An SDK appearance that fails the check is ignored as a whole, and the frame keeps its current look.
+
+The consent text, the party's identity, the wording of the sign buttons, and the document itself keep their styles under any appearance.
+
+## Size the frame
+
+The sign view is static: the document, and under it a sign section that is always visible. The frame shows no dialogs or overlays, so it works the same at any size.
+
+- **`fixed`** (default): the frame fills its container and scrolls inside. Give the container a height, at least 600px on phones. If the container has no height of its own, the SDK sets the frame to `fallbackHeight`, which is 600px by default.
+- **`inline`**: the frame grows to the height of its content, and your page scrolls. Don't give the container a fixed height.
+
+A document that requires the party to read it in full always uses `fixed`, because the read check needs a frame that scrolls.
+
+## Signing methods in the frame
+
+Swedish BankID runs inside the frame, by QR code or on the same device. Click-to-sign and drawn signatures also run in the frame.
+
+The providers of the following eIDs refuse to run inside a frame: MitID, Norwegian BankID, FTN, iDIN, and qualified electronic signatures (QES). For these, the frame opens the provider in a new window when the party clicks the sign button. The frame updates itself when the signature lands, even if the window doesn't report back. If the browser blocks the window, the button turns into a link to the same page.
+
+If the document has an access check (`openVerification`), the party passes it inside the frame before the document loads, the same as on the hosted page. Your application has usually signed the user in already, so consider leaving `openVerification` set to `null` for embedded documents. A party's own `signVerification` always applies before they sign.
+
+## Events
+
+Events are hints for your page. They carry `documentId`, `partyId`, and `externalId`, never a credential. Confirm outcomes on your server with [webhooks](/webhooks/events).
+
+| JavaScript and React | Vue | When | Data |
+|----------------------|-----|------|------|
+| `onReady` | `@ready` | The first page is on screen, and the party can act. | IDs, and `loadMs`: the time in milliseconds from the frame's navigation to the first page |
+| `onSigned` | `@signed` | The party signed. Also fires when the signature lands from a new window. | IDs |
+| `onRejected` | `@rejected` | The party rejected the document. Needs the `rejection` feature. | IDs and `reasonGiven`, a boolean. The reason text isn't sent to the browser. |
+| `onFieldsSubmitted` | `@fields-submitted` | The party submitted their form fields. No webhook matches this event. | IDs |
+| `onFieldsProgress` | `@fields-progress` | A required field was filled in or emptied. Use it for your own progress UI. | IDs, `remaining` (required fields still empty), and `total` (all the party's fields) |
+| `onFieldsChanged` | `@fields-changed` | The party stopped typing for half a second, or submitted. | IDs and `values`, every typed field's current value by its key. Values verified with an eID, such as a personnummer, are never sent. |
+| `onVerified` | `@verified` | The party passed the access check. | IDs |
+| `onStateChange` | `@state-change` | The frame connected, the signing state changed, or you called `requestState()`. | An `EmbedState` |
+| `onResize` | `@resize` | The content height changed. Only in `inline` mode. | The height in pixels |
+| `onSessionExpired` | `@session-expired` | The session ended. The SDK is fetching a new one. | None |
+| `onError` | `@error` | An error occurred. See [Error codes](#error-codes). | `code` and `message` |
+
+`EmbedState` has the following fields:
+
+```typescript
+type EmbedState = {
+  revision: number;               // Increases with every change
+  documentId: string;
+  partyId: string;
+  externalId: string | null;
+  documentStatus: string;         // Such as "PENDING" or "COMPLETED"
+  partyStatus: "pending" | "signed" | "rejected";
+  fieldsSubmitted: boolean;
+  rejectionReasonGiven: boolean;
+};
+```
+
+## Error codes
+
+`onError` receives one of the following codes:
+
+| Code | Raised by | Meaning |
+|------|-----------|---------|
+| `session_not_found` | Frame | The session doesn't exist. The SDK fetches a new session. |
+| `session_expired` | Frame or SDK | From the frame: the session ended, and the SDK fetches a new one. From the SDK: sessions ended three times within one minute, and the SDK stopped. |
+| `session_revoked` | Frame | The session was revoked, or its API key was revoked. The SDK fetches a new session. |
+| `origin_not_allowed` | Frame | The page's origin isn't in the session's `origins` or the organization's embed domains, or the frame URL was opened outside a frame. |
+| `not_entitled` | Frame | Embedded signing is off for the organization, or the party used a feature that the session doesn't grant. |
+| `document_unavailable` | Frame | The document can't be shown, such as because it was deleted or withdrawn. |
+| `invalid_appearance` | Frame | An `appearance` override from `update()` fails the contrast check together with the session's colors. The frame ignores the override and keeps the session's appearance. |
+| `unsupported_sdk` | Frame | The SDK version is no longer supported. Upgrade the package. |
+| `bootstrap_timeout` | SDK | The frame didn't answer within `bootstrapTimeoutMs`, 10 seconds by default. See [Troubleshooting](#troubleshooting). |
+| `client_secret_failed` | SDK | `fetchClientSecret` threw an error, or returned something that isn't a client secret. |
+
+For `session_not_found`, `session_expired`, and `session_revoked` from the frame, `onError` runs first, then `onSessionExpired`, and then the SDK starts a new session. Don't show a final error for these codes. For `invalid_appearance`, the frame keeps working. For every other code, the frame shows its own message, and your page decides what to do next.
+
+## Troubleshooting
+
+### Fix a blank frame
+
+The SDK raises `bootstrap_timeout` when the frame doesn't answer. Usually the browser refused to show the frame, and the frame stays blank. Open the browser console and look for a `frame-ancestors` or `frame-src` error. Then check the following causes:
+
+- **The page's origin isn't in the session's `origins`.** The origin must match exactly: the scheme, the host, and the port. `https://www.example.com` and `https://example.com` are different origins, and `*.example.com` doesn't cover `example.com`. If you leave out `origins`, check the organization's embed domains instead.
+- **Your page is inside another frame.** Every page in the frame chain must be allowed. Add the outer pages' origins to `ancestorOrigins`.
+- **Your page's own Content Security Policy blocks the frame.** If your page sends a `Content-Security-Policy` header, its `frame-src` or `child-src` must allow `https://app.sajn.se`.
+- **The page isn't served over HTTPS.** The frame never loads in a page served over `http://`.
+- **The client secret is old.** A secret from a session that ended more than 24 hours ago gets a refused frame. Create a new session on every `fetchClientSecret` call.
+- **The `host` option points at the wrong sajn host.** Leave `host` out to use `https://app.sajn.se`. Sandboxes use the same host.
+- **The network is slow, or something blocks the frame,** such as a browser extension or a corporate proxy. To give a slow network more time, raise `bootstrapTimeoutMs`.
+
+### Fix other problems
+
+- **The frame shows an error message:** read the `code` in `onError` and see [Error codes](#error-codes).
+- **The frame is cut off or has no height:** in `fixed` mode, give the container a height. In `inline` mode, don't.
+- **An eID window doesn't open:** the browser blocked it. The party can use the link that the button turns into.
+- **`POST /api/v1/embed-sessions` fails:** log `code` and `requestId`, and see [Errors](/api-fundamentals/errors).
+
+## Embed in a mobile app
+
+In a React Native app, use [`@sajn/embed-react-native`](/guides/embedding-v2/react-native). It runs the signing page in a web view and opens eID pages and the BankID app for you. In Swift or Kotlin, the same guide shows how to wire a web view by hand.
+
+If you'd rather not embed, show your page in the system browser: `SFSafariViewController` or `ASWebAuthenticationSession` on iOS, or Custom Tabs on Android. Every eID works there as on any web page.
+
+## Accessibility
+
+The signing frame targets WCAG 2.2 level AA. sajn tests it with axe in light and dark mode: the signing view, form fields, the menu, the reject dialog, view mode, and the receipt after signing. The party can sign with the keyboard alone, and focus is always visible.
+
+Your appearance settings take part in this. sajn rejects a text color and background pair below a 4.5:1 contrast ratio, both on the session and in `update()`.
+
+## Security
+
+- The party's signing token never reaches the browser. The frame redeems the client secret once and keeps a short-lived credential in memory.
+- Only the pages in the session's `origins` and `ancestorOrigins` can show the frame, and only while they match the organization's embed domains. The page that talks to the frame must be in `origins`.
+- Rotating or deleting the API key that created a session ends the session.
+- The SDK and the frame check the origin of every message, and post only to each other's origin.
+- Features and origins can't change from the browser.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="JavaScript" icon="js" href="/guides/embedding-v2/vanilla-js">
+    Use `createSigningEmbed` in any web page.
+  </Card>
+  <Card title="React" icon="react" href="/guides/embedding-v2/react">
+    Use the React component.
+  </Card>
+  <Card title="Vue" icon="vuejs" href="/guides/embedding-v2/vue">
+    Use the Vue component.
+  </Card>
+  <Card title="Migrate from embed v1" icon="arrows-rotate" href="/guides/embedding-v2/migrate-from-v1">
+    Move from SDK 0.x and signing tokens to embed sessions.
+  </Card>
+</CardGroup>
