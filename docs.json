@@ -318,6 +318,18 @@
                     ]
                   },
                   {
+                    "group": "Embedding v2 (beta)",
+                    "pages": [
+                      "guides/embedding-v2/overview",
+                      "guides/embedding-v2/vanilla-js",
+                      "guides/embedding-v2/react",
+                      "guides/embedding-v2/vue",
+                      "guides/embedding-v2/react-native",
+                      "guides/embedding-v2/recipe",
+                      "guides/embedding-v2/migrate-from-v1"
+                    ]
+                  },
+                  {
                     "group": "Sync and integrations",
                     "pages": [
                       "guides/integrations/syncing-documents",
@@ -453,6 +465,7 @@
                       "GET /api/v1/documents/{id}/readiness",
                       "POST /api/v1/documents/{id}/send",
                       "POST /api/v1/documents/{id}/withdraw",
+                      "POST /api/v1/documents/{id}/complete",
                       "POST /api/v1/documents/{id}/extend-expiration",
                       "POST /api/v1/documents/{id}/purge",
                       "GET /api/v1/documents/{id}/files",
@@ -475,6 +488,13 @@
                       "GET /api/v1/documents/{id}/parties/{partyId}",
                       "PATCH /api/v1/documents/{id}/parties/{partyId}",
                       "DELETE /api/v1/documents/{id}/parties/{partyId}"
+                    ]
+                  },
+                  {
+                    "group": "Embed sessions",
+                    "pages": [
+                      "POST /api/v1/embed-sessions",
+                      "DELETE /api/v1/embed-sessions/{id}"
                     ]
                   },
                   {

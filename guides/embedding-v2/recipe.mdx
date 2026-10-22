@@ -1,0 +1,149 @@
+---
+title: "Embed signing in your app (v2)"
+description: "Recipe: a server route that prepares a document and creates an embed session, and a page that shows the signing page with @sajn/embed-js"
+tag: "Beta"
+---
+
+import EmbedV2Beta from "/snippets/embed-v2-beta.mdx";
+
+<EmbedV2Beta />
+
+In this recipe, you build an Express app where a signed-in user signs an agreement without leaving your site. The server creates and sends the document once, and creates an embed session each time the page asks for one. The page shows the signing page with `@sajn/embed-js` and moves on when the user has signed.
+
+## Before you begin
+
+- Embedded signing turned on for your organization, with your domain in the embed domains. For more information, see [Add your embed domains](/guides/embedding-v2/overview#add-your-embed-domains).
+- Node.js 18 or later, and Express: `npm install express`.
+- An API key in the `SAJN_API_KEY` environment variable. To create one, go to **Inställningar** > **Utvecklare** > **API-nycklar** (Settings > Developer > API keys) in the sajn app.
+- A template for the agreement. Store its ID in `SAJN_TEMPLATE_ID`.
+- The public HTTPS origin your app runs on, such as `https://signing.example.com`, in `APP_ORIGIN`.
+
+## Build the app
+
+<Steps>
+  <Step title="Prepare the document and the session on the server">
+    Save the following file as `server.js`. The `/api/embed-session` route creates and sends the document the first time the user asks, then creates an embed session for the user's party and returns its `clientSecret`:
+
+    ```javascript
+    // server.js
+    import express from "express";
+
+    const API = "https://app.sajn.se/api/v1";
+    const headers = {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      "Sajn-Version": "2026-10",
+      "Content-Type": "application/json",
+    };
+
+    const sajn = async (method, path, body) => {
+      const response = await fetch(`${API}${path}`, { method, headers, body: body && JSON.stringify(body) });
+      const data = await response.json();
+      if (!response.ok) throw Object.assign(new Error(`${data.code}: ${data.message} (${data.requestId})`), { body: data });
+      return data;
+    };
+
+    // Replace with your database.
+    const signings = new Map();
+
+    const findOrCreateSigning = async (user) => {
+      if (signings.has(user.id)) return signings.get(user.id);
+
+      const document = await sajn("POST", "/documents", {
+        name: `Membership agreement - ${user.name}`,
+        templateId: process.env.SAJN_TEMPLATE_ID,
+        externalId: `membership-${user.id}`,
+        parties: [{ name: user.name, email: user.email, role: "SIGNER", delivery: [] }],
+      });
+      await sajn("POST", `/documents/${document.id}/send`, {});
+
+      const signing = { documentId: document.id, partyId: document.parties[0].id };
+      signings.set(user.id, signing);
+      return signing;
+    };
+
+    const app = express();
+    app.use(express.static("public"));
+
+    app.post("/api/embed-session", async (req, res) => {
+      // Replace with the signed-in user from your session.
+      const user = { id: "user-42", name: "Alex Andersson", email: "alex@example.com" };
+
+      try {
+        const { documentId, partyId } = await findOrCreateSigning(user);
+        const session = await sajn("POST", "/embed-sessions", {
+          documentId,
+          partyId,
+          origins: [process.env.APP_ORIGIN],
+          locale: "en",
+        });
+
+        res.json({ clientSecret: session.clientSecret });
+      } catch (error) {
+        console.error(error.message);
+        res.status(502).json({ message: error.body?.userMessage ?? "Signing isn't available right now." });
+      }
+    });
+
+    app.listen(3000);
+    ```
+
+    The SDK calls `/api/embed-session` again each time a session ends, so the route creates a new session on every call but sends the document only once. The client secret lets the frame sign as the party, so return it only to that user's session, and never log it. If the template has signature boxes placed on a PDF, leave out `parties` and update the template's party instead. See [Create documents from templates](/guides/templates/templates-and-forms).
+  </Step>
+
+  <Step title="Show the signing page">
+    Save the following file as `public/index.html`. It mounts the signing page and gets a client secret from the server:
+
+    ```html
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Sign your membership agreement</title>
+        <style>#signing { height: 90vh; min-height: 600px; }</style>
+      </head>
+      <body>
+        <div id="signing"></div>
+        <script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js"></script>
+        <script>
+          const container = document.getElementById("signing");
+
+          sajn.createSigningEmbed({
+            container,
+            fetchClientSecret: async () => {
+              const response = await fetch("/api/embed-session", { method: "POST" });
+              const body = await response.json();
+              if (!response.ok) throw new Error(body.message);
+              return body.clientSecret;
+            },
+            onSigned: () => { window.location.href = "/done.html"; },
+            onError: ({ code, message }) => {
+              console.error(code, message);
+              if (code === "client_secret_failed") container.textContent = message;
+            },
+          });
+        </script>
+      </body>
+    </html>
+    ```
+  </Step>
+
+  <Step title="Confirm the signature on the server">
+    `onSigned` runs in the browser, so use it to move the user on, not as proof. To confirm the signature, subscribe a webhook to `document.party.signed` or `document.completed`, and match the document by `data.object.externalId`. For a complete handler, see [Send a contract from your CRM](/guides/recipes/crm-contract-notifications#build-the-service).
+  </Step>
+</Steps>
+
+## Run it
+
+Start the server with `APP_ORIGIN=https://signing.example.com node server.js` behind a public HTTPS domain that's in the embed domains, such as a tunnel to port 3000. Open the domain in a browser. The signing page loads in the frame, and after signing, the browser opens `/done.html`.
+
+## Handle errors
+
+- **A blank frame and a `bootstrap_timeout` error:** `APP_ORIGIN` doesn't match the page's origin exactly, the domain isn't in the embed domains, or the page isn't served over HTTPS. For every cause, see [Fix a blank frame](/guides/embedding-v2/overview#fix-a-blank-frame).
+- **A `client_secret_failed` error:** `/api/embed-session` failed. The server logs the API `code` and `requestId`, and the page shows the error's `userMessage`, which is safe to show users. For what each code means, see [Errors](/api-fundamentals/errors).
+
+## Related guides
+
+- [Embedded signing](/guides/embedding-v2/overview)
+- [Embed signing with React](/guides/embedding-v2/react)
+- [Add signing to your onboarding](/guides/documents/onboarding-signing-flow)

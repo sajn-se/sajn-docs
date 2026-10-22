@@ -1,0 +1,171 @@
+---
+title: "Embed signing with React (v2)"
+description: "Embed the signing page in a React or Next.js app with the SigningEmbed component from @sajn/embed-react"
+tag: "Beta"
+---
+
+import EmbedV2Beta from "/snippets/embed-v2-beta.mdx";
+
+<EmbedV2Beta />
+
+In this guide, you embed the sajn signing page in a React app with the `SigningEmbed` component from `@sajn/embed-react`. The component wraps `createSigningEmbed` from `@sajn/embed-js`.
+
+## Before you begin
+
+- Turn on embedding for your organization and add your domain to the embed domains. For more information, see [Add your embed domains](/guides/embedding-v2/overview#add-your-embed-domains).
+- Create and send the document, and note the party's `id`. For the steps, see [Embed the signing page](/guides/embedding-v2/overview#embed-the-signing-page).
+- React 18 or 19.
+
+## Install the package
+
+```bash
+npm install @sajn/embed-react@1.0.0-beta.1
+```
+
+## Create a session on your server
+
+Your React code never calls the sajn API. Add a server endpoint that creates an embed session and returns its `clientSecret`. In the Next.js App Router, use a route handler:
+
+```typescript
+// app/api/sajn/embed-session/route.ts
+import { NextResponse } from "next/server";
+
+export async function POST() {
+  // Replace with your own auth and your own lookup of the document and party.
+  const user = await requireSignedInUser();
+  const { documentId, partyId } = await findSigningForUser(user.id);
+
+  const response = await fetch("https://app.sajn.se/api/v1/embed-sessions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+      "Sajn-Version": "2026-10",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ documentId, partyId, origins: ["https://app.example.com"] }),
+    cache: "no-store",
+  });
+  const session = await response.json();
+
+  if (!response.ok) {
+    return NextResponse.json({ message: session.userMessage }, { status: 502 });
+  }
+
+  return NextResponse.json({ clientSecret: session.clientSecret });
+}
+```
+
+The component calls this endpoint again each time a session ends, so create a new session on every call. For every field of the request, see [Create session request](/guides/embedding-v2/overview#create-session-request).
+
+## Show the signing page
+
+Render `SigningEmbed` with a `fetchClientSecret` function. The component is a client component, marked with `"use client"`:
+
+```tsx
+// app/sign/signing-frame.tsx
+"use client";
+
+import { useRouter } from "next/navigation";
+import { SigningEmbed } from "@sajn/embed-react";
+
+const fetchClientSecret = async () => {
+  const response = await fetch("/api/sajn/embed-session", { method: "POST" });
+  if (!response.ok) throw new Error("Signing isn't available right now.");
+  const { clientSecret } = await response.json();
+  return clientSecret;
+};
+
+export function SigningFrame() {
+  const router = useRouter();
+
+  return (
+    <SigningEmbed
+      fetchClientSecret={fetchClientSecret}
+      style={{ height: "80vh" }}
+      onSigned={() => router.push("/signed")}
+      onError={({ code, message }) => console.error(code, message)}
+    />
+  );
+}
+```
+
+The component renders a `div` that holds the frame. `className` and `style` apply to that `div`, so give it a height there.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fetchClientSecret` | `() => Promise<string>` | Required | Calls your server and returns a new `clientSecret`. Called again whenever a session ends. |
+| `host` | `string` | `https://app.sajn.se` | The sajn host. Sandboxes use the default. |
+| `appearance` | `Appearance` | None | Cosmetic values on top of the session's appearance. See [Appearance](/guides/embedding-v2/overview#appearance). |
+| `locale` | `Locale` | The session's locale | The frame's language: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
+| `title` | `string` | `Signera dokument` | The frame's accessible name. |
+| `fallbackHeight` | `string` | `600px` | The frame's height in `fixed` mode when the container has no height of its own. |
+| `className` | `string` | None | A CSS class for the container. |
+| `style` | `CSSProperties` | None | Inline styles for the container. |
+
+The callback props are `onReady`, `onSigned`, `onRejected`, `onFieldsSubmitted`, `onVerified`, `onStateChange`, `onResize`, `onSessionExpired`, and `onError`. For when each one runs and its data, see [Events](/guides/embedding-v2/overview#events).
+
+## Show a document read-only
+
+Create the session with `type: "viewing"` and render `ViewingEmbed`. It takes the same props as `SigningEmbed`. The frame shows the document with no sign section.
+
+## Update the frame
+
+The component reads `fetchClientSecret` and the callbacks from the latest render, so inline functions are fine and never reload the frame.
+
+- A change to `appearance` or `locale` updates the open frame without reloading it.
+- A change to `host`, `title`, or `fallbackHeight` creates a new frame and a new session.
+
+For example, to follow a theme toggle in your app:
+
+```tsx
+<SigningEmbed
+  fetchClientSecret={fetchClientSecret}
+  appearance={{ colorScheme: theme, colors: { primary: "#0f766e" } }}
+  locale={language}
+  style={{ height: "80vh" }}
+/>
+```
+
+Features can't change from the browser. To change them, create a new session.
+
+<Note>
+  In development, React Strict Mode mounts the component twice, so your endpoint gets two requests and creates two sessions. The first session expires unused. Production builds mount once.
+</Note>
+
+## TypeScript types
+
+The package exports its types:
+
+```typescript
+import type {
+  Appearance,
+  EmbedErrorCode,
+  EmbedIds,
+  EmbedState,
+  Locale,
+  PartyStatus,
+  SigningEmbedError,
+  SigningEmbedProps,
+} from "@sajn/embed-react";
+```
+
+## Troubleshooting
+
+- **`onError` gets `bootstrap_timeout`, and the frame is blank:** the browser most likely refused the frame. Check the session's `origins` against the page's exact origin, and your page's own `frame-src` policy. In Next.js, a `Content-Security-Policy` set in `next.config` or middleware must allow `https://app.sajn.se` in `frame-src`. For every cause, see [Fix a blank frame](/guides/embedding-v2/overview#fix-a-blank-frame).
+- **`onError` gets `client_secret_failed`:** `fetchClientSecret` threw an error, or returned something other than the `clientSecret` string.
+- **The frame is 600px high and doesn't fill the container:** the container has no height. Set one with `className` or `style`.
+
+For the other error codes, see [Error codes](/guides/embedding-v2/overview#error-codes).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Embedded signing" icon="window" href="/guides/embedding-v2/overview">
+    See the session request, the appearance, the events, and the error codes.
+  </Card>
+  <Card title="Embed signing in your app" icon="code" href="/guides/embedding-v2/recipe">
+    Run the whole flow from server to frame.
+  </Card>
+</CardGroup>

@@ -219,6 +219,7 @@ To create a document with its content and send it in one request, add `content` 
 
 - `content` takes content blocks in the same shape as [Create document content](/api-reference/create-document-content). `position` is optional; by default, each block follows the blocks before it, including any that the template adds.
 - Give a party a `ref`, such as `buyer`. A block names the party by its `ref` wherever it takes a party ID: in `partyId` inside `fieldMeta`, or in the `party` attribute of a `<sajn-field>` tag.
+- `fieldValues` fills in values by `key`, in the same shape as `values` in [Fill in values on a document](/api-reference/fill-in-values-on-a-document). sajn writes them after `parties` and `content`, and before `send`.
 - `send: true` sends the document after sajn creates it, the same way as [Send a document for signing](/guides/documents/send-for-signing).
 
 The following request creates a one-page agreement in which the buyer fills in a delivery address, and sends it:
@@ -250,7 +251,9 @@ sajn checks the content before it creates anything. A `ref` that no party has, o
 
 ## Create a document from a template
 
-To reuse content and parties, pass a `templateId`. The new document copies the template's content, parties, and settings. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on a PDF for the template's parties are removed. For a template with placed boxes, leave out `parties` and update the copied parties instead, as described in [Create documents from templates](/guides/templates/templates-and-forms):
+To reuse content and parties, pass a `templateId`. The new document copies the template's content, parties, and settings.
+
+If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on a PDF for the template's parties are removed. To keep the template's parties and their boxes, name a template party in `templatePartyId`, as described in the following section.
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/documents \
@@ -272,7 +275,34 @@ curl -X POST https://app.sajn.se/api/v1/documents \
 
 Replace `TEMPLATE_ID` with the ID of a template from [List all templates](/api-reference/list-all-templates).
 
-To fill in the template's form fields before you send the document, use [Fill in values on a document](/api-reference/fill-in-values-on-a-document).
+### Fill in a template's parties
+
+A template's parties often have signature boxes placed on its PDF. To fill in such a party, give it a `templatePartyId`: the ID of a party in the template's `parties`, from [Get a template](/api-reference/get-a-template-by-id). The document's copy of that party keeps its boxes and settings, and the details you send replace its own.
+
+When one party names a `templatePartyId`, the template's other parties are kept too, and a party without `templatePartyId` is added as a new party:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/documents \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Employment contract - Alex Andersson",
+    "templateId": "TEMPLATE_ID",
+    "parties": [
+      { "templatePartyId": "TEMPLATE_PARTY_ID", "name": "Alex Andersson", "email": "alex@example.com" },
+      { "name": "Robin Ek", "email": "robin@example.com", "role": "VIEWER" }
+    ],
+    "fieldValues": [
+      { "key": "start-date", "value": "2026-12-01" },
+      { "key": "salary", "value": "42 000 kr" }
+    ]
+  }'
+```
+
+A party with `templatePartyId` needs no `name` or `email`: it keeps the template party's details unless you send new ones. An ID that isn't a party of the template fails with `400 VALIDATION_FAILED`, and sajn creates nothing.
+
+`fieldValues` fills in the template's values by `key`. To see a document's keys, call `GET /api/v1/documents/DOCUMENT_ID/field-values`. You can also fill in values after you create the document, with [Fill in values on a document](/api-reference/fill-in-values-on-a-document).
 
 ## Add a company party
 

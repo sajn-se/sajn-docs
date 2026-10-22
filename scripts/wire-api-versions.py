@@ -16,6 +16,14 @@ LEGACY_NOTICE = (
     "To move your integration, see [Upgrading to 2026-10](/upgrading/2026-10).</Warning>"
 )
 
+# Endpoints of embedding v2, which is in beta until its first stable release.
+BETA_PATHS = {"/api/v1/embed-sessions", "/api/v1/embed-sessions/{id}"}
+BETA_NOTICE = (
+    "<Warning>Embedding v2 is in beta, and this endpoint can change in ways that break your integration "
+    "before its first stable release, estimated for November 2026. "
+    "See [Embedding v2](/guides/embedding-v2/overview).</Warning>"
+)
+
 ENDPOINT = re.compile(r"^(GET|POST|PUT|PATCH|DELETE) ")
 # The hand-written developer pages of the 2026-10 dropdown, in sidebar order. The generated endpoint
 # groups follow, nested under "API reference" so their names don't collide with these.
@@ -81,6 +89,15 @@ GUIDE_GROUPS = [
             "guides/embedding/vanilla-js",
             "guides/embedding/react",
             "guides/embedding/vue",
+        ]},
+        {"group": "Embedding v2 (beta)", "pages": [
+            "guides/embedding-v2/overview",
+            "guides/embedding-v2/vanilla-js",
+            "guides/embedding-v2/react",
+            "guides/embedding-v2/vue",
+            "guides/embedding-v2/react-native",
+            "guides/embedding-v2/recipe",
+            "guides/embedding-v2/migrate-from-v1",
         ]},
         {"group": "Sync and integrations", "pages": [
             "guides/integrations/syncing-documents",
@@ -169,6 +186,7 @@ LATEST_ENDPOINT_GROUPS = [
         "GET /api/v1/documents/{id}/readiness",
         "POST /api/v1/documents/{id}/send",
         "POST /api/v1/documents/{id}/withdraw",
+        "POST /api/v1/documents/{id}/complete",
         "POST /api/v1/documents/{id}/extend-expiration",
         "POST /api/v1/documents/{id}/purge",
         "GET /api/v1/documents/{id}/files",
@@ -188,6 +206,10 @@ LATEST_ENDPOINT_GROUPS = [
         "GET /api/v1/documents/{id}/parties/{partyId}",
         "PATCH /api/v1/documents/{id}/parties/{partyId}",
         "DELETE /api/v1/documents/{id}/parties/{partyId}",
+    ]},
+    {"group": "Embed sessions", "pages": [
+        "POST /api/v1/embed-sessions",
+        "DELETE /api/v1/embed-sessions/{id}",
     ]},
     {"group": "Document content", "pages": [
         "GET /api/v1/documents/{id}/content",
@@ -387,6 +409,12 @@ for item in legacy_spec["paths"].values():
     for operation in item.values():
         operation["x-mint"] = {**operation.get("x-mint", {}), "content": LEGACY_NOTICE}
 open(LEGACY_SPEC, "w").write(json.dumps(legacy_spec, indent=2, ensure_ascii=False) + "\n")
+
+latest_spec = json.load(open("api/openapi.json"))
+for path in BETA_PATHS:
+    for operation in latest_spec["paths"][path].values():
+        operation["x-mint"] = {**operation.get("x-mint", {}), "metadata": {"tag": "Beta"}, "content": BETA_NOTICE}
+open("api/openapi.json", "w").write(json.dumps(latest_spec, indent=2, ensure_ascii=False) + "\n")
 
 api_groups = [g for g in base_groups if any(isinstance(p, str) and ENDPOINT.match(p) for p in g["pages"])]
 

@@ -1,0 +1,81 @@
+---
+title: "React Native (v2)"
+description: "Embed sajn signing in an iOS or Android app with @sajn/embed-react-native"
+tag: "Beta"
+---
+
+import EmbedV2Beta from "/snippets/embed-v2-beta.mdx";
+
+<EmbedV2Beta />
+
+In this guide, you show the sajn signing page inside a React Native app with the `@sajn/embed-react-native` package. The package runs the signing page in a web view and opens eID pages and the BankID app for you.
+
+## Before you begin
+
+- Follow [Create a session on your server](/guides/embedding-v2/overview#embed-the-signing-page): your backend creates an embed session with your API key and returns its `clientSecret`.
+- Pick the origin your app presents itself as, such as `https://app.example.com`. Add it to your organization's embed domains. The web view loads nothing from it; sajn only checks it.
+
+## Install the package
+
+```bash
+npm install @sajn/embed-react-native@1.0.0-beta.1 react-native-webview
+```
+
+With Expo, run `npx expo install react-native-webview` for the native module.
+
+## Show the signing page
+
+```tsx
+import { SigningEmbed } from "@sajn/embed-react-native";
+
+export function SignScreen({ documentId, partyId }: { documentId: string; partyId: string }) {
+  return (
+    <SigningEmbed
+      origin="https://app.example.com"
+      fetchClientSecret={async () => {
+        const response = await fetch("https://api.example.com/sajn/embed-session", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ documentId, partyId }),
+        });
+        if (!response.ok) throw new Error("Signing isn't available right now.");
+        return (await response.json()).clientSecret;
+      }}
+      appearance={{ colorScheme: "system" }}
+      onSigned={() => {
+        // Confirm the signature on your server with the document.party.signed webhook.
+      }}
+      onError={({ code, message }) => console.warn(code, message)}
+    />
+  );
+}
+```
+
+The component fills its parent. With `appearance.mode: "inline"`, it sizes itself to the content instead.
+
+## Props
+
+`SigningEmbed` takes the same callbacks and the same `host`, `appearance`, `locale` and `title` as the web SDK, plus:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `origin` | `string` | Required | The origin the frame sees as its parent. It must match one of your embed domains and the session's `origins`. |
+| `openUrl` | `(url: string) => void` | `Linking.openURL` | Opens eID pages and the BankID app link. Pass your own to open them in an in-app browser, such as `WebBrowser.openBrowserAsync` from `expo-web-browser`. |
+| `debug` | `boolean` | `false` | Logs the page's console, errors and frame messages to the React Native console. |
+| `style` | `StyleProp<ViewStyle>` | Fills its parent | The web view's style. |
+
+Changing `appearance` or `locale` updates the frame in place. Changing `host`, `title` or `debug` reloads it.
+
+## eIDs in a native app
+
+- **Swedish BankID on the same phone:** the frame hands the BankID link to `openUrl`, and the BankID app opens. Set the session's `bankIdReturnUrl` to your app's URL scheme, such as `myapp://signed`, so BankID brings the party back to your app.
+- **MitID, FTN, Norwegian BankID and other eIDs that refuse frames:** the frame hands the eID page to `openUrl`. The party identifies in the browser, which ends on a page in your session's colors and language, and returns to your app. The frame picks up the signature on its next status check, and `onSigned` fires.
+
+## Use a web view without React Native
+
+In Swift or Kotlin, load a page that uses `@sajn/embed-js` with an `openUrl` option, and open the URLs it passes in the system browser:
+
+- **iOS (`WKWebView`):** load your page with `loadHTMLString(_:baseURL:)`, with your embed origin as `baseURL`. Forward `openUrl` calls through a `WKScriptMessageHandler` and open them with `UIApplication.shared.open`. In `webView(_:decidePolicyFor:decisionHandler:)`, allow subframe navigations, and send top-level navigations away from your page to `UIApplication.shared.open`.
+- **Android (`WebView`):** load your page with `loadDataWithBaseURL`, with your embed origin as the base URL. Forward `openUrl` calls through a `@JavascriptInterface` and open them with an `Intent.ACTION_VIEW`.
+
+Without `openUrl`, the frame opens eID pages with `window.open`, which a web view ignores unless your app implements new windows.
