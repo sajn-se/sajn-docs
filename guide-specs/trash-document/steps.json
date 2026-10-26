@@ -31,7 +31,7 @@
         {
             "name": "oppna-skapamenyn",
             "action": "click",
-            "selector": "button[aria-label='Fler alternativ']",
+            "selector": "[data-testid='document-creation-options-dropdown-trigger']",
             "screenshot": false
         },
         {
@@ -46,15 +46,22 @@
             "selector": "button:has-text('Skicka dokument')"
         },
         {
-            "name": "oppna-redigera",
+            "name": "till-listan",
+            "action": "goto",
+            "url": "/{workspace}/documents",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-radmeny",
             "action": "click",
-            "selector": "button:text-is('Redigera')",
+            "selector": "tr:has-text(\"Nytt dokument\") button[aria-label=\"Edit item\"]",
+            "match": "first",
             "screenshot": false
         },
         {
             "name": "byt-namn",
             "action": "click",
-            "selector": "[role='menuitem']:has-text('Byt namn')",
+            "selector": "[role=\"menuitem\"]:has-text(\"Byt namn\")",
             "screenshot": false
         },
         {
