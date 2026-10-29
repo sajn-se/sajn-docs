@@ -251,6 +251,12 @@ something, check the reference, and list what you couldn't resolve.
   GET .../content?key=KEY. PATCH and the placed-fields endpoints return the
   block. DELETE returns { id, deleted: true }. The ignored "key" property on
   block create and update bodies is removed.
+- A block's "position" is its 0-based index. A block sent to a taken
+  position goes there, and the blocks from that position on move down by
+  one (in 2026-09 it went after the block at that position). A position
+  past the end goes last. Responses return unique positions from 0
+  without gaps. To put a block after another block, send that block's
+  position plus 1.
 - Boxes on a PDF (fieldMeta.placedFields, placed-fields "upsert") and
   AcroForm fields (fieldMeta.formFields): "page" is counted from 1 (was
   0), and "rect" is fractions of the page from 0 to 1, measured from the
@@ -1062,6 +1068,14 @@ In `2026-10`:
 ```json
 { "id": "sign-alex", "kind": "INPUT", "inputType": "SIGNATURE", "fillSource": "SIGNER", "partyId": "cm4k2x9p10002abcd1234efgh" }
 ```
+
+#### Positions of content blocks
+
+A block's `position` is its 0-based index among the content blocks. In `2026-09`, sajn stored the position as you sent it, and a block sent to a taken position went after the block that held it. In `2026-10`, the block goes to that index, and the blocks from that index on move down by one. A position past the end puts the block last, and a `PATCH` with `position` moves the block to that index.
+
+For example, a document has blocks at positions 0, 1, and 2, and you send a new block with `position` 1. In `2026-09`, the new block goes after the block at 1. In `2026-10`, the new block is at 1, and the blocks that were at 1 and 2 move to 2 and 3. To put a block after another block, send that block's `position` plus 1.
+
+Responses return unique positions that run from 0 without gaps, after a delete too, and also for content that a `2026-09` request wrote.
 
 #### Positions on a PDF
 

@@ -253,7 +253,7 @@
                     "nin": "191212121212",
                     "nin_type": "SE_PERSONNUMMER"
                   },
-                  "loginUrl": "https://login.sajn.se/authorize?session=cm4k2x9p10033abcd1234efgh",
+                  "loginUrl": "https://login.sajn.se/l/cm4k2x9p10033abcd1234efgh/open",
                   "expiresAt": "2026-10-28T22:00:00.000Z"
                 }
               }
@@ -2240,7 +2240,7 @@
                     "nin": "191212121212",
                     "nin_type": "SE_PERSONNUMMER"
                   },
-                  "loginUrl": "https://login.sajn.se/authorize?session=cm4k2x9p10033abcd1234efgh",
+                  "loginUrl": "https://login.sajn.se/l/cm4k2x9p10033abcd1234efgh/open",
                   "expiresAt": "2026-10-28T22:00:00.000Z"
                 }
               }
@@ -29882,7 +29882,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -34443,7 +34443,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -40961,7 +40961,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -45630,7 +45630,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -57136,7 +57136,7 @@
                           ]
                         },
                         "position": {
-                          "description": "0-based order among the content blocks. Default: after the blocks before it, including any the template adds.",
+                          "description": "0-based index to put the block at, counting any blocks the template adds. The blocks from that index on move down by one. Default: after the blocks before it.",
                           "type": "integer",
                           "minimum": 0,
                           "maximum": 9007199254740991
@@ -59991,7 +59991,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -65102,7 +65102,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -70501,7 +70501,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -75584,7 +75584,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -90006,7 +90006,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -95148,7 +95148,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -100267,7 +100267,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -105399,7 +105399,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -154098,7 +154098,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -157933,7 +157933,7 @@
         ]
       },
       "post": {
-        "description": "Adds content blocks to a document. Send the blocks in `content`, even when you create one.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has a unique `id`, a `page` counted from 1, a `rect` (`x`, `y`, `width`, `height`), and a `kind`. By default, `rect` is in fractions of the page from 0 to 1, measured from its top-left corner, so `{ \"x\": 0.1, \"y\": 0.8, \"width\": 0.3, \"height\": 0.05 }` is a box near the bottom left. To send PDF points from the bottom-left corner instead, set `unit` to `POINTS` and `origin` to `BOTTOM_LEFT`. The server fills `pageWidth`, `pageHeight`, and `pageRotation` from the PDF page when you omit them, and responses always return relative values from the top-left corner. The box kinds are the following:\n- `INPUT` with `inputType` `SIGNATURE` or `INITIALS` and a `partyId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `INPUT` with `inputType` `TEXT`, `DATE`, `CHECKBOX` or `SELECT` and a `partyId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `STATIC` with `content` (HTML): fixed text stamped at that position.\n\nSet `key` on an `INPUT` box to fill it in by that key through `PATCH /api/v1/documents/{id}/field-values`. A key can contain lowercase letters, digits, hyphens, and underscores.\n\nThe following example creates a PDF field with a signature box:\n\n```json\n{\n  \"content\": [\n    {\n      \"type\": \"PDF\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"PDF\",\n        \"value\": \"f/org_123/abc123def/contract.pdf\",\n        \"placedFields\": [\n          {\n            \"id\": \"sig-1\",\n            \"kind\": \"INPUT\",\n            \"inputType\": \"SIGNATURE\",\n            \"page\": 2,\n            \"rect\": { \"x\": 0.12, \"y\": 0.83, \"width\": 0.34, \"height\": 0.06 },\n            \"partyId\": \"PARTY_ID\",\n            \"required\": true\n          }\n        ]\n      }\n    }\n  ]\n}\n```\n\nThe request fails with an HTTP `400 Bad Request` status code, and writes nothing, when a box has a `page` the PDF doesn't have, doesn't fit on its page, names a `partyId` that isn't a party on the document, or is a `SIGNATURE` or `INITIALS` box without a party with the `SIGNER` role. The `issues` array in the response lists every problem with its path, such as `content.0.fieldMeta.placedFields.2.rect`.\n\nThe response lists the created fields in request order, each in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`. To add, move, or remove single boxes later, use `PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields`.\n\n**Product tables:** a `PRODUCT_TABLE` field's `price` values are decimal amounts in the table's `currency`, such as `1499.5`, not minor units. `vat` is a rate in percent, such as `25`.\n\n**Fields a party fills in:** In `TEXT` or `HTML` content, place a field with a `<sajn-field>` tag, such as `<sajn-field key=\"buyer-phone\" party=\"PARTY_ID\" type=\"TEXT\" label=\"Phone\"></sajn-field>`. `key` names the field, and `party` is the party who fills it in. `type` is `TEXT` (default), `DATE`, or `SELECT` with its choices in `options`, separated by commas. A field is required unless you set `required=\"false\"`, and `value` prefills it. To fill a `TEXT` field from the party's eID verification, set `identity` to `NAME` or `SSN`; the party must open the document through an eID ACCESS gate that returns that value, and they can't change it. Responses return the same tag.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
+        "description": "Adds content blocks to a document. Send the blocks in `content`, even when you create one.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** The 0-based index of the field among the content blocks. A field sent to a taken index goes there, and the fields from that index on move down by one. A position past the end puts the field last.\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has a unique `id`, a `page` counted from 1, a `rect` (`x`, `y`, `width`, `height`), and a `kind`. By default, `rect` is in fractions of the page from 0 to 1, measured from its top-left corner, so `{ \"x\": 0.1, \"y\": 0.8, \"width\": 0.3, \"height\": 0.05 }` is a box near the bottom left. To send PDF points from the bottom-left corner instead, set `unit` to `POINTS` and `origin` to `BOTTOM_LEFT`. The server fills `pageWidth`, `pageHeight`, and `pageRotation` from the PDF page when you omit them, and responses always return relative values from the top-left corner. The box kinds are the following:\n- `INPUT` with `inputType` `SIGNATURE` or `INITIALS` and a `partyId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `INPUT` with `inputType` `TEXT`, `DATE`, `CHECKBOX` or `SELECT` and a `partyId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `STATIC` with `content` (HTML): fixed text stamped at that position.\n\nSet `key` on an `INPUT` box to fill it in by that key through `PATCH /api/v1/documents/{id}/field-values`. A key can contain lowercase letters, digits, hyphens, and underscores.\n\nThe following example creates a PDF field with a signature box:\n\n```json\n{\n  \"content\": [\n    {\n      \"type\": \"PDF\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"PDF\",\n        \"value\": \"f/org_123/abc123def/contract.pdf\",\n        \"placedFields\": [\n          {\n            \"id\": \"sig-1\",\n            \"kind\": \"INPUT\",\n            \"inputType\": \"SIGNATURE\",\n            \"page\": 2,\n            \"rect\": { \"x\": 0.12, \"y\": 0.83, \"width\": 0.34, \"height\": 0.06 },\n            \"partyId\": \"PARTY_ID\",\n            \"required\": true\n          }\n        ]\n      }\n    }\n  ]\n}\n```\n\nThe request fails with an HTTP `400 Bad Request` status code, and writes nothing, when a box has a `page` the PDF doesn't have, doesn't fit on its page, names a `partyId` that isn't a party on the document, or is a `SIGNATURE` or `INITIALS` box without a party with the `SIGNER` role. The `issues` array in the response lists every problem with its path, such as `content.0.fieldMeta.placedFields.2.rect`.\n\nThe response lists the created fields in request order, each in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`. To add, move, or remove single boxes later, use `PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields`.\n\n**Product tables:** a `PRODUCT_TABLE` field's `price` values are decimal amounts in the table's `currency`, such as `1499.5`, not minor units. `vat` is a rate in percent, such as `25`.\n\n**Fields a party fills in:** In `TEXT` or `HTML` content, place a field with a `<sajn-field>` tag, such as `<sajn-field key=\"buyer-phone\" party=\"PARTY_ID\" type=\"TEXT\" label=\"Phone\"></sajn-field>`. `key` names the field, and `party` is the party who fills it in. `type` is `TEXT` (default), `DATE`, or `SELECT` with its choices in `options`, separated by commas. A field is required unless you set `required=\"false\"`, and `value` prefills it. To fill a `TEXT` field from the party's eID verification, set `identity` to `NAME` or `SSN`; the party must open the document through an eID ACCESS gate that returns that value, and they can't change it. Responses return the same tag.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
         "summary": "Create document content",
         "parameters": [
           {
@@ -158011,7 +158011,7 @@
                           "type": "integer",
                           "minimum": 0,
                           "maximum": 9007199254740991,
-                          "description": "0-based order of the field among the content blocks"
+                          "description": "0-based index to put the block at. The blocks from that index on move down by one. A position past the end puts the block last."
                         },
                         "fieldMeta": {
                           "oneOf": [
@@ -160105,7 +160105,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -164058,7 +164058,7 @@
                     },
                     "position": {
                       "type": "number",
-                      "description": "0-based order of the field among the document's content blocks"
+                      "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                     },
                     "fieldMeta": {
                       "anyOf": [
@@ -167858,7 +167858,7 @@
         ]
       },
       "patch": {
-        "description": "Updates a document field by its ID. Only DRAFT documents can be changed. To fill in a value, such as a FORM subfield, use `PATCH /api/v1/documents/{id}/field-values` instead. To find the field that holds a key, call `GET /api/v1/documents/{id}/content?key=KEY`.\n\n**Updatable properties:**\n- `type` - Field type\n- `position` - Field order\n- `fieldMeta` - The full metadata for the field type, which replaces the stored metadata\n\nThe following example updates an HTML field:\n\n```json\nPATCH /api/v1/documents/{docId}/content/{contentId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1>Contract title</h1><p>Custom styled content</p></div>\"\n  }\n}\n```\n\nThe response is the updated field, in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`.",
+        "description": "Updates a document field by its ID. Only DRAFT documents can be changed. To fill in a value, such as a FORM subfield, use `PATCH /api/v1/documents/{id}/field-values` instead. To find the field that holds a key, call `GET /api/v1/documents/{id}/content?key=KEY`.\n\n**Updatable properties:**\n- `type` - Field type\n- `position` - The 0-based index to move the field to\n- `fieldMeta` - The full metadata for the field type, which replaces the stored metadata\n\nThe following example updates an HTML field:\n\n```json\nPATCH /api/v1/documents/{docId}/content/{contentId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1>Contract title</h1><p>Custom styled content</p></div>\"\n  }\n}\n```\n\nThe response is the updated field, in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`.",
         "summary": "Update a document content block",
         "parameters": [
           {
@@ -167938,7 +167938,7 @@
                     ]
                   },
                   "position": {
-                    "description": "0-based order of the field among the content blocks",
+                    "description": "0-based index to move the block to. The blocks between its old and new index move by one to make room.",
                     "type": "number"
                   },
                   "fieldMeta": {
@@ -170014,7 +170014,7 @@
                     },
                     "position": {
                       "type": "number",
-                      "description": "0-based order of the field among the document's content blocks"
+                      "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                     },
                     "fieldMeta": {
                       "anyOf": [
@@ -176274,7 +176274,7 @@
                     },
                     "position": {
                       "type": "number",
-                      "description": "0-based order of the field among the document's content blocks"
+                      "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                     },
                     "fieldMeta": {
                       "anyOf": [
@@ -180215,7 +180215,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -184128,7 +184128,7 @@
                           "type": "integer",
                           "minimum": 0,
                           "maximum": 9007199254740991,
-                          "description": "0-based order of the field among the content blocks"
+                          "description": "0-based index to put the block at. The blocks from that index on move down by one. A position past the end puts the block last."
                         },
                         "fieldMeta": {
                           "oneOf": [
@@ -186222,7 +186222,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -190175,7 +190175,7 @@
                     },
                     "position": {
                       "type": "number",
-                      "description": "0-based order of the field among the document's content blocks"
+                      "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                     },
                     "fieldMeta": {
                       "anyOf": [
@@ -194055,7 +194055,7 @@
                     ]
                   },
                   "position": {
-                    "description": "0-based order of the field among the content blocks",
+                    "description": "0-based index to move the block to. The blocks between its old and new index move by one to make room.",
                     "type": "number"
                   },
                   "fieldMeta": {
@@ -196131,7 +196131,7 @@
                     },
                     "position": {
                       "type": "number",
-                      "description": "0-based order of the field among the document's content blocks"
+                      "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                     },
                     "fieldMeta": {
                       "anyOf": [
@@ -202391,7 +202391,7 @@
                     },
                     "position": {
                       "type": "number",
-                      "description": "0-based order of the field among the document's content blocks"
+                      "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                     },
                     "fieldMeta": {
                       "anyOf": [
@@ -215907,7 +215907,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -221002,7 +221002,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -284327,7 +284327,7 @@
                                 },
                                 "position": {
                                   "type": "number",
-                                  "description": "0-based order of the field among the document's content blocks"
+                                  "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                                 },
                                 "fieldMeta": {
                                   "anyOf": [
@@ -290733,7 +290733,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -295077,7 +295077,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -299763,7 +299763,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -304313,7 +304313,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -308858,7 +308858,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -321808,7 +321808,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -326370,7 +326370,7 @@
                           },
                           "position": {
                             "type": "number",
-                            "description": "0-based order of the field among the document's content blocks"
+                            "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                           },
                           "fieldMeta": {
                             "anyOf": [
@@ -422579,7 +422579,7 @@
   "info": {
     "title": "sajn API",
     "version": "2026-10",
-    "description": "# sajn - API v1\n\nWith the sajn REST API, you can add digital document signing to your own applications.\n\n## Overview\n\nsajn is a Swedish digital document signing platform. With the API, you can:\n- Create and manage documents and templates\n- Add the parties who sign, review, or organize a document\n- Send documents for signing by email or SMS\n- Track document status and signatures\n- Manage contacts and companies\n- Organize documents with tags and custom fields\n- Verify identities with sajn ID, through BankID and other eIDs\n\n## Authentication\n\nEvery endpoint (except the health check) requires a bearer token in the Authorization header:\n\n```\nAuthorization: Bearer YOUR_TOKEN\n```\n\nTwo kinds of token are accepted:\n\n- **API key** (`sajn_sk_...`) — generated in the developer settings. A key belongs to a person or to a service account, a non-human account the organization owns, and can reach any endpoint that account's workspace role permits. Service-account keys keep working when the person who created them leaves.\n- **OAuth 2.0 access token** — issued via the authorization-code flow (PKCE for public clients) to a connected application. Bound to one workspace and limited to the **scopes** the user granted at consent — effective access is *workspace role ∩ granted scopes*.\n\nAn API key acts in its default workspace. To act in another workspace the key's account is a member of, send its ID in the `Sajn-Workspace` header:\n\n```\nSajn-Workspace: WORKSPACE_ID\n```\n\n`GET /api/v1/workspaces` lists the workspaces the token can reach. A workspace that doesn't exist and one the key can't reach both return `403 WORKSPACE_ACCESS_DENIED`, and a header that isn't a single workspace ID returns `400 VALIDATION_FAILED`; the key's default workspace is never used instead.\n\nEach operation lists the OAuth scopes it requires in its security section. The scopes are coarse and resource-oriented (e.g. `documents:read`, `documents:write`, `documents:delete`, `contacts:read`). Personal API keys are not scope-limited; OAuth tokens are.\n\n## Rate Limiting\n\nLimits apply per organization and scale with the plan:\n\n| Plan | Per minute |\n|---|---|\n| Basic | 60 |\n| Solo | 120 |\n| Team | 600 |\n| Enterprise | 2 000 |\n| Sandbox | 60 |\n\nEvery response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` for the minute window. A `429` response includes `Retry-After` in seconds.\n\n## Query parameters\n\nQuery parameters are plain strings, such as `?externalId=12345&archived=false`:\n- Booleans are `true` or `false`.\n- Dates are ISO 8601 dates (`2026-10-01`) or date-times (`2026-10-01T08:00:00Z`). A date-time without an offset is UTC.\n- Filters that take several values accept a comma-separated list (`status=PENDING,COMPLETED`) or a repeated parameter (`status=PENDING&status=COMPLETED`).\n\nAn unknown query parameter returns `400`, so a misspelled filter never silently returns everything.\n\n## Pagination\n\nEvery list returns `{ data, hasMore, nextCursor }`. To walk a list, pass `nextCursor` as `cursor` on the next request, keep the other parameters unchanged, and stop when `hasMore` is `false`. `limit` sets the page size, from 1 to 100, with a default of 25. To get the number of items that match the filters, pass `include=total`, and the response adds `total`.\n\nLists sort newest first. To sort another way, pass `orderBy` and `orderDirection` where the list takes them. A list bounded by its parent, such as a document's parties, returns every item in one response, with `hasMore` set to `false` and `nextCursor` set to `null`.\n\nOn the documents list, the cursor is keyset-based: it stays correct while documents are created and updated between requests. To mirror documents into your own system, sort by `updatedAt` and use the `updatedAfter` filter.\n\n## Idempotent requests\n\nSend an `Idempotency-Key` header (any unique string up to 255 characters, for example a UUID) on `POST`, `PATCH` or `DELETE` requests to make retries safe. The first request runs normally and its response is stored for 24 hours, errors included. A retry with the same key and the same method, path and body returns the stored response with the header `Idempotent-Replayed: true`. Reusing a key with a different request returns `400 IDEMPOTENCY_KEY_REUSED`; retrying while the first request is still running returns `409 IDEMPOTENCY_KEY_IN_USE` with `Retry-After`. Responses with a `429` or `5xx` status aren't stored, so the retry runs again. Keys are scoped to the workspace.\n\n## Versioning\n\nThe API is versioned by date (`YYYY-MM`), and this reference documents version `2026-10`. To choose the version for a request, send the `Sajn-Version` header:\n\n```\nSajn-Version: 2026-10\n```\n\nWithout the header, a request uses your organization's default version. An organization without a default is pinned to the latest version by its first request. Every response returns the version that served it in `Sajn-Version`. On a deprecated version, responses also carry `Deprecation` and `Sunset` headers, and from the sunset date its requests return `400`. For details, see https://docs.sajn.se/api-reference/versioning.\n\n## Webhooks\n\nEach webhook endpoint has its own API version, set when you create it, that decides the payload shape. Deliveries carry it in the `Sajn-Version` header.\n\nThe delivery body is the event, `{ id, type, createdAt, apiVersion, workspaceId, environment, actor, data }`, signed according to [Standard Webhooks](https://www.standardwebhooks.com) in the `webhook-id`, `webhook-timestamp` and `webhook-signature` headers. Common document events:\n- `document.created` - A document is created.\n- `document.sent` - A document is sent for signing.\n- `document.party.opened` - A party opens the document.\n- `document.party.signed` - A party signs the document.\n- `document.fully_signed` - Every signer has signed, before the document is sealed.\n- `document.completed` - The document is sealed and complete.\n- `document.rejected` - A party rejects the document.\n\nFor every event type, see `POST /api/v1/webhooks`.\n\n## Error Handling\n\nEvery error response has the same JSON shape:\n\n```json\n{\n  \"code\": \"NOT_FOUND\",\n  \"message\": \"Document not found\",\n  \"userMessage\": \"Dokumentet hittades inte.\",\n  \"requestId\": \"req_V1StGXR8Z5jdHi6BmyT2\",\n  \"resource\": \"document\"\n}\n```\n\n- `code` is always present and comes from the closed list in the following table. Branch on it, not on the status or the message.\n- `message` is English text for developers. When the operation has no more specific text, it's the meaning of `code` from the following table. Its wording can change, so don't parse it.\n- `userMessage` is always present. It's text that is safe to show your users, usually in Swedish.\n- `requestId` identifies the request and matches the `Sajn-Request-Id` header, which every response carries. Quote it when you contact support. On a replayed idempotent response, it identifies the original request.\n\nA `400 VALIDATION_FAILED` lists every problem in `issues`: `[{ \"path\": \"parties.0.email\", \"code\": \"INVALID_FORMAT\", \"message\": \"Invalid email address\" }]`. An issue `code` is one of `INVALID_TYPE`, `INVALID_FORMAT`, `INVALID_VALUE`, `TOO_SMALL`, `TOO_BIG` or `UNRECOGNIZED_KEY`, and an issue that no single input caused has an empty `path`. A `404 NOT_FOUND` names the type of the missing resource in `resource`, such as `document` or `party`, or `null` when the API can't tell. A `403 INSUFFICIENT_SCOPE` includes `requiredScopes` and `grantedScopes`.\n\nA `401` always means the credential itself is the problem: `UNAUTHORIZED` when it's missing, invalid or revoked, `API_KEY_EXPIRED` when the key has expired. A valid token that isn't allowed to do something gets a `403`. A `409 INVALID_STATE` means the resource's state doesn't allow the operation; change the state first, then retry. A `503 UPSTREAM_UNAVAILABLE` is safe to retry with exponential backoff, and so is a `429` after `Retry-After` seconds.\n\nThe API returns the following codes:\n\n| Code | Status | Meaning |\n|---|---|---|\n| `VALIDATION_FAILED` | 400 | The request failed validation. `issues` lists every problem. |\n| `INVALID_JSON` | 400 | The request body isn't valid JSON. |\n| `EXPIRED` | 400 | The link, code or resource has expired. |\n| `IDEMPOTENCY_KEY_REUSED` | 400 | The `Idempotency-Key` was already used with a different request. |\n| `WORKSPACE_REQUIRED` | 400 | The API key has no default workspace. Name one with the `Sajn-Workspace` header. |\n| `INVALID_API_VERSION` | 400 | The `Sajn-Version` header names a version that doesn't exist. |\n| `API_VERSION_SUNSET` | 400 | The requested version, or your organization's default, is past its sunset date. |\n| `UNAUTHORIZED` | 401 | The API token is missing, invalid or revoked. |\n| `API_KEY_EXPIRED` | 401 | The API key has passed its expiry date. Create a new key. |\n| `PERMISSION_DENIED` | 403 | The token's user isn't allowed to perform the operation, for example because their workspace role lacks a permission. |\n| `WORKSPACE_ACCESS_DENIED` | 403 | The workspace named by the `Sajn-Workspace` header doesn't exist, or the token can't act in it. |\n| `INSUFFICIENT_SCOPE` | 403 | The OAuth token wasn't granted a scope the operation requires. See `requiredScopes` and `grantedScopes`. |\n| `PLAN_REQUIRED` | 403 | The organization's plan doesn't include API access or the feature. |\n| `ACCOUNT_INACTIVE` | 403 | The organization, user or membership behind the token is deactivated or suspended. |\n| `ACCOUNT_SETUP_REQUIRED` | 403 | The organization must finish its setup, such as verifying an accountable person, first. |\n| `LIMIT_EXCEEDED` | 403 | A plan limit was reached, such as the monthly number of sent documents. |\n| `DOCUMENT_NOT_READY` | 409 | The document can't be sent yet. `readiness` lists what blocks it, the same list `GET /api/v1/documents/:id/readiness` returns. |\n| `APPROVAL_REQUIRED` | 409 | The operation needs an approval first, such as sending a document that the workspace requires an approval for. Request one with `POST /api/v1/approval-requests`. |\n| `NOT_FOUND` | 404 | The resource doesn't exist, or the token can't access it. `resource` names its type, such as `document`, or is `null` when the API can't tell. |\n| `ROUTE_NOT_FOUND` | 404 | No endpoint matches the method and path in the requested API version. |\n| `INVALID_STATE` | 409 | The resource's current state doesn't allow the operation, such as editing a document that was already sent or downloading a file that isn't produced yet. |\n| `ALREADY_EXISTS` | 409 | A resource with the same unique value, such as `externalId`, already exists. |\n| `IDEMPOTENCY_KEY_IN_USE` | 409 | A request with the same `Idempotency-Key` is still running. Retry after `Retry-After` seconds. |\n| `RATE_LIMITED` | 429 | The per-minute rate limit was reached. Retry after `Retry-After` seconds. |\n| `INTERNAL_ERROR` | 500 | Something went wrong on sajn's side. Quote `requestId` when you contact support. |\n| `UPSTREAM_UNAVAILABLE` | 503 | A service the operation depends on, such as an eID provider or a connected integration, failed or is unavailable. Retry with exponential backoff. |\n\n## Support\n\nFor API support, documentation, or questions:\n- Email: dev@sajn.se\n- Documentation: https://docs.sajn.se\n- Status: https://status.sajn.se",
+    "description": "# sajn - API v1\n\nWith the sajn REST API, you can add digital document signing to your own applications.\n\n## Overview\n\nsajn is a Swedish digital document signing platform. With the API, you can:\n- Create and manage documents and templates\n- Add the parties who sign, review, or organize a document\n- Send documents for signing by email or SMS\n- Track document status and signatures\n- Manage contacts and companies\n- Organize documents with tags and custom fields\n- Verify identities with sajn ID, through BankID and other eIDs\n\n## Authentication\n\nEvery endpoint (except the health check) requires a bearer token in the Authorization header:\n\n```\nAuthorization: Bearer YOUR_TOKEN\n```\n\nTwo kinds of token are accepted:\n\n- **API key** — generated in the developer settings. A key belongs to a service account (`sajn_svc_...`), a non-human account the organization owns, or to the person who created it (`sajn_usr_...`). It can reach any endpoint its owner's workspace role permits, and holds no organization permissions. Service-account keys keep working when the person who created them leaves. Older keys start with `sajn_sk_` and keep working.\n- **OAuth 2.0 access token** — issued via the authorization-code flow (PKCE for public clients) to a connected application. Bound to one workspace and limited to the **scopes** the user granted at consent — effective access is *workspace role ∩ granted scopes*.\n\nAn API key acts in its default workspace. To act in another workspace the key's account is a member of, send its ID in the `Sajn-Workspace` header:\n\n```\nSajn-Workspace: WORKSPACE_ID\n```\n\n`GET /api/v1/workspaces` lists the workspaces the token can reach. A workspace that doesn't exist and one the key can't reach both return `403 WORKSPACE_ACCESS_DENIED`, and a header that isn't a single workspace ID returns `400 VALIDATION_FAILED`; the key's default workspace is never used instead.\n\nEach operation lists the OAuth scopes it requires in its security section. The scopes are coarse and resource-oriented (e.g. `documents:read`, `documents:write`, `documents:delete`, `contacts:read`). Personal API keys are not scope-limited; OAuth tokens are.\n\n## Rate Limiting\n\nLimits apply per organization and scale with the plan:\n\n| Plan | Per minute |\n|---|---|\n| Basic | 60 |\n| Solo | 120 |\n| Team | 600 |\n| Enterprise | 2 000 |\n| Sandbox | 60 |\n\nEvery response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` for the minute window. A `429` response includes `Retry-After` in seconds.\n\n## Query parameters\n\nQuery parameters are plain strings, such as `?externalId=12345&archived=false`:\n- Booleans are `true` or `false`.\n- Dates are ISO 8601 dates (`2026-10-01`) or date-times (`2026-10-01T08:00:00Z`). A date-time without an offset is UTC.\n- Filters that take several values accept a comma-separated list (`status=PENDING,COMPLETED`) or a repeated parameter (`status=PENDING&status=COMPLETED`).\n\nAn unknown query parameter returns `400`, so a misspelled filter never silently returns everything.\n\n## Pagination\n\nEvery list returns `{ data, hasMore, nextCursor }`. To walk a list, pass `nextCursor` as `cursor` on the next request, keep the other parameters unchanged, and stop when `hasMore` is `false`. `limit` sets the page size, from 1 to 100, with a default of 25. To get the number of items that match the filters, pass `include=total`, and the response adds `total`.\n\nLists sort newest first. To sort another way, pass `orderBy` and `orderDirection` where the list takes them. A list bounded by its parent, such as a document's parties, returns every item in one response, with `hasMore` set to `false` and `nextCursor` set to `null`.\n\nOn the documents list, the cursor is keyset-based: it stays correct while documents are created and updated between requests. To mirror documents into your own system, sort by `updatedAt` and use the `updatedAfter` filter.\n\n## Idempotent requests\n\nSend an `Idempotency-Key` header (any unique string up to 255 characters, for example a UUID) on `POST`, `PATCH` or `DELETE` requests to make retries safe. The first request runs normally and its response is stored for 24 hours, errors included. A retry with the same key and the same method, path and body returns the stored response with the header `Idempotent-Replayed: true`. Reusing a key with a different request returns `400 IDEMPOTENCY_KEY_REUSED`; retrying while the first request is still running returns `409 IDEMPOTENCY_KEY_IN_USE` with `Retry-After`. Responses with a `429` or `5xx` status aren't stored, so the retry runs again. Keys are scoped to the workspace.\n\n## Versioning\n\nThe API is versioned by date (`YYYY-MM`), and this reference documents version `2026-10`. To choose the version for a request, send the `Sajn-Version` header:\n\n```\nSajn-Version: 2026-10\n```\n\nWithout the header, a request uses your organization's default version. An organization without a default is pinned to the latest version by its first request. Every response returns the version that served it in `Sajn-Version`. On a deprecated version, responses also carry `Deprecation` and `Sunset` headers, and from the sunset date its requests return `400`. For details, see https://docs.sajn.se/api-reference/versioning.\n\n## Webhooks\n\nEach webhook endpoint has its own API version, set when you create it, that decides the payload shape. Deliveries carry it in the `Sajn-Version` header.\n\nThe delivery body is the event, `{ id, type, createdAt, apiVersion, workspaceId, environment, actor, data }`, signed according to [Standard Webhooks](https://www.standardwebhooks.com) in the `webhook-id`, `webhook-timestamp` and `webhook-signature` headers. Common document events:\n- `document.created` - A document is created.\n- `document.sent` - A document is sent for signing.\n- `document.party.opened` - A party opens the document.\n- `document.party.signed` - A party signs the document.\n- `document.fully_signed` - Every signer has signed, before the document is sealed.\n- `document.completed` - The document is sealed and complete.\n- `document.rejected` - A party rejects the document.\n\nFor every event type, see `POST /api/v1/webhooks`.\n\n## Error Handling\n\nEvery error response has the same JSON shape:\n\n```json\n{\n  \"code\": \"NOT_FOUND\",\n  \"message\": \"Document not found\",\n  \"userMessage\": \"Dokumentet hittades inte.\",\n  \"requestId\": \"req_V1StGXR8Z5jdHi6BmyT2\",\n  \"resource\": \"document\"\n}\n```\n\n- `code` is always present and comes from the closed list in the following table. Branch on it, not on the status or the message.\n- `message` is English text for developers. When the operation has no more specific text, it's the meaning of `code` from the following table. Its wording can change, so don't parse it.\n- `userMessage` is always present. It's text that is safe to show your users, usually in Swedish.\n- `requestId` identifies the request and matches the `Sajn-Request-Id` header, which every response carries. Quote it when you contact support. On a replayed idempotent response, it identifies the original request.\n\nA `400 VALIDATION_FAILED` lists every problem in `issues`: `[{ \"path\": \"parties.0.email\", \"code\": \"INVALID_FORMAT\", \"message\": \"Invalid email address\" }]`. An issue `code` is one of `INVALID_TYPE`, `INVALID_FORMAT`, `INVALID_VALUE`, `TOO_SMALL`, `TOO_BIG` or `UNRECOGNIZED_KEY`, and an issue that no single input caused has an empty `path`. A `404 NOT_FOUND` names the type of the missing resource in `resource`, such as `document` or `party`, or `null` when the API can't tell. A `403 INSUFFICIENT_SCOPE` includes `requiredScopes` and `grantedScopes`.\n\nA `401` always means the credential itself is the problem: `UNAUTHORIZED` when it's missing, invalid or revoked, `API_KEY_EXPIRED` when the key has expired. A valid token that isn't allowed to do something gets a `403`. A `409 INVALID_STATE` means the resource's state doesn't allow the operation; change the state first, then retry. A `503 UPSTREAM_UNAVAILABLE` is safe to retry with exponential backoff, and so is a `429` after `Retry-After` seconds.\n\nThe API returns the following codes:\n\n| Code | Status | Meaning |\n|---|---|---|\n| `VALIDATION_FAILED` | 400 | The request failed validation. `issues` lists every problem. |\n| `INVALID_JSON` | 400 | The request body isn't valid JSON. |\n| `EXPIRED` | 400 | The link, code or resource has expired. |\n| `IDEMPOTENCY_KEY_REUSED` | 400 | The `Idempotency-Key` was already used with a different request. |\n| `WORKSPACE_REQUIRED` | 400 | The API key has no default workspace. Name one with the `Sajn-Workspace` header. |\n| `INVALID_API_VERSION` | 400 | The `Sajn-Version` header names a version that doesn't exist. |\n| `API_VERSION_SUNSET` | 400 | The requested version, or your organization's default, is past its sunset date. |\n| `UNAUTHORIZED` | 401 | The API token is missing, invalid or revoked. |\n| `API_KEY_EXPIRED` | 401 | The API key has passed its expiry date. Create a new key. |\n| `PERMISSION_DENIED` | 403 | The token's user isn't allowed to perform the operation, for example because their workspace role lacks a permission. |\n| `WORKSPACE_ACCESS_DENIED` | 403 | The workspace named by the `Sajn-Workspace` header doesn't exist, or the token can't act in it. |\n| `INSUFFICIENT_SCOPE` | 403 | The OAuth token wasn't granted a scope the operation requires. See `requiredScopes` and `grantedScopes`. |\n| `PLAN_REQUIRED` | 403 | The organization's plan doesn't include API access or the feature. |\n| `ACCOUNT_INACTIVE` | 403 | The organization, user or membership behind the token is deactivated or suspended. |\n| `ACCOUNT_SETUP_REQUIRED` | 403 | The organization must finish its setup, such as verifying an accountable person, first. |\n| `LIMIT_EXCEEDED` | 403 | A plan limit was reached, such as the monthly number of sent documents. |\n| `DOCUMENT_NOT_READY` | 409 | The document can't be sent yet. `readiness` lists what blocks it, the same list `GET /api/v1/documents/:id/readiness` returns. |\n| `APPROVAL_REQUIRED` | 409 | The operation needs an approval first, such as sending a document that the workspace requires an approval for. Request one with `POST /api/v1/approval-requests`. |\n| `NOT_FOUND` | 404 | The resource doesn't exist, or the token can't access it. `resource` names its type, such as `document`, or is `null` when the API can't tell. |\n| `ROUTE_NOT_FOUND` | 404 | No endpoint matches the method and path in the requested API version. |\n| `INVALID_STATE` | 409 | The resource's current state doesn't allow the operation, such as editing a document that was already sent or downloading a file that isn't produced yet. |\n| `ALREADY_EXISTS` | 409 | A resource with the same unique value, such as `externalId`, already exists. |\n| `IDEMPOTENCY_KEY_IN_USE` | 409 | A request with the same `Idempotency-Key` is still running. Retry after `Retry-After` seconds. |\n| `RATE_LIMITED` | 429 | The per-minute rate limit was reached. Retry after `Retry-After` seconds. |\n| `INTERNAL_ERROR` | 500 | Something went wrong on sajn's side. Quote `requestId` when you contact support. |\n| `UPSTREAM_UNAVAILABLE` | 503 | A service the operation depends on, such as an eID provider or a connected integration, failed or is unavailable. Retry with exponential backoff. |\n\n## Support\n\nFor API support, documentation, or questions:\n- Email: dev@sajn.se\n- Documentation: https://docs.sajn.se\n- Status: https://status.sajn.se",
     "contact": {
       "name": "sajn Support",
       "email": "dev@sajn.se",
@@ -422601,7 +422601,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Personal API key, e.g. `Authorization: Bearer sajn_sk_...`. Not scope-limited — acts as the issuing user."
+        "description": "API key, e.g. `Authorization: Bearer sajn_svc_...`. Not scope-limited: acts with its owner's workspace role."
       },
       "oauth2": {
         "type": "oauth2",
@@ -423082,7 +423082,7 @@
                 },
                 "position": {
                   "type": "number",
-                  "description": "0-based order of the field among the document's content blocks"
+                  "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                 },
                 "fieldMeta": {
                   "anyOf": [
@@ -426691,7 +426691,7 @@
                 },
                 "position": {
                   "type": "number",
-                  "description": "0-based order of the field among the document's content blocks"
+                  "description": "0-based index of the block among the content blocks. Positions are unique and have no gaps."
                 },
                 "fieldMeta": {
                   "anyOf": [
