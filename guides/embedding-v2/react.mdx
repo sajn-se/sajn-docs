@@ -19,7 +19,7 @@ In this guide, you embed the sajn signing page in a React app with the `SigningE
 ## Install the package
 
 ```bash
-npm install @sajn/embed-react@1.0.0-beta.1
+npm install @sajn/embed-react@1.0.0-beta.2
 ```
 
 ## Create a session on your server
@@ -101,6 +101,8 @@ The component renders a `div` that holds the frame. `className` and `style` appl
 | `locale` | `Locale` | The session's locale | The frame's language: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
 | `title` | `string` | `Signera dokument` | The frame's accessible name. |
 | `fallbackHeight` | `string` | `600px` | The frame's height in `fixed` mode when the container has no height of its own. |
+| `bootstrapTimeoutMs` | `number` | `10000` | How long the SDK waits for `fetchClientSecret` and the frame's answer before it raises `bootstrap_timeout`. |
+| `openUrl` | `(url: string) => void` | None | Opens eID pages and the BankID app link yourself. Set it where the frame can't open a window, such as a native app's web view. Without it, the frame opens them on its own. |
 | `className` | `string` | None | A CSS class for the container. |
 | `style` | `CSSProperties` | None | Inline styles for the container. |
 
@@ -129,6 +131,18 @@ For example, to follow a theme toggle in your app:
 ```
 
 Features can't change from the browser. To change them, create a new session.
+
+To ask the frame for a new `EmbedState`, which arrives in `onStateChange`, call `requestState()` on the component's ref:
+
+```tsx
+import type { SigningEmbedHandle } from "@sajn/embed-react";
+
+const embed = useRef<SigningEmbedHandle>(null);
+
+<SigningEmbed ref={embed} fetchClientSecret={fetchClientSecret} onStateChange={setState} />;
+
+embed.current?.requestState();
+```
 
 <Note>
   In development, React Strict Mode mounts the component twice, so your endpoint gets two requests and creates two sessions. The first session expires unused. Production builds mount once.

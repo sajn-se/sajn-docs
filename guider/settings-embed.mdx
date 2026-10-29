@@ -23,7 +23,7 @@ Skriv en domän i fältet *Domäner* och tryck Enter för att lägga till den so
 
 Ange domänen utan protokoll, t.ex. `app.exempel.se` eller `kundportal.exempel.se`.
 
-- **Wildcard.** `*.exempel.se` matchar både `exempel.se` och varje underdomän, hur många nivåer djupt som helst.
+- **Wildcard.** `*.exempel.se` matchar varje underdomän till `exempel.se`, hur många nivåer djupt som helst, men inte `exempel.se`. Bäddar du in på `exempel.se` lägger du till `exempel.se` som en egen domän. Det gäller både v1 och v2.
 - **Bara HTTPS.** En domän i listan släpps bara in över `https://`. En sida som körs över `http://` kan inte bädda in vyn i produktion.
 
 <Warning>

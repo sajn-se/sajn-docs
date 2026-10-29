@@ -4062,11 +4062,6 @@
                         "description": "Let the party delegate signing to someone else.",
                         "type": "boolean"
                       },
-                      "comments": {
-                        "default": false,
-                        "description": "Show the document chat, when the document has it turned on.",
-                        "type": "boolean"
-                      },
                       "download": {
                         "default": true,
                         "description": "Let the party download the document.",
@@ -4144,10 +4139,6 @@
                           "fixed"
                         ]
                       },
-                      "signIntro": {
-                        "description": "Show the heading, the attestation and the instruction above the signature pad. Defaults to true.",
-                        "type": "boolean"
-                      },
                       "header": {
                         "description": "Show the bar with the document name. Defaults to true. Without it, the menu for download, delegation and rejection sits in the top corner.",
                         "type": "boolean"
@@ -4159,17 +4150,6 @@
                       "documentId": {
                         "description": "Show the document ID under the sign button. Defaults to true.",
                         "type": "boolean"
-                      },
-                      "labels": {
-                        "type": "object",
-                        "properties": {
-                          "signButton": {
-                            "description": "Replaces the text on the sign button.",
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64
-                          }
-                        }
                       }
                     }
                   },
@@ -4208,7 +4188,7 @@
                     "maxLength": 255
                   },
                   "bankIdReturnUrl": {
-                    "description": "Where the BankID app sends the party after signing on the same phone. An `https` URL on one of your embed domains, or your native app's URL scheme, such as `myapp://signed`. Leave it out and the BankID app returns the party to the browser they came from.",
+                    "description": "For a native app only: your app's URL scheme, such as `myapp://signed`, where the BankID app sends the party after signing on the same phone. Web URLs are refused, because iOS opens them in a new tab. In a browser, the party switches back to the page from the BankID app.",
                     "type": "string",
                     "maxLength": 2048
                   }

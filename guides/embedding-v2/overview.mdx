@@ -14,7 +14,7 @@ In this guide, you embed the sajn signing page in your application, so a party s
   This page describes SDK 1.0 and embed sessions. If you embed with SDK 0.x and the party's signing token, see [Migrate from embed v1](/guides/embedding-v2/migrate-from-v1).
 </Note>
 
-sajn has the following packages, all at version `1.0.0-beta.1` under the `beta` tag on npm. Pin the exact version: a later beta can break your integration.
+sajn has the following packages, all at version `1.0.0-beta.2` under the `beta` tag on npm. Pin the exact version: a later beta can break your integration.
 
 - `@sajn/embed-js`: a function for any web page. See [JavaScript](/guides/embedding-v2/vanilla-js).
 - `@sajn/embed-react`: a React component for React 18 and later. See [React](/guides/embedding-v2/react).
@@ -48,7 +48,7 @@ After sajn turns on embedding, the organization's developer settings get an **In
 
 The list follows these rules:
 
-- `*.example.com` matches every subdomain of `example.com`, at any depth, but not `example.com` itself. To allow both, add both.
+- `*.example.com` matches every subdomain of `example.com`, at any depth, but not `example.com` itself. To allow both, add both. The same holds for embedding v1, which reads the same list.
 - Only pages served over HTTPS can show the frame. `localhost` can't be added. To test from your computer, expose your local app on a public HTTPS domain, such as through a tunnel, and add that domain.
 - An empty list allows no pages, and the API refuses to create sessions.
 - sajn checks the list on every request, so removing a domain stops live sessions on it at once.
@@ -177,8 +177,12 @@ A session ends at the first of the following:
 
 When a session ends, the frame tells the SDK, and the SDK calls `fetchClientSecret` again for a new session. The party keeps their progress: a new session for a party who signed shows the signed state. If sessions end three times within one minute, the SDK stops and raises `session_expired`.
 
+A session works only while the user who owns its API key can still read the document. If that user leaves the workspace or loses access to the document, the frame raises `not_entitled`.
+
 <Warning>
   Revoking a session doesn't stop the SDK from asking for a new one. To stop an embed for good, make your endpoint refuse the request, or call `destroy()` in the page.
+
+  Revoking a session also doesn't cancel an eID signing that the party already started in a new window. That signature is still recorded. To stop signing, withdraw the document, and confirm each signature with the `document.party.signed` webhook.
 </Warning>
 
 ## Create session request
@@ -197,13 +201,13 @@ When a session ends, the frame tells the SDK, and the SDK calls `fetchClientSecr
 | `signatureInputModes` | `("DRAW" \| "TYPE" \| "UPLOAD")[]` | The workspace setting | How the party can create a drawn signature. This field can only remove modes that the workspace allows, never add one. |
 | `locale` | `string` | The document's language | The frame's language: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
 | `externalId` | `string` | The party's `externalId` | Your own reference, up to 255 characters. Every frame event carries it. |
-| `bankIdReturnUrl` | `string` | None | Where the BankID app sends the party after signing with Swedish BankID on the same phone. Use an `https` URL on one of your embed domains, or your app's URL scheme, such as `myapp://signed`. Without it, the BankID app returns the party to the browser they came from. |
+| `bankIdReturnUrl` | `string` | None | For a native app only: your app's URL scheme, such as `myapp://signed`, where the BankID app sends the party after signing with Swedish BankID on the same phone. An `http` or `https` URL returns `400 VALIDATION_FAILED`. Without it, in a browser, the party switches back to your page from the BankID app. |
 
 The endpoint returns the following errors, in addition to the [common errors](/api-fundamentals/errors):
 
 | Status and code | Cause |
 |-----------------|-------|
-| `400 VALIDATION_FAILED` | The body is invalid, an origin isn't a bare HTTPS origin or doesn't match an embed domain, the organization has no embed domains, the document isn't sent, the party doesn't sign, or a color pair fails the contrast check. |
+| `400 VALIDATION_FAILED` | The body is invalid, an origin isn't a bare HTTPS origin or doesn't match an embed domain, the organization has no embed domains, the document isn't sent, the party doesn't sign, `bankIdReturnUrl` is a web URL, or a color pair fails the contrast check. |
 | `403 PERMISSION_DENIED` | Embedded signing isn't turned on for the organization. |
 | `404 NOT_FOUND` | The document or the party doesn't exist in the workspace. |
 
@@ -215,12 +219,11 @@ sajn enforces features on the server, so the browser can't turn them on. A featu
 |---------|---------|-------------|
 | `rejection` | `false` | The party can reject the document. |
 | `delegation` | `false` | The party can delegate signing to someone else. |
-| `comments` | `false` | The party sees the document chat, when the document has chat turned on. |
 | `download` | `true` | The party can download the document. |
 
 ## Appearance
 
-You can set `appearance` on the session and in the SDK. The SDK's values replace the session's values key by key at the top level, so an SDK `colors` object replaces the session's whole `colors` object. Custom CSS isn't supported.
+You can set `appearance` on the session and in the SDK. The SDK's values replace the session's values key by key, and `colors` merges color by color: an SDK `colors` object with only `primary` keeps the session's other colors. Custom CSS isn't supported.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
@@ -229,15 +232,13 @@ You can set `appearance` on the session and in the SDK. The SDK's values replace
 | `fontFamily` | `"default" \| "system" \| "serif"` | `"default"` | The font. |
 | `colorScheme` | `"light" \| "dark" \| "system"` | `"light"` | The color scheme. `system` follows the party's device. |
 | `mode` | `"fixed" \| "inline"` | `"fixed"` | How the frame sizes itself. See [Size the frame](#size-the-frame). |
-| `signIntro` | `boolean` | `true` | If `false`, hides the heading, the attestation, and the instruction above the signature pad. |
 | `header` | `boolean` | `true` | If `false`, hides the bar with the document name. The menu for download, delegation, and rejection then sits in the frame's top corner. |
 | `scrollIndicator` | `boolean` | `true` | Shows a hint to scroll down, with a ring that fills as the party reads, until the sign section is in view. Only in `fixed` mode. |
 | `documentId` | `boolean` | `true` | Shows the document ID under the sign button. |
-| `labels.signButton` | `string` | `Signera` | Replaces the text on the sign button, up to 64 characters. |
 
 Text must stay readable, so sajn checks two color pairs for a contrast ratio of at least 4.5:1: `foreground` on `background`, and `primaryForeground` on `primary`. If `colorScheme` isn't `dark` and you set only one color of a pair, sajn checks it against its light default for the other color. A session request that fails the check returns `400 VALIDATION_FAILED`. An SDK appearance that fails the check is ignored as a whole, and the frame keeps its current look.
 
-The consent text, the party's identity, the wording of the sign buttons, and the document itself keep their styles under any appearance.
+The heading, the attestation, the instruction, and the sign button's wording are fixed, the same as on the hosted signing page. The consent text, the party's identity, the sign buttons, and the document itself keep their styles under any appearance.
 
 ## Size the frame
 
@@ -253,6 +254,8 @@ A document that requires the party to read it in full always uses `fixed`, becau
 Swedish BankID runs inside the frame, by QR code or on the same device. Click-to-sign and drawn signatures also run in the frame.
 
 The providers of the following eIDs refuse to run inside a frame: MitID, Norwegian BankID, FTN, iDIN, and qualified electronic signatures (QES). For these, the frame opens the provider in a new window when the party clicks the sign button. The frame updates itself when the signature lands, even if the window doesn't report back. If the browser blocks the window, the button turns into a link to the same page.
+
+If the party pays when they sign, the frame takes card payments only, including wallets such as Apple Pay and Google Pay. Payment methods that redirect, such as Klarna, aren't offered in the frame.
 
 If the document has an access check (`openVerification`), the party passes it inside the frame before the document loads, the same as on the hosted page. Your application has usually signed the user in already, so consider leaving `openVerification` set to `null` for embedded documents. A party's own `signVerification` always applies before they sign.
 
@@ -299,12 +302,14 @@ type EmbedState = {
 | `session_expired` | Frame or SDK | From the frame: the session ended, and the SDK fetches a new one. From the SDK: sessions ended three times within one minute, and the SDK stopped. |
 | `session_revoked` | Frame | The session was revoked, or its API key was revoked. The SDK fetches a new session. |
 | `origin_not_allowed` | Frame | The page's origin isn't in the session's `origins` or the organization's embed domains, or the frame URL was opened outside a frame. |
-| `not_entitled` | Frame | Embedded signing is off for the organization, or the party used a feature that the session doesn't grant. |
+| `not_entitled` | Frame | Embedded signing is off for the organization, the party used a feature that the session doesn't grant, or the user who owns the session's API key can no longer read the document. |
 | `document_unavailable` | Frame | The document can't be shown, such as because it was deleted or withdrawn. |
 | `invalid_appearance` | Frame | An `appearance` override from `update()` fails the contrast check together with the session's colors. The frame ignores the override and keeps the session's appearance. |
 | `unsupported_sdk` | Frame | The SDK version is no longer supported. Upgrade the package. |
-| `bootstrap_timeout` | SDK | The frame didn't answer within `bootstrapTimeoutMs`, 10 seconds by default. See [Troubleshooting](#troubleshooting). |
+| `bootstrap_timeout` | SDK | `fetchClientSecret` didn't return, or the frame didn't answer, within `bootstrapTimeoutMs`, 10 seconds by default. See [Troubleshooting](#troubleshooting). |
 | `client_secret_failed` | SDK | `fetchClientSecret` threw an error, or returned something that isn't a client secret. |
+
+The frame retries a request that fails on the network or with a server error, and keeps showing the last state it loaded. If the document never loads, the frame shows a retry button. These failures don't reach `onError`, which gets only the codes in this table.
 
 For `session_not_found`, `session_expired`, and `session_revoked` from the frame, `onError` runs first, then `onSessionExpired`, and then the SDK starts a new session. Don't show a final error for these codes. For `invalid_appearance`, the frame keeps working. For every other code, the frame shows its own message, and your page decides what to do next.
 
@@ -320,6 +325,7 @@ The SDK raises `bootstrap_timeout` when the frame doesn't answer. Usually the br
 - **The page isn't served over HTTPS.** The frame never loads in a page served over `http://`.
 - **The client secret is old.** A secret from a session that ended more than 24 hours ago gets a refused frame. Create a new session on every `fetchClientSecret` call.
 - **The `host` option points at the wrong sajn host.** Leave `host` out to use `https://app.sajn.se`. Sandboxes use the same host.
+- **`fetchClientSecret` doesn't return.** The timeout also runs while your endpoint creates the session. Check that the endpoint responds, and how long it takes.
 - **The network is slow, or something blocks the frame,** such as a browser extension or a corporate proxy. To give a slow network more time, raise `bootstrapTimeoutMs`.
 
 ### Fix other problems
@@ -345,9 +351,25 @@ Your appearance settings take part in this. sajn rejects a text color and backgr
 
 - The party's signing token never reaches the browser. The frame redeems the client secret once and keeps a short-lived credential in memory.
 - Only the pages in the session's `origins` and `ancestorOrigins` can show the frame, and only while they match the organization's embed domains. The page that talks to the frame must be in `origins`.
-- Rotating or deleting the API key that created a session ends the session.
+- Rotating or deleting the API key that created a session ends the session. The session also stops working when the key's user can no longer read the document.
 - The SDK and the frame check the origin of every message, and post only to each other's origin.
 - Features and origins can't change from the browser.
+
+## SDK changes
+
+### 1.0.0-beta.2
+
+This release breaks integrations built on 1.0.0-beta.1:
+
+- `appearance.signIntro` and `appearance.labels.signButton` are removed. The heading, the attestation, the instruction, and the sign button's wording are fixed. The server ignores both keys if you still send them.
+- `features.comments` is removed. The server ignores it if you still send it.
+- `bankIdReturnUrl` accepts only an app's URL scheme, such as `myapp://signed`. An `http` or `https` URL returns `400 VALIDATION_FAILED`.
+
+It also adds the following:
+
+- The SDK and the frame agree on a protocol version when they connect, so a pinned SDK never gets events from a newer protocol.
+- The SDK raises `bootstrap_timeout` when `fetchClientSecret` doesn't return within `bootstrapTimeoutMs`.
+- The React and Vue components take `bootstrapTimeoutMs` and `openUrl`, and expose `requestState()`.
 
 ## Next steps
 
