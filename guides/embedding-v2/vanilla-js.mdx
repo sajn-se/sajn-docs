@@ -20,13 +20,13 @@ In this guide, you embed the sajn signing page in a web page with the `@sajn/emb
 With a package manager:
 
 ```bash
-npm install @sajn/embed-js@1.0.0-beta.1
+npm install @sajn/embed-js@1.0.0-beta.2
 ```
 
 Without a build step, load the UMD bundle from a CDN. It exposes the `sajn` global:
 
 ```html
-<script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.2/dist/index.umd.js"></script>
 ```
 
 <Warning>
@@ -104,7 +104,7 @@ The SDK creates the iframe inside the container right away and calls `fetchClien
 | `locale` | `string` | The session's locale | The frame's language: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
 | `title` | `string` | `Signera dokument` | The frame's accessible name. |
 | `fallbackHeight` | `string` | `600px` | The frame's height in `fixed` mode when the container has no height of its own. |
-| `bootstrapTimeoutMs` | `number` | `10000` | How long the SDK waits for the frame to answer before it raises `bootstrap_timeout`. |
+| `bootstrapTimeoutMs` | `number` | `10000` | How long the SDK waits for `fetchClientSecret` and the frame's answer before it raises `bootstrap_timeout`. |
 | `openUrl` | `(url: string) => void` | None | Opens eID pages and the BankID app link yourself. Set it where the frame can't open a window, such as a native app's web view. Without it, the frame opens them on its own. |
 
 The callbacks are `onReady`, `onSigned`, `onRejected`, `onFieldsSubmitted`, `onVerified`, `onStateChange`, `onResize`, `onSessionExpired`, and `onError`. For when each one runs and its data, see [Events](/guides/embedding-v2/overview#events).
@@ -115,7 +115,7 @@ The callbacks are `onReady`, `onSigned`, `onRejected`, `onFieldsSubmitted`, `onV
 
 | Method | Description |
 |--------|-------------|
-| `update({ appearance, locale })` | Changes the appearance or the language without reloading the frame. The new `appearance` merges into the current one key by key at the top level. |
+| `update({ appearance, locale })` | Changes the appearance or the language without reloading the frame. The new `appearance` merges into the current one key by key, and `colors` merges color by color, so an update that sets one color keeps the others. |
 | `requestState()` | Asks the frame for a new `EmbedState`, which arrives in `onStateChange`. |
 | `destroy()` | Removes the frame and stops listening for messages. The SDK doesn't fetch a new session after this. |
 
@@ -149,7 +149,7 @@ The following page uses the UMD bundle:
   <body>
     <div id="signing"></div>
 
-    <script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js"></script>
+    <script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.2/dist/index.umd.js"></script>
     <script>
       sajn.createSigningEmbed({
         container: document.getElementById("signing"),
@@ -173,7 +173,7 @@ The following page uses the UMD bundle:
 `@sajn/embed-js` defines two elements when it loads: `<sajn-signing-embed>` and `<sajn-viewing-embed>`. Give the element a `client-secret-url`. The element sends a `POST` to that URL and expects `{ "clientSecret": "..." }` back:
 
 ```html
-<script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@sajn/embed-js@1.0.0-beta.2/dist/index.umd.js"></script>
 
 <sajn-signing-embed
   client-secret-url="/api/sajn/embed-session"

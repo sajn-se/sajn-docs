@@ -31,7 +31,6 @@ The following changes:
 - **Your server creates a session.** Instead of reading the token from the party's `signingUrl`, your server calls `POST /api/v1/embed-sessions` and returns the `clientSecret`. The endpoint needs API version `2026-10`.
 - **Options move to the server.** Rejection, signature modes, and the frame's other features are set on the session, and the browser can't change them.
 - **Events use API names.** `signerId` becomes `partyId`, and events carry `externalId` instead of the token.
-- **A wildcard no longer covers the apex.** In v1, `*.example.com` also matched `example.com`. In 1.0 it matches only subdomains. If you embed on `example.com`, add `example.com` to the embed domains.
 - **The read-only viewer is a session.** Create the session with `type: "viewing"` and show it with `ViewingEmbed` or `createViewingEmbed`. The Web Components are `<sajn-signing-embed>` and `<sajn-viewing-embed>`, and they take a `client-secret-url` instead of a token.
 
 ## Migrate your integration
@@ -65,14 +64,14 @@ The following changes:
 
   <Step title="Install SDK 1.0">
     ```bash
-    npm install @sajn/embed-js@1.0.0-beta.1
+    npm install @sajn/embed-js@1.0.0-beta.2
     # or
-    npm install @sajn/embed-react@1.0.0-beta.1
+    npm install @sajn/embed-react@1.0.0-beta.2
     # or
-    npm install @sajn/embed-vue@1.0.0-beta.1
+    npm install @sajn/embed-vue@1.0.0-beta.2
     ```
 
-    From a CDN, load `https://unpkg.com/@sajn/embed-js@1.0.0-beta.1/dist/index.umd.js`.
+    From a CDN, load `https://unpkg.com/@sajn/embed-js@1.0.0-beta.2/dist/index.umd.js`.
   </Step>
 
   <Step title="Replace the component">
@@ -124,7 +123,7 @@ The following changes:
 | `className` | `className` in React, `class` in Vue. In JavaScript, style the container. | Browser |
 | `showScrollIndicator` | `appearance.scrollIndicator` | Session or browser |
 | `showDocumentId` | `appearance.documentId` | Session or browser |
-| `labels.signButton` | `appearance.labels.signButton` | Session or browser |
+| `labels.signButton` | Removed: the sign button's wording is fixed | |
 | `additionalProps` | Removed: every option is typed now | |
 
 ## Events
