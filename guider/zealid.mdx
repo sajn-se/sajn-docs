@@ -1,0 +1,88 @@
+---
+title: "Kvalificerad signatur med ZealiD"
+description: "Skicka ett dokument för kvalificerad elektronisk signatur (QES) och hjälp mottagarna att komma igång med ZealiD-appen"
+---
+
+ZealiD ger en kvalificerad elektronisk signatur (QES), den högsta nivån enligt eIDAS. En QES har samma rättsverkan som en handskriven namnteckning i hela EU. Mottagaren signerar i ZealiD-appen, och signaturen bäddas in i PDF:en med ett kvalificerat certifikat.
+
+Välj ZealiD när avtalet eller mottagaren kräver QES. För de flesta avtal räcker BankID.
+
+## Innan du börjar
+
+- Du har en betalplan. ZealiD ingår inte i planens BankID-signaturer, utan varje signatur kostar 49 kr. Se [priser](https://www.sajn.se/priser).
+- Du arbetar inte i en testmiljö. QES är en riktig signatur som debiteras, så testmiljöer kan inte skicka den.
+- Varje mottagare som ska signera har en mobil med ZealiD-appen, eller kan installera den.
+
+## Förbered arbetsytan
+
+ZealiD är tillåtet i alla arbetsytor från början. Har någon begränsat signaturtyperna öppnar du [Preferenser → Signering](https://app.sajn.se/~/settings/workspace/preferences/signing) och markerar **ZealiD** under **Tillåtna signaturtyper**.
+
+ZealiD går inte att välja som **Standard signaturtyp**. Du väljer det per part på dokumentet.
+
+## Skicka ett dokument för signering med ZealiD
+
+<Steps>
+  <Step title="Välj ZealiD för en part">
+    Öppna dokumentet, gå till panelen **Parter** och öppna parten. Under **Signaturtyp** ligger ZealiD i gruppen **Fler alternativ**.
+  </Step>
+  <Step title="Välj ZealiD för alla parter som signerar">
+    QES gäller hela dokumentet. Varje part med rollen **Signerar** måste ha ZealiD, annars kan du inte skicka dokumentet. Parter som granskar eller får en kopia påverkas inte.
+  </Step>
+  <Step title="Ta bort signatur- och initialrutor">
+    Har du placerat signatur- eller initialrutor på en uppladdad PDF tar du bort dem. Rutorna fylls i först vid förseglingen, vilket skulle ändra sidor som redan är signerade. Varje QES-signatur visas i stället på en signeringsöversikt som sajn lägger till i dokumentet.
+  </Step>
+  <Step title="Skicka dokumentet">
+    Skicka som vanligt. Leveransmetoden fungerar som för andra signaturtyper, så du kan skicka länken med e-post eller SMS. Står något i vägen visar kontrollerna före utskicket vad du behöver ändra.
+  </Step>
+</Steps>
+
+<Note>
+  Har du slagit på **Kräv att personnumret matchar vid signering** jämför sajn personnumret i mottagarens ZealiD-certifikat med personnumret på parten innan signaturen skapas. En QES går inte att ta tillbaka, så kontrollen görs före signeringen och inte efter. Stämmer personnumret inte stoppas signeringen.
+</Note>
+
+## Så kommer mottagaren igång med ZealiD
+
+Mottagaren behöver ett ZealiD-konto. Kontot skapas i appen och kopplar ett kvalificerat certifikat till mottagarens identitet. Det räcker att göra det en gång.
+
+Skicka gärna instruktionerna nedan till mottagaren innan du skickar dokumentet. Kontot går att skapa under själva signeringen, men det går smidigare om det är klart i förväg.
+
+1. Ladda ner ZealiD-appen från App Store eller Google Play.
+2. Skapa ett konto och följ appens instruktioner för att verifiera identiteten. Appen ber om ett pass eller ett nationellt id-kort och en bild eller video av ansiktet.
+3. Välj en PIN-kod för appen. Mottagaren godkänner sina signaturer med den.
+
+Har mottagaren problem med kontot hänvisar du till [ZealiD:s support](https://www.zealid.com). sajn kan inte se eller ändra ZealiD-konton.
+
+## Så signerar mottagaren
+
+1. Mottagaren öppnar länken och läser dokumentet.
+2. Mottagaren klickar på **Signera med ZealiD** och skickas vidare till ZealiD.
+3. Mottagaren loggar in och godkänner i ZealiD-appen. sajn kontrollerar identiteten och förbereder dokumentet.
+4. Mottagaren godkänner själva signaturen i appen en andra gång.
+5. Mottagaren kommer tillbaka till sajn och ser att dokumentet är signerat.
+
+Båda godkännandena måste ske inom 15 minuter. Parterna signerar en i taget, eftersom varje signatur läggs ovanpå den förra. Signerar en annan part just då får mottagaren vänta en stund och försöka igen.
+
+## Om signeringen inte går igenom
+
+Mottagaren ser ett meddelande som förklarar vad som hände:
+
+- **Identifieringen avbröts.** Mottagaren avbröt i appen. Mottagaren kan försöka igen.
+- **Tiden gick ut.** Mottagaren godkände inte inom 15 minuter. Mottagaren kan försöka igen.
+- **En annan part signerar dokumentet just nu.** Mottagaren väntar en stund och försöker igen.
+- **Dokumentet har uppdaterats sedan du började.** Mottagaren laddar om sidan och försöker igen.
+- **Legitimeringen tillhör inte den part som dokumentet skickades till.** Personnumret i ZealiD-certifikatet matchar inte parten. Ingen signatur skapades. Rätta personnumret på parten om det är fel, eller be rätt person signera.
+
+## Kontrollera signaturerna
+
+Varje QES finns i PDF:ens signaturpanel. Öppna det signerade dokumentet i till exempel Adobe Acrobat för att se signeringstid och identitet för varje part. Signeringsöversikten i dokumentet listar parterna, och signeringsbeviset innehåller alla uppgifter.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Signaturtyp, leverans och verifiering" icon="signature" href="/guider/signing-methods">
+    Jämför ZealiD med de andra signaturtyperna.
+  </Card>
+  <Card title="Juridisk giltighet" icon="scale-balanced" href="/guider/juridisk-giltighet">
+    Hur signerade dokument förhåller sig till eIDAS.
+  </Card>
+</CardGroup>
