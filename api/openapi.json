@@ -121521,7 +121521,7 @@
     },
     "/api/v1/bundles/{id}/documents": {
       "post": {
-        "description": "Adds draft documents to the bundle, up to 50 in total. A document's parties join the bundle's parties: a party whose email address the bundle already has is matched to it, and a new address becomes a new bundle party. A document without parties gets every bundle party. The bundle's settings are written onto the added documents.\n\nWorks only while the bundle is a `DRAFT`. On a sent bundle it returns `409 INVALID_STATE`; withdraw it first with `POST /api/v1/bundles/{id}/withdraw`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+        "description": "Adds draft documents to the bundle, up to 50 in total. A document's parties join the bundle's parties: a party whose email address the bundle already has is matched to it, and a new address becomes a new bundle party. A document without parties gets every bundle party. The bundle's settings are written onto the added documents. A document is refused with 409 when one email address has a different signing method, verification, role or personal number than in the bundle, or when its signing mode or party order differs from the bundle's.\n\nWorks only while the bundle is a `DRAFT`. On a sent bundle it returns `409 INVALID_STATE`; withdraw it first with `POST /api/v1/bundles/{id}/withdraw`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
         "summary": "Add documents to a bundle",
         "parameters": [
           {
