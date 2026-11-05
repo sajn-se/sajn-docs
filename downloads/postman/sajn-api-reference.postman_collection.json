@@ -920,6 +920,12 @@
                   "disabled": true
                 },
                 {
+                  "key": "bundleId",
+                  "value": "",
+                  "description": "Returns only the documents in this bundle. `folderId` is ignored with it.",
+                  "disabled": true
+                },
+                {
                   "key": "externalId",
                   "value": "",
                   "description": "Returns only the document whose `externalId` equals this value exactly. For partial matches, use `query`.",
@@ -1027,7 +1033,7 @@
                 "documents"
               ]
             },
-            "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. The template's fields and parties are copied. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on the PDF for the template's parties are removed.\n\n**CRM Link:** Use `integrationLink` to link the document to a CRM record (currently HubSpot deals). When the workspace has a field mapping configured for the integration, mapped custom fields and product-table rows are prefilled from the record, and signing status is written back to it. Explicit `customFields` in the request take precedence over prefilled values.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"delivery\": [\"EMAIL\"],\n      \"signatureMethod\": \"SE_BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"delivery\": [\"SMS\"],\n      \"signatureMethod\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `delivery` - How the party gets the invitation: `[\"EMAIL\"]` (default), `[\"SMS\"]`, `[\"IN_APP\"]` to sign in person on your device, or `[]` to send nothing and share the signing URL yourself\n- `signatureMethod` - How the party signs: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market, so call `GET /api/v1/helpers/signature-methods` for the set your account can use\n- `signVerification` - Verification the party passes before signing: `PIN`, `SMS`, `EMAIL`, or an eID such as `SE_BANKID`. null (default) means none. Call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create template** (manually in dashboard) with FORM fields containing keys (e.g., \"name\", \"phone\", \"email\")\n2. **Create document from template** (this endpoint) - include parties with their `delivery` and `signatureMethod` settings\n3. **Fill in values** by key, all in one request: `PATCH /api/v1/documents/{docId}/field-values`. To list the keys, call `GET /api/v1/documents/{docId}/field-values`.\n4. **Add more parties** if needed: `POST /api/v1/documents/{docId}/parties`\n5. **Send for signing**: `POST /api/v1/documents/{docId}/send`\n\nEach party has its own `delivery` and `signatureMethod`.\n\n**Example workflow:**\n```json\n# Step 1: Create document from template with parties\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"contactId\": \"contact-456\",\n      \"role\": \"SIGNER\",\n      \"delivery\": [\"EMAIL\"],\n      \"signatureMethod\": \"SE_BANKID\"\n    }\n  ]\n}\n\n# Step 2: Fill in values by key\nPATCH /api/v1/documents/{docId}/field-values\n{\n  \"values\": [\n    {\"key\": \"name\", \"value\": \"Alex Andersson\"},\n    {\"key\": \"phone\", \"value\": \"+46700000000\"}\n  ]\n}\n\n# Step 3: Send for signing\nPOST /api/v1/documents/{docId}/send\n{}\n```\n\n**Response:** Returns the created document in the same shape as `GET /api/v1/documents/{id}`, without `fields`. To get a party's signing URL, call `GET /api/v1/documents/{id}/parties/{partyId}`.",
+            "description": "Create a new document in DRAFT status. You can optionally include parties, metadata, and responsible user during creation.\n\n**Document Types:**\n- `SIGNABLE` (default) - Standard signing document\n- `ACCEPTABLE` - Document that requires acceptance rather than signature\n- `ARCHIVE_IMPORTED` - Imported from external archive\n\n**Template Support:** Use `templateId` to create a document from a template. The template's fields and parties are copied. If you also send `parties`, they replace the template's parties, and signature and initials boxes placed on the PDF for the template's parties are removed.\n\n**CRM Link:** Use `integrationLink` to link the document to a CRM record (currently HubSpot deals). When the workspace has a field mapping configured for the integration, mapped custom fields and product-table rows are prefilled from the record, and signing status is written back to it. Explicit `customFields` in the request take precedence over prefilled values.\n\n**Responsible User:** Use `responsibleUserId` to assign a specific team member as responsible for the document. Defaults to the creating user if not specified.\n\n**Adding Parties:** Two approaches are supported:\n1. **Contact-based** (recommended): Provide `contactId` to reference existing contacts - automatically inherits all contact details\n2. **Manual**: Provide `name` and `email` to manually specify party details\n\n**Party Examples:**\n```json\n{\n  \"parties\": [\n    {\n      \"contactId\": \"contact-123\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 1,\n      \"delivery\": [\"EMAIL\"],\n      \"signatureMethod\": \"SE_BANKID\"\n    },\n    {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"SIGNER\",\n      \"signingOrder\": 2,\n      \"delivery\": [\"SMS\"],\n      \"signatureMethod\": \"DRAWING\"\n    }\n  ]\n}\n```\n\n**Per-Party Settings:**\n- `delivery` - How the party gets the invitation: `[\"EMAIL\"]` (default), `[\"SMS\"]`, `[\"IN_APP\"]` to sign in person on your device, or `[]` to send nothing and share the signing URL yourself\n- `signatureMethod` - How the party signs: `DRAWING`, `SE_BANKID` (Swedish BankID), `CLICK_TO_SIGN`, `MANUAL`, or a national eID scheme. eID schemes are switched on market by market, so call `GET /api/v1/helpers/signature-methods` for the set your account can use\n- `signVerification` - Verification the party passes before signing: `PIN`, `SMS`, `EMAIL`, or an eID such as `SE_BANKID`. null (default) means none. Call `GET /api/v1/helpers/two-step-verifications` for the live list\n\n**Complete Workflow with Templates:**\n\n1. **Create a template** in the dashboard, and give each value you fill in a key, such as \"name\" or \"phone\".\n2. **Create, fill in, and send in one request** (this endpoint): send `templateId`, the `parties`, the values in `fieldValues`, and `send: true`. If the template has signature boxes placed for its parties, fill those parties in with `templatePartyId` so the boxes stay. To list a template's keys, create a draft and call `GET /api/v1/documents/{docId}/field-values`.\n3. **Show the document in your app**, if you embed signing: create an embed session with `POST /api/v1/embed-sessions` for the party's ID. Find the party in the response by the `ref` you gave it.\n\nEach party has its own `delivery` and `signatureMethod`. A party with `delivery: []` gets no invitation.\n\n**Example:**\n```json\nPOST /api/v1/documents\n{\n  \"name\": \"Employment Contract\",\n  \"templateId\": \"template-id-with-form-fields\",\n  \"parties\": [\n    {\n      \"templatePartyId\": \"template-party-id\",\n      \"ref\": \"employee\",\n      \"name\": \"Alex Andersson\",\n      \"email\": \"alex@example.com\",\n      \"role\": \"SIGNER\",\n      \"delivery\": [],\n      \"signatureMethod\": \"SE_BANKID\"\n    }\n  ],\n  \"fieldValues\": [\n    {\"key\": \"name\", \"value\": \"Alex Andersson\"},\n    {\"key\": \"phone\", \"value\": \"+46700000000\"}\n  ],\n  \"send\": true\n}\n```\n\nTo fill in values or add parties after creation, use `PATCH /api/v1/documents/{docId}/field-values` and `POST /api/v1/documents/{docId}/parties`, then send with `POST /api/v1/documents/{docId}/send`.\n\n**Response:** Returns the created document in the same shape as `GET /api/v1/documents/{id}`, without `fields`. Each party carries the `ref` you gave it. To get a party's signing URL, call `GET /api/v1/documents/{id}/parties/{partyId}`.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Anst\u00e4llningsavtal \u2013 Kai Lindqvist\",\n  \"type\": \"SIGNABLE\",\n  \"expiresAt\": \"2027-03-31T22:00:00.000Z\",\n  \"documentMeta\": {\n    \"subject\": \"Ditt anst\u00e4llningsavtal fr\u00e5n Exempelbolaget AB\",\n    \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal.\",\n    \"signingMode\": \"PARALLEL\",\n    \"language\": \"sv\"\n  },\n  \"parties\": [\n    {\n      \"name\": \"Maja Holm\",\n      \"email\": \"maja.holm@example.com\",\n      \"role\": \"SIGNER\",\n      \"company\": {\n        \"name\": \"Exempelbolaget AB\",\n        \"orgNumber\": \"5561234567\",\n        \"role\": \"HR-chef\"\n      },\n      \"country\": \"SE\",\n      \"delivery\": [\n        \"EMAIL\"\n      ],\n      \"signatureMethod\": \"DRAWING\"\n    }\n  ]\n}",
@@ -1276,6 +1282,51 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"reason\": \"Fel startdatum i avtalet.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete a document before every party has signed",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/documents/{{documentId}}/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "documents",
+                "{{documentId}}",
+                "complete"
+              ]
+            },
+            "description": "Complete a sent document now and seal it with the signatures it has. Use it when a party will never sign and the signatures already collected are enough. It can't be undone.\n\n**Status Requirements:**\n- Document must be in `PENDING` or `EXPIRED` status, and at least one party must have signed. Otherwise it returns `409 INVALID_STATE`.\n\n**Permissions:**\n- Requires the `FORCE_COMPLETE_DOCUMENT` workspace permission.\n\n**Request Body:**\n- `reason` (optional) - Free-text reason, stored on the audit log.\n\n**What happens when you complete:**\n1. Pending reminders are cancelled\n2. The document is sealed in the background with the signatures it has\n3. Each party that didn't sign is emailed that the document was completed without them\n4. The `document.completed` webhook is triggered once the document is sealed\n\n**Response:** Returns the document in the same shape as `GET /api/v1/documents/{id}`, without `fields`. Sealing runs in the background, so the status is still `PENDING` or `EXPIRED` until `document.completed` arrives.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Motparten har l\u00e4mnat bolaget.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1931,6 +1982,85 @@
       ]
     },
     {
+      "name": "Embed sessions",
+      "item": [
+        {
+          "name": "Create an embed session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/embed-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "embed-sessions"
+              ]
+            },
+            "description": "Start an embedded signing session for one party of a sent document, to show in your own page with the sajn embed SDK.\n\n**Flow:**\n1. `POST` here **from your server** when the party opens your page.\n2. Return `clientSecret` to your page and hand it to the SDK, in `fetchClientSecret`.\n3. The SDK frames `/embed/v2/{id}` and the frame redeems the secret. The party signs in the frame.\n4. Confirm the outcome with the `document.party.signed` webhook. Events in the browser are hints, not proof.\n\nThe session decides what the frame may do: `features`, `appearance` and `origins` can't be changed from the browser. A session lasts at most 24 hours, and ends after an hour without activity. When it ends, the SDK calls `fetchClientSecret` again, so keep that endpoint cheap.\n\nEmbedded signing is turned on per organization by sajn. Each origin must match one of the organization's embed domains. Create sessions with an API key: an OAuth app can't, because a session ends when the key that created it is rotated or deleted.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"signing\",\n  \"documentId\": \"{{documentId}}\",\n  \"partyId\": \"{{partyId}}\",\n  \"origins\": [\n    \"https://app.example.com\"\n  ],\n  \"features\": {\n    \"rejection\": true,\n    \"download\": true\n  },\n  \"appearance\": {\n    \"colors\": {\n      \"primary\": \"#0f766e\",\n      \"primaryForeground\": \"#ffffff\"\n    },\n    \"radius\": 8,\n    \"mode\": \"inline\"\n  },\n  \"locale\": \"sv\",\n  \"externalId\": \"EMP-0142\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Revoke an embed session",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/embed-sessions/{{embedSessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "embed-sessions",
+                "{{embedSessionId}}"
+              ]
+            },
+            "description": "End an embed session at once. A frame that shows it stops working on its next request. Revoking an API key also revokes every session it created."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Document content",
       "item": [
         {
@@ -2000,7 +2130,7 @@
                 "content"
               ]
             },
-            "description": "Adds content blocks to a document. Send the blocks in `content`, even when you create one.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** Determines the order fields appear in the document (0-based index).\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has a unique `id`, a `page` counted from 1, a `rect` (`x`, `y`, `width`, `height`), and a `kind`. By default, `rect` is in fractions of the page from 0 to 1, measured from its top-left corner, so `{ \"x\": 0.1, \"y\": 0.8, \"width\": 0.3, \"height\": 0.05 }` is a box near the bottom left. To send PDF points from the bottom-left corner instead, set `unit` to `POINTS` and `origin` to `BOTTOM_LEFT`. The server fills `pageWidth`, `pageHeight`, and `pageRotation` from the PDF page when you omit them, and responses always return relative values from the top-left corner. The box kinds are the following:\n- `INPUT` with `inputType` `SIGNATURE` or `INITIALS` and a `partyId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `INPUT` with `inputType` `TEXT`, `DATE`, `CHECKBOX` or `SELECT` and a `partyId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `STATIC` with `content` (HTML): fixed text stamped at that position.\n\nSet `key` on an `INPUT` box to fill it in by that key through `PATCH /api/v1/documents/{id}/field-values`. A key can contain lowercase letters, digits, hyphens, and underscores.\n\nThe following example creates a PDF field with a signature box:\n\n```json\n{\n  \"content\": [\n    {\n      \"type\": \"PDF\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"PDF\",\n        \"value\": \"f/org_123/abc123def/contract.pdf\",\n        \"placedFields\": [\n          {\n            \"id\": \"sig-1\",\n            \"kind\": \"INPUT\",\n            \"inputType\": \"SIGNATURE\",\n            \"page\": 2,\n            \"rect\": { \"x\": 0.12, \"y\": 0.83, \"width\": 0.34, \"height\": 0.06 },\n            \"partyId\": \"PARTY_ID\",\n            \"required\": true\n          }\n        ]\n      }\n    }\n  ]\n}\n```\n\nThe request fails with an HTTP `400 Bad Request` status code, and writes nothing, when a box has a `page` the PDF doesn't have, doesn't fit on its page, names a `partyId` that isn't a party on the document, or is a `SIGNATURE` or `INITIALS` box without a party with the `SIGNER` role. The `issues` array in the response lists every problem with its path, such as `content.0.fieldMeta.placedFields.2.rect`.\n\nThe response lists the created fields in request order, each in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`. To add, move, or remove single boxes later, use `PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields`.\n\n**Product tables:** a `PRODUCT_TABLE` field's `price` values are decimal amounts in the table's `currency`, such as `1499.5`, not minor units. `vat` is a rate in percent, such as `25`.\n\n**Fields a party fills in:** In `TEXT` or `HTML` content, place a field with a `<sajn-field>` tag, such as `<sajn-field key=\"buyer-phone\" party=\"PARTY_ID\" type=\"TEXT\" label=\"Phone\"></sajn-field>`. `key` names the field, and `party` is the party who fills it in. `type` is `TEXT` (default), `DATE`, or `SELECT` with its choices in `options`, separated by commas. A field is required unless you set `required=\"false\"`, and `value` prefills it. Responses return the same tag.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
+            "description": "Adds content blocks to a document. Send the blocks in `content`, even when you create one.\n\n**Field Types:**\n- `TEXT` - Rich text content section (Tiptap editor format)\n- `HTML` - Raw HTML content with custom styling (API-only, sanitized for security)\n- `FORM` - Form with input fields for signers\n- `PDF` - PDF file section\n- `PRODUCT_TABLE` - Product/service table with pricing\n- `TABLE` - Simple table with custom rows and columns\n- `SPACER`, `PAGE_BREAK`, `DURATION` - Layout and duration blocks\n\n**Field Position:** The 0-based index of the field among the content blocks. A field sent to a taken index goes there, and the fields from that index on move down by one. A position past the end puts the field last.\n\n**Field Metadata:** Each field type has specific metadata requirements. See schema documentation for details.\n\n**Placing fields on a PDF:** a `PDF` field renders an uploaded PDF (`fieldMeta.value` is the storage `key` returned by the files endpoint). Add boxes on its pages with `fieldMeta.placedFields`. Each entry has a unique `id`, a `page` counted from 1, a `rect` (`x`, `y`, `width`, `height`), and a `kind`. By default, `rect` is in fractions of the page from 0 to 1, measured from its top-left corner, so `{ \"x\": 0.1, \"y\": 0.8, \"width\": 0.3, \"height\": 0.05 }` is a box near the bottom left. To send PDF points from the bottom-left corner instead, set `unit` to `POINTS` and `origin` to `BOTTOM_LEFT`. The server fills `pageWidth`, `pageHeight`, and `pageRotation` from the PDF page when you omit them, and responses always return relative values from the top-left corner. The box kinds are the following:\n- `INPUT` with `inputType` `SIGNATURE` or `INITIALS` and a `partyId`: a mark the party draws at signing, sealed into the PDF at that position.\n- `INPUT` with `inputType` `TEXT`, `DATE`, `CHECKBOX` or `SELECT` and a `partyId`: a value the party fills in before signing. Set `required` to block signing until it is filled.\n- `STATIC` with `content` (HTML): fixed text stamped at that position.\n\nSet `key` on an `INPUT` box to fill it in by that key through `PATCH /api/v1/documents/{id}/field-values`. A key can contain lowercase letters, digits, hyphens, and underscores.\n\nThe following example creates a PDF field with a signature box:\n\n```json\n{\n  \"content\": [\n    {\n      \"type\": \"PDF\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"PDF\",\n        \"value\": \"f/org_123/abc123def/contract.pdf\",\n        \"placedFields\": [\n          {\n            \"id\": \"sig-1\",\n            \"kind\": \"INPUT\",\n            \"inputType\": \"SIGNATURE\",\n            \"page\": 2,\n            \"rect\": { \"x\": 0.12, \"y\": 0.83, \"width\": 0.34, \"height\": 0.06 },\n            \"partyId\": \"PARTY_ID\",\n            \"required\": true\n          }\n        ]\n      }\n    }\n  ]\n}\n```\n\nThe request fails with an HTTP `400 Bad Request` status code, and writes nothing, when a box has a `page` the PDF doesn't have, doesn't fit on its page, names a `partyId` that isn't a party on the document, or is a `SIGNATURE` or `INITIALS` box without a party with the `SIGNER` role. The `issues` array in the response lists every problem with its path, such as `content.0.fieldMeta.placedFields.2.rect`.\n\nThe response lists the created fields in request order, each in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`. To add, move, or remove single boxes later, use `PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields`.\n\n**Product tables:** a `PRODUCT_TABLE` field's `price` values are decimal amounts in the table's `currency`, such as `1499.5`, not minor units. `vat` is a rate in percent, such as `25`.\n\n**Fields a party fills in:** In `TEXT` or `HTML` content, place a field with a `<sajn-field>` tag, such as `<sajn-field key=\"buyer-phone\" party=\"PARTY_ID\" type=\"TEXT\" label=\"Phone\"></sajn-field>`. `key` names the field, and `party` is the party who fills it in. `type` is `TEXT` (default), `DATE`, or `SELECT` with its choices in `options`, separated by commas. A field is required unless you set `required=\"false\"`, and `value` prefills it. To fill a `TEXT` field from the party's eID verification, set `identity` to `NAME` or `SSN`; the party must open the document through an eID ACCESS gate that returns that value, and they can't change it. Responses return the same tag.\n\n**HTML Field Security:** HTML fields accept raw HTML but are automatically sanitized server-side to allow only safe formatting tags (p, div, span, headings, lists, tables, images) and basic CSS styling. Links, script tags, and dangerous attributes are stripped. Images support HTTP/HTTPS URLs and data URIs for inline images.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"content\": [\n    {\n      \"type\": \"TEXT\",\n      \"position\": 0,\n      \"fieldMeta\": {\n        \"type\": \"TEXT\",\n        \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n        \"locked\": false,\n        \"sectionStyle\": {\n          \"background\": \"NONE\",\n          \"padding\": \"NONE\",\n          \"bleed\": false,\n          \"border\": false\n        },\n        \"hidden\": false\n      }\n    }\n  ]\n}",
@@ -2074,7 +2204,7 @@
                 "{{contentId}}"
               ]
             },
-            "description": "Updates a document field by its ID. Only DRAFT documents can be changed. To fill in a value, such as a FORM subfield, use `PATCH /api/v1/documents/{id}/field-values` instead. To find the field that holds a key, call `GET /api/v1/documents/{id}/content?key=KEY`.\n\n**Updatable properties:**\n- `type` - Field type\n- `position` - Field order\n- `fieldMeta` - The full metadata for the field type, which replaces the stored metadata\n\nThe following example updates an HTML field:\n\n```json\nPATCH /api/v1/documents/{docId}/content/{contentId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1>Contract title</h1><p>Custom styled content</p></div>\"\n  }\n}\n```\n\nThe response is the updated field, in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`.",
+            "description": "Updates a document field by its ID. Only DRAFT documents can be changed. To fill in a value, such as a FORM subfield, use `PATCH /api/v1/documents/{id}/field-values` instead. To find the field that holds a key, call `GET /api/v1/documents/{id}/content?key=KEY`.\n\n**Updatable properties:**\n- `type` - Field type\n- `position` - The 0-based index to move the field to\n- `fieldMeta` - The full metadata for the field type, which replaces the stored metadata\n\nThe following example updates an HTML field:\n\n```json\nPATCH /api/v1/documents/{docId}/content/{contentId}\n{\n  \"type\": \"HTML\",\n  \"fieldMeta\": {\n    \"type\": \"HTML\",\n    \"content\": \"<div style='text-align: center'><h1>Contract title</h1><p>Custom styled content</p></div>\"\n  }\n}\n```\n\nThe response is the updated field, in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"type\": \"TEXT\",\n  \"position\": 0,\n  \"fieldMeta\": {\n    \"type\": \"TEXT\",\n    \"content\": \"<p>Anst\u00e4llningen g\u00e4ller tills vidare fr\u00e5n och med den 1 november 2026, med sex m\u00e5naders provanst\u00e4llning.</p>\",\n    \"locked\": false,\n    \"sectionStyle\": {\n      \"background\": \"NONE\",\n      \"padding\": \"NONE\",\n      \"bleed\": false,\n      \"border\": false\n    },\n    \"hidden\": false\n  }\n}",
@@ -2124,7 +2254,7 @@
             "description": "Changes individual boxes on a PDF field without sending the whole field. Only DRAFT documents can be changed.\n\nEach box in `upsert` has the same shape as an entry in `fieldMeta.placedFields` on `POST /api/v1/documents/{id}/content`, and is checked the same way. The response is the updated field, in the same shape as `GET /api/v1/documents/{id}/content/{contentId}`. A box whose `id` already exists on the field replaces that box and keeps its stacking order. A box with a new `id` is added on top. `remove` lists the ids of boxes to delete. Boxes you don't mention stay as they are.\n\nThe change is atomic: if any box is invalid, nothing is written and the response lists every problem in `issues`. If another edit changes the field while the request runs, the request fails with an HTTP `409 Conflict` status code and code `INVALID_STATE`; send it again.\n\n**Example - move one box and remove another:**\n```json\nPATCH /api/v1/documents/{docId}/content/{contentId}/placed-fields\n{\n  \"upsert\": [\n    {\n      \"id\": \"sig-1\",\n      \"kind\": \"INPUT\",\n      \"inputType\": \"SIGNATURE\",\n      \"page\": 2,\n      \"rect\": { \"x\": 0.12, \"y\": 0.8, \"width\": 0.34, \"height\": 0.06 },\n      \"partyId\": \"PARTY_ID\"\n    }\n  ],\n  \"remove\": [\"initials-3\"]\n}\n```",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"upsert\": [\n    {\n      \"id\": \"cm4k2x9p10009abcd1234efgh\",\n      \"page\": 1,\n      \"rect\": {\n        \"x\": 0.12,\n        \"y\": 0.76,\n        \"width\": 0.3,\n        \"height\": 0.06\n      },\n      \"pageWidth\": 595.28,\n      \"pageHeight\": 841.89,\n      \"pageRotation\": 0,\n      \"name\": \"Anst\u00e4llningsvillkor\",\n      \"key\": \"startdatum\",\n      \"locked\": false,\n      \"style\": {\n        \"fontSize\": 6,\n        \"color\": \"#2563EB\",\n        \"bold\": false,\n        \"italic\": false,\n        \"align\": \"LEFT\"\n      },\n      \"kind\": \"INPUT\",\n      \"inputType\": \"TEXT\",\n      \"label\": \"Startdatum\",\n      \"fillSource\": \"SIGNER\",\n      \"partyId\": \"cm4k2x9p10004abcd1234efgh\",\n      \"variableId\": \"startdatum\",\n      \"required\": true,\n      \"options\": [\n        \"Heltid\"\n      ],\n      \"multiline\": false,\n      \"unit\": \"RELATIVE\",\n      \"origin\": \"TOP_LEFT\"\n    }\n  ],\n  \"remove\": [\n    \"Anst\u00e4llningsvillkor\"\n  ]\n}",
+              "raw": "{\n  \"upsert\": [\n    {\n      \"id\": \"cm4k2x9p10009abcd1234efgh\",\n      \"page\": 1,\n      \"rect\": {\n        \"x\": 0.12,\n        \"y\": 0.76,\n        \"width\": 0.3,\n        \"height\": 0.06\n      },\n      \"pageWidth\": 595.28,\n      \"pageHeight\": 841.89,\n      \"pageRotation\": 0,\n      \"name\": \"Anst\u00e4llningsvillkor\",\n      \"key\": \"startdatum\",\n      \"locked\": false,\n      \"style\": {\n        \"fontSize\": 6,\n        \"color\": \"#2563EB\",\n        \"bold\": false,\n        \"italic\": false,\n        \"align\": \"LEFT\"\n      },\n      \"kind\": \"INPUT\",\n      \"inputType\": \"TEXT\",\n      \"label\": \"Startdatum\",\n      \"fillSource\": \"SIGNER\",\n      \"partyId\": \"cm4k2x9p10004abcd1234efgh\",\n      \"variableId\": \"startdatum\",\n      \"identity\": \"name\",\n      \"drawn\": false,\n      \"required\": true,\n      \"options\": [\n        \"Heltid\"\n      ],\n      \"multiline\": false,\n      \"format\": \"email\",\n      \"min\": 1,\n      \"max\": 1,\n      \"decimals\": 1,\n      \"step\": 1,\n      \"unit\": \"RELATIVE\",\n      \"origin\": \"TOP_LEFT\"\n    }\n  ],\n  \"remove\": [\n    \"Anst\u00e4llningsvillkor\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2361,10 +2491,10 @@
                 "comments"
               ]
             },
-            "description": "Start a new comment thread on a document with an initial message. Mention users by passing their user IDs in `mentions`.",
+            "description": "Start a new comment thread on a document with an initial message. Mention users by passing their user IDs in `mentions`.\n\nTo place the thread on a passage, send the passage as `excerpt` and the block it's in as `contentId`. If the excerpt appears more than once in the block, `prefix` and `suffix` pick the occurrence. To import comments from another tool without duplicates, send each with its own `externalId`. A request with an `externalId` the document already has returns that thread and creates nothing.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"body\": \"Kan vi \u00e4ndra startdatum till den 1 december?\",\n  \"excerpt\": \"Anst\u00e4llningen b\u00f6rjar den 1 november 2026\",\n  \"mentions\": [\n    \"cm4k2x9p10002abcd1234efgh\"\n  ],\n  \"visibility\": \"INTERNAL\"\n}",
+              "raw": "{\n  \"body\": \"Kan vi \u00e4ndra startdatum till den 1 december?\",\n  \"excerpt\": \"Anst\u00e4llningen b\u00f6rjar den 1 november 2026\",\n  \"mentions\": [\n    \"cm4k2x9p10002abcd1234efgh\"\n  ],\n  \"visibility\": \"INTERNAL\",\n  \"contentId\": \"cm4k2x9p10018abcd1234efgh\",\n  \"prefix\": \"Anst\u00e4llningsavtal \u2013 Kai Lindqvist\",\n  \"suffix\": \"Anst\u00e4llningsavtal \u2013 Kai Lindqvist\",\n  \"externalId\": \"HR-2026-0142\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2986,6 +3116,514 @@
               ]
             },
             "description": "Cancels a `PENDING` request. Only the user who submitted it can cancel it. sajn deletes the request, so the response is the last state of the request with `status` set to `CANCELLED`, and `GET /api/v1/approval-requests/{id}` returns `404` afterwards. The `approval_request.cancelled` event carries the same last state, so it's the only record of the request. The document returns to `DRAFT`.\n\n**Permission required:** `SEND_DOCUMENT` on the workspace.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bundles",
+      "item": [
+        {
+          "name": "List bundles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "25",
+                  "description": "Maximum number of items to return, from 1 to 100. Default: 25.",
+                  "disabled": true
+                },
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "description": "The `nextCursor` from the previous response, to get the next page. Keep the other parameters unchanged.",
+                  "disabled": true
+                },
+                {
+                  "key": "include",
+                  "value": "total",
+                  "description": "`total` adds the number of items that match the filters. Counting takes time, so ask for it only when you need it.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lists the workspace's bundles in every status, newest first. A bundle is listed only if you can read every document in it.\n\nTo list the documents of one bundle with their full details, call `GET /api/v1/documents?bundleId={id}`."
+          },
+          "response": []
+        },
+        {
+          "name": "Create a bundle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles"
+              ]
+            },
+            "description": "Creates a draft bundle. A bundle sends several documents as one invitation, so each party signs all of their documents with one signature. Every document keeps its own signature, seal, audit trail, and certificate.\n\nThe bundle owns who signs and how the send behaves: its parties and its send settings, which it writes onto every document in it. Each document keeps its content, fields, and document-level settings.\n\nPass `documentIds` to add existing drafts. Their parties become the bundle's parties, one per email address. A person who signs with different methods, verifications, or roles on different documents, or documents with different signing modes, return `409 INVALID_STATE`. A document without parties gets every bundle party.\n\nPass `parties` to set the parties yourself. They replace the parties the documents brought, and a party whose email address one of the documents already had keeps that document's fields.\n\nSend the bundle with `POST /api/v1/bundles/{id}/send` once it holds 2 or more documents.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Anst\u00e4llningspaket \u2013 Kai Lindqvist\",\n  \"expiresAt\": \"2026-10-28T22:00:00.000Z\",\n  \"documentIds\": [\n    \"cm4k2x9p10003abcd1234efgh\",\n    \"cm4k2x9p10022abcd1234efgh\"\n  ],\n  \"parties\": [\n    {\n      \"name\": \"Kai Lindqvist\",\n      \"email\": \"kai@example.com\",\n      \"signatureMethod\": \"SE_BANKID\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get a bundle",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}"
+              ]
+            },
+            "description": "Gets a bundle in any status, with its settings, its parties and the documents each one is on, and the signing status of every party on every document. Returns `404 NOT_FOUND` if you can't read every document in it.\n\nSigning URLs aren't included. To get a party's signing URL, call `GET /api/v1/bundles/{id}/parties/{partyId}`."
+          },
+          "response": []
+        },
+        {
+          "name": "Update a bundle's settings",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}"
+              ]
+            },
+            "description": "Updates the bundle's send settings and writes them onto every document in it. A setting you leave out keeps its value.\n\nWorks only while the bundle is a `DRAFT`. On a sent bundle it returns `409 INVALID_STATE`; withdraw it first with `POST /api/v1/bundles/{id}/withdraw`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal och sekretessavtalet. Signera b\u00e5da med BankID.\",\n  \"reminderIntervalDays\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add documents to a bundle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "documents"
+              ]
+            },
+            "description": "Adds draft documents to the bundle, up to 50 in total. A document's parties join the bundle's parties: a party whose email address the bundle already has is matched to it, and a new address becomes a new bundle party. A document without parties gets every bundle party. The bundle's settings are written onto the added documents. A document is refused with 409 when one email address has a different signing method, verification, role or personal number than in the bundle, or when its signing mode or party order differs from the bundle's.\n\nWorks only while the bundle is a `DRAFT`. On a sent bundle it returns `409 INVALID_STATE`; withdraw it first with `POST /api/v1/bundles/{id}/withdraw`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentIds\": [\n    \"cm4k2x9p10022abcd1234efgh\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove a document from a bundle",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/documents/{{documentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "documents",
+                "{{documentId}}"
+              ]
+            },
+            "description": "Removes a document from the bundle. It stays a `DRAFT` with the parties and settings it has.\n\nWorks only while the bundle is a `DRAFT`. On a sent bundle it returns `409 INVALID_STATE`; withdraw it first with `POST /api/v1/bundles/{id}/withdraw`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set a bundle's parties",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/parties",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "parties"
+              ]
+            },
+            "description": "Replaces the bundle's parties and the documents each one is on, and writes them onto every document.\n\nA party whose email address the bundle already has keeps its ID, and its parties on the documents keep theirs, so the fields assigned to them stay. A party you leave out, or take off a document with `documentIds`, is removed from those documents: its signature and initials boxes are removed, and fields it filled in keep their values as fixed text.\n\nWorks only while the bundle is a `DRAFT`. On a sent bundle it returns `409 INVALID_STATE`; withdraw it first with `POST /api/v1/bundles/{id}/withdraw`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parties\": [\n    {\n      \"name\": \"Kai Lindqvist\",\n      \"email\": \"kai@example.com\",\n      \"signatureMethod\": \"SE_BANKID\"\n    },\n    {\n      \"name\": \"Alex Berg\",\n      \"email\": \"alex@example.com\",\n      \"role\": \"REVIEWER\",\n      \"documentIds\": [\n        \"cm4k2x9p10003abcd1234efgh\"\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Correct a party's contact details",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/parties/{{partyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "parties",
+                "{{partyId}}"
+              ]
+            },
+            "description": "Corrects the email address or phone number of a party in an `OPEN` bundle, on every document they haven't signed yet, and sends them a fresh invitation. A new email address gets a new link, and the old one stops working. This is the one change a sent bundle takes.\n\nTo change anything else, withdraw the bundle with `POST /api/v1/bundles/{id}/withdraw`, change it, and send it again. On a `DRAFT` bundle, use `PUT /api/v1/bundles/{id}/parties`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kai.lindqvist@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get a bundle party with signing URL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/parties/{{partyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "parties",
+                "{{partyId}}"
+              ]
+            },
+            "description": "Gets one party of a sent bundle, including their signing URL. The URL opens every document the party signs in the bundle. A `DRAFT` bundle has no signing URLs yet and returns `409 INVALID_STATE`.\n\n**Security note:** each call writes an audit entry on every document the party signs in the bundle.\n\n**Permission required:** `SEND_DOCUMENT` on the workspace, and access to every document in the bundle."
+          },
+          "response": []
+        },
+        {
+          "name": "Send a bundle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "send"
+              ]
+            },
+            "description": "Sends a draft bundle of 2 to 50 documents. sajn checks every document first and sends none of them if one fails: `409 INVALID_STATE` lists the reasons in `userMessage`. For example, a document has a blocker such as a missing signature box, needs approval, or has a party without an email address. The monthly limit counts every document.\n\nThe bundle's `status` is `OPEN` from this call. Each party gets one invitation once every document's PDF is ready, and the bundle fires `bundle.sent`.\n\n**Permission required:** `SEND_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Withdraw a bundle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/withdraw",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "withdraw"
+              ]
+            },
+            "description": "Takes an `OPEN` bundle back to `DRAFT` so you can change it and send it again. Every document returns to `DRAFT` and stays in the bundle, and every signature is cleared, so everyone signs again after the next send. Each document fires `document.withdrawn`.\n\nA bundle with a document that is already completed returns `409 INVALID_STATE`. To stop a bundle for good, cancel it with `POST /api/v1/bundles/{id}/cancel`.\n\n**Permission required:** `WITHDRAW_DOCUMENT` on the workspace, and access to every document in the bundle.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Fel startdatum i avtalet.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel a bundle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bundles",
+                "{{bundleId}}",
+                "cancel"
+              ]
+            },
+            "description": "Cancels a sent bundle and withdraws every document in it that isn't signed yet. Withdrawn documents return to `DRAFT` and leave the bundle, and each fires `document.withdrawn`. Documents that are already signed stay signed and stay in the bundle.\n\nReturns the bundle. Its `status` is `CANCELED` when every unsigned document was withdrawn, and the bundle fires `bundle.cancelled`. If a document can't be withdrawn, the bundle stays `OPEN` and that document stays in `documents` with its current status. A bundle that is a `DRAFT` or already canceled returns `409 INVALID_STATE`.\n\n**Permission required:** `WITHDRAW_DOCUMENT` on the workspace.",
             "body": {
               "mode": "raw",
               "raw": "{}",
@@ -4098,7 +4736,7 @@
             "description": "Changes individual boxes on a template PDF field, the same way as `PATCH /api/v1/documents/{id}/content/{contentId}/placed-fields`, with `partyId` referring to a template party. The response is the updated field.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"upsert\": [\n    {\n      \"id\": \"cm4k2x9p10009abcd1234efgh\",\n      \"page\": 1,\n      \"rect\": {\n        \"x\": 0.12,\n        \"y\": 0.76,\n        \"width\": 0.3,\n        \"height\": 0.06\n      },\n      \"pageWidth\": 595.28,\n      \"pageHeight\": 841.89,\n      \"pageRotation\": 0,\n      \"name\": \"Anst\u00e4llningsvillkor\",\n      \"key\": \"startdatum\",\n      \"locked\": false,\n      \"style\": {\n        \"fontSize\": 6,\n        \"color\": \"#2563EB\",\n        \"bold\": false,\n        \"italic\": false,\n        \"align\": \"LEFT\"\n      },\n      \"kind\": \"INPUT\",\n      \"inputType\": \"TEXT\",\n      \"label\": \"Startdatum\",\n      \"fillSource\": \"SIGNER\",\n      \"partyId\": \"cm4k2x9p10004abcd1234efgh\",\n      \"variableId\": \"startdatum\",\n      \"required\": true,\n      \"options\": [\n        \"Heltid\"\n      ],\n      \"multiline\": false,\n      \"unit\": \"RELATIVE\",\n      \"origin\": \"TOP_LEFT\"\n    }\n  ],\n  \"remove\": [\n    \"Anst\u00e4llningsvillkor\"\n  ]\n}",
+              "raw": "{\n  \"upsert\": [\n    {\n      \"id\": \"cm4k2x9p10009abcd1234efgh\",\n      \"page\": 1,\n      \"rect\": {\n        \"x\": 0.12,\n        \"y\": 0.76,\n        \"width\": 0.3,\n        \"height\": 0.06\n      },\n      \"pageWidth\": 595.28,\n      \"pageHeight\": 841.89,\n      \"pageRotation\": 0,\n      \"name\": \"Anst\u00e4llningsvillkor\",\n      \"key\": \"startdatum\",\n      \"locked\": false,\n      \"style\": {\n        \"fontSize\": 6,\n        \"color\": \"#2563EB\",\n        \"bold\": false,\n        \"italic\": false,\n        \"align\": \"LEFT\"\n      },\n      \"kind\": \"INPUT\",\n      \"inputType\": \"TEXT\",\n      \"label\": \"Startdatum\",\n      \"fillSource\": \"SIGNER\",\n      \"partyId\": \"cm4k2x9p10004abcd1234efgh\",\n      \"variableId\": \"startdatum\",\n      \"identity\": \"name\",\n      \"drawn\": false,\n      \"required\": true,\n      \"options\": [\n        \"Heltid\"\n      ],\n      \"multiline\": false,\n      \"format\": \"email\",\n      \"min\": 1,\n      \"max\": 1,\n      \"decimals\": 1,\n      \"step\": 1,\n      \"unit\": \"RELATIVE\",\n      \"origin\": \"TOP_LEFT\"\n    }\n  ],\n  \"remove\": [\n    \"Anst\u00e4llningsvillkor\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6266,7 +6904,7 @@
                 "webhooks"
               ]
             },
-            "description": "Create a new webhook subscription for your workspace.\n\n**Required Fields:**\n- `url` - URL that receives a POST request for each event\n- `events` - The event types to subscribe to, such as `document.completed`\n\n**Optional Fields:**\n- `secret` - Signing secret in the Standard Webhooks format, `whsec_<base64>`. sajn generates one when omitted, and the response returns it once\n- `enabled` - Whether the webhook is active (default: true)\n- `apiVersion` - API version, such as `2026-10`, that determines the body this endpoint receives. Defaults to the API version of this request. The endpoint keeps this version until you change it with `PATCH /api/v1/webhooks/:id`\n\n**Delivery:** each event is a POST with the body `{ id, type, createdAt, apiVersion, workspaceId, environment, actor, data }`, the same object `GET /api/v1/events/:id` returns. `data.object` is the resource the event is about. The request follows [Standard Webhooks](https://www.standardwebhooks.com): `webhook-id` is the event `id`, `webhook-timestamp` is the send time in Unix seconds, and `webhook-signature` is `v1,<base64 HMAC-SHA256>` over `<webhook-id>.<webhook-timestamp>.<raw body>`, keyed with the base64-decoded secret after `whsec_`. Any Standard Webhooks library verifies it. Return a 2xx status code within 30 seconds. sajn retries any other answer, a timeout, and a network error with backoff for about three days, and stops at once on `410 Gone`. Delivery is at least once, so deduplicate on `webhook-id`.\n\n**Event types:** `events` takes the following values:\n- Document, with the document in `data.object`: `document.created` (with `data.source`), `document.sent`, `document.fully_signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.updated`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration_extended`, `document.expiring_soon`, and `document.comment.created`, with the comment in `data.object`\n- Party, with the document in `data.object` and the party in `data.party`: `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`, `document.party.verified`, `document.party.updated`, `document.party.added`, `document.party.removed`, `document.party.reminded`\n- Bundle, with the bundle in `data.object`: `bundle.sent`, `bundle.party.signed`, `bundle.completed`\n- Archive import, with the import in `data.object`: `archive_import.completed`, once per run, and `archive_import.undone`\n- Approval: `approval_request.created`, `approval_request.approved`, `approval_request.rejected`, `approval_request.cancelled`\n- Identity check: `identity_check.created`, `identity_check.sent`, `identity_check.opened`, `identity_check.verified`, `identity_check.failed`, `identity_check.cancelled`\n- Contact, company and template: `contact.created`, `contact.updated`, `contact.deleted`, `company.created`, `company.updated`, `company.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`\n- Form: `form.submitted`, with the same fields as `GET /api/v1/forms/:id/submissions/:submissionId`\n- Workspace: `workspace.created`, `member.added`, `member.invited`, `member.invite_accepted`\n- sajn Login: `login.completed`, `login.failed`, with the login session in `data.object`\n- Security, a feed for a SIEM: `security.document_downloaded`, `security.documents_exported`, `security.signature_identity_accessed`, `security.member_removed`, `security.member_role_changed`, `security.role_updated`, `security.workspace_retention_updated`\n- Usage: `usage.limit_reached`\n\n**Plan Requirement:** Requires the Team plan or higher, or a sandbox organization.",
+            "description": "Create a new webhook subscription for your workspace.\n\n**Required Fields:**\n- `url` - URL that receives a POST request for each event\n- `events` - The event types to subscribe to, such as `document.completed`\n\n**Optional Fields:**\n- `secret` - Signing secret in the Standard Webhooks format, `whsec_<base64>`. sajn generates one when omitted, and the response returns it once\n- `enabled` - Whether the webhook is active (default: true)\n- `apiVersion` - API version, such as `2026-10`, that determines the body this endpoint receives. Defaults to the API version of this request. The endpoint keeps this version until you change it with `PATCH /api/v1/webhooks/:id`\n\n**Delivery:** each event is a POST with the body `{ id, type, createdAt, apiVersion, workspaceId, environment, actor, data }`, the same object `GET /api/v1/events/:id` returns. `data.object` is the resource the event is about. The request follows [Standard Webhooks](https://www.standardwebhooks.com): `webhook-id` is the event `id`, `webhook-timestamp` is the send time in Unix seconds, and `webhook-signature` is `v1,<base64 HMAC-SHA256>` over `<webhook-id>.<webhook-timestamp>.<raw body>`, keyed with the base64-decoded secret after `whsec_`. Any Standard Webhooks library verifies it. Return a 2xx status code within 30 seconds. sajn retries any other answer, a timeout, and a network error with backoff for about three days, and stops at once on `410 Gone`. Delivery is at least once, so deduplicate on `webhook-id`.\n\n**Event types:** `events` takes the following values:\n- Document, with the document in `data.object`: `document.created` (with `data.source`), `document.sent`, `document.fully_signed`, `document.completed`, `document.rejected`, `document.expired`, `document.withdrawn`, `document.updated`, `document.deleted`, `document.restored`, `document.archived`, `document.unarchived`, `document.expiration_extended`, `document.expiring_soon`, and `document.comment.created`, with the comment in `data.object`\n- Party, with the document in `data.object` and the party in `data.party`: `document.party.sent`, `document.party.delivery_failed`, `document.party.opened`, `document.party.read`, `document.party.signed`, `document.party.rejected`, `document.party.delegated`, `document.party.auth_failed`, `document.party.verified`, `document.party.updated`, `document.party.added`, `document.party.removed`, `document.party.reminded`\n- Bundle, with the bundle in `data.object`: `bundle.sent`, `bundle.party.signed`, `bundle.completed`, `bundle.cancelled`\n- Archive import, with the import in `data.object`: `archive_import.completed`, once per run, and `archive_import.undone`\n- Approval: `approval_request.created`, `approval_request.approved`, `approval_request.rejected`, `approval_request.cancelled`\n- Identity check: `identity_check.created`, `identity_check.sent`, `identity_check.opened`, `identity_check.verified`, `identity_check.failed`, `identity_check.cancelled`\n- Contact, company and template: `contact.created`, `contact.updated`, `contact.deleted`, `company.created`, `company.updated`, `company.deleted`, `template.created`, `template.updated`, `template.deleted`, `template.restored`\n- Form: `form.submitted`, with the same fields as `GET /api/v1/forms/:id/submissions/:submissionId`\n- Workspace: `workspace.created`, `member.added`, `member.invited`, `member.invite_accepted`\n- sajn Login: `login.completed`, `login.failed`, with the login session in `data.object`\n- Security, a feed for a SIEM: `security.document_downloaded`, `security.documents_exported`, `security.signature_identity_accessed`, `security.member_removed`, `security.member_role_changed`, `security.role_updated`, `security.workspace_retention_updated`\n- Usage: `usage.limit_reached`\n\n**Plan Requirement:** Requires the Team plan or higher, or a sandbox organization.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"url\": \"https://example.com/webhooks/sajn\",\n  \"events\": [\n    \"document.fully_signed\",\n    \"document.completed\"\n  ],\n  \"failureNotificationEmail\": \"dev@example.com\",\n  \"apiVersion\": \"2026-10\"\n}",
@@ -6859,198 +7497,6 @@
           "response": []
         }
       ]
-    },
-    {
-      "name": "Other",
-      "item": [
-        {
-          "name": "Send documents as a bundle",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Sajn-Version",
-                "value": "{{apiVersion}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Idempotency-Key",
-                "value": "{{$guid}}",
-                "disabled": true
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/bundles",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "bundles"
-              ]
-            },
-            "description": "Sends 2 to 50 draft documents as one bundle. Each person gets one invitation and signs all of their documents with one signature.\n\nYou don't pass parties. sajn derives them from the documents, one per email address. The per-document signing URLs keep working alongside the bundle.\n\nsajn checks every document before it sends any of them, and returns `409 INVALID_STATE` with the reasons in `userMessage` if the bundle can't be sent. For example, a document isn't a `DRAFT`, is already in a bundle, needs approval, or a person signs with different methods on different documents.\n\nA document that fails to send after the checks stays `DRAFT` and isn't part of the bundle, so compare `documents` with the IDs you sent. If every document fails, the request returns `409 INVALID_STATE`.\n\n**Permission required:** `SEND_DOCUMENT` and `SEND_WITHOUT_APPROVAL` on the workspace. Requires a Team plan.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"documentIds\": [\n    \"cm4k2x9p10003abcd1234efgh\"\n  ],\n  \"name\": \"Kai Lindqvist\",\n  \"message\": \"Hej Kai! H\u00e4r \u00e4r ditt anst\u00e4llningsavtal. Signera det med BankID senast den 28 oktober.\",\n  \"expiresAt\": \"2026-10-28T22:00:00.000Z\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "List bundles",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Sajn-Version",
-                "value": "{{apiVersion}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/bundles",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "bundles"
-              ],
-              "query": [
-                {
-                  "key": "limit",
-                  "value": "25",
-                  "description": "Maximum number of items to return, from 1 to 100. Default: 25.",
-                  "disabled": true
-                },
-                {
-                  "key": "cursor",
-                  "value": "",
-                  "description": "The `nextCursor` from the previous response, to get the next page. Keep the other parameters unchanged.",
-                  "disabled": true
-                },
-                {
-                  "key": "include",
-                  "value": "total",
-                  "description": "`total` adds the number of items that match the filters. Counting takes time, so ask for it only when you need it.",
-                  "disabled": true
-                }
-              ]
-            },
-            "description": "Lists the bundles sent from the workspace, newest first. A bundle is listed only if you can read at least one of its documents, and it shows only the documents you can read."
-          },
-          "response": []
-        },
-        {
-          "name": "Get a bundle",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Sajn-Version",
-                "value": "{{apiVersion}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "bundles",
-                "{{bundleId}}"
-              ]
-            },
-            "description": "Gets a bundle with the signing status of every party on every document you can read.\n\nSigning URLs aren't included. To get a party's signing URL, call `GET /api/v1/bundles/{id}/parties/{partyId}`."
-          },
-          "response": []
-        },
-        {
-          "name": "Cancel a bundle",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Sajn-Version",
-                "value": "{{apiVersion}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Idempotency-Key",
-                "value": "{{$guid}}",
-                "disabled": true
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/cancel",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "bundles",
-                "{{bundleId}}",
-                "cancel"
-              ]
-            },
-            "description": "Cancels a bundle and withdraws every document in it that isn't signed yet. Withdrawn documents return to `DRAFT` and leave the bundle, and each fires `document.withdrawn`. Documents that are already signed stay signed and stay in the bundle.\n\nReturns the bundle. Its `status` is `CANCELED` when every unsigned document was withdrawn. If a document can't be withdrawn, the bundle stays `OPEN` and that document stays in `documents` with its current status. A bundle that is already canceled returns `409 INVALID_STATE`.\n\n**Permission required:** `WITHDRAW_DOCUMENT` on the workspace.",
-            "body": {
-              "mode": "raw",
-              "raw": "{}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get a bundle party with signing URL",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Sajn-Version",
-                "value": "{{apiVersion}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/bundles/{{bundleId}}/parties/{{partyId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "bundles",
-                "{{bundleId}}",
-                "parties",
-                "{{partyId}}"
-              ]
-            },
-            "description": "Gets one party of a bundle, including their signing URL. The URL opens every document the person signs in the bundle, so it's returned only if you can read all of those documents, and the call needs the permission to send documents.\n\n**Security note:** each call writes an audit entry on every document the party signs in the bundle."
-          },
-          "response": []
-        }
-      ]
     }
   ],
   "variable": [
@@ -7100,6 +7546,10 @@
     },
     {
       "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "embedSessionId",
       "value": ""
     },
     {
