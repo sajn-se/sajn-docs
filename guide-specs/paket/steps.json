@@ -1,0 +1,571 @@
+{
+    "slug": "paket",
+    "title": "Skicka dokument som paket",
+    "intro": "Ett paket skickar flera dokument med en inbjudan. Varje part signerar alla sina dokument med en underskrift. Varje dokument behåller sin egen signatur, försegling och logg.",
+    "audience": "Den som skickar dokument i arbetsytan",
+    "prerequisites": [
+        "Du får skicka dokument i arbetsytan utan godkännande.",
+        "Paket kräver Team eller högre."
+    ],
+    "viewport": {
+        "width": 1800,
+        "height": 1050
+    },
+    "mask": [
+        "[data-guide-mask]",
+        "div.truncate.text-xs.text-muted-foreground",
+        "input[type='email']"
+    ],
+    "hide": [
+        "nextjs-portal",
+        "div.fixed.bottom-2.right-2.font-mono"
+    ],
+    "imageDir": "../../images/guider/paket",
+    "steps": [
+        {
+            "name": "login",
+            "action": "login"
+        },
+        {
+            "name": "oppna-paketlistan",
+            "action": "goto",
+            "url": "/{workspace}/documents/packages",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-paketlistan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Nytt paket')"
+        },
+        {
+            "name": "nytt-paket",
+            "action": "screenshot",
+            "caption": "Skapa ett nytt paket",
+            "notes": "Paket ligger under Dokument i sidomenyn. Klicka på Nytt paket."
+        },
+        {
+            "name": "klicka-nytt-paket",
+            "action": "click",
+            "selector": "button:has-text('Nytt paket')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-paketsidan",
+            "action": "waitForSelector",
+            "selector": "button:has-text('Lägg till dokument')"
+        },
+        {
+            "name": "klicka-titel",
+            "action": "clickText",
+            "text": "Paket utan namn",
+            "exact": true,
+            "screenshot": false
+        },
+        {
+            "name": "fyll-titel",
+            "action": "fill",
+            "selector": "input[aria-label='Titel']",
+            "value": "Nordljus Media – avtal 2027",
+            "screenshot": false
+        },
+        {
+            "name": "spara-titel",
+            "action": "press",
+            "key": "Enter",
+            "selector": "input[aria-label='Titel']"
+        },
+        {
+            "name": "oppna-lagg-till",
+            "action": "click",
+            "selector": "button:has-text('Lägg till dokument')",
+            "caption": "Lägg till dokument",
+            "notes": "Ladda upp filer, skapa ett dokument från en mall eller välj utkast du redan har."
+        },
+        {
+            "name": "ladda-upp-1",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ladda upp eller skapa nytt')",
+            "screenshot": false
+        },
+        {
+            "name": "fil-1",
+            "action": "uploadFile",
+            "selector": "[role='dialog'] input[type='file']",
+            "filePath": "../sajn-docs/guide-specs/paket/files/Konsultavtal.pdf",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-fil-1",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[type='file']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-kort-1",
+            "action": "waitForSelector",
+            "selector": "a[aria-label='Öppna Konsultavtal']"
+        },
+        {
+            "name": "lagg-till-2",
+            "action": "click",
+            "selector": "button:has-text('Lägg till dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "ladda-upp-2",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ladda upp eller skapa nytt')",
+            "screenshot": false
+        },
+        {
+            "name": "fil-2",
+            "action": "uploadFile",
+            "selector": "[role='dialog'] input[type='file']",
+            "filePath": "../sajn-docs/guide-specs/paket/files/Personuppgiftsbiträdesavtal.pdf",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-fil-2",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[type='file']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-kort-2",
+            "action": "waitForSelector",
+            "selector": "a[aria-label='Öppna Personuppgiftsbiträdesavtal']"
+        },
+        {
+            "name": "lagg-till-3",
+            "action": "click",
+            "selector": "button:has-text('Lägg till dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "ladda-upp-3",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ladda upp eller skapa nytt')",
+            "screenshot": false
+        },
+        {
+            "name": "fil-3",
+            "action": "uploadFile",
+            "selector": "[role='dialog'] input[type='file']",
+            "filePath": "../sajn-docs/guide-specs/paket/files/Sekretessavtal.pdf",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-fil-3",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[type='file']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-kort-3",
+            "action": "waitForSelector",
+            "selector": "a[aria-label='Öppna Sekretessavtal']"
+        },
+        {
+            "name": "lagg-till-utkast",
+            "action": "click",
+            "selector": "button:has-text('Lägg till dokument')",
+            "screenshot": false
+        },
+        {
+            "name": "valj-utkast",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Välj befintliga utkast')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-utkast",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[aria-label='Sök utkast']"
+        },
+        {
+            "name": "valj-befintliga-utkast",
+            "action": "screenshot",
+            "caption": "Välj befintliga utkast",
+            "notes": "Listan visar utkast som inte redan ligger i ett paket."
+        },
+        {
+            "name": "avbryt-utkast",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-utkast-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[aria-label='Sök utkast']",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-kontroll",
+            "action": "press",
+            "key": "Enter",
+            "selector": "button[aria-label^='Skicka paket —']:visible",
+            "screenshot": true,
+            "caption": "Se vad som saknas",
+            "notes": "Skicka paket visar vad som saknas innan paketet kan skickas."
+        },
+        {
+            "name": "stang-kontroll",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "oppna-part-1",
+            "action": "click",
+            "selector": "button:has-text('Sök eller lägg till parter...'):visible",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-partdialog-1",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[name='name']:visible"
+        },
+        {
+            "name": "fyll-namn-1",
+            "action": "fill",
+            "selector": "[role='dialog'] input[name='name']:visible",
+            "value": "Karin Holmberg",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-epost-1",
+            "action": "fill",
+            "selector": "[role='dialog'] input[type='email']:visible",
+            "value": "andreas@ribban.co",
+            "screenshot": false
+        },
+        {
+            "name": "ingen-kontakt-1",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') [role='checkbox']:visible",
+            "screenshot": false
+        },
+        {
+            "name": "lagg-till-part",
+            "action": "screenshot",
+            "caption": "Lägg till parterna",
+            "notes": "En part du lägger till får alla dokument i paketet."
+        },
+        {
+            "name": "spara-part-1",
+            "action": "click",
+            "selector": "[role='dialog'] button[type='submit']:has-text('Lägg till'):visible",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-part-1",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[name='name']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-kort-part-1",
+            "action": "waitForSelector",
+            "selector": "span:text-is('Karin Holmberg'):visible"
+        },
+        {
+            "name": "oppna-part-2",
+            "action": "click",
+            "selector": "button:has-text('Sök eller lägg till parter...'):visible",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-partdialog-2",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[name='name']:visible"
+        },
+        {
+            "name": "fyll-namn-2",
+            "action": "fill",
+            "selector": "[role='dialog'] input[name='name']:visible",
+            "value": "Erik Lund",
+            "screenshot": false
+        },
+        {
+            "name": "fyll-epost-2",
+            "action": "fill",
+            "selector": "[role='dialog'] input[type='email']:visible",
+            "value": "andreas@sajn.se",
+            "screenshot": false
+        },
+        {
+            "name": "ingen-kontakt-2",
+            "action": "click",
+            "selector": "[role='dialog'] label:has-text('Spara även som kontakt') [role='checkbox']:visible",
+            "screenshot": false
+        },
+        {
+            "name": "spara-part-2",
+            "action": "click",
+            "selector": "[role='dialog'] button[type='submit']:has-text('Lägg till'):visible",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-part-2",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] input[name='name']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-kort-part-2",
+            "action": "waitForSelector",
+            "selector": "span:text-is('Erik Lund'):visible"
+        },
+        {
+            "name": "oppna-dokumentval",
+            "action": "click",
+            "selector": "button:has-text('av 3 dokument'):visible",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dokumentval",
+            "action": "waitForSelector",
+            "selector": "[data-slot='popover-content'] label:has-text('Sekretessavtal')"
+        },
+        {
+            "name": "avmarkera-sekretess",
+            "action": "click",
+            "selector": "[data-slot='popover-content'] label:has-text('Sekretessavtal') [role='checkbox']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-avmarkerad",
+            "action": "waitForSelector",
+            "selector": "button:has-text('2 av 3 dokument'):visible"
+        },
+        {
+            "name": "valj-dokument-per-part",
+            "action": "screenshot",
+            "caption": "Välj vilka dokument varje part signerar",
+            "notes": "Klicka på antalet dokument under en part och bocka ur dokument som parten inte ska signera."
+        },
+        {
+            "name": "stang-dokumentval",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "oppna-installningar",
+            "action": "click",
+            "selector": "[data-rail-item][data-panel='settings']:visible",
+            "screenshot": false
+        },
+        {
+            "name": "oppna-utgangsdatum",
+            "action": "click",
+            "selector": "button:has-text('Inget utgångsdatum'):visible",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-kalender",
+            "action": "waitForSelector",
+            "selector": "[data-slot='popover-content'] table"
+        },
+        {
+            "name": "valj-datum",
+            "action": "click",
+            "selector": "[data-slot='popover-content'] td:not([data-disabled='true']) button",
+            "match": "last",
+            "screenshot": false
+        },
+        {
+            "name": "stang-kalender",
+            "action": "press",
+            "key": "Escape"
+        },
+        {
+            "name": "oppna-paminnelser",
+            "action": "click",
+            "selector": "role=combobox[name='Påminnelser']",
+            "screenshot": false
+        },
+        {
+            "name": "inga-paminnelser",
+            "action": "click",
+            "selector": "[role='option']:has-text('Inga påminnelser')",
+            "screenshot": false
+        },
+        {
+            "name": "installningar",
+            "action": "screenshot",
+            "caption": "Ställ in paketet",
+            "notes": "Inställningarna gäller alla dokument i paketet."
+        },
+        {
+            "name": "oppna-dokument",
+            "action": "click",
+            "selector": "a[aria-label='Öppna Konsultavtal']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-dokument",
+            "action": "waitForSelector",
+            "selector": "a:has-text('Redigera i paketet'):visible"
+        },
+        {
+            "name": "vanta-dokument-laddat",
+            "action": "wait",
+            "ms": 3000
+        },
+        {
+            "name": "dokument-i-paketet",
+            "action": "screenshot",
+            "caption": "Redigera dokumentens innehåll",
+            "notes": "Innehållet redigerar du i dokumentet. Parterna ställs in i paketet."
+        },
+        {
+            "name": "tillbaka-till-paketet",
+            "action": "click",
+            "selector": "a:has-text('Redigera i paketet'):visible",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-tillbaka",
+            "action": "waitForSelector",
+            "selector": "button[aria-label='Skicka paket']"
+        },
+        {
+            "name": "klicka-skicka",
+            "action": "click",
+            "selector": "button[aria-label='Skicka paket']",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-bekrafta",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']"
+        },
+        {
+            "name": "skicka-paketet",
+            "action": "screenshot",
+            "caption": "Skicka paketet",
+            "notes": "Varje part får en inbjudan med alla sina dokument."
+        },
+        {
+            "name": "bekrafta-skicka",
+            "action": "click",
+            "selector": "[role='alertdialog'] button:has-text('Skicka paket')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-skickat",
+            "action": "waitForSelector",
+            "selector": "[role='alertdialog']",
+            "state": "hidden"
+        },
+        {
+            "name": "vanta-oppnat",
+            "action": "wait",
+            "ms": 20000
+        },
+        {
+            "name": "ladda-om",
+            "action": "reload"
+        },
+        {
+            "name": "vanta-parter",
+            "action": "waitForSelector",
+            "selector": "span:has-text('kvar'):visible"
+        },
+        {
+            "name": "skickat-paket",
+            "action": "screenshot",
+            "caption": "Följ paketet",
+            "notes": "Under Parter står hur många dokument varje part har kvar att signera."
+        },
+        {
+            "name": "oppna-partmeny",
+            "action": "click",
+            "selector": "button[aria-label='Åtgärder för Karin Holmberg']:visible",
+            "caption": "Hjälp en part som inte har signerat",
+            "notes": "Kopiera signeringslänken, ändra kontaktuppgifterna eller skicka inbjudan igen."
+        },
+        {
+            "name": "klicka-andra-kontakt",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Ändra kontaktuppgifter')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-kontakt",
+            "action": "waitForSelector",
+            "selector": "#package-party-email"
+        },
+        {
+            "name": "andra-kontaktuppgifter",
+            "action": "screenshot",
+            "caption": "Ändra kontaktuppgifter",
+            "notes": "Parten får en ny inbjudan till alla sina dokument."
+        },
+        {
+            "name": "avbryt-kontakt",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-kontakt-stangd",
+            "action": "waitForSelector",
+            "selector": "#package-party-email",
+            "state": "hidden"
+        },
+        {
+            "name": "oppna-paketmeny",
+            "action": "click",
+            "selector": "button[aria-label='Fler åtgärder']:visible",
+            "screenshot": false
+        },
+        {
+            "name": "klicka-aterkalla",
+            "action": "click",
+            "selector": "[role='menuitem']:has-text('Återkalla paketet')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-aterkalla",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Återkalla paketet')"
+        },
+        {
+            "name": "aterkalla-paketet",
+            "action": "screenshot",
+            "caption": "Återkalla paketet",
+            "notes": "Alla dokument blir utkast igen och alla signaturer tas bort."
+        },
+        {
+            "name": "avbryt-aterkalla",
+            "action": "click",
+            "selector": "[role='dialog'] button:has-text('Avbryt')",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-aterkalla-stangd",
+            "action": "waitForSelector",
+            "selector": "[role='dialog'] button:has-text('Återkalla paketet')",
+            "state": "hidden"
+        },
+        {
+            "name": "tillbaka-till-listan",
+            "action": "goto",
+            "url": "/{workspace}/documents/packages",
+            "screenshot": false
+        },
+        {
+            "name": "vanta-listan",
+            "action": "waitForSelector",
+            "selector": "a:has-text('Nordljus Media – avtal 2027')"
+        },
+        {
+            "name": "paketlistan",
+            "action": "screenshot",
+            "caption": "Se alla paket",
+            "notes": "Listan visar status, hur många dokument som är signerade, antal parter och sista signeringsdag."
+        }
+    ]
+}
