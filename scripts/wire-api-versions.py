@@ -432,7 +432,8 @@ latest_spec = json.load(open("api/openapi.json"))
 for path in BETA_PATHS:
     for operation in latest_spec["paths"][path].values():
         operation["x-mint"] = {**operation.get("x-mint", {}), "metadata": {"tag": "Beta"}, "content": BETA_NOTICE}
-open("api/openapi.json", "w").write(json.dumps(latest_spec, indent=2, ensure_ascii=False) + "\n")
+# Tabs keep the file under the size limit of Mintlify's deploy, which skips a larger spec.
+open("api/openapi.json", "w").write(json.dumps(latest_spec, indent="\t", ensure_ascii=False) + "\n")
 
 api_groups = [g for g in base_groups if any(isinstance(p, str) and ENDPOINT.match(p) for p in g["pages"])]
 
