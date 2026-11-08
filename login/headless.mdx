@@ -1,0 +1,131 @@
+---
+title: "Headless login"
+description: "Show the BankID QR code and button in your own interface while sajn talks to BankID"
+---
+
+Headless login runs the authentication in your interface instead of sajn's hosted page. You show
+the QR code and the button that opens the BankID app. Your server starts the attempt, polls it,
+and reads the result. sajn talks to BankID.
+
+<Note>
+  Headless login needs a client that uses your own BankID certificate, so the BankID app shows
+  your company name. Clients in a sandbox organization run against the BankID mock instead. The
+  calls use your sajn API key with the `login:write` and `login:read` scopes.
+</Note>
+
+## 1. Create a session
+
+Create the session as in the [Session API](/login/session-api#1-start-a-login). Keep the `id`.
+Headless login doesn't use `loginUrl`.
+
+## 2. Start an attempt
+
+Call this from your server when the user chooses to log in. Send the user's IP address as your
+server sees it, never your server's own address.
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/login/sessions/SESSION_ID/start \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "method": "SE_BANKID",
+    "endUserIp": "203.0.113.24",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) …",
+    "returnUrl": "https://acme.se/logga-in"
+  }'
+```
+
+```json Response
+{
+  "id": "kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv",
+  "method": "SE_BANKID",
+  "qrCode": "bankid.67df3917-fa0d-44e5-b327-edcc928297f8.0.dd5bb5f5…",
+  "autoStartToken": "7c40b5c9-fa74-49cf-b98c-bfe651f9a7c6",
+  "autoStartUrl": "https://app.bankid.com/?autostarttoken=7c40b5c9-fa74-49cf-b98c-bfe651f9a7c6&redirect=https%3A%2F%2Facme.se%2Flogga-in",
+  "expiresAt": "2026-11-08T10:18:12.002Z"
+}
+```
+
+| Field | Use |
+| --- | --- |
+| `method` | The eID. Leave it out when the client allows one method. |
+| `userAgent` | Optional. It improves BankID's risk check, and `autoStartUrl` uses it to return the user to the right browser. |
+| `returnUrl` | Optional. Where the BankID app sends a user on the same device. It must be registered on the client. Without it, the user switches back by hand. |
+
+## 3. Show the QR code or the button
+
+- **Another device:** render `qrCode` as a QR code. It changes every second, so show the new value from each poll.
+- **The same device:** open `autoStartUrl` from a tap. iOS blocks an app switch that no tap started. To build your own link, use `autoStartToken`.
+
+## 4. Poll until the attempt ends
+
+Poll every 1 to 2 seconds and show the new `qrCode` while `status` is `PENDING`.
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/login/sessions/SESSION_ID/poll \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json Pending
+{
+  "id": "kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEuGiKoPqTrUv",
+  "status": "PENDING",
+  "hintCode": "outstandingTransaction",
+  "qrCode": "bankid.67df3917-fa0d-44e5-b327-edcc928297f8.6.4a1f0c2e…",
+  "attemptsRemaining": 4
+}
+```
+
+| `status` | What to do |
+| --- | --- |
+| `PENDING` | Keep polling. Use `hintCode` to tell the user what to do, for example `userSign` while they confirm in the app. |
+| `COMPLETED` | Read the result in step 5. |
+| `FAILED` | Show why, from `hintCode`. To retry, start a new attempt while `attemptsRemaining` is above 0. |
+| `EXPIRED` | The user didn't finish in time. Start a new attempt while `attemptsRemaining` is above 0. |
+
+The login completes even if you stop polling, and `login.completed` fires. Calling `start` again
+while an attempt runs returns that attempt with its current `qrCode`.
+
+## 5. Read the result
+
+When `status` is `COMPLETED`, read the claims with
+[`GET /api/v1/login/sessions/{id}`](/login/session-api#3-read-the-result-from-your-server).
+The poll response carries no identity. The authenticated read is the only place your server learns
+who logged in.
+
+## Cancel an attempt
+
+When the user presses **Cancel**, cancel the attempt so the BankID app stops waiting:
+
+```bash
+curl -X POST https://app.sajn.se/api/v1/login/sessions/SESSION_ID/cancel \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The response has the same shape as a poll. The session stays open, so the user can start a new
+attempt. If the user finished in the BankID app just before the cancel, `status` is `COMPLETED`.
+
+## Errors
+
+| Code | When |
+| --- | --- |
+| `VALIDATION_FAILED` | `endUserIp` isn't an IP address, or `method` isn't an eID the API knows. |
+| `INVALID_REQUEST` | The client doesn't allow `method`, or `returnUrl` isn't registered on the client. |
+| `INVALID_STATE` | You polled before starting an attempt, or started one after the login completed. |
+| `FORBIDDEN` | The client uses sajn's certificate, not your own. |
+| `NOT_FOUND` | The session ran out, belongs to another workspace, or was started through OIDC. |
+| `TOO_MANY_REQUESTS` | The session used all its attempts, or too many logins started from one IP address. |
+
+## Reference
+
+<CardGroup cols={3}>
+  <Card title="Start" icon="code" href="/api-reference/start-an-eid-attempt-in-your-own-ui">
+    `POST …/start`
+  </Card>
+  <Card title="Poll" icon="code" href="/api-reference/poll-an-eid-attempt">
+    `POST …/poll`
+  </Card>
+  <Card title="Cancel" icon="code" href="/api-reference/cancel-an-eid-attempt">
+    `POST …/cancel`
+  </Card>
+</CardGroup>

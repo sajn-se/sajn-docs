@@ -140,6 +140,7 @@ GUIDE_GROUPS = [
         "login/quickstart",
         "login/oidc",
         "login/session-api",
+        "login/headless",
         "login/claims",
         "login/testing",
         "login/webhooks",
@@ -153,6 +154,9 @@ LATEST_ENDPOINT_GROUPS = [
     {"group": "Login", "pages": [
         "POST /api/v1/login/sessions",
         "GET /api/v1/login/sessions/{id}",
+        "POST /api/v1/login/sessions/{id}/start",
+        "POST /api/v1/login/sessions/{id}/poll",
+        "POST /api/v1/login/sessions/{id}/cancel",
     ]},
     {"group": "System", "pages": ["GET /api/v1/health"]},
     {"group": "Account", "pages": ["GET /api/v1/me"]},

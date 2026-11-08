@@ -10,6 +10,9 @@ Use it when running an OIDC client is more trouble than it is worth. The typical
 **native mobile app**: your server starts the login, the app opens the URL in an in-app browser,
 and a custom-scheme redirect drops the user straight back into the app.
 
+To show the QR code and the BankID button in your own interface instead of sajn's hosted page,
+see [Headless login](/login/headless).
+
 <Note>
   Authenticated with your normal sajn API key, scoped `login:write` and `login:read`. See
   [Authentication](/get-started/authentication).
@@ -84,7 +87,7 @@ curl https://app.sajn.se/api/v1/login/sessions/kZ8f3cQpL7vR3mN8tYw4bZc1dH6jS0aEu
   "sub": "clx7f2k9v0001abcdefghijkl",
   "claims": {
     "sub": "clx7f2k9v0001abcdefghijkl",
-    "amr": ["BANKID_SE"],
+    "amr": ["SE_BANKID"],
     "auth_time": 1790942625,
     "name": "Anna Andersson",
     "given_name": "Anna",
