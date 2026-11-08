@@ -20,7 +20,7 @@ Two claims are present on every authentication regardless of scope:
 
 | Claim | Meaning |
 | --- | --- |
-| `amr` | How they authenticated, e.g. `["BANKID_SE"]` |
+| `amr` | How they authenticated, e.g. `["SE_BANKID"]` |
 | `auth_time` | When they completed the eID, as a Unix timestamp — not when tokens were minted |
 
 <Warning>
@@ -117,7 +117,7 @@ An `id_token` payload with all three scopes:
   "iat": 1785016200,
   "exp": 1785016800,
   "auth_time": 1785016190,
-  "amr": ["BANKID_SE"],
+  "amr": ["SE_BANKID"],
   "nonce": "n-0S6_WzA2Mj",
 
   "name": "Anna Andersson",

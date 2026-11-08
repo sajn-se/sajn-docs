@@ -114,7 +114,7 @@ client per application.
 | `name`, `given_name`, `family_name` | `profile` | `Anna Andersson` |
 | `birthdate` | `profile` | `1985-03-15` |
 | `nin` | `nin` | `198503151234` |
-| `amr`, `auth_time` | always | `["BANKID_SE"]` |
+| `amr`, `auth_time` | always | `["SE_BANKID"]` |
 
 Request only what you need — every scope beyond `openid` is reviewed before your client is
 approved, and `nin` in particular needs a reason.
@@ -171,8 +171,8 @@ login is never refused because of a balance.
   session afterwards. Re-authenticate by starting a new login.
 - **No single sign-on.** Every login is a fresh BankID authentication. The phone is the session.
 - **No logout endpoint.** There is no sajn-side session to end — clear your own.
-- **Swedish BankID only** today. Other Nordic eIDs are planned; the `amr` claim is namespaced
-  (`BANKID_SE`) so adding one will not change the shape of what you receive.
+- **Swedish BankID only** today. Other eIDs are planned. The `amr` claim names the eID by its
+  scheme (`SE_BANKID`), so adding one won't change the shape of what you receive.
 
 ## Next steps
 
