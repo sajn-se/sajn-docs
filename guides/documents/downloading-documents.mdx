@@ -15,7 +15,7 @@ In this guide, you download the files of a document: the sealed PDF, the unsigne
 A document has up to three files:
 
 - `SIGNED`: the sealed PDF with every signature and the [signing certificate](/concepts/signing-certificate). Ready when the document is `COMPLETED` and sealed.
-- `ORIGINAL`: the unsigned document. Ready in every status.
+- `ORIGINAL`: the unsigned document. A draft has none. sajn generates it after you send the document, and it's ready when `document.sent` fires. If parties fill in fields before signing, it's ready after they have filled them in.
 - `JOURNAL`: the signing journal, a separate PDF with every party, their identity and signing method, and every event with its timestamp and IP address. Ready shortly after the document is `COMPLETED`.
 
 To get one file, call `GET /api/v1/documents/DOCUMENT_ID/files/TYPE`. To see which files are ready, call `GET /api/v1/documents/DOCUMENT_ID/files`, which lists only the files that are ready, each with its own URL.
@@ -194,7 +194,7 @@ To catch up on documents that completed while your endpoint was down, see [Sync 
 Branch on the error `code`:
 
 - `404 NOT_FOUND`, with `resource` set to `document`: the document doesn't exist, or your key can't see it.
-- `409 INVALID_STATE`: the file isn't ready yet, for example `SIGNED` before the document is completed.
+- `409 INVALID_STATE`: the file isn't ready yet, for example `ORIGINAL` before `document.sent` or `SIGNED` before the document is completed.
 
 ```json
 {

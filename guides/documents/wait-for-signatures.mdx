@@ -1,0 +1,92 @@
+---
+title: "Wait for signatures"
+description: "Learn when a document is signed from the document.completed webhook, and catch up on missed events with GET /api/v1/events instead of polling"
+---
+
+In this guide, you find out when a sent document is signed without polling it. A webhook tells you the moment the sealed PDF is ready, and a scheduled read of `GET /api/v1/events` catches anything the webhook missed.
+
+## Before you begin
+
+- Store your API key in the `SAJN_API_KEY` environment variable.
+- Have an HTTPS endpoint that sajn can reach. If you can't expose one, see [Without a webhook endpoint](#without-a-webhook-endpoint).
+
+## Don't poll each document
+
+A loop that calls `GET /api/v1/documents/DOCUMENT_ID` every few seconds until the status changes spends your [rate limit](/api-fundamentals/rate-limits) on requests that return nothing new. The limit is shared by every API key and integration in your organization, so a busy poll can slow down the rest of your integration. One integration went from about 7,000 requests a day to fewer than 100 when it replaced polling with the steps below.
+
+## Get notified when a document is signed
+
+<Steps>
+  <Step title="Subscribe to the end states">
+    Create a webhook for the events that end a document's signing:
+
+    ```bash
+    curl -X POST https://app.sajn.se/api/v1/webhooks \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "url": "https://example.com/webhooks/sajn",
+        "events": [
+          "document.completed",
+          "document.rejected",
+          "document.expired",
+          "document.withdrawn"
+        ],
+        "apiVersion": "2026-10"
+      }'
+    ```
+
+    Store the `secret` from the response. To check each party's progress as well, add `document.party.signed`. For every option, see [Manage webhook endpoints](/webhooks/manage-endpoints).
+  </Step>
+
+  <Step title="Download the signed PDF on document.completed">
+    sajn fires `document.completed` after it has sealed the signed PDF, so `SIGNED` is ready when the event arrives. `document.fully_signed` fires earlier, before the seal. Don't download the signed file on it.
+
+    The event's `data.object` is the document. Verify the delivery's signature, answer `2xx` right away, and then download the files. For a complete handler, see [Archive documents when they're completed](/guides/documents/downloading-documents#archive-documents-when-theyre-completed).
+  </Step>
+
+  <Step title="Catch up with GET /api/v1/events">
+    A webhook delivery can fail while your endpoint is down. Once an hour, read the events since your last run and pass each one to the same handler:
+
+    ```bash
+    curl "https://app.sajn.se/api/v1/events?createdAfter=2026-11-09T08:00:00Z&type=document.completed,document.rejected,document.expired,document.withdrawn&limit=100" \
+      -H "Authorization: Bearer $SAJN_API_KEY" \
+      -H "Sajn-Version: 2026-10"
+    ```
+
+    Each event has the same shape as a webhook delivery, and its `id` stays the same, so a handler that skips IDs it has seen processes each event once. The list reaches back 30 days. For the full loop with a watermark and paging, see [Reconcile on a schedule](/webhooks/replay-and-reconcile#reconcile-on-a-schedule).
+  </Step>
+</Steps>
+
+## Without a webhook endpoint
+
+If sajn can't reach your server, read `GET /api/v1/events` on a schedule instead of polling each document. One request returns every document that finished since the last run, however many documents you have out for signing:
+
+1. Store the time of your last run as a watermark.
+2. Request events with `createdAfter` set to the watermark minus a few minutes, and the `type` filter from the previous section.
+3. Follow `nextCursor` until it's `null`, and handle each event.
+4. Store the time when this run started as the new watermark.
+
+Every few minutes is enough for most integrations.
+
+## Wait for the original PDF
+
+A draft has no `ORIGINAL` file. sajn generates it in the background after you send the document, and it's ready when `document.sent` fires. If parties fill in fields before signing, it's ready after they have filled them in. Until then, `GET /api/v1/documents/DOCUMENT_ID/files/ORIGINAL` returns `409 INVALID_STATE`, and `GET /api/v1/documents/DOCUMENT_ID/files` leaves it out.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Webhook events" icon="webhook" href="/webhooks/events">
+    See every event and when it fires.
+  </Card>
+  <Card title="Replay and reconcile events" icon="rotate" href="/webhooks/replay-and-reconcile">
+    Read past events and retry deliveries.
+  </Card>
+  <Card title="Download documents" icon="download" href="/guides/documents/downloading-documents">
+    Download the sealed PDF, the original, and the journal.
+  </Card>
+  <Card title="Rate limits" icon="gauge" href="/api-fundamentals/rate-limits">
+    See your limit and how to handle 429.
+  </Card>
+</CardGroup>

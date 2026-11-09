@@ -58,6 +58,7 @@ GUIDE_GROUPS = [
             "guides/documents/multi-party-signing",
             "guides/documents/reminders-expiration",
             "guides/documents/redirect-url",
+            "guides/documents/wait-for-signatures",
             "guides/documents/downloading-documents",
             "guides/documents/file-uploads",
             "guides/documents/organizing-with-tags",
