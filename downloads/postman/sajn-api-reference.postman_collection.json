@@ -89,6 +89,144 @@
             "description": "Authoritative read of a login session. Call this from your server after the redirect.\n\n`claims` and `sub` are populated only once `status` is `COMPLETED`, and contain exactly the fields your client is approved for \u2014 the same projection the OIDC `id_token` uses.\n\n`sub` is stable per person **per organization**: the same individual logging into any of your clients always yields the same `sub`, and it can never be correlated with their identifier at another sajn customer."
           },
           "response": []
+        },
+        {
+          "name": "Start an eID attempt in your own UI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/login/sessions/{{sessionId}}/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "login",
+                "sessions",
+                "{{sessionId}}",
+                "start"
+              ]
+            },
+            "description": "Authenticate the user in your own interface instead of sajn's hosted page. You show the QR code and the button that opens the eID app; sajn talks to the eID provider.\n\n**Flow:**\n1. `POST /api/v1/login/sessions` to create the session\n2. `POST` here, from your server, with the user's IP address. Show `qrCode` on desktop, or open `autoStartUrl` from a tap on mobile\n3. `POST /api/v1/login/sessions/{id}/poll` every 1 to 2 seconds and show the new `qrCode`\n4. When `status` is `COMPLETED`, read the result with `GET /api/v1/login/sessions/{id}`\n\nCalling this again while an attempt runs returns that attempt. After a `FAILED` or `EXPIRED` attempt, calling it starts a new one while `attemptsRemaining` is above 0. The client must use your own BankID certificate.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"SE_BANKID\",\n  \"endUserIp\": \"192.0.2.10\",\n  \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15\",\n  \"returnUrl\": \"https://example.com/logga-in\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Poll an eID attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/login/sessions/{{sessionId}}/poll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "login",
+                "sessions",
+                "{{sessionId}}",
+                "poll"
+              ]
+            },
+            "description": "Check the current attempt with the eID provider and get the next QR code. Poll every 1 to 2 seconds while `status` is `PENDING`. The login completes even if you stop polling, and `login.completed` fires.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel an eID attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Sajn-Version",
+                "value": "{{apiVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/login/sessions/{{sessionId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "login",
+                "sessions",
+                "{{sessionId}}",
+                "cancel"
+              ]
+            },
+            "description": "Cancel the current attempt, for example when the user presses Cancel. The session stays open, so the user can start a new attempt. If the user finished in the eID app just before, `status` is `COMPLETED`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1449,7 +1587,7 @@
                 "files"
               ]
             },
-            "description": "Lists the files of a document that are ready to download, each with a pre-signed URL that works for 15 minutes.\n\n- `ORIGINAL`: the unsigned source document, for every status.\n- `SIGNED`: the signed and sealed copy, after the document is completed and sealed.\n- `JOURNAL`: the signing journal (audit trail), after the document is completed.\n\nA file that isn't ready yet isn't listed. Every URL in the response counts as a download in the document's audit trail."
+            "description": "Lists the files of a document that are ready to download, each with a pre-signed URL that works for 15 minutes.\n\n- `ORIGINAL`: the unsigned source document, after the document is sent and sajn has generated the PDF. It's ready when `document.sent` fires. For a QES document, and for some documents where a party picks products, sajn generates it after the parties have filled in their fields. A draft has no `ORIGINAL`.\n- `SIGNED`: the signed and sealed copy, after the document is completed and sealed.\n- `JOURNAL`: the signing journal (audit trail), after the document is completed.\n\nA file that isn't ready yet isn't listed. Every URL in the response counts as a download in the document's audit trail."
           },
           "response": []
         },
