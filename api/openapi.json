@@ -90116,7 +90116,7 @@
 		},
 		"/api/v1/documents/{id}/files": {
 			"get": {
-				"description": "Lists the files of a document that are ready to download, each with a pre-signed URL that works for 15 minutes.\n\n- `ORIGINAL`: the unsigned source document, after the document is sent and sajn has generated the PDF. It's ready when `document.sent` fires. If parties fill in fields before signing, it's ready after they have filled them in. A draft has no `ORIGINAL`.\n- `SIGNED`: the signed and sealed copy, after the document is completed and sealed.\n- `JOURNAL`: the signing journal (audit trail), after the document is completed.\n\nA file that isn't ready yet isn't listed. Every URL in the response counts as a download in the document's audit trail.",
+				"description": "Lists the files of a document that are ready to download, each with a pre-signed URL that works for 15 minutes.\n\n- `ORIGINAL`: the unsigned source document, after the document is sent and sajn has generated the PDF. It's ready when `document.sent` fires. For a QES document, and for some documents where a party picks products, sajn generates it after the parties have filled in their fields. A draft has no `ORIGINAL`.\n- `SIGNED`: the signed and sealed copy, after the document is completed and sealed.\n- `JOURNAL`: the signing journal (audit trail), after the document is completed.\n\nA file that isn't ready yet isn't listed. Every URL in the response counts as a download in the document's audit trail.",
 				"summary": "List document files",
 				"parameters": [
 					{

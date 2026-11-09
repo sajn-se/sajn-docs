@@ -72,7 +72,7 @@ Every few minutes is enough for most integrations.
 
 ## Wait for the original PDF
 
-A draft has no `ORIGINAL` file. sajn generates it in the background after you send the document, and it's ready when `document.sent` fires. If parties fill in fields before signing, it's ready after they have filled them in. Until then, `GET /api/v1/documents/DOCUMENT_ID/files/ORIGINAL` returns `409 INVALID_STATE`, and `GET /api/v1/documents/DOCUMENT_ID/files` leaves it out.
+A draft has no `ORIGINAL` file. sajn generates it in the background when you send the document, and it's ready when `document.sent` fires. For a QES document, and for some documents where a party picks products, sajn generates it after the parties have filled in their fields. Until then, `GET /api/v1/documents/DOCUMENT_ID/files/ORIGINAL` returns `409 INVALID_STATE`, and `GET /api/v1/documents/DOCUMENT_ID/files` leaves it out.
 
 ## Next steps
 
