@@ -151,7 +151,7 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
   </Step>
 
   <Step title="Configure the invitation and signing settings">
-    Set the email subject, the invitation message, the signing order, and the automatic reminders in `documentMeta`. Set the deadline in `expiresAt`. You can send these fields when you create the document, or later with a `PATCH` request:
+    Set the invitation message, the signing order, and the automatic reminders in `documentMeta`. Set the deadline in `expiresAt`. You can send these fields when you create the document, or later with a `PATCH` request:
 
     ```bash
     curl -X PATCH https://app.sajn.se/api/v1/documents/DOCUMENT_ID \
@@ -161,7 +161,6 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
       -d '{
         "expiresAt": "2026-10-31T16:00:00Z",
         "documentMeta": {
-          "subject": "Your employment contract",
           "message": "Hi Alex, here is your contract. Sign it before October 31.",
           "signingMode": "SEQUENTIAL",
           "language": "en",
@@ -180,6 +179,8 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
     - `language`: the language of the emails and the signing page, such as `sv` or `en`.
     - `redirectUrl` and `redirectEnabled`: where to send a party after signing. For more information, see [Redirect after signing](/guides/documents/redirect-url).
     - `internalRecipients`: up to five email addresses that get a copy of the sealed PDF when the document is completed.
+
+    The invitation's subject line comes from the workspace email templates, not from `documentMeta`.
 
     For every field, see [Create a new document](/api-reference/create-a-new-document).
   </Step>
