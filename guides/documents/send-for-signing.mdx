@@ -49,7 +49,7 @@ In this guide, you send a draft document to its parties. You personalize the inv
   </Step>
 
   <Step title="Send the draft">
-    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/send`. The optional `customMessage` replaces the invitation message:
+    Send a `POST` request to `/api/v1/documents/DOCUMENT_ID/send`. The optional `customMessage` replaces the invitation message. Without it, the invitation uses `documentMeta.message`:
 
     <CodeGroup>
 
