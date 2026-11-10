@@ -38,7 +38,7 @@ Samarbete innehåller aviseringen när någon nämner dig i en kommentar. Godkä
 
 ![](../../images/guider/settings-communication-preferences/05-konto.png)
 
-Här ligger ny medlem, medlem som lämnat, ovanlig aktivitet på kontot, identitet som inte matchar vid signering, klar dataexport, veckosammanfattning, åtgärder att göra, förslag efter signering och när ni närmar er en användningsgräns. Veckosammanfattningen är ett typiskt exempel på en avisering man bara vill ha på e-post: lämna Webb och Mobil tomma och kryssa bara E-post.
+Här ligger ny medlem, medlem som lämnat, ovanlig aktivitet på kontot, identitet som inte matchar vid signering, klar dataexport, åtgärder att göra, förslag efter signering och när ni närmar er en användningsgräns. Åtgärder att göra är ett typiskt exempel på en avisering man bara vill ha på e-post: lämna Webb och Mobil tomma och kryssa bara E-post.
 
 ### 5. Utvecklare — visas bara med utvecklarbehörighet
 
