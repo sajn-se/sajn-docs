@@ -5,7 +5,7 @@ description: 'Connect an AI assistant to your sajn workspace over the Model Cont
 
 The **sajn MCP Server** lets an AI assistant work in your live sajn **workspace** — not just look at it. Find and read documents, draft them, fill them in, manage parties, send for signing, chase signatures, and follow status. It also carries the developer tools for debugging an integration: API request logs and outbound webhook deliveries.
 
-Connect it to Claude Desktop, Claude Code, Cursor or any other MCP client and you can run the everyday signing workflow from wherever you already work. It uses the same permission model as the [REST API](/get-started/introduction), so an assistant can never do more than you can.
+Install the sajn app in ChatGPT, or connect the server to Claude Desktop, Claude Code, Cursor, or any other MCP client. Then you run the everyday signing workflow from wherever you already work. It uses the same permission model as the [REST API](/get-started/introduction), so an assistant can never do more than you can.
 
 <Note>
 This is **not** the same as the [documentation MCP server](/ai/docs-mcp) at `https://docs.sajn.se/mcp`. That one only searches these docs and needs no login. The sajn MCP server connects to your **real account data** and requires authentication.
@@ -201,6 +201,14 @@ To add agreements that were signed outside sajn, ask the assistant to import the
 ## Setup
 
 <Tabs>
+  <Tab title="ChatGPT">
+    1. Open the [sajn app in the ChatGPT app directory](https://chatgpt.com/plugins/plugin_asdk_app_6ae1b3c33a0c8191a474eb9eb3c3485b).
+    2. Connect the app.
+    3. Sign in to sajn, pick the workspace, and approve the scopes.
+
+    The ChatGPT app covers the everyday signing workflow: drafting, filling in, parties, sending, and follow-up. It has no developer tools, and it doesn't accept personal identity numbers. Add those to the party in sajn.
+  </Tab>
+
   <Tab title="Claude Code">
     ```bash
     claude mcp add --transport http sajn https://app.sajn.se/api/mcp
