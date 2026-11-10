@@ -95,7 +95,7 @@ sajn refuses to send a document, with the code `VALIDATION_FAILED`, until it mee
 A `DRAFT` document accepts every change. After you send it, what you can change through [`PATCH /documents/{id}`](/api-reference/update-a-document) depends on the field:
 
 - `name`, `externalId`, `responsibleUserId`, and `value` can always change.
-- Reminders, subject, message, and the redirect URL can change until the document is completed, rejected, or cancelled.
+- Reminders, message, and the redirect URL can change until the document is completed, rejected, or cancelled.
 - `forceReadFullDocument`, `openVerification`, and `language` can change until someone has signed.
 - `signingMode` can't change. Withdraw the document first.
 
@@ -107,7 +107,7 @@ The `documentMeta` object holds the settings that control signing. The most comm
 
 | Field | Description |
 |-------|-------------|
-| `message` | Message of the signing invitation. The subject line comes from the workspace email templates. |
+| `message` | Message of the signing invitation. |
 | `signingMode` | `PARALLEL` lets every party sign at once. `SEQUENTIAL` invites parties one at a time, in their `signingOrder`. |
 | `language` | Language of the signing page and emails: `sv`, `en`, `no`, `da`, `fi`, `de`, `is`, `es`, `fr`, or `it`. |
 | `forceReadFullDocument` | If `true`, a party must scroll through the whole document before signing. |
