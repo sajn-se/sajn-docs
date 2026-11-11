@@ -1,9 +1,9 @@
 ---
 title: sajn MCP server
-description: 'Connect an AI assistant to your sajn workspace over the Model Context Protocol — draft documents, fill them in, manage parties, send for signing, chase signatures, and debug your integration'
+description: 'Connect an AI assistant to your sajn workspaces over the Model Context Protocol — draft documents, fill them in, manage parties, send for signing, chase signatures, and debug your integration'
 ---
 
-The **sajn MCP Server** lets an AI assistant work in your live sajn **workspace** — not just look at it. Find and read documents, draft them, fill them in, manage parties, send for signing, chase signatures, and follow status. It also carries the developer tools for debugging an integration: API request logs and outbound webhook deliveries.
+The **sajn MCP Server** lets an AI assistant work in your live sajn **workspaces** — not just look at them. Find and read documents, draft them, fill them in, manage parties, send for signing, chase signatures, and follow status. It also carries the developer tools for debugging an integration: API request logs and outbound webhook deliveries.
 
 Install the sajn app in ChatGPT, or connect the server to Claude Desktop, Claude Code, Cursor, or any other MCP client. Then you run the everyday signing workflow from wherever you already work. It uses the same permission model as the [REST API](/get-started/introduction), so an assistant can never do more than you can.
 
@@ -15,7 +15,7 @@ This is **not** the same as the [documentation MCP server](/ai/docs-mcp) at `htt
 |---|---|---|
 | **URL** | `https://docs.sajn.se/mcp` | `https://app.sajn.se/api/mcp` |
 | **Auth** | None (public) | OAuth 2.0 |
-| **Data** | Documentation only | Your live workspace |
+| **Data** | Documentation only | Your live workspaces |
 | **Use for** | "How do I…" questions | Working on real documents, debugging logs & webhooks |
 
 ## Server URL
@@ -28,31 +28,51 @@ The server is a stateless [Streamable HTTP](https://modelcontextprotocol.io/spec
 
 ## Authentication
 
-The sajn MCP server uses **OAuth 2.0** and is bound to a single **workspace**. Most MCP clients (Claude, Cursor, …) discover and complete OAuth automatically. When you add the server, the client opens a sajn consent screen where you pick the workspace and approve the scopes the assistant may use.
+The sajn MCP server uses **OAuth 2.0**. Most MCP clients, such as Claude, ChatGPT, and Cursor, find the server's OAuth settings and start the sign-in themselves. The client opens the sajn consent screen, where you choose what the assistant gets:
 
-Read-only access is the default — write and destructive tools only appear after you grant the matching scope. There are no tokens to copy or rotate; the client refreshes them for you. Every request enforces the same `role ∩ scope` rule as the REST API.
+1. Pick a workspace.
+2. Pick a level for that workspace: **Läs** (read), **Skriv** (write), or **Administrera** (administer). **Skriv** is preselected.
+3. To add another workspace from the same organization, select **Lägg till arbetsyta** and repeat the first two steps.
+4. On the review step, use the **⋯** menu on a row to change its level, make it the default workspace with **Gör till standard**, or remove it.
+5. Select **Godkänn**.
 
-<Warning>
-The sajn MCP server requires a **paid plan**. Connections on the free plan are rejected.
-</Warning>
+The first workspace you pick is the default unless you change it. There are no tokens to copy or rotate: the client refreshes them for you. The server works on every plan.
 
-### Scopes and permissions
+A workspace created after you connect is not added to the connection. To include it, reconnect the server and pick it.
 
-Every tool declares the OAuth scopes it needs, and the tool list is **filtered to what your connection is allowed to see** — a read-only connection never even lists the write tools. On top of that, your workspace role is re-checked on every call, so an assistant can never do more than you can.
+### Levels and permissions
 
-| Scope | Unlocks |
-|---|---|
-| `documents:read` | Finding and reading documents, fields, parties and settings |
-| `documents:write` | Drafting, filling in, managing parties, sending, chasing |
-| `documents:delete` | Deleting documents |
-| `templates:read` | Listing templates and their roles |
-| `contacts:read` / `contacts:write` | Reading and creating/updating contacts and companies |
-| `audit:read` | Document history, API logs, webhook deliveries |
-| `webhooks:read` / `webhooks:write` | Managing webhook endpoints |
-| `sajnid:read` | sajn ID verifications |
-| `profile:read` | `whoami` |
+Each workspace in a connection has its own level:
 
-Some tools need a workspace permission as well as a scope — most notably the developer tools, which require **Manage developer** (API logs) or **Manage webhooks**, so only developers can read raw traffic.
+| Level | Scope | The assistant can |
+|---|---|---|
+| **Läs** | `sajn:read` | Read everything your role can read in the workspace |
+| **Skriv** | `sajn:write` | Also create, change, and send, within your role |
+| **Administrera** | `sajn:admin` | Also manage members, roles, and settings, within your role |
+
+A tool call passes four checks in the workspace it acts in, and each check can only narrow the one before it:
+
+1. The level you granted for that workspace.
+2. Your role in that workspace.
+3. The workspace's policy for AI agents in **Inställningar** > **AI**.
+4. The workspace's AI switch. A workspace with AI turned off refuses every tool call.
+
+An assistant can therefore never do more than you can in that workspace. The tool list shows what your role and the agent policy allow. A call that needs a higher level than you granted returns an error that names the level it needs.
+
+Connections made before the levels existed hold per-resource scopes, such as `documents:read`, and keep working.
+
+Some tools need a workspace permission as well — most notably the developer tools, which require **Manage developer** (API logs) or **Manage webhooks**, so only developers can read raw traffic.
+
+### Working in several workspaces
+
+A call acts in the default workspace unless it names another one. When a connection covers more than one workspace, every tool takes an optional `workspaceId` argument: the workspace's id, slug, or name. The assistant fills it in, so you name the workspace in plain words, such as "create it in Juridik".
+
+- `getCurrentUser` lists the connected workspaces and marks the default.
+- A call about an existing document runs in the workspace that holds the document, so you don't name it.
+- Every result names the workspace the call acted in.
+- A workspace outside the connection is refused, and so is a name that two connected workspaces share. The error lists the connected workspaces.
+
+A connection covers workspaces in one organization.
 
 ## Tools
 
@@ -204,7 +224,7 @@ To add agreements that were signed outside sajn, ask the assistant to import the
   <Tab title="ChatGPT">
     1. Open the [sajn app in the ChatGPT app directory](https://chatgpt.com/plugins/plugin_asdk_app_6ae1b3c33a0c8191a474eb9eb3c3485b).
     2. Connect the app.
-    3. Sign in to sajn, pick the workspace, and approve the scopes.
+    3. Sign in to sajn, pick the workspaces and a level for each, and select **Godkänn**.
 
     The ChatGPT app covers the everyday signing workflow: drafting, filling in, parties, sending, and follow-up. It has no developer tools, and it doesn't accept personal identity numbers. Add those to the party in sajn.
   </Tab>
@@ -214,7 +234,7 @@ To add agreements that were signed outside sajn, ask the assistant to import the
     claude mcp add --transport http sajn https://app.sajn.se/api/mcp
     ```
 
-    On first use Claude Code opens the sajn OAuth consent screen in your browser. Pick the workspace and approve the scopes. Verify with:
+    On first use Claude Code opens the sajn OAuth consent screen in your browser. Pick the workspaces and a level for each, and select **Godkänn**. Verify with:
 
     ```bash
     claude mcp list
@@ -283,19 +303,10 @@ To add agreements that were signed outside sajn, ask the assistant to import the
 - "Find the API requests that returned 4xx today and tell me what's wrong with them."
 - "Which webhook endpoint is failing, and what status code is it returning?"
 
-## What the MCP server does not do
-
-Some things are deliberately kept in the sajn app rather than exposed to a connected assistant:
-
-- **Approving or rejecting** a document — approval is a person accepting responsibility, so it happens where you can see the document.
-- **Members, roles and permissions** — account administration isn't something a connected app should reach.
-- **Deleting templates, contacts or folders** — destructive on shared assets the whole workspace depends on.
-- **Reports, statistics and organization settings.**
-
 ## Security
 
-- **Workspace-scoped** — a connection only ever sees data in the workspace you approved at consent.
-- **Least privilege** — tools are filtered to the granted scopes; read-only by default, and developer tools are further gated behind a workspace permission.
+- **Workspace-scoped** — a connection only reaches the workspaces you picked at consent, all in one organization.
+- **Least privilege** — each call is checked against the level you granted for the workspace it acts in, and developer tools also need a workspace permission.
 - **Same enforcement as REST** — scopes and role permissions are re-checked on every tool call, not just at listing time.
 - **Confirmation hints** — tools that email or SMS a counterparty, or destroy work, are marked destructive so your client can prompt first.
 - **Rate limited** — per-IP and per-organization limits apply, the same as the REST API.
@@ -309,15 +320,17 @@ Some things are deliberately kept in the sajn app rather than exposed to a conne
     The developer tools (`whoami`, `list_api_logs`, `get_api_log`, webhook and sajn ID tools) kept their names.
   </Accordion>
   <Accordion title="The debugging tools don't show up">
-    The connection must have the `audit:read` scope **and** the member must hold the matching workspace permission — **Manage developer** for API logs, **Manage webhooks** for deliveries. Re-run the OAuth consent and make sure `audit:read` is granted.
+    The member must hold the matching workspace permission — **Manage developer** for API logs, **Manage webhooks** for deliveries. A connection made before the levels existed also needs the `audit:read` scope. To get it, reconnect the server.
   </Accordion>
   <Accordion title="Connection rejected / 401">
     - Confirm the URL is `https://app.sajn.se/api/mcp` (note `/api/mcp`, not `/mcp`).
-    - The account must be on a **paid plan**.
     - Reconnect the server and complete the OAuth consent flow again.
   </Accordion>
-  <Accordion title="Write or delete tools are missing">
-    They are hidden until you grant the matching scope (`documents:write`, `documents:delete`, `contacts:write`) at consent. Reconnect and approve the additional scopes.
+  <Accordion title="The assistant says the application lacks permission">
+    The call needs a higher level than you granted for that workspace, such as **Skriv** to create or send. Reconnect the server and pick a higher level for the workspace.
+  </Accordion>
+  <Accordion title="The assistant works in the wrong workspace">
+    Name the workspace in your request, such as "in Juridik". To change which workspace it uses by default, reconnect the server and use **Gör till standard** on the review step. A workspace created after you connected is not in the connection until you reconnect.
   </Accordion>
   <Accordion title="The assistant says it can't edit a sent document">
     That's correct — parties, fields and content are locked once a document is out for signing. Withdraw it with `withdrawDocument` to make it a draft again (the parties are notified), or extend the deadline with `extendDocumentExpiration` if that's all you need.
