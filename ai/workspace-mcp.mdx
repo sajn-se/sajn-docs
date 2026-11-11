@@ -1,9 +1,9 @@
 ---
 title: sajn MCP server
-description: 'Connect an AI assistant to your sajn workspace over the Model Context Protocol — draft documents, fill them in, manage parties, send for signing, chase signatures, and debug your integration'
+description: 'Connect an AI assistant to your sajn workspaces over the Model Context Protocol — draft documents, fill them in, manage parties, send for signing, chase signatures, and debug your integration'
 ---
 
-The **sajn MCP Server** lets an AI assistant work in your live sajn **workspace** — not just look at it. Find and read documents, draft them, fill them in, manage parties, send for signing, chase signatures, and follow status. It also carries the developer tools for debugging an integration: API request logs and outbound webhook deliveries.
+The **sajn MCP Server** lets an AI assistant work in your live sajn **workspaces** — not just look at them. Find and read documents, draft them, fill them in, manage parties, send for signing, chase signatures, and follow status. It also carries the developer tools for debugging an integration: API request logs and outbound webhook deliveries.
 
 Install the sajn app in ChatGPT, or connect the server to Claude Desktop, Claude Code, Cursor, or any other MCP client. Then you run the everyday signing workflow from wherever you already work. It uses the same permission model as the [REST API](/get-started/introduction), so an assistant can never do more than you can.
 
@@ -15,7 +15,7 @@ This is **not** the same as the [documentation MCP server](/ai/docs-mcp) at `htt
 |---|---|---|
 | **URL** | `https://docs.sajn.se/mcp` | `https://app.sajn.se/api/mcp` |
 | **Auth** | None (public) | OAuth 2.0 |
-| **Data** | Documentation only | Your live workspace |
+| **Data** | Documentation only | Your live workspaces |
 | **Use for** | "How do I…" questions | Working on real documents, debugging logs & webhooks |
 
 ## Server URL
@@ -28,148 +28,409 @@ The server is a stateless [Streamable HTTP](https://modelcontextprotocol.io/spec
 
 ## Authentication
 
-The sajn MCP server uses **OAuth 2.0** and is bound to a single **workspace**. Most MCP clients (Claude, Cursor, …) discover and complete OAuth automatically. When you add the server, the client opens a sajn consent screen where you pick the workspace and approve the scopes the assistant may use.
+The sajn MCP server uses **OAuth 2.0**. Most MCP clients, such as Claude, ChatGPT, and Cursor, find the server's OAuth settings and start the sign-in themselves. The client opens the sajn consent screen, where you choose what the assistant gets:
 
-Read-only access is the default — write and destructive tools only appear after you grant the matching scope. There are no tokens to copy or rotate; the client refreshes them for you. Every request enforces the same `role ∩ scope` rule as the REST API.
+1. Pick a workspace.
+2. Pick a level for that workspace: **Läs** (read), **Skriv** (write), or **Administrera** (administer). **Skriv** is preselected.
+3. To add another workspace from the same organization, select **Lägg till arbetsyta** and repeat the first two steps.
+4. On the review step, use the **⋯** menu on a row to change its level, make it the default workspace with **Gör till standard**, or remove it.
+5. Select **Godkänn**.
 
-<Warning>
-The sajn MCP server requires a **paid plan**. Connections on the free plan are rejected.
-</Warning>
+The first workspace you pick is the default unless you change it. There are no tokens to copy or rotate: the client refreshes them for you. The server works on every plan.
 
-### Scopes and permissions
+A workspace created after you connect is not added to the connection. To include it, reconnect the server and pick it.
 
-Every tool declares the OAuth scopes it needs, and the tool list is **filtered to what your connection is allowed to see** — a read-only connection never even lists the write tools. On top of that, your workspace role is re-checked on every call, so an assistant can never do more than you can.
+### Levels and permissions
 
-| Scope | Unlocks |
-|---|---|
-| `documents:read` | Finding and reading documents, fields, parties and settings |
-| `documents:write` | Drafting, filling in, managing parties, sending, chasing |
-| `documents:delete` | Deleting documents |
-| `templates:read` | Listing templates and their roles |
-| `contacts:read` / `contacts:write` | Reading and creating/updating contacts and companies |
-| `audit:read` | Document history, API logs, webhook deliveries |
-| `webhooks:read` / `webhooks:write` | Managing webhook endpoints |
-| `sajnid:read` | sajn ID verifications |
-| `profile:read` | `whoami` |
+Each workspace in a connection has its own level:
 
-Some tools need a workspace permission as well as a scope — most notably the developer tools, which require **Manage developer** (API logs) or **Manage webhooks**, so only developers can read raw traffic.
+| Level | Scope | The assistant can |
+|---|---|---|
+| **Läs** | `sajn:read` | Read everything your role can read in the workspace |
+| **Skriv** | `sajn:write` | Also create, change, and send, within your role |
+| **Administrera** | `sajn:admin` | Also manage members, roles, and settings, within your role |
+
+A tool call passes four checks in the workspace it acts in, and each check can only narrow the one before it:
+
+1. The level you granted for that workspace.
+2. Your role in that workspace.
+3. The workspace's policy for AI agents in **Inställningar** > **AI**.
+4. The workspace's AI switch. A workspace with AI turned off refuses every tool call.
+
+An assistant can therefore never do more than you can in that workspace. The tool list shows what your role and the agent policy allow. A call that needs a higher level than you granted returns an error that names the level it needs.
+
+Connections made before the levels existed hold per-resource scopes, such as `documents:read`, and keep working.
+
+Some tools need a workspace permission as well — most notably the developer tools, which require **Manage developer** (API logs) or **Manage webhooks**, so only developers can read raw traffic.
+
+### Working in several workspaces
+
+A call acts in the default workspace unless it names another one. When a connection covers more than one workspace, every tool takes an optional `workspaceId` argument: the workspace's id, slug, or name. The assistant fills it in, so you name the workspace in plain words, such as "create it in Juridik".
+
+- `getCurrentUser` lists the connected workspaces and marks the default.
+- A call about an existing document runs in the workspace that holds the document, so you don't name it.
+- Every result names the workspace the call acted in.
+- A workspace outside the connection is refused, and so is a name that two connected workspaces share. The error lists the connected workspaces.
+
+A connection covers workspaces in one organization.
 
 ## Tools
 
-### Finding documents
+An MCP client loads every listed tool into every conversation, so the server lists only the 22 everyday tools. Every other tool is reached through `findTools`. The assistant does this itself: you ask in plain words, and it finds and runs the right tool.
 
-| Tool | Scope | What it does |
+Each tool needs a level in the workspace it acts in, and most also need a permission in your role. Tools marked <sup>destructive</sup> send, delete, overwrite, or change access, so your client asks you before it runs them.
+
+### Everyday tools
+
+| Tool | Level | What it does |
 |---|---|---|
-| `listDocuments` | `documents:read` | Count and list documents, optionally filtered by status |
-| `findDocuments` | `documents:read` | Search documents by title |
-| `searchDocumentContent` | `documents:read` | Search what documents actually say, not just their titles |
-| `findDocumentsByDate` | `documents:read` | Find documents by created/sent date |
-| `findDocumentsByExpiration` | `documents:read` | Find documents by expiry — what's running out |
-| `findDocumentsByCustomField` | `documents:read` | Find documents by a custom field value |
-| `findDocumentsByParty` | `documents:read` | Find documents involving a given person or company |
-| `getPendingSignatures` | `documents:read` | What is waiting for a signature right now |
+| `createDocument` | Skriv | Creates a document, blank or from a template |
+| `findDocuments` | Läs | Finds, lists and counts documents, including by what they say or by upcoming renewal |
+| `summarizeContent` | Läs | Summarizes a document or template: purpose, parties, key terms, dates and clauses to watch |
+| `getDocumentReadiness` | Läs | Checks whether a document is ready to send for signing |
+| `getDocument` | Läs | Gets one document's status, dates, parties, owner, source template and tags |
+| `sendDocument` | Skriv | Sends a draft for signing to its parties <sup>destructive</sup> |
+| `getSettings` | Läs | Gets a document's or template's settings, such as name, expiry date, invitation message, signing order and reminders |
+| `getParties` | Läs | Gets the parties of a document or template, with contact details, role, signing method and order |
+| `addParty` | Skriv | Adds a party to a document or template <sup>destructive</sup> |
+| `getFields` | Läs | Gets the blocks of a document or template in order |
+| `setFieldValues` | Skriv | Sets one or more values the sender fills in <sup>destructive</sup> |
+| `findTemplates` | Läs | Finds the workspace's templates, optionally filtered by name |
+| `getTemplate` | Läs | Gets one template |
+| `createContact` | Skriv | Creates a contact (a person) in the workspace address book |
+| `findContacts` | Läs | Finds contacts by name (partial match), email or phone (exact match) |
+| `addDocumentFile` | Skriv | Adds an uploaded PDF or Office file to a document |
+| `reportMissingCapability` | Läs | Tells sajn about something the assistant needed but couldn't do |
+| `getCurrentUser` | Läs | Gets the connected user, the organization and the connected workspaces |
+| `createUploadUrl` | Skriv | Creates a single-use URL to upload a file to |
+| `findTools` | Läs | Searches the tools that are not listed and returns their input schemas |
+| `runReadOnlyTool` | Läs | Runs a read-only tool that `findTools` returned |
+| `runTool` | Level of the tool it runs | Runs a tool that changes data, which `findTools` returned |
 
-### Reading a document
+### Reaching the other tools
 
-| Tool | Scope | What it does |
+1. `findTools` takes a description of the task, such as "invite a member", and returns the best-matching tools with their input schemas.
+2. The assistant runs a read-only match with `runReadOnlyTool` and any other match with `runTool`.
+
+A call through `runTool` or `runReadOnlyTool` passes every check that a direct call passes, including the level of the tool it runs. If `findTools` returns a match under `blockedByPolicy`, the workspace's AI agent policy has switched that tool off. An administrator can allow it under **Inställningar** > **AI**.
+
+The ChatGPT app works differently: it lists its tools directly and has no `findTools`. It covers the everyday signing workflow: `createDocument`, `findDocuments`, `sendPartyReminder`, `summarizeContent`, `getDocumentReadiness`, `getDocument`, `sendDocument`, `withdrawDocument`, `getSettings`, `updateSettings`, `getSigningMethods`, `setCustomFieldValue`, `getParties`, `addParty`, `updateParty`, `removeParty`, `getFields`, `getField`, `addTextField`, `updateTextField`, `addFormField`, `updateFormField`, `removeField`, `getFieldValues`, `setFieldValues`, `getDocumentFile`, `findTemplates`, `getTemplate`, `createContact`, `updateContact`, `findContactsByCustomField`, `findContacts`, `getContact`, `createCompany`, `submitForApproval`, `findActions`, `dismissAction`, `snoozeAction`, `findCustomFields`, `getUsage`, `reportMissingCapability`, `getCurrentUser`.
+
+### All tools by area
+
+#### Documents
+
+| Tool | Level | What it does |
 |---|---|---|
-| `getDocumentDetails` | `documents:read` | Status, dates, value, tags, owner, source template, signing progress |
-| `getDocumentParties` | `documents:read` | The parties and where each one is in the flow |
-| `getDocumentSigners` | `documents:read` | The parties with the ids used to update or remove them |
-| `getDocumentSettings` | `documents:read` | Subject, message, signing order, language, reminder cadence, verification |
-| `listFields` | `documents:read` | The blocks the document is built from |
-| `getField` | `documents:read` | One block in full, including its subfields |
-| `listFillableFields` | `documents:read` | Every value that can be filled in, what's missing, and who fills it |
-| `checkDocumentReadiness` | `documents:read` | Whether the document is ready to send |
-| `getDocumentShareLink` | `documents:read` | Create a view-only link for someone without an account |
-| `getDocumentAuditLog` | `audit:read` | The document's history |
+| `createDocument` | Skriv | Creates a document, blank or from a template |
+| `findDocuments` | Läs | Finds, lists and counts documents, including by what they say or by upcoming renewal |
+| `sendPartyReminder` | Skriv | Sends a manual reminder to one party who has not yet signed <sup>destructive</sup> |
+| `summarizeContent` | Läs | Summarizes a document or template: purpose, parties, key terms, dates and clauses to watch |
+| `getDocumentReadiness` | Läs | Checks whether a document is ready to send for signing |
+| `startReview` | Skriv | Starts an AI legal review of a document or template |
+| `getReviewStatus` | Läs | Gets the status of the latest AI review of a document or template |
+| `getDocument` | Läs | Gets one document's status, dates, parties, owner, source template and tags |
+| `duplicateDocument` | Skriv | Copies a document, with its content and parties, into a new draft |
+| `archiveDocument` | Skriv | Moves a document to the archive |
+| `unarchiveDocument` | Skriv | Moves an archived document back to the active document list |
+| `deleteDocument` | Skriv | Moves a document to the trash <sup>destructive</sup> |
+| `restoreDocument` | Skriv | Restores a document from the trash |
+| `setDocumentRetentionHold` | Skriv | Exempts a document from the retention policy, or removes the exemption <sup>destructive</sup> |
+| `sendDocument` | Skriv | Sends a draft for signing to its parties <sup>destructive</sup> |
+| `withdrawDocument` | Skriv | Withdraws a sent document so it becomes a draft again that can be edited and resent <sup>destructive</sup> |
+| `completeDocument` | Skriv | Completes a sent document before every party has signed <sup>destructive</sup> |
+| `addDocumentTag` | Skriv | Adds a tag to a document |
+| `removeDocumentTag` | Skriv | Removes a tag from a document |
+| `moveDocument` | Skriv | Moves a document into or out of a folder |
+| `createDocumentShareLink` | Skriv | Returns a public view link for a document <sup>destructive</sup> |
+| `deleteDocumentShareLink` | Skriv | Turns off a document's public view link so the URL stops working |
+| `getSettings` | Läs | Gets a document's or template's settings, such as name, expiry date, invitation message, signing order and reminders |
+| `updateSettings` | Skriv | Changes a document's or template's settings, such as name, expiry date or reminders <sup>destructive</sup> |
+| `getDocumentAuditLog` | Läs | Gets a document's audit trail |
+| `getVersionHistory` | Läs | Gets the version history of a document or template |
+| `getLinkedDocuments` | Läs | Gets the documents linked to a document, such as amendments and renewals |
+| `linkDocuments` | Skriv | Links two documents as an amendment, replacement, renewal or general relation |
+| `deleteDocumentLink` | Skriv | Removes a link between two documents, such as an amendment or renewal relation, from both documents |
+| `scheduleDocumentSend` | Skriv | Schedules a draft to be sent later <sup>destructive</sup> |
+| `cancelScheduledSend` | Skriv | Cancels a scheduled send |
+| `captureVersion` | Skriv | Saves the current document or template as a version in its history |
+| `restoreVersion` | Skriv | Restores a document or template to an earlier version <sup>destructive</sup> |
+| `getDocumentFile` | Läs | Gets a download link for the signed PDF, the signing certificate or the original |
+| `addDocumentFile` | Skriv | Adds an uploaded PDF or Office file to a document |
 
-### Building a document
+#### Content and fields
 
-| Tool | Scope | What it does |
+| Tool | Level | What it does |
 |---|---|---|
-| `createDocument` | `documents:write` | Create a document, optionally from a template |
-| `renameDocument` | `documents:write` | Rename it |
-| `duplicateDocument` | `documents:write` | Copy an existing document |
-| `updateDocumentSettings` | `documents:write` | Change subject, message, signing order, language, reminder cadence and verification |
-| `addTextField` | `documents:write` | Add a text block — clauses, paragraphs, contract prose |
-| `updateTextField` | `documents:write` | Rewrite a text block |
-| `addFormField` | `documents:write` | Add a form block of fields to fill in |
-| `updateFormField` | `documents:write` | Change a form block's fields or layout |
-| `addTable` | `documents:write` | Add a data table (no prices) |
-| `addProductTable` | `documents:write` | Add a price table with quantities, units and VAT |
-| `createUploadUrl` | `documents:write` | Get a single-use URL to upload a PDF or Office file to |
-| `attachFileToDocument` | `documents:write` | Add an uploaded file to a draft or archive-imported document |
-| `removeField` | `documents:write` | Remove a block <sup>destructive</sup> |
-| `addTagToDocument` / `removeTagFromDocument` | `documents:write` | Tag it |
-| `moveDocumentToFolder` | `documents:write` | File it |
+| `getFields` | Läs | Gets the blocks of a document or template in order |
+| `getField` | Läs | Gets one block with its full content, including a form's fields |
+| `addTextField` | Skriv | Adds a text block for clauses and paragraphs |
+| `updateTextField` | Skriv | Replaces the content of a text block <sup>destructive</sup> |
+| `addFormField` | Skriv | Adds a form block of fields to fill in |
+| `updateFormField` | Skriv | Changes a form block's columns or fields <sup>destructive</sup> |
+| `addTableField` | Skriv | Adds a data table without prices |
+| `addProductTableField` | Skriv | Adds a price table with quantity, unit and VAT |
+| `removeField` | Skriv | Removes a block with everything in it <sup>destructive</sup> |
+| `moveField` | Skriv | Moves a block to another position |
+| `setFieldVisibilityRule` | Skriv | Shows or hides a block depending on a yes/no or choice custom field |
+| `replaceText` | Skriv | Replaces wording inside a text block <sup>destructive</sup> |
+| `insertBlocks` | Skriv | Inserts paragraphs, headings, lists or tables into a text block |
+| `deleteBlocks` | Skriv | Deletes paragraphs, list items, columns or tables inside a text block <sup>destructive</sup> |
+| `moveFieldAfter` | Skriv | Moves a block to right after another block |
+| `setFieldMeta` | Skriv | Sets a block's settings, such as section style, visibility rule or lock <sup>destructive</sup> |
+| `setVariable` | Skriv | Sets a variable in a text block that the sender fills in <sup>destructive</sup> |
+| `getPdfFields` | Läs | Gets the fields placed on uploaded PDFs |
+| `addPdfField` | Skriv | Adds a field on top of an uploaded PDF page |
+| `updatePdfField` | Skriv | Moves, resizes or changes a field on an uploaded PDF |
+| `removePdfField` | Skriv | Removes fields from uploaded PDFs, with their values <sup>destructive</sup> |
+| `addSignatureFields` | Skriv | Adds a signature box per party where an uploaded PDF has signature lines |
+| `getFieldValues` | Läs | Gets the values in form blocks and PDF fields, and who fills each one |
+| `setFieldValues` | Skriv | Sets one or more values the sender fills in <sup>destructive</sup> |
 
-### Filling in values
+`setFieldValues` writes values in form blocks and in fields on uploaded PDFs, both the PDF's own form fields and fields placed on top of it. `getFieldValues` lists each value with who fills it. A value assigned to a party is read-only: that party fills it in when signing.
 
-| Tool | Scope | What it does |
+#### Parties
+
+| Tool | Level | What it does |
 |---|---|---|
-| `listFillableFields` | `documents:read` | See every slot, its current value and who fills it |
-| `fillFields` | `documents:write` | Fill one or many values in a single call, by key or by label |
-
-`fillFields` covers form fields **and** fields on an uploaded PDF — both the PDF's own form fields and any fields placed on top of it. Slots assigned to a party are listed but not writable: those are filled by that party at signing.
-
-### Parties
-
-| Tool | Scope | What it does |
-|---|---|---|
-| `addSignerToDocument` | `documents:write` | Add a party to a draft |
-| `updateSignerOnDocument` | `documents:write` | Change a party's details, role, order, delivery or signing method |
-| `removeSignerFromDocument` | `documents:write` | Remove a party from a draft |
-| `addPartyToSentDocument` | `documents:write` | Add and invite one party to an already-sent document <sup>destructive</sup> |
-| `removePartyFromSentDocument` | `documents:write` | Revoke one party's access on a sent document <sup>destructive</sup> |
-| `listSigningMethods` | `documents:read` | Which signing methods and identity checks this account can actually use |
+| `getSigningMethods` | Läs | Lists the signing methods and identity checks this account can use |
+| `getParties` | Läs | Gets the parties of a document or template, with contact details, role, signing method and order |
+| `addParty` | Skriv | Adds a party to a document or template <sup>destructive</sup> |
+| `updateParty` | Skriv | Changes a party on a document or template <sup>destructive</sup> |
+| `removeParty` | Skriv | Removes a party from a document or template <sup>destructive</sup> |
 
 <Tip>
-Signing methods and eID schemes are enabled market by market. Call `listSigningMethods` before setting `requiredSignature` or `twoStepVerification` rather than assuming a fixed list.
+Signing methods and eID schemes are enabled market by market. Call `getSigningMethods` before setting a party's signing method or identity check, rather than assuming a fixed list.
 </Tip>
 
-### Sending and following up
+#### Approvals
 
-| Tool | Scope | What it does |
+| Tool | Level | What it does |
 |---|---|---|
-| `sendDocument` | `documents:write` | Send for signing <sup>destructive</sup> |
-| `sendDocumentReminder` | `documents:write` | Chase whoever hasn't signed <sup>destructive</sup> |
-| `setDocumentExpiration` | `documents:write` | Set the signing deadline |
-| `extendDocumentExpiration` | `documents:write` | Push the deadline out |
-| `withdrawDocument` | `documents:write` | Recall a sent document so it can be edited <sup>destructive</sup> |
-| `archiveDocument` / `unarchiveDocument` | `documents:write` | Move it out of the way, or back |
-| `deleteDocument` | `documents:delete` | Delete it <sup>destructive</sup> |
-| `restoreDocument` | `documents:write` | Restore a deleted document |
-| `getPendingApprovals` | `documents:read` | What is waiting for internal approval |
-| `submitForApproval` | `documents:write` | Send a draft for internal approval <sup>destructive</sup> |
+| `findPendingApprovals` | Läs | Finds the documents waiting for your approval, with the approval chain |
+| `submitForApproval` | Skriv | Submits a draft for approval before it is sent <sup>destructive</sup> |
+| `approveDocument` | Skriv | Approves a document waiting for your approval <sup>destructive</sup> |
+| `rejectDocument` | Skriv | Rejects a document waiting for your approval <sup>destructive</sup> |
+| `getDocumentApproval` | Läs | Gets a document's approval request and chain |
+| `updateApprovalSteps` | Skriv | Changes the approvers of a document waiting for approval <sup>destructive</sup> |
+| `cancelApproval` | Skriv | Cancels a pending approval so the document becomes a draft again |
+| `sendApprovedDocument` | Skriv | Sends a fully approved document for signing <sup>destructive</sup> |
+| `getTemplateApproval` | Läs | Gets the approval chain a template gives its documents |
+| `setTemplateApproval` | Skriv | Sets the approval chain a template gives its documents |
 
-### Templates, contacts and folders
+#### Comments
 
-| Tool | Scope | What it does |
+| Tool | Level | What it does |
 |---|---|---|
-| `findTemplates` | `templates:read` | Find templates |
-| `getTemplateDetails` | `templates:read` | A template's details |
-| `getTemplateParties` | `templates:read` | The roles a template expects |
-| `findContact` / `getContactDetails` | `contacts:read` | Find and read contacts |
-| `findCompanies` / `getCompanyDetails` | `contacts:read` | Find and read companies |
-| `createContact` / `updateContact` | `contacts:write` | Create and update contacts |
-| `findFolders` | `documents:read` | List folders |
-| `createFolder` | `documents:write` | Create a folder |
+| `getComments` | Läs | Gets the comment threads on a document or template |
+| `createComment` | Skriv | Starts a comment thread on a document or template |
+| `replyToComment` | Skriv | Replies in a comment thread <sup>destructive</sup> |
+| `updateComment` | Skriv | Changes a comment you wrote |
+| `deleteComment` | Skriv | Deletes a comment you wrote <sup>destructive</sup> |
+| `deleteCommentThread` | Skriv | Deletes a whole comment thread with all its messages <sup>destructive</sup> |
+| `resolveCommentThread` | Skriv | Marks a comment thread as resolved, closing it while keeping its messages |
+| `reopenCommentThread` | Skriv | Reopens a resolved comment thread |
+| `setCommentVisibility` | Skriv | Shares a comment thread with the parties, or makes it internal again <sup>destructive</sup> |
+| `acceptCommentSuggestion` | Skriv | Accepts a change suggestion from an AI review or a party |
+| `rejectCommentSuggestion` | Skriv | Dismisses a change suggestion from an AI review or a party |
 
-### Developer tools
+#### Folders, tags and custom fields
 
-These are the tools for diagnosing an integration. They are read-only unless noted, and each needs a workspace permission on top of its scope.
+| Tool | Level | What it does |
+|---|---|---|
+| `findFolders` | Läs | Finds folders on one level of the folder tree |
+| `createFolder` | Skriv | Creates a folder for documents or templates |
+| `updateFolder` | Skriv | Renames a folder |
+| `moveFolder` | Skriv | Moves a folder with everything in it |
+| `deleteFolder` | Skriv | Deletes an empty folder <sup>destructive</sup> |
+| `findTags` | Läs | Lists the workspace's tags |
+| `createTag` | Skriv | Creates a tag in the workspace |
+| `updateTag` | Skriv | Renames or recolors a tag, or changes where it can be used |
+| `deleteTag` | Skriv | Deletes a tag and removes it everywhere <sup>destructive</sup> |
+| `getCustomFieldStatistics` | Läs | Shows how one custom field's values are spread across signed documents |
+| `setCustomFieldValue` | Skriv | Sets or clears a custom field's value on a document, template or contact <sup>destructive</sup> |
+| `findCustomFields` | Läs | Lists the workspace's custom fields on documents and contacts |
+| `createCustomField` | Skriv | Creates a custom field for documents or contacts |
+| `updateCustomField` | Skriv | Changes a custom field |
+| `deleteCustomField` | Skriv | Deletes a custom field with every value saved in it <sup>destructive</sup> |
 
-| Tool | Scope | Permission | What it does |
-|---|---|---|---|
-| `whoami` | `profile:read` | — | Which user, workspace and scopes this connection is acting as |
-| `list_api_logs` | `audit:read` | Manage developer | Recent v1 REST requests; filter by method, status class or path |
-| `get_api_log` | `audit:read` | Manage developer | One request with full headers, request body and response body |
-| `list_webhook_deliveries` | `audit:read` | Manage webhooks | Recent outbound deliveries; filter by webhook, status or URL |
-| `get_webhook_delivery` | `audit:read` | Manage webhooks | One delivery with full request and response bodies |
-| `list_webhooks` / `get_webhook` | `webhooks:read` | Manage webhooks | Your webhook endpoints |
-| `create_webhook` / `update_webhook` / `delete_webhook` | `webhooks:write` | Manage webhooks | Manage webhook endpoints |
-| `list_sajn_ids` / `get_sajn_id` | `sajnid:read` | View sajn ID | sajn ID verifications |
+#### Actions, reminders and notifications
+
+| Tool | Level | What it does |
+|---|---|---|
+| `findActions` | Läs | Finds open cards in the Åtgärder feed, such as reminders, deadline extensions and renewals |
+| `acceptAction` | Skriv | Accepts a card in the Åtgärder feed and runs it <sup>destructive</sup> |
+| `dismissAction` | Skriv | Dismisses a card in the Åtgärder feed <sup>destructive</sup> |
+| `snoozeAction` | Skriv | Postpones a card in the Åtgärder feed |
+| `findNotifications` | Läs | Finds your in-app notifications |
+| `markNotificationsRead` | Skriv | Marks notifications as read: the given ids from findNotifications, or every unread notification with `markAllRead` |
+| `createReminder` | Skriv | Creates a personal reminder for a date |
+| `createWatch` | Skriv | Creates a standing watch that adds cards to your Åtgärder feed |
+| `findWatches` | Läs | Finds your active watches |
+| `updateWatch` | Skriv | Changes a watch |
+| `deleteWatch` | Skriv | Deletes a watch |
+
+#### Templates
+
+| Tool | Level | What it does |
+|---|---|---|
+| `findTemplates` | Läs | Finds the workspace's templates, optionally filtered by name |
+| `getTemplate` | Läs | Gets one template |
+| `createTemplate` | Skriv | Creates a new, empty template |
+| `duplicateTemplate` | Skriv | Duplicates a template |
+| `deleteTemplate` | Skriv | Deletes a template permanently <sup>destructive</sup> |
+| `setTemplateLock` | Skriv | Locks or unlocks a template |
+| `setTemplateVisibility` | Skriv | Sets who in the workspace can see and use a template |
+| `setTemplateSharing` | Skriv | Shares a template read-only with other workspaces, or stops sharing it <sup>destructive</sup> |
+| `addTemplateTag` | Skriv | Adds a tag to a template |
+| `removeTemplateTag` | Skriv | Removes a tag from a template |
+| `moveTemplate` | Skriv | Moves a template into or out of a folder |
+| `createTemplateFromDocument` | Skriv | Saves a document as a new template |
+
+#### Contacts, companies and products
+
+| Tool | Level | What it does |
+|---|---|---|
+| `createContact` | Skriv | Creates a contact (a person) in the workspace address book |
+| `updateContact` | Skriv | Updates a contact's name, email, phone or company <sup>destructive</sup> |
+| `findContactsByCustomField` | Läs | Finds contacts by a custom field |
+| `findContacts` | Läs | Finds contacts by name (partial match), email or phone (exact match) |
+| `getContact` | Läs | Gets one contact |
+| `deleteContact` | Skriv | Deletes a contact from the address book <sup>destructive</sup> |
+| `findCompanies` | Läs | Finds companies in the address book |
+| `getCompany` | Läs | Gets one company from the address book |
+| `createCompany` | Skriv | Creates a company in the address book |
+| `getContactNotes` | Läs | Gets the internal notes on a contact |
+| `createContactNote` | Skriv | Adds an internal note to a contact |
+| `deleteContactNote` | Skriv | Deletes a note from a contact <sup>destructive</sup> |
+| `getContactTags` | Läs | Gets the tags on one contact |
+| `addContactTag` | Skriv | Adds a tag to a contact |
+| `removeContactTag` | Skriv | Removes a tag from a contact |
+| `deleteCompany` | Skriv | Deletes a company from the address book <sup>destructive</sup> |
+| `updateCompany` | Skriv | Updates a company in the address book |
+| `findUnlinkedDocumentParties` | Läs | Finds document parties who aren't in the address book yet |
+| `createContactsFromParties` | Skriv | Creates contacts from document parties and links them |
+| `findProducts` | Läs | Finds products in the product library |
+| `createProduct` | Skriv | Creates a product in the workspace product library |
+| `updateProduct` | Skriv | Updates a product in the product library |
+| `deleteProduct` | Skriv | Deletes a product from the product library <sup>destructive</sup> |
+
+#### sajn ID
+
+| Tool | Level | What it does |
+|---|---|---|
+| `createIdentityCheck` | Skriv | Creates a sajn ID identity check and sends its link by email or SMS <sup>destructive</sup> |
+| `findIdentityChecks` | Läs | Finds sajn ID identity checks |
+| `getIdentityCheck` | Läs | Gets one sajn ID identity check |
+
+#### Reports
+
+| Tool | Level | What it does |
+|---|---|---|
+| `getDocumentStatistics` | Läs | Gets document statistics for a period |
+| `createReport` | Skriv | Creates a saved report |
+| `updateReport` | Skriv | Replaces a saved report's content |
+| `findReports` | Läs | Lists the saved reports |
+
+#### Members and roles
+
+| Tool | Level | What it does |
+|---|---|---|
+| `findMembers` | Läs | Lists the members of the workspace or the organization |
+| `getMember` | Läs | Gets one organization member, with their workspaces and roles |
+| `addWorkspaceMember` | Administrera | Adds a member to the workspace, or invites a new person by email <sup>destructive</sup> |
+| `setMemberRole` | Administrera | Changes a member's role in the organization or the workspace <sup>destructive</sup> |
+| `suspendMember` | Administrera | Suspends a member so they can no longer sign in <sup>destructive</sup> |
+| `resumeMember` | Administrera | Resumes a suspended member |
+| `removeMember` | Administrera | Removes a member from the organization or the workspace <sup>destructive</sup> |
+| `findInvites` | Läs | Lists the open invites |
+| `inviteMembers` | Administrera | Invites people by email to the organization and its workspaces <sup>destructive</sup> |
+| `resendInvite` | Administrera | Sends a pending invite again <sup>destructive</sup> |
+| `revokeInvite` | Administrera | Withdraws a pending invite <sup>destructive</sup> |
+| `findPermissions` | Läs | Lists the workspace and organization permissions and what each one means |
+| `findRoles` | Läs | Lists the roles with their permissions and member count |
+| `createRole` | Administrera | Creates a role with a set of permissions <sup>destructive</sup> |
+| `updateRole` | Administrera | Renames a role or changes its permissions <sup>destructive</sup> |
+| `deleteRole` | Administrera | Deletes a role <sup>destructive</sup> |
+| `findRoleBlueprints` | Läs | Lists the role blueprints: workspace roles defined once for the organization |
+| `createRoleBlueprint` | Administrera | Creates a role blueprint <sup>destructive</sup> |
+| `updateRoleBlueprint` | Administrera | Renames a role blueprint or changes its permissions <sup>destructive</sup> |
+| `deleteRoleBlueprint` | Administrera | Deletes a role blueprint <sup>destructive</sup> |
+| `applyRoleBlueprint` | Administrera | Creates a blueprint as a linked role in one workspace or in all of them |
+| `removeRoleFromBlueprint` | Administrera | Unlinks a workspace role from its blueprint |
+
+#### Workspace and organization settings
+
+| Tool | Level | What it does |
+|---|---|---|
+| `getWorkspaceSettings` | Läs | Gets every setting of the workspace |
+| `updateWorkspaceAiSettings` | Administrera | Changes the workspace's AI settings <sup>destructive</sup> |
+| `updateWorkspaceDocumentSettings` | Administrera | Changes the workspace's defaults and policies for new documents <sup>destructive</sup> |
+| `updateWorkspaceRetentionSettings` | Administrera | Changes how long the workspace keeps documents <sup>destructive</sup> |
+| `updateWorkspaceSearchSettings` | Administrera | Changes the workspace's search settings |
+| `findMessageTemplates` | Läs | Lists the workspace's saved invitation messages |
+| `createMessageTemplate` | Administrera | Creates a saved invitation message |
+| `updateMessageTemplate` | Administrera | Changes a saved invitation message |
+| `deleteMessageTemplate` | Administrera | Deletes a saved invitation message <sup>destructive</sup> |
+| `findDocumentCategories` | Läs | Lists the workspace's document types |
+| `createDocumentCategory` | Administrera | Creates a document type |
+| `updateDocumentCategory` | Administrera | Renames a document type or changes its custom fields |
+| `deleteDocumentCategory` | Administrera | Deletes a document type <sup>destructive</sup> |
+| `findEmailTemplates` | Läs | Lists the emails sajn sends whose text the workspace can customize |
+| `getEmailTemplate` | Läs | Gets one email's text in one language |
+| `updateEmailTemplate` | Administrera | Customizes one email's text in one language |
+| `restoreDefaultEmailTemplate` | Administrera | Restores one email's default text in one language <sup>destructive</sup> |
+| `findPlaybookRules` | Läs | Lists the playbook rules that steer how AI reads and reviews documents |
+| `createPlaybookRule` | Administrera | Adds a rule to the playbook |
+| `updatePlaybookRule` | Administrera | Rewrites a playbook rule |
+| `deletePlaybookRule` | Administrera | Deletes a playbook rule <sup>destructive</sup> |
+| `getOrganization` | Läs | Gets the organization's details and organization-wide settings |
+| `updateOrganization` | Administrera | Changes the organization's business details |
+| `updateDelegationSettings` | Administrera | Changes whether signing parties may delegate their signing |
+| `updateUsageAlertSettings` | Administrera | Changes when members are alerted about usage |
+| `getSecuritySettings` | Läs | Gets the organization's two-factor and sign-in country rules |
+| `findWorkspaces` | Läs | Lists the workspaces you are a member of |
+| `createWorkspace` | Administrera | Creates a workspace |
+| `updateWorkspace` | Administrera | Renames a workspace or changes its color or icon |
+| `findAuditLogEvents` | Läs | Searches the organization's audit log |
+| `getInboxSettings` | Läs | Gets the workspace's inbox addresses and allowed senders |
+| `updateInboxSettings` | Administrera | Sets which senders may create documents by email |
+| `getUsage` | Läs | Gets the organization's usage in the current billing period |
+
+#### Your account
+
+| Tool | Level | What it does |
+|---|---|---|
+| `getMyProfile` | Läs | Gets your profile |
+| `updateMyProfile` | Skriv | Changes your name or phone number |
+| `getMyNotificationSettings` | Läs | Gets your notification settings |
+| `updateMyNotificationSettings` | Skriv | Changes your notification settings |
+
+#### Developer tools
+
+| Tool | Level | What it does |
+|---|---|---|
+| `findApiLogs` | Läs | Finds v1 REST API request logs |
+| `getApiLog` | Läs | Gets one REST API request log |
+| `findWebhooks` | Läs | Finds the webhook endpoints |
+| `getWebhook` | Läs | Gets one webhook endpoint |
+| `createWebhook` | Skriv | Creates a webhook endpoint <sup>destructive</sup> |
+| `updateWebhook` | Skriv | Changes a webhook endpoint <sup>destructive</sup> |
+| `deleteWebhook` | Skriv | Deletes a webhook endpoint <sup>destructive</sup> |
+| `findWebhookDeliveries` | Läs | Finds outbound webhook deliveries |
+| `getWebhookDelivery` | Läs | Gets one webhook delivery with its request and response |
+
+#### Connection and support
+
+| Tool | Level | What it does |
+|---|---|---|
+| `getCurrentUser` | Läs | Gets the connected user, the organization and the connected workspaces |
+| `createUploadUrl` | Skriv | Creates a single-use URL to upload a file to |
+| `findTools` | Läs | Searches the tools that are not listed and returns their input schemas |
+| `runReadOnlyTool` | Läs | Runs a read-only tool that `findTools` returned |
+| `runTool` | Level of the tool it runs | Runs a tool that changes data, which `findTools` returned |
+| `createSupportTicket` | Skriv | Sends a support ticket to the sajn team, with the conversation attached <sup>destructive</sup> |
+| `reportMissingCapability` | Läs | Tells sajn about something the assistant needed but couldn't do |
 
 ## Uploading a PDF
 
@@ -180,13 +441,13 @@ A tool call carries JSON, not file bytes, so the file itself never goes through 
 1. `createDocument` creates the draft.
 2. `createUploadUrl` returns a single-use upload URL and an `uploadKey`.
 3. The assistant sends the file to that URL in a `PUT` request.
-4. `attachFileToDocument` adds the file to the document. Word, Excel, and other Office files are converted to PDF at this step.
+4. `addDocumentFile` adds the file to the document. Word, Excel, and other Office files are converted to PDF at this step.
 
 **Other assistants** hand the upload back to you:
 
 1. The assistant calls `createDocument` and gives you the link it returns.
 2. You open the link and **drag the PDF onto the document**.
-3. You tell the assistant it's uploaded, and it continues — `listFields` to see the PDF, `listFillableFields` to see what can be filled in, then parties and sending as usual.
+3. You tell the assistant it's uploaded, and it continues — `getFields` to see the PDF, `getFieldValues` to see what can be filled in, then parties and sending as usual.
 
 <Note>
 The link is an ordinary document URL, not a token — opening it requires your own sajn login. An assistant that asks you to paste a document's contents into the chat is getting it wrong.
@@ -204,7 +465,7 @@ To add agreements that were signed outside sajn, ask the assistant to import the
   <Tab title="ChatGPT">
     1. Open the [sajn app in the ChatGPT app directory](https://chatgpt.com/plugins/plugin_asdk_app_6ae1b3c33a0c8191a474eb9eb3c3485b).
     2. Connect the app.
-    3. Sign in to sajn, pick the workspace, and approve the scopes.
+    3. Sign in to sajn, pick the workspaces and a level for each, and select **Godkänn**.
 
     The ChatGPT app covers the everyday signing workflow: drafting, filling in, parties, sending, and follow-up. It has no developer tools, and it doesn't accept personal identity numbers. Add those to the party in sajn.
   </Tab>
@@ -214,7 +475,7 @@ To add agreements that were signed outside sajn, ask the assistant to import the
     claude mcp add --transport http sajn https://app.sajn.se/api/mcp
     ```
 
-    On first use Claude Code opens the sajn OAuth consent screen in your browser. Pick the workspace and approve the scopes. Verify with:
+    On first use Claude Code opens the sajn OAuth consent screen in your browser. Pick the workspaces and a level for each, and select **Godkänn**. Verify with:
 
     ```bash
     claude mcp list
@@ -283,19 +544,10 @@ To add agreements that were signed outside sajn, ask the assistant to import the
 - "Find the API requests that returned 4xx today and tell me what's wrong with them."
 - "Which webhook endpoint is failing, and what status code is it returning?"
 
-## What the MCP server does not do
-
-Some things are deliberately kept in the sajn app rather than exposed to a connected assistant:
-
-- **Approving or rejecting** a document — approval is a person accepting responsibility, so it happens where you can see the document.
-- **Members, roles and permissions** — account administration isn't something a connected app should reach.
-- **Deleting templates, contacts or folders** — destructive on shared assets the whole workspace depends on.
-- **Reports, statistics and organization settings.**
-
 ## Security
 
-- **Workspace-scoped** — a connection only ever sees data in the workspace you approved at consent.
-- **Least privilege** — tools are filtered to the granted scopes; read-only by default, and developer tools are further gated behind a workspace permission.
+- **Workspace-scoped** — a connection only reaches the workspaces you picked at consent, all in one organization.
+- **Least privilege** — each call is checked against the level you granted for the workspace it acts in, and developer tools also need a workspace permission.
 - **Same enforcement as REST** — scopes and role permissions are re-checked on every tool call, not just at listing time.
 - **Confirmation hints** — tools that email or SMS a counterparty, or destroy work, are marked destructive so your client can prompt first.
 - **Rate limited** — per-IP and per-organization limits apply, the same as the REST API.
@@ -304,23 +556,51 @@ Some things are deliberately kept in the sajn app rather than exposed to a conne
 
 <AccordionGroup>
   <Accordion title="Tool names changed — my scripts broke">
-    Tool names are now camelCase and match the platform's own vocabulary: `list_documents` → `listDocuments`, `get_document` → `getDocumentDetails`, `send_document` → `sendDocument`, `withdraw_document` → `withdrawDocument`, `delete_document` → `deleteDocument`, `send_reminders` → `sendDocumentReminder`, `list_templates` → `findTemplates`, `get_template` → `getTemplateDetails`, `search_contacts` → `findContact`, `create_contact` → `createContact`.
+    The tools now share their names with the assistant built into sajn. The most common renames:
 
-    The developer tools (`whoami`, `list_api_logs`, `get_api_log`, webhook and sajn ID tools) kept their names.
+    | Old name | Current tool |
+    |---|---|
+    | `whoami` | `getCurrentUser` |
+    | `listDocuments`, `findDocumentsByDate`, `findDocumentsByExpiration`, `findDocumentsByCustomField`, `findDocumentsByParty`, `searchDocumentContent`, `getPendingSignatures` | `findDocuments`, with its filters |
+    | `getDocumentDetails` | `getDocument` |
+    | `getDocumentParties`, `getDocumentSigners` | `getParties` |
+    | `addSignerToDocument`, `updateSignerOnDocument`, `removeSignerFromDocument` | `addParty`, `updateParty`, `removeParty` |
+    | `getDocumentSettings`, `updateDocumentSettings` | `getSettings`, `updateSettings` |
+    | `renameDocument`, `setDocumentExpiration`, `extendDocumentExpiration` | `updateSettings` |
+    | `listFields` | `getFields` |
+    | `listFillableFields`, `fillFields` | `getFieldValues`, `setFieldValues` |
+    | `checkDocumentReadiness` | `getDocumentReadiness` |
+    | `addTable`, `addProductTable` | `addTableField`, `addProductTableField` |
+    | `attachFileToDocument` | `addDocumentFile` |
+    | `listSigningMethods` | `getSigningMethods` |
+    | `sendDocumentReminder` | `sendPartyReminder` |
+    | `getPendingApprovals` | `findPendingApprovals` |
+    | `getTemplateDetails` | `getTemplate` |
+    | `findContact`, `getContactDetails`, `getCompanyDetails` | `findContacts`, `getContact`, `getCompany` |
+    | `moveDocumentToFolder`, `addTagToDocument` | `moveDocument`, `addDocumentTag` |
+    | `getDocumentShareLink` | `createDocumentShareLink` |
+    | `list_api_logs`, `get_api_log` | `findApiLogs`, `getApiLog` |
+    | `list_webhook_deliveries`, `get_webhook_delivery` | `findWebhookDeliveries`, `getWebhookDelivery` |
+    | `list_webhooks`, `get_webhook`, `create_webhook`, `update_webhook`, `delete_webhook` | `findWebhooks`, `getWebhook`, `createWebhook`, `updateWebhook`, `deleteWebhook` |
+    | `list_sajn_ids`, `get_sajn_id` | `findIdentityChecks`, `getIdentityCheck` |
+
+    For anything else, call `findTools` with what you want to do.
   </Accordion>
   <Accordion title="The debugging tools don't show up">
-    The connection must have the `audit:read` scope **and** the member must hold the matching workspace permission — **Manage developer** for API logs, **Manage webhooks** for deliveries. Re-run the OAuth consent and make sure `audit:read` is granted.
+    The member must hold the matching workspace permission — **Manage developer** for API logs, **Manage webhooks** for deliveries. A connection made before the levels existed also needs the `audit:read` scope. To get it, reconnect the server.
   </Accordion>
   <Accordion title="Connection rejected / 401">
     - Confirm the URL is `https://app.sajn.se/api/mcp` (note `/api/mcp`, not `/mcp`).
-    - The account must be on a **paid plan**.
     - Reconnect the server and complete the OAuth consent flow again.
   </Accordion>
-  <Accordion title="Write or delete tools are missing">
-    They are hidden until you grant the matching scope (`documents:write`, `documents:delete`, `contacts:write`) at consent. Reconnect and approve the additional scopes.
+  <Accordion title="The assistant says the application lacks permission">
+    The call needs a higher level than you granted for that workspace, such as **Skriv** to create or send. Reconnect the server and pick a higher level for the workspace.
+  </Accordion>
+  <Accordion title="The assistant works in the wrong workspace">
+    Name the workspace in your request, such as "in Juridik". To change which workspace it uses by default, reconnect the server and use **Gör till standard** on the review step. A workspace created after you connected is not in the connection until you reconnect.
   </Accordion>
   <Accordion title="The assistant says it can't edit a sent document">
-    That's correct — parties, fields and content are locked once a document is out for signing. Withdraw it with `withdrawDocument` to make it a draft again (the parties are notified), or extend the deadline with `extendDocumentExpiration` if that's all you need.
+    That's correct — parties, fields and content are locked once a document is out for signing. Withdraw it with `withdrawDocument` to make it a draft again (the parties are notified), or move the expiry date with `updateSettings` if that's all you need.
   </Accordion>
 </AccordionGroup>
 
