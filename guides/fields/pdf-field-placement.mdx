@@ -50,6 +50,8 @@ Each box has an `id` that's unique in the PDF block, and a `kind`:
 
 Every enum value in a box is uppercase; a lowercase value, such as `input`, fails with `400 VALIDATION_FAILED`. To fill in an `INPUT` box through the API, give it a `key`. Keys can contain lowercase letters, digits, hyphens, and underscores.
 
+You can't fill in a `STATIC` box by key: the field values endpoints don't list it. For text that your system fills in, use an `INPUT` box with `inputType` `TEXT`, a `key`, and no `partyId`. [List the fillable values on a document](/api-reference/list-the-fillable-values-on-a-document) shows it with `filledBy` set to `SENDER`.
+
 ## Place the boxes
 
 <Steps>
