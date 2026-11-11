@@ -94,7 +94,7 @@ sajn refuses to send a document, with the code `VALIDATION_FAILED`, until it mee
 
 A `DRAFT` document accepts every change. After you send it, what you can change through [`PATCH /documents/{id}`](/api-reference/update-a-document) depends on the field:
 
-- `name`, `externalId`, `responsibleUserId`, and `value` can always change.
+- `name`, `externalId`, the responsible user (`responsibleUserId` or `responsibleUserEmail`), and `value` can always change.
 - Reminders, message, and the redirect URL can change until the document is completed, rejected, or cancelled.
 - `forceReadFullDocument`, `openVerification`, and `language` can change until someone has signed.
 - `signingMode` can't change. Withdraw the document first.

@@ -148,6 +148,8 @@ Every request sends the `Sajn-Version: 2026-10` header, so the examples behave t
     Store the document `id` and each party `id`. The other document and party endpoints take them as path parameters.
 
     If you leave out `expiresAt`, the document gets the workspace's default expiration, if the workspace has one. If you leave out `signatureMethod`, the party gets the workspace's default signing method.
+
+    To make a colleague responsible for the document, send `responsibleUserId`, or `responsibleUserEmail` when your system knows their email but not their sajn user ID. Send one of them, not both. The person must be a member of the workspace, or the request fails with `400 VALIDATION_FAILED`.
   </Step>
 
   <Step title="Configure the invitation and signing settings">
