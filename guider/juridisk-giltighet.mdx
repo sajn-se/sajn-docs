@@ -54,7 +54,27 @@ De här stegen kan du skicka vidare till den som ska kontrollera handlingen – 
   <Step title="Kontrollera mot sajns register">
     Skanna QR-koden eller öppna verifieringslänken (`https://app.sajn.se/verify/…`) på verifieringssidan. Där visas originalhandlingen direkt från sajns register, och den egna kopian kan laddas upp för att bekräfta att den är identisk med originalet.
   </Step>
+  <Step title="Validera med EU-kommissionens validator">
+    Öppna [EU-kommissionens signaturvalidator](https://ec.europa.eu/digital-building-blocks/DSS/webapp-demo/validation), välj PDF:en under **Signed file** och klicka på **Submit**. Validatorn kontrollerar stämpeln mot EU-ländernas förteckningar över betrodda tjänster, oberoende av både sajn och Adobe. Under **Indication** ska det stå **TOTAL_PASSED**.
+  </Step>
 </Steps>
+
+<Warning>
+  EU-kommissionens validator är en demotjänst för kommissionens öppna valideringsbibliotek DSS, inte ett officiellt intyg. Filen laddas upp till kommissionens server. Kontrollera dokument med känsligt innehåll i Adobe Acrobat i stället.
+</Warning>
+
+## Så läser du rapporten från EU-kommissionens validator
+
+Rapporten under **Simple Report** visar en signatur från **RIBBAN AB - sajn**. Det är samma elektroniska stämpel som Adobe visar. Fyra rader kan se ut som fel men är förväntade:
+
+| Rad i rapporten | Vad den betyder |
+|-----------------|-----------------|
+| **Qualification:** AdESeal-QC | Stämpeln är en avancerad elektronisk stämpel som bygger på ett kvalificerat certifikat. Den är inte en kvalificerad elektronisk stämpel (QESeal). |
+| **Qualification Details** med två gula rader om att nyckeln inte finns i en QSCD | Förklaringen till AdESeal-QC. Stämpelns privata nyckel finns i en hårdvarusäkerhetsmodul, men den är inte certifierad som kvalificerad anordning för att skapa signaturer (QSCD). Raderna påverkar inte resultatet **TOTAL_PASSED**. |
+| **Signature format:** PAdES-BASELINE-LTA | Dokumentet har en arkivtidsstämpel och den valideringsdata som behövs. Stämpeln går därför att validera även efter att certifikatet har gått ut. |
+| **Signature scope:** Partial PDF (PARTIAL) | Stämpeln omfattar dokumentet i den version som förseglades. Arkivtidsstämpeln läggs till efteråt som en egen version av filen, och därför täcker stämpeln inte de sista byten. |
+
+Parternas egna underskrifter syns inte i rapporten. De redovisas på verifieringssidan **Parter** sist i dokumentet.
 
 ## Vanliga frågor
 
