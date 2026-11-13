@@ -117,7 +117,7 @@ To test with an event that your endpoint received before, [retry its delivery](/
 
 ## Inspect deliveries
 
-Every delivery, with each attempt's request headers, your status code, and your response body, appears in **Inställningar > Utvecklare > Loggar** in the workspace, and through [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries). To find the delivery for a request that your receiver logged, pass its `webhook-id` as the `eventId` filter. To send a logged delivery again, open it and click **Sänd om** (Resend).
+Every delivery, with each attempt's request headers, your status code, and your response body, appears on the **Webhooks** tab in [Konsol](/guider/konsol), and through [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries). To find the delivery for a request that your receiver logged, pass its `webhook-id` as the `eventId` filter. To send a logged delivery again, open it and click **Sänd om** (Resend).
 
 ## Go to production
 

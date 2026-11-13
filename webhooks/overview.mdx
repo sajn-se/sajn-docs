@@ -25,7 +25,7 @@ sajn signs and sends webhooks according to [Standard Webhooks](https://www.stand
 
     <Tabs>
       <Tab title="Dashboard">
-        1. In the [dashboard](https://app.sajn.se), go to **Inställningar > Utvecklare > Webhooks**.
+        1. In the [dashboard](https://app.sajn.se), open the **Webhooks** tab in [Konsol](/guider/konsol), the developer console at the bottom of the page.
         2. Click **Skapa webhook** (Create webhook).
         3. In **Webhook URL**, enter your endpoint's URL.
         4. In **Händelser** (Events), select the events to subscribe to.
@@ -57,7 +57,7 @@ sajn signs and sends webhooks according to [Standard Webhooks](https://www.stand
     Check the `webhook-signature` header against the raw request body before you trust a delivery. [Verify webhook signatures](/webhooks/verify-signatures) shows how, with a Standard Webhooks library or with your own code.
   </Step>
   <Step title="Send a test event">
-    Call [`POST /api/v1/webhooks/{id}/test`](/api-reference/send-a-test-event-to-a-webhook) to send a signed `webhook.test` event to your endpoint. Each attempt appears with its status code and response in **Inställningar > Utvecklare > Loggar**, and through [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries).
+    Call [`POST /api/v1/webhooks/{id}/test`](/api-reference/send-a-test-event-to-a-webhook) to send a signed `webhook.test` event to your endpoint. Each attempt appears with its status code and response on the **Webhooks** tab in [Konsol](/guider/konsol), and through [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries).
   </Step>
 </Steps>
 

@@ -1,29 +1,26 @@
 ---
 title: "Hantera API-nycklar och utvecklarinställningar"
-description: "Skapa och hantera API-nycklar, webhooks och loggar för integrationer mot sajns REST API"
+description: "Skapa och hantera API-nycklar, tjänstekonton och API-version för integrationer mot sajns REST API"
 ---
 
-På sidan [Utvecklare](https://app.sajn.se/~/settings/organization/developer) finns allt som behövs för att bygga mot sajns REST API: API-nycklar, webhooks, övervakning och loggar. Den här guiden går igenom flikarna. Skapa bara en API-nyckel när du behöver en, eftersom nyckeln fungerar som riktiga inloggningsuppgifter.
+På sidan [Utvecklare](https://app.sajn.se/~/settings/organization/developer) hanterar du det som behövs för att bygga mot sajns REST API: API-nycklar, tjänstekonton och API-version. Loggar, webhooks och statistik finns i [Konsol](/guider/konsol), utvecklarverktyget längst ned på sidan. Den här guiden går igenom flikarna. Skapa bara en API-nyckel när du behöver en, eftersom nyckeln fungerar som riktiga inloggningsuppgifter.
 
-Sidan ligger under organisationens inställningar. En API-nyckel tillhör **organisationen**, inte den som skapade den, och kan nå en eller flera arbetsytor. En webhook gäller en arbetsyta, eller alla arbetsytor i organisationen.
+Sidan ligger under organisationens inställningar. En API-nyckel tillhör **organisationen**, inte den som skapade den, och kan nå en eller flera arbetsytor.
 
 ## Innan du börjar
 
 - För API-nycklar: du är administratör i alla arbetsytor som nyckeln ska nå, eller äger organisationen.
-- För webhooks: du har behörighet att hantera webhooks i arbetsytan.
 - API-åtkomst ingår i Team och Enterprise.
 
 ## Steg för steg
 
 <Steps>
   <Step title="Öppna Inställningar och sedan Utvecklare">
-    Fliken **Hem** samlar det du behöver för att komma igång: genvägar till dokumentationen, MCP-servern och sajns Postman-samling, adressen till MCP-servern, och **API-gränser för din plan**. Gränsen – förfrågningar per minut – räknas per organisation, och `X-RateLimit-*`-headrarna i svaren visar aktuell status. Det finns ingen gräns per dygn.
+    Fliken **Översikt** samlar det du behöver för att komma igång: rutan **Konsol**, genvägar till dokumentationen, MCP-servern och sajns Postman-samling, adressen till MCP-servern, och **API-gränser**. Gränsen – förfrågningar per minut – räknas per organisation, och `X-RateLimit-*`-headrarna i svaren visar aktuell status. Det finns ingen gräns per dygn.
 
-    Längst ned kan du prenumerera på **Utvecklarnyheter**, som går till din inloggningsadress.
+    Klicka **Slå på utvecklarläge** i rutan **Konsol** för att få Konsol längst ned på varje sida.
 
-    <Frame>
-      <img src="/images/guider/settings-developer-api/02-open-developer.png" alt="Fliken Hem under Utvecklare med genvägar, MCP-adress och API-gränser" />
-    </Frame>
+    {/* TODO screenshot: fliken Översikt under Utvecklare med rutan Konsol, API-gränser och utvecklarresurser */}
   </Step>
   <Step title="Fliken API-nycklar listar organisationens nycklar">
     Tabellen på fliken [API-nycklar](https://app.sajn.se/~/settings/organization/developer/api-keys) visar **Namn**, nyckelns **Behörigheter**, en maskad **API-nyckel** (klicka på den för att avslöja prefixet), när nyckeln **skapades**, när den **senast användes** och när den **utgår**. Sökfältet uppe till vänster filtrerar på namn.
@@ -53,26 +50,8 @@ Sidan ligger under organisationens inställningar. En API-nyckel tillhör **orga
 
     Längst ned i menyn står vem som skapade nyckeln, så att du kan stämma av internt innan du gör något destruktivt.
   </Step>
-  <Step title="Övervakning visar API- och webhook-hälsa">
-    Fliken **Övervakning** sammanfattar de senaste 24 eller 72 timmarna: antal **API-förfrågningar**, **API-felfrekvens**, **svarstid p50 och p95**, antal **webhook-leveranser**, **webhook-fel** och **leveranstid p50 och p95**. Under nyckeltalen ligger två diagram – förfrågningar per timme och webhook-leveranstid.
-
-    Statistiken bygger på loggarna.
-
-    <Frame>
-      <img src="/images/guider/settings-developer-api/09-monitoring.png" alt="Fliken Övervakning med nyckeltal och två diagram" />
-    </Frame>
-  </Step>
-  <Step title="Loggar har både API-anrop och webhook-leveranser">
-    Fliken **Loggar** innehåller två tabeller:
-
-    - **API-loggar** – varje anrop mot REST-API:t, med tid, metod, sökväg, statuskod, varaktighet och IP-adress. Filtrera på metod eller statuskod, eller sök på sökväg och IP. Klicka på en rad för att se hela anropet.
-    - **Webhook-loggar** – utgående anrop sajn skickat till dina endpoints, med webhook, händelse, URL, status och svarskod.
-
-    Båda sparas i **7 dagar** och är det första stället att titta när en integration inte beter sig som väntat.
-
-    <Frame>
-      <img src="/images/guider/settings-developer-api/13-logs.png" alt="Fliken Loggar med API-loggar överst och webhook-loggar under" />
-    </Frame>
+  <Step title="Konsol visar anropen och leveranserna">
+    API-anrop, händelser, webhook-leveranser och statistik finns i Konsol. Där ser du varje anrop med nyckeln medan du bygger, och felen grupperade efter felkod. Loggarna sparas i **7 dagar** och är det första stället att titta när en integration inte beter sig som väntat. Se [Felsök integrationer i Konsol](/guider/konsol).
   </Step>
 </Steps>
 
@@ -80,13 +59,13 @@ Sidan ligger under organisationens inställningar. En API-nyckel tillhör **orga
 
 sajn ändrar ibland formatet på det som API:t och webhooks skickar. Varje sådan ändring får en ny **API-version**, namngiven efter månaden den släpptes, till exempel `2026-10`. Organisationens API-version bestämmer vilket format dina integrationer får, så att en ändring hos sajn inte bryter dem utan förvarning.
 
-Inställningen gäller hela organisationen, inte bara arbetsytan. Rutan **API-version** visas på fliken **Hem** om din roll har behörigheten **Hantera organisationsinställningar**.
+Inställningen gäller hela organisationen, inte bara arbetsytan. Rutan **API-version** visas på fliken **Översikt** om din roll har behörigheten **Hantera organisationsinställningar**.
 
 1. Öppna [Inställningar → Utvecklare](https://app.sajn.se/~/settings/organization/developer) och leta upp rutan **API-version**.
 2. Välj en version i menyn. Den nyaste är märkt **Senaste**. En utfasad version är märkt **Utfasas** med datumet då den slutar fungera.
 3. Klicka **Byt version** för att bekräfta.
 
-{/* TODO screenshot: rutan API-version på fliken Hem under Utvecklare, med menyn öppen och tabellen Anrop de senaste 72 timmarna */}
+{/* TODO screenshot: rutan API-version på fliken Översikt under Utvecklare, med menyn öppen och tabellen Anrop de senaste 72 timmarna */}
 
 Bytet påverkar så här:
 
@@ -103,8 +82,8 @@ Utvecklare hittar detaljerna i [Versionshantering](/api-reference/versioning).
 
 ## De andra flikarna
 
+- **Tjänstekonton** – konton som äger API-nycklar för integrationer, så att en nyckel inte är knuten till en person.
 - **OAuth-appar** – egna OAuth-klienter, för den som bygger en app som andra sajn-organisationer ska kunna ansluta.
-- **Webhooks** – prenumerationer på händelser i arbetsytan. Se [Konfigurera webhooks](/guider/webhooks).
 - **Sandbox** – en separat testmiljö kopplad till organisationen, så att du kan bygga utan att röra skarpa dokument.
 
 Två flikar dyker bara upp när funktionen är påslagen för organisationen: **sajn Login** och **Inbäddning**.
