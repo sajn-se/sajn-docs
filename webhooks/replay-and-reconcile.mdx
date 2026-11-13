@@ -167,7 +167,7 @@ If you need events older than 30 days, sync the resources themselves instead, fo
 
 ## Retry a delivery
 
-To have sajn send a logged delivery to your endpoint again, call [`POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry`](/api-reference/replay-a-webhook-delivery), where `deliveryId` is the delivery's `id` from the [delivery log](/webhooks/delivery-and-retries#delivery-log). In the dashboard, open the delivery in **Inställningar > Utvecklare > Loggar** and click **Sänd om** (Resend).
+To have sajn send a logged delivery to your endpoint again, call [`POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry`](/api-reference/replay-a-webhook-delivery), where `deliveryId` is the delivery's `id` from the [delivery log](/webhooks/delivery-and-retries#delivery-log). In the dashboard, open the delivery on the **Webhooks** tab in [Konsol](/guider/konsol) and click **Sänd om** (Resend).
 
 ```bash
 curl -X POST https://app.sajn.se/api/v1/webhooks/cm4k2x9p10013abcd1234efgh/deliveries/cm4k2x9p10015abcd1234efgh/retry \

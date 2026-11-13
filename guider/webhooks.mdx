@@ -9,6 +9,8 @@ Någon behöver bygga mottagaren, oftast en utvecklare. Har du ingen utvecklare 
 
 Tekniskt får din integration ett HTTP-anrop i realtid när någon signerar, avböjer eller när hela dokumentet är klart. Den här guiden visar var webhooks ligger, vad dialogen innehåller och vilka händelser du kan prenumerera på.
 
+Webhooks hanterar du i [Konsol](/guider/konsol), utvecklarverktyget längst ned på sidan. Konsol visas när du har slagit på utvecklarläge.
+
 Webhooks hör till **arbetsytan** du står i. Vill du ha samma händelser från flera arbetsytor behöver du en webhook per arbetsyta.
 
 ## Innan du börjar
@@ -20,14 +22,10 @@ Webhooks hör till **arbetsytan** du står i. Vill du ha samma händelser från 
 ## Steg
 
 <Steps>
-  <Step title="Öppna Inställningar, Utvecklare och fliken Webhooks">
-    Öppna [Inställningar → Utvecklare → Webhooks](https://app.sajn.se/~/settings/organization/developer/webhooks). Tabellen visar **URL** (din mottagande endpoint), **Event** (vilka händelser som utlöser anropet), **Version** (vilken API-version händelserna skickas i), **Status** och **Skapad**. Sökfältet uppe till vänster filtrerar listan, och menyn längst till höger på varje rad har **Redigera** och **Ta bort**.
+  <Step title="Öppna fliken Webhooks i Konsol">
+    Öppna [fliken Webhooks i Konsol](https://app.sajn.se/~/settings/organization/developer/webhooks). Länken slår på utvecklarläge om det är avstängt. Tabellen visar varje **Endpoint** med API-version och arbetsyta, **Status**, **Leveranser 72 h**, **Felfrekvens**, **Svarstid p50** och **Senaste leverans**. Klicka på en rad för att se endpointens leveranser. Menyn längst till höger på varje rad har **Visa leveranser**, **Redigera** och **Ta bort**.
 
-    Texten överst påminner om var leveranserna hamnar: under fliken **Loggar**.
-
-    <Frame>
-      <img src="/images/guider/webhooks/02-open-webhooks.png" alt="Fliken Webhooks med tom tabell och knappen Skapa webhook" />
-    </Frame>
+    {/* TODO screenshot: fliken Webhooks i Konsol med tabellen och knappen Skapa webhook */}
   </Step>
   <Step title="Skapa webhook">
     Klicka **Skapa webhook**. Fälten är:
@@ -100,7 +98,9 @@ Vill du byta utan avbrott på API-version `2026-10`, rotera i stället med [`POS
 
 ## När något inte kommer fram
 
-Under fliken [Loggar](https://app.sajn.se/~/settings/organization/developer/logs) finns **Webhook-loggar** med varje utskick: händelse, URL, status och svarskod. Loggarna sparas i 7 dagar. Fliken [Övervakning](https://app.sajn.se/~/settings/organization/developer/monitoring) sammanfattar samma period som antal leveranser, felandel och leveranstid.
+Klicka på en endpoint på fliken **Webhooks** i Konsol för att se varje utskick med händelse, status och svarskod. Klicka på en leverans för att se anropet och svaret, och **Sänd om** för att skicka den igen. Loggarna sparas i 7 dagar.
+
+Fliken **Händelser** visar allt som har hänt i arbetsytan, även händelser som ingen webhook lyssnar på, och leveranserna för varje händelse. Gäller felet ett visst dokument, öppna dokumentet och klicka **Inspektera**. Fliken **Tidslinje** visar då dokumentets händelser och leveranser i tidsordning. Mer om flikarna finns i [Felsök integrationer i Konsol](/guider/konsol).
 
 Misslyckas en leverans gör sajn flera omförsök. Fortsätter leveranserna att misslyckas pausas webhooken till slut, se nästa avsnitt.
 
@@ -113,15 +113,15 @@ En endpoint som fortsätter misslyckas pausas. Två villkor måste vara uppfylld
 
 En enda lyckad leverans nollställer serien. En endpoint som svarar `2xx` på vissa händelser och misslyckas med andra når därför aldrig gränsen, hur länge felen än fortsätter.
 
-En pausad webhook får inga anrop alls förrän du återaktiverar den. Raden visar då statusen **Automatiskt pausad** med orsak och tidpunkt, och du får en avisering i appen och ett mejl till adressen i **E-post vid automatisk paus**.
+En pausad webhook får inga anrop alls förrän du återaktiverar den. Raden visar då statusen **Pausad** med orsak och tidpunkt, och du får en avisering i appen och ett mejl till adressen i **E-post vid automatisk paus**.
 
 Öppna menyn på raden och välj **Återaktivera utan test** för att starta om webhooken direkt. Felräknarna nollställs. Vill du testa mottagaren först, klicka **Testa och återaktivera** på raden. sajn skickar då om den senaste misslyckade leveransen – de sparas i 7 dagar – och återaktiverar webhooken bara om testet går fram.
 
 ## Nästa steg
 
 <CardGroup cols={2}>
-  <Card title="Utvecklarinställningar" icon="key" href="/guider/settings-developer-api">
-    API-nycklar, övervakning och loggar på samma sida.
+  <Card title="Felsök integrationer i Konsol" icon="terminal" href="/guider/konsol">
+    Leveranser, händelser och API-anrop live.
   </Card>
   <Card title="Aktivitetslogg" icon="scroll" href="/guider/settings-audit-log">
     Samma slags händelser, men för människor i stället för system.

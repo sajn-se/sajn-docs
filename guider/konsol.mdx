@@ -1,0 +1,72 @@
+---
+title: "Felsök integrationer i Konsol"
+description: "Se API-anrop, händelser och webhook-leveranser live, och inspektera objekten som API:et returnerar dem"
+---
+
+**Konsol** är ett verktyg för dig som bygger mot sajns API. Den ligger längst ned på varje sida i sajn och visar API-anropen, händelserna och webhook-leveranserna medan de sker. Där hanterar du också dina webhooks och ser dokument och mallar så som API:et returnerar dem.
+
+Konsol finns på dator. Den visas bara för dig, i den webbläsare där du slagit på utvecklarläge.
+
+## Innan du börjar
+
+- API-åtkomst ingår i Team och Enterprise.
+- För API-loggar och fel behöver du behörigheten **Hantera API-nycklar** i arbetsytan.
+- För händelser och webhooks behöver du behörigheten **Hantera webhooks** i arbetsytan.
+
+## Slå på utvecklarläge
+
+1. Öppna [Inställningar → Utvecklare](https://app.sajn.se/~/settings/organization/developer).
+2. Klicka **Slå på utvecklarläge** i rutan **Konsol**.
+
+Du kan också slå på **Utvecklarläge** under **Konto**. När du skapar din första API-nyckel eller webhook erbjuder sajn samma sak.
+
+Konsolens list ligger nu längst ned på sidan. Klicka på listen, eller tryck <kbd>§</kbd>, för att öppna och stänga Konsol. Dra i kanten för att ändra höjden, eller klicka på pilarna för att fylla hela fönstret.
+
+{/* TODO screenshot: Konsol öppen på fliken API-loggar */}
+
+## Flikarna
+
+- **Översikt** – antal anrop och leveranser, felfrekvens och svarstid för de senaste 24 timmarna, 72 timmarna eller 7 dagarna. Under **Hälsa** listas API-fel och webhooks med leveransproblem.
+- **Fel** – API-fel grupperade efter felkod och endpoint, med vad felkoden betyder och de senaste anropen som fick felet.
+- **Inspektör** – objektet du har öppet, eller ett id du klistrar in. Se [Inspektera ett dokument eller en mall](#inspektera-ett-dokument-eller-en-mall).
+- **API-loggar** – varje anrop mot REST-API:t. Filtrera på status, metod, API-nyckel och API-version, eller sök på sökväg, id eller IP-adress. Klicka på ett anrop för att se begäran och svaret.
+- **Händelser** – allt som har hänt i dina arbetsytor, samma lista som `GET /api/v1/events`. Varje händelse visar sina webhook-leveranser. Klicka på en leverans för att öppna den.
+- **Webhooks** – dina endpoints och deras leveranser. Se [Hantera webhooks](#hantera-webhooks).
+
+Listorna uppdateras live. Klicka **Pausa** för att stoppa uppdateringen och **Gå live** för att starta den igen. Loggarna sparas i 7 dagar.
+
+Med <kbd>j</kbd> och <kbd>k</kbd> går du mellan raderna i en lista, och <kbd>/</kbd> flyttar markören till sökfältet. **Kopiera länk** ger en länk som öppnar Konsol på samma rad. **Kopiera cURL** ger anropet som ett `curl`-kommando.
+
+## Inspektera ett dokument eller en mall
+
+När du har ett dokument eller en mall öppet visar listen dess id. Klicka **Inspektera** för att öppna det i Konsol. Du kan också klistra in ett id i sökfältet på fliken **Inspektör**, eller i sökrutan som öppnas med <kbd>⌘</kbd> <kbd>K</kbd>.
+
+Till vänster ser du objektets id, status, API-version och de objekt det hänger ihop med. Dokument, mallar och kontakter i listan öppnar du med ett klick.
+
+Ett dokument öppnas på fliken **Tidslinje**. Den visar i tidsordning vad som har hänt med dokumentet, API-anropen som rör det och händelserna det har skickat. Varje händelse visar hur många leveranser som gått fram och hur många som misslyckats. Står det **Ingen endpoint lyssnar** prenumererar ingen webhook på händelsen.
+
+En mall öppnas på fliken **Skapa dokument**. Den visar anropet till `POST /api/v1/documents` som skapar ett dokument från mallen: mallens parter med `templatePartyId` och de värden du kan fylla i, med exempelvärden. Under anropet listas varje nyckel med etikett, typ och vem som fyller i värdet. Byt exempelvärdena mot dina och kopiera anropet med **Kopiera cURL**.
+
+De andra flikarna i inspektören visar objektet som `GET`-svaret, och API-anropen, händelserna och webhook-leveranserna som rör just det objektet.
+
+## Hantera webhooks
+
+Fliken **Webhooks** öppnas på dina endpoints. Tabellen visar varje endpoints status, leveranser de senaste 72 timmarna, felfrekvens, svarstid och senaste leverans.
+
+- Klicka **Skapa webhook** för att lägga till en endpoint. Fälten beskrivs i [Konfigurera webhooks](/guider/webhooks).
+- Klicka på en rad för att se endpointens leveranser. **Alla leveranser** visar leveranserna till alla endpoints.
+- Menyn längst till höger på en rad har **Visa leveranser**, **Redigera** och **Ta bort**. Är webhooken pausad finns också **Återaktivera utan test**.
+- En pausad webhook visar orsaken på raden och knappen **Testa och återaktivera**.
+
+Klicka **Sänd om** på en leverans för att skicka den till din endpoint igen.
+
+## Nästa steg
+
+<CardGroup cols={2}>
+  <Card title="Konfigurera webhooks" icon="webhook" href="/guider/webhooks">
+    Fälten i webhook-dialogen och händelserna du kan prenumerera på.
+  </Card>
+  <Card title="Utvecklarinställningar" icon="key" href="/guider/settings-developer-api">
+    API-nycklar, tjänstekonton och API-version.
+  </Card>
+</CardGroup>
