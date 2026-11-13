@@ -125,7 +125,20 @@ In API version `2026-10`, `fieldMeta` names the party `partyId`, and every enum 
 
 A **key** is a stable name for a value, such as `customer-name`. Keys can contain lowercase letters, digits, hyphens, and underscores. Set keys on FORM subfields, placed boxes, and inline fields in a template, and every document created from it has the same keys.
 
-A key names one field within a document or template. A request that would give two fields the same key fails with `400 VALIDATION_FAILED`, and a document that already has a duplicate key can't be sent until you rename one of them: the send fails with `409 DOCUMENT_NOT_READY` and the readiness code `DUPLICATE_KEY`. Two cases count as one field, so they share a key: one AcroForm field that spans several `PDF` blocks after a page split, and one `<sajn-field>` placed again for the same party.
+A key names one field within a document or template. A request that would give two different fields the same key fails with `400 VALIDATION_FAILED`, and a document that already has a duplicate key can't be sent until you rename one of them: the send fails with `409 DOCUMENT_NOT_READY` and the readiness code `DUPLICATE_KEY`.
+
+### One field in several places
+
+Some fields share a key because they are one field placed more than once:
+
+- Fields that the same party fills in, with the same key and the same kind: text, date, or a choice. The kind doesn't depend on where the field sits, so a FORM subfield, a placed box, and a `<sajn-field>` can be copies of one field.
+- One AcroForm field that spans several `PDF` blocks after a page split.
+
+The party fills in such a field once, and every copy shows the value. `GET /documents/{id}/field-values` lists each copy with the same key, and a value you send with the key fills every copy. Checkboxes and attachments are never shared.
+
+The same key on fields that different parties fill in, or on fields of different kinds, is still a duplicate.
+
+In a [bundle](/api-reference/create-a-bundle), the same rule reaches across documents. When a party fills in a field, the same field in the bundle's other documents starts with that answer. Each document still signs and seals its own values.
 
 To fill in values by key, use the field values endpoints:
 
