@@ -134,7 +134,9 @@ Some fields share a key because they are one field placed more than once:
 - Fields that the same party fills in, with the same key and the same kind: text, date, or a choice. The kind doesn't depend on where the field sits, so a FORM subfield, a placed box, and a `<sajn-field>` can be copies of one field.
 - One AcroForm field that spans several `PDF` blocks after a page split.
 
-The party fills in such a field once, and every copy shows the value. `GET /documents/{id}/field-values` lists each copy with the same key, and a value you send with the key fills every copy. Checkboxes and attachments are never shared.
+The party fills in such a field once, and every copy shows the value. `GET /documents/{id}/field-values` lists the field once, and a value you send with the key fills every copy. The value must be valid in every copy. Checkboxes and attachments are never shared.
+
+Copies must have the same options and validation rules, such as a format or a number limit. If they don't, the readiness check reports `SHARED_FIELD_SETTINGS` and the document can't be sent. A number field and a free text field differ in rules, so give them different keys.
 
 The same key on fields that different parties fill in, or on fields of different kinds, is still a duplicate.
 
