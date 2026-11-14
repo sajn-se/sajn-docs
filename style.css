@@ -1,4 +1,8 @@
-/* Mintlify caps prose pages at 576px (max-w-xl); give them a little more room. */
+/* Mintlify caps prose pages at 576px; give them a little more room. The hosted site reads --content-width, the local CLI uses max-w-xl. */
+#content-area {
+  --content-width: 45rem;
+}
+
 #content-area.max-w-xl {
   max-width: 45rem;
 }
