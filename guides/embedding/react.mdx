@@ -195,7 +195,7 @@ import { SigningFrame } from "./signing-frame";
 
 export default async function SignPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  // Replace with your own server-side lookup of the party's token.
+  // Replace with a lookup of the token you stored when you sent the document.
   const token = await getSigningToken(id);
 
   return (

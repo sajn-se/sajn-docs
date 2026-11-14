@@ -194,7 +194,7 @@ graph LR
 - **Why both a redirect and a webhook?** The redirect decides what the user sees next. The webhook decides whether the signup is complete. With only the redirect, a closed tab leaves an orphaned signup. With only the webhook, the user sees no confirmation.
 - **Which signing method?** For identity you rely on later, such as KYC, use an eID such as `SE_BANKID`. For accepting terms of service, `CLICK_TO_SIGN` or `DRAWING` has no eID requirement. For more information, see [Set the signing method](/guides/identity/signing-methods).
 
-To catch signups whose webhook delivery failed, run a reconciliation job that lists `COMPLETED` documents and checks each `externalId`. For an example, see [Sync all completed documents nightly](/guides/recipes/nightly-sync).
+To catch signups whose webhook delivery failed, run a job on a schedule that reads the `document.completed` events since its last run and passes each one to the same handler. For the job, see [Reconcile on a schedule](/webhooks/replay-and-reconcile#reconcile-on-a-schedule).
 
 ## Handle errors
 

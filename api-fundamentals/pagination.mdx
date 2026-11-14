@@ -139,6 +139,8 @@ Each sample reads your API key from the `SAJN_API_KEY` environment variable. Eve
 
 A full walk of a large list sends many requests in a short time. To stay within your per-minute limit, see [Rate limits](/api-fundamentals/rate-limits).
 
+Walk a full list once, such as for a first import. Don't walk it again on a schedule to find changes. Learn about changes from [webhooks](/webhooks/overview), and [sync changes incrementally](#sync-changes-incrementally) with `updatedAfter`.
+
 ## Paginated and bounded lists
 
 Lists that grow with your data, such as [documents](/api-reference/list-all-documents), [contacts](/api-reference/list-all-contacts), [folders](/api-reference/list-folders), and a document's [comments](/api-reference/list-comment-threads-on-a-document), are paginated as this page describes.

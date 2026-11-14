@@ -187,7 +187,7 @@ Use one key per logical operation, such as a UUID, and keep it across retries. s
 - `400 VALIDATION_FAILED`: an unknown filter, a malformed date, or a cursor from another sort. Read `issues`.
 - `429 RATE_LIMITED`: wait the number of seconds in the `Retry-After` header, and then continue from the same cursor.
 - `400 IDEMPOTENCY_KEY_REUSED`: you sent a key again with a different request. Use a new key.
-- `409 IDEMPOTENCY_KEY_IN_USE`: the first request with the key is still running. Wait and retry.
+- `409 IDEMPOTENCY_KEY_IN_USE`: the first request with the key is still running. Wait the number of seconds in the `Retry-After` header, and then retry with the same key.
 
 For the error shape and every code, see [Errors](/api-fundamentals/errors).
 

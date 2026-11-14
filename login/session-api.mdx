@@ -134,7 +134,8 @@ Two ways to cover it:
     Subscribe to `login.completed`. It fires whether or not the redirect arrives.
   </Card>
   <Card title="Poll" icon="rotate">
-    `GET` the session until it leaves `PENDING`. Simple, and fine at low volume.
+    `GET` the session every few seconds until it leaves `PENDING`. Stop at the `expiresAt` from
+    step 1. After that, the read returns `404`.
   </Card>
 </CardGroup>
 

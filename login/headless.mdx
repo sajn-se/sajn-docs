@@ -83,6 +83,9 @@ curl -X POST https://app.sajn.se/api/v1/login/sessions/SESSION_ID/poll \
 | `FAILED` | Show why, from `hintCode`. To retry, start a new attempt while `attemptsRemaining` is above 0. |
 | `EXPIRED` | The user didn't finish in time. Start a new attempt while `attemptsRemaining` is above 0. |
 
+Stop polling when `status` leaves `PENDING`, or when the user leaves the page. After the session
+runs out, a poll returns `404 NOT_FOUND`, so stop then too.
+
 The login completes even if you stop polling, and `login.completed` fires. Calling `start` again
 while an attempt runs returns that attempt with its current `qrCode`.
 

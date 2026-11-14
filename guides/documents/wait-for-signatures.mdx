@@ -12,7 +12,7 @@ In this guide, you find out when a sent document is signed without polling it. A
 
 ## Don't poll each document
 
-A loop that calls `GET /api/v1/documents/DOCUMENT_ID` every few seconds until the status changes spends your [rate limit](/api-fundamentals/rate-limits) on requests that return nothing new. The limit is shared by every API key and integration in your organization, so a busy poll can slow down the rest of your integration. One integration went from about 7,000 requests a day to fewer than 100 when it replaced polling with the steps below.
+A loop that calls `GET /api/v1/documents/DOCUMENT_ID` every few seconds until the status changes spends your [rate limit](/api-fundamentals/rate-limits) on requests that return nothing new. A document stays `PENDING` until every party signs, a party rejects it, or it expires or is withdrawn. If nobody acts, that can take months, and the loop never stops: a poll every 2 minutes on one forgotten document makes 1,440 requests a day. The limit is shared by every API key and integration in your organization, so a busy poll can slow down the rest of your integration. One integration went from about 7,000 requests a day to fewer than 100 when it replaced polling with the steps below.
 
 ## Get notified when a document is signed
 

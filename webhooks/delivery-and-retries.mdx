@@ -55,7 +55,7 @@ Delivery is at least once, so the same event can arrive more than once, for exam
 
 sajn logs every delivery with all its attempts, and keeps the log for 7 days. Read it in the dashboard on the **Webhooks** tab in [Konsol](/guider/konsol), or through the API:
 
-- [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries) lists an endpoint's deliveries, newest first. Filter with `type`, such as `type=document.completed`, or with `eventId` to see what happened to one event.
+- [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries) lists an endpoint's deliveries, newest first. Filter with `type`, such as `type=document.completed`, with `status`, such as `status=FAILED`, or with `eventId` to see what happened to one event.
 - [`GET /api/v1/webhooks/{id}/deliveries/{deliveryId}`](/api-reference/get-a-single-webhook-delivery) returns one delivery.
 
 A delivery is similar to the following:

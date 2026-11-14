@@ -152,7 +152,7 @@ With `SEQUENTIAL`, a party hears nothing until it's their turn. In the sajn app,
 
     The example leaves out some document and party fields. To count the parties who haven't signed, filter `data.object.parties` on `signingStatus`. When every signing party has signed, `document.fully_signed` fires, followed by `document.completed` when the sealed PDF is ready. For every event, see [Webhook events](/webhooks/events).
 
-    To check the state without webhooks, call [Get a document by ID](/api-reference/get-a-document-by-id) and read each party's `signingStatus` and `readStatus`.
+    To read the state once, such as when a user opens the document in your app, call [Get a document by ID](/api-reference/get-a-document-by-id) and read each party's `signingStatus` and `readStatus`. Don't call it in a loop to wait for signatures. Without a webhook endpoint, see [Wait for signatures](/guides/documents/wait-for-signatures#without-a-webhook-endpoint).
   </Step>
 </Steps>
 

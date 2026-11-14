@@ -69,14 +69,14 @@ The events endpoints need an API key for the workspace, or an OAuth token with t
 
 ## Reconcile on a schedule
 
-A reconcile job reads recent events and passes each one to the same handler as your webhook endpoint. Because the handler skips IDs that it has already processed, the job only fills gaps. Run it after an outage, or on a schedule, such as every hour, as a safety net.
+A reconcile job reads recent events and passes each one to the same handler as your webhook endpoint. Because the handler skips IDs that it has already processed, the job only fills gaps. Run it after an outage, or on a schedule, such as every hour, as a safety net. Don't run it every few seconds or minutes: webhooks already arrive within seconds, and a reconcile job that runs that often polls the API.
 
 <Steps>
   <Step title="Store a watermark">
     Store the time when the last successful run started. On the first run, use the time from which you need events, up to 30 days back.
   </Step>
   <Step title="Walk the events">
-    Request events with `createdAfter` set to the watermark minus a few minutes, and follow `nextCursor` until it's `null`. The overlap covers events that were being written while the last run read the list.
+    Request events with `createdAfter` set to the watermark minus a few minutes, `type` set to the events that your handler processes, and `limit` set to `100`. Follow `nextCursor` until it's `null`. The overlap covers events that were being written while the last run read the list.
   </Step>
   <Step title="Process each event">
     Pass each event to your webhook handler, which deduplicates on `id`.
@@ -93,6 +93,9 @@ The following samples implement the loop:
 ```javascript Node.js
 const API = "https://app.sajn.se/api/v1";
 const OVERLAP_MS = 5 * 60 * 1000;
+// The event types that your handler processes.
+const TYPES = "document.completed,document.rejected,document.expired,document.withdrawn";
+const MAX_ATTEMPTS = 5;
 
 // Returns the new watermark. Store it and pass it as `since` on the next run.
 async function reconcile(since, handleEvent) {
@@ -101,15 +104,23 @@ async function reconcile(since, handleEvent) {
   let cursor = null;
 
   do {
-    const params = new URLSearchParams({ createdAfter, limit: "100" });
+    const params = new URLSearchParams({ createdAfter, type: TYPES, limit: "100" });
     if (cursor) params.set("cursor", cursor);
 
-    const response = await fetch(`${API}/events?${params}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
-        "Sajn-Version": "2026-10",
-      },
-    });
+    let response;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      response = await fetch(`${API}/events?${params}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.SAJN_API_KEY}`,
+          "Sajn-Version": "2026-10",
+        },
+      });
+      if (response.status !== 429) break;
+      // Rate limited: wait as long as sajn asks, then retry the same page.
+      const seconds = Number(response.headers.get("Retry-After")) || 1;
+      await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+    }
+    // Any other error ends the run, and the watermark stays where it was.
     if (!response.ok) throw new Error(`sajn returned ${response.status}`);
 
     const page = await response.json();
@@ -126,12 +137,16 @@ async function reconcile(since, handleEvent) {
 
 ```python Python
 import os
+import time
 from datetime import datetime, timedelta, timezone
 
 import requests
 
 API = "https://app.sajn.se/api/v1"
 OVERLAP = timedelta(minutes=5)
+# The event types that your handler processes.
+TYPES = "document.completed,document.rejected,document.expired,document.withdrawn"
+MAX_ATTEMPTS = 5
 
 
 def reconcile(since: datetime, handle_event) -> datetime:
@@ -140,6 +155,7 @@ def reconcile(since: datetime, handle_event) -> datetime:
     created_after = (since - OVERLAP).astimezone(timezone.utc)
     params = {
         "createdAfter": created_after.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "type": TYPES,
         "limit": 100,
     }
     headers = {
@@ -148,7 +164,13 @@ def reconcile(since: datetime, handle_event) -> datetime:
     }
 
     while True:
-        response = requests.get(f"{API}/events", params=params, headers=headers)
+        for _ in range(MAX_ATTEMPTS):
+            response = requests.get(f"{API}/events", params=params, headers=headers)
+            if response.status_code != 429:
+                break
+            # Rate limited: wait as long as sajn asks, then retry the same page.
+            time.sleep(int(response.headers.get("Retry-After", "1")))
+        # Any other error ends the run, and the watermark stays where it was.
         response.raise_for_status()
         page = response.json()
         for event in page["data"]:
@@ -161,7 +183,7 @@ def reconcile(since: datetime, handle_event) -> datetime:
 
 </CodeGroup>
 
-A large backlog can take many requests. If you get a `429 Too Many Requests` status code, wait for the time in `Retry-After` and continue with the same cursor. For the limits, see [Rate limits](/api-fundamentals/rate-limits).
+A large backlog can take many requests. On a `429 Too Many Requests` status code, the samples wait for the time in `Retry-After` and request the same page again, up to five times. Any other error ends the run and keeps the old watermark, so the next scheduled run starts from it. For the limits, see [Rate limits](/api-fundamentals/rate-limits).
 
 If you need events older than 30 days, sync the resources themselves instead, for example with [`GET /api/v1/documents`](/api-reference/list-all-documents) and its `updatedAfter` filter. For a full sync pattern, see [Syncing documents](/guides/integrations/syncing-documents).
 
@@ -183,7 +205,7 @@ A retried delivery behaves as follows:
 - It keeps the event `id`, so `webhook-id` is unchanged, and a receiver that deduplicates on it ignores the retry of an event that it already processed. To make your receiver process an event again, remove its `id` from your deduplication store first.
 - It works only for deliveries from the last 7 days, and only while the endpoint is enabled and not paused. Otherwise, sajn returns `409 INVALID_STATE`.
 
-To send every event that your endpoint missed, list the endpoint's deliveries with [`GET /api/v1/webhooks/{id}/deliveries`](/api-reference/list-webhook-deliveries), and retry each one whose `status` is `FAILED`.
+To send every event that your endpoint missed, list the endpoint's failed deliveries with [`GET /api/v1/webhooks/{id}/deliveries?status=FAILED`](/api-reference/list-webhook-deliveries), and retry each one once. Do it after your endpoint answers `2xx` again.
 
 <Note>
   API version `2026-09` also has `POST /api/v1/events/{id}/replay`, which sends an event to every subscribed endpoint. `2026-10` removes it: to send an event again, retry its delivery to the endpoint that missed it, or process it from `GET /api/v1/events`.

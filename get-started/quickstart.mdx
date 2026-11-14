@@ -365,7 +365,7 @@ You need the following:
           }'
         ```
 
-        Replace `WEBHOOK_URL` with your endpoint's HTTPS URL. Store the `secret` from the response, which starts with `whsec_`. sajn returns it only when you create the webhook or rotate its secret, and you use it to [verify signatures](/webhooks/verify-signatures).
+        Replace `WEBHOOK_URL` with your endpoint's HTTPS URL. Create the endpoint once, not once per document. It receives the events of every document in the workspace. Store the `secret` from the response, which starts with `whsec_`. sajn returns it only when you create the webhook or rotate its secret, and you use it to [verify signatures](/webhooks/verify-signatures).
 
         When the document completes, your endpoint receives a `POST` request similar to the following:
 
@@ -391,39 +391,18 @@ You need the following:
 
         `data.object` is the document, in the shape of `GET /documents/{id}`, so `data.object.id` is the document ID. For the full payload, see [Webhook payloads](/webhooks/payloads).
       </Tab>
-      <Tab title="Polling">
-        [Get the document](/api-reference/get-a-document-by-id) until `status` is `COMPLETED`:
+      <Tab title="Check once">
+        After you sign, [get the document](/api-reference/get-a-document-by-id) once and check that `status` is `COMPLETED`:
 
-        <CodeGroup>
-
-        ```bash curl
+        ```bash
         curl https://app.sajn.se/api/v1/documents/$DOCUMENT_ID \
           -H "Authorization: Bearer $SAJN_API_KEY" \
           -H "Sajn-Version: 2026-10"
         ```
 
-        ```javascript Node.js
-        let current = await sajn("GET", `/documents/${documentId}`);
-        while (current.status === "PENDING") {
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-          current = await sajn("GET", `/documents/${documentId}`);
-        }
-        console.log(current.status);
-        ```
-
-        ```python Python
-        import time
-
-        current = sajn("GET", f"/documents/{document_id}")
-        while current["status"] == "PENDING":
-            time.sleep(5)
-            current = sajn("GET", f"/documents/{document_id}")
-        print(current["status"])
-        ```
-
-        </CodeGroup>
-
-        Polling counts against your [rate limits](/api-fundamentals/rate-limits). In production, we recommend webhooks.
+        <Warning>
+          Don't call this endpoint in a loop until the status changes. A document stays `PENDING` until every party signs or it ends another way, which can take weeks, and a document that nobody signs is polled forever. In production, use the webhook. If sajn can't reach your server, read `GET /api/v1/events` on a schedule. For both, see [Wait for signatures](/guides/documents/wait-for-signatures).
+        </Warning>
       </Tab>
     </Tabs>
   </Step>

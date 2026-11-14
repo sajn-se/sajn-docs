@@ -185,7 +185,7 @@ The handler reads the following environment variables:
 - `SAJN_API_KEY`: your API key.
 - `SAJN_WEBHOOK_SECRET`: the webhook's `whsec_` secret, returned when you create the webhook or rotate its secret.
 
-The journal is generated after the sealed PDF, so in production, retry the `JOURNAL` download when it returns `409 INVALID_STATE`. A delivery can arrive more than once. Deduplicate on the event's `id`, or make the archive write idempotent, as the preceding example does by writing to a fixed filename. For more information, see [Verify webhook signatures](/webhooks/verify-signatures) and [Delivery and retries](/webhooks/delivery-and-retries).
+sajn generates the journal after the sealed PDF, so the `JOURNAL` download can return `409 INVALID_STATE`. Retry it a few times with a growing delay, and then stop. A [nightly sync](/guides/recipes/nightly-sync) catches a journal that still wasn't ready. A delivery can arrive more than once. Deduplicate on the event's `id`, or make the archive write idempotent, as the preceding example does by writing to a fixed filename. For more information, see [Verify webhook signatures](/webhooks/verify-signatures) and [Delivery and retries](/webhooks/delivery-and-retries).
 
 To catch up on documents that completed while your endpoint was down, see [Sync all completed documents nightly](/guides/recipes/nightly-sync).
 
@@ -194,7 +194,7 @@ To catch up on documents that completed while your endpoint was down, see [Sync 
 Branch on the error `code`:
 
 - `404 NOT_FOUND`, with `resource` set to `document`: the document doesn't exist, or your key can't see it.
-- `409 INVALID_STATE`: the file isn't ready yet, for example `ORIGINAL` before `document.sent` or `SIGNED` before the document is completed.
+- `409 INVALID_STATE`: the file isn't ready yet, for example `ORIGINAL` before `document.sent` or `SIGNED` before the document is completed. Don't retry `SIGNED` in a loop, because a document can stay unsigned for months. Download it when `document.completed` arrives.
 
 ```json
 {
@@ -205,7 +205,7 @@ Branch on the error `code`:
 }
 ```
 
-sajn generates the journal after it seals the document, so `JOURNAL` can return this error for a short time after `document.completed`. Retry it after a few seconds. For the error shape and every code, see [Errors](/api-fundamentals/errors).
+sajn generates the journal after it seals the document, so `JOURNAL` can return this error for a short time after `document.completed`. Retry it a few times with a growing delay, and then stop. For the error shape and every code, see [Errors](/api-fundamentals/errors).
 
 ## Next steps
 

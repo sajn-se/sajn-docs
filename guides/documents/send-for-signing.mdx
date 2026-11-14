@@ -186,9 +186,9 @@ In this guide, you send a draft document to its parties. You personalize the inv
   </Step>
 
   <Step title="Track progress">
-    We recommend subscribing to webhooks instead of polling. The `document.party.signed` event fires when a party signs, and `document.completed` fires when everyone has signed and the sealed PDF is ready. For more information, see [Webhooks](/webhooks/overview) and [Event types](/webhooks/events).
+    Track progress with webhooks, not by polling the document. The `document.party.signed` event fires when a party signs, and `document.completed` fires when everyone has signed and the sealed PDF is ready. For more information, see [Wait for signatures](/guides/documents/wait-for-signatures) and [Event types](/webhooks/events).
 
-    To check the state at any time, get the document:
+    To read the state once, such as when a user opens the document in your app, get the document:
 
     ```bash
     curl https://app.sajn.se/api/v1/documents/DOCUMENT_ID \
@@ -268,7 +268,7 @@ Branch on the error `code`:
 - `409 DOCUMENT_NOT_READY`: a readiness check found a blocker, such as a party invited by SMS without a phone number, or two fields that share a key. The error's `readiness` lists the blockers, in the shape of the `issues` from the readiness check. Fix each one, and then send again.
 - `409 INVALID_STATE`: the document isn't a `DRAFT`, or its approval request is still pending. A document in `PENDING_APPROVAL` is sent when the request is approved.
 - `409 APPROVAL_REQUIRED`: you lack the permission to send without approval. Request an approval with [Request approval of a document](/api-reference/request-approval-of-a-document).
-- `403 LIMIT_EXCEEDED`: the organization reached its monthly limit of sent documents.
+- `403 LIMIT_EXCEEDED`: the organization reached its monthly limit of sent documents. A retry fails until the limit resets.
 - `403 PERMISSION_DENIED`: a party's signing method isn't included in the organization's plan. The `userMessage` names the method.
 
 For the error shape and the full list of codes, see [Errors](/api-fundamentals/errors).
