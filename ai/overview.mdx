@@ -13,6 +13,7 @@ AI coding assistants write better sajn integrations when they read the current d
 | Load the whole docs site at once | `llms.txt` |
 | Search the docs while it works, in your editor | The [docs MCP server](/ai/docs-mcp) |
 | Read and change documents, contacts, and templates in your workspace | The [workspace MCP server](/ai/workspace-mcp) |
+| Write an integration that learns about changes from webhooks instead of polling | The [integration rules](#give-the-assistant-the-integration-rules) |
 | Move your code from `2026-09` to `2026-10` | The [upgrade prompt](/upgrading/2026-10#upgrade-with-an-ai-assistant) |
 
 ## Read a page as Markdown
@@ -67,6 +68,27 @@ For the tools, scopes, and setup, see [sajn MCP server](/ai/workspace-mcp).
 <Warning>
   The workspace MCP server acts on real data. A document that the assistant sends reaches real people. To try it safely, connect it to a [sandbox](/get-started/sandbox).
 </Warning>
+
+## Give the assistant the integration rules
+
+Assistants often wait for a signature by calling `GET /api/v1/documents/{id}` in a loop. A document stays `PENDING` until it's signed, rejected, expired, or withdrawn, which can take months, so the loop runs around the clock and spends the [rate limit](/api-fundamentals/rate-limits) that every integration in your organization shares.
+
+To prevent this, add the following rules to the instructions file that your assistant reads, such as `AGENTS.md`, `CLAUDE.md`, or a Cursor rule:
+
+```markdown
+## sajn API
+
+- Read https://docs.sajn.se/llms.txt before you write code against the sajn API.
+- Send `Sajn-Version: 2026-10` on every request.
+- Never poll a document or a list endpoint to wait for a status change. A document can stay PENDING for months.
+- Learn about changes from webhooks. To track signing, subscribe to document.completed, document.rejected, document.expired, and document.withdrawn.
+- Verify the webhook-signature header, return 2xx within 30 seconds, and skip event IDs you have already processed.
+- Download the signed PDF on document.completed, not on document.fully_signed.
+- To catch missed deliveries, or if sajn can't reach the server, read GET /api/v1/events on a schedule with createdAfter and type.
+- On 429, wait for the Retry-After header before you retry.
+```
+
+For the full pattern, see [Wait for signatures](/guides/documents/wait-for-signatures).
 
 ## Upgrade an integration with AI
 
