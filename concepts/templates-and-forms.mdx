@@ -61,7 +61,7 @@ A form goes through the following steps:
 1. Configure its questions, fields, and parties, and [select the respondent party](/api-reference/select-the-respondent-party).
 1. [Publish the form](/api-reference/publish-a-form). The user who publishes becomes the sender of every document the form creates, and must be allowed to send without approval.
 1. Share the form's public URL.
-1. Read the answers with [`GET /forms/{id}/submissions`](/api-reference/list-form-submissions), or subscribe to the `form.submitted` webhook event.
+1. Get each answer from the `form.submitted` webhook event. To read earlier answers, call [`GET /forms/{id}/submissions`](/api-reference/list-form-submissions).
 
 Every submission creates an ordinary document. It follows the normal [document lifecycle](/concepts/documents#document-lifecycle), and you read it with the document endpoints. To stop new submissions, [unpublish the form](/api-reference/unpublish-a-form). For more information, see [Managing forms](/guides/templates/managing-forms).
 

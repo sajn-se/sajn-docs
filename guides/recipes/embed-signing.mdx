@@ -3,7 +3,7 @@ title: "Embed signing in your app"
 description: "Recipe: a server route that prepares a document and returns a signing token, and a page that shows the signing page in an iframe"
 ---
 
-In this recipe, you build an Express app where a signed-in user signs an agreement without leaving your site. The server creates and sends the document and returns the party's signing token. The page shows the signing page with `@sajn/embed-js` and moves on when the user has signed.
+In this recipe, you build an Express app where a signed-in user signs an agreement without leaving your site. The server creates and sends the document once and returns the party's signing token. The page shows the signing page with `@sajn/embed-js` and moves on when the user has signed.
 
 ## Before you begin
 
@@ -16,7 +16,7 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
 
 <Steps>
   <Step title="Prepare the document on the server">
-    Save the following file as `server.js`. The `/api/signing-session` route creates the document with the user as a party whose `delivery` is `[]`, sends it, and returns the document ID and the token from the party's `signingUrl`:
+    Save the following file as `server.js`. The `/api/signing-session` route creates the document the first time the user asks, with the user as a party whose `delivery` is `[]`, sends it, and stores the token from the party's `signingUrl`. Later calls return the stored document ID and token:
 
     ```javascript
     // server.js
@@ -36,6 +36,26 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
       return data;
     };
 
+    // Replace with your database.
+    const signings = new Map();
+
+    const findOrCreateSigning = async (user) => {
+      if (signings.has(user.id)) return signings.get(user.id);
+
+      const document = await sajn("POST", "/documents", {
+        name: `Membership agreement - ${user.name}`,
+        templateId: process.env.SAJN_TEMPLATE_ID,
+        externalId: `membership-${user.id}`,
+        parties: [{ name: user.name, email: user.email, role: "SIGNER", delivery: [] }],
+      });
+      await sajn("POST", `/documents/${document.id}/send`, {});
+      const party = await sajn("GET", `/documents/${document.id}/parties/${document.parties[0].id}`);
+
+      const signing = { documentId: document.id, token: new URL(party.signingUrl).searchParams.get("token") };
+      signings.set(user.id, signing);
+      return signing;
+    };
+
     const app = express();
     app.use(express.static("public"));
 
@@ -44,17 +64,7 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
       const user = { id: "user-42", name: "Alex Andersson", email: "alex@example.com" };
 
       try {
-        const document = await sajn("POST", "/documents", {
-          name: `Membership agreement - ${user.name}`,
-          templateId: process.env.SAJN_TEMPLATE_ID,
-          externalId: `membership-${user.id}`,
-          parties: [{ name: user.name, email: user.email, role: "SIGNER", delivery: [] }],
-        });
-        await sajn("POST", `/documents/${document.id}/send`, {});
-        const party = await sajn("GET", `/documents/${document.id}/parties/${document.parties[0].id}`);
-        const token = new URL(party.signingUrl).searchParams.get("token");
-
-        res.json({ documentId: document.id, token });
+        res.json(await findOrCreateSigning(user));
       } catch (error) {
         console.error(error.message);
         res.status(502).json({ message: error.body?.userMessage ?? "Signing isn't available right now." });
@@ -64,7 +74,7 @@ In this recipe, you build an Express app where a signed-in user signs an agreeme
     app.listen(3000);
     ```
 
-    The create request returns the whole document, so the party's `id` is in `parties`. `GET /api/v1/documents/:id/parties/:partyId` returns the party's `signingUrl`, which carries the token in its `token` query parameter. The token lets anyone sign as the party, so return it only to that user's session. If the template has signature boxes placed on a PDF, leave out `parties` and update the template's party instead; see [Create documents from templates](/guides/templates/templates-and-forms).
+    The create request returns the whole document, so the party's `id` is in `parties`. `GET /api/v1/documents/:id/parties/:partyId` returns the party's `signingUrl`, which carries the token in its `token` query parameter. The route stores the token, so a reload of the page doesn't create another document or read the signing URL again: sajn records every read in the document's audit log. The token lets anyone sign as the party, so return it only to that user's session. If the template has signature boxes placed on a PDF, leave out `parties` and update the template's party instead; see [Create documents from templates](/guides/templates/templates-and-forms).
   </Step>
 
   <Step title="Show the signing page">

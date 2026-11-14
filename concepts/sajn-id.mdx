@@ -102,7 +102,7 @@ sajn sends the verification link by SMS:
 
 ## Verification data
 
-After a successful verification, [get the identity check](/api-reference/get-an-identity-check) to read the BankID response in `data`. The following excerpt shows the relevant fields:
+When the `identity_check.verified` webhook event arrives, [get the identity check](/api-reference/get-an-identity-check) once to read the BankID response in `data`. The event doesn't carry it. The following excerpt shows the relevant fields:
 
 ```json
 {

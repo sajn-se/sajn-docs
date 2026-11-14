@@ -82,10 +82,14 @@ To prevent this, add the following rules to the instructions file that your assi
 - Send `Sajn-Version: 2026-10` on every request.
 - Never poll a document or a list endpoint to wait for a status change. A document can stay PENDING for months.
 - Learn about changes from webhooks. To track signing, subscribe to document.completed, document.rejected, document.expired, and document.withdrawn.
+- Create one webhook endpoint when you set up the integration, not one per document.
 - Verify the webhook-signature header, return 2xx within 30 seconds, and skip event IDs you have already processed.
 - Download the signed PDF on document.completed, not on document.fully_signed.
 - To catch missed deliveries, or if sajn can't reach the server, read GET /api/v1/events on a schedule with createdAfter and type.
-- On 429, wait for the Retry-After header before you retry.
+- To sync a list, request limit=100 and filter with updatedAfter. Don't read the whole list again on a schedule.
+- Fetch a party's signingUrl only when you show it. Every fetch writes an audit log entry.
+- On 429 and on 409 IDEMPOTENCY_KEY_IN_USE, wait for the Retry-After header before you retry.
+- Retry 500, 503, and network errors with exponential backoff and a maximum number of attempts. Don't retry other 4xx errors unchanged, such as 400, 403 LIMIT_EXCEEDED, or 404.
 ```
 
 For the full pattern, see [Wait for signatures](/guides/documents/wait-for-signatures).

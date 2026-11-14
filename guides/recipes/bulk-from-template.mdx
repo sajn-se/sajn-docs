@@ -61,7 +61,11 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
                 continue
             data = response.json()
             if not response.ok:
-                raise RuntimeError(f"{method} {path}: {data['code']} {data['message']} ({data['requestId']})")
+                message = f"{method} {path}: {data['code']} {data['message']} ({data['requestId']})"
+                if data["code"] == "LIMIT_EXCEEDED":
+                    # Every later row fails the same way, so stop the run.
+                    raise SystemExit(message)
+                raise RuntimeError(message)
             return data
         raise RuntimeError(f"{method} {path}: gave up after retries")
 
@@ -113,7 +117,8 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
     - The create request and each item in the list return the document with its `parties`, so the script finds the employee's party without another request.
     - The idempotency keys make a retried create or send replay the first response.
     - A value that isn't written doesn't fail the request. The script checks `success` on each item in `results`.
-    - `call` waits for the number of seconds in `Retry-After` when the API returns `429`.
+    - `call` retries a `429` or `5xx` response up to five times. It waits the number of seconds in `Retry-After` when the header is set, and a growing delay otherwise.
+    - On `403 LIMIT_EXCEEDED`, `call` stops the script, because a retry can't succeed until the limit resets. Other errors fail only their row.
   </Step>
 
   <Step title="Run it">
@@ -136,7 +141,7 @@ In this recipe, you read a CSV file of employees and send each one a personal ag
 
 ## Handle errors
 
-- `403 LIMIT_EXCEEDED` on create: the organization reached its hourly limit for created documents, or its monthly limit for sent documents. Wait, and run the script again; it continues where it stopped.
+- `403 LIMIT_EXCEEDED`: the organization reached its hourly limit for created documents, or its monthly limit for sent documents. The script stops. Run it again after the limit resets; it continues where it stopped.
 - `429 RATE_LIMITED`: the script waits and retries. For the limits per plan, see [Rate limits](/api-fundamentals/rate-limits).
 - `values not written`: each failed result has an `error` with a `code`. `NOT_FOUND` means the key doesn't exist on the template, and `VALIDATION_FAILED` means the value doesn't match the field's type. Fix the CSV or the template.
 

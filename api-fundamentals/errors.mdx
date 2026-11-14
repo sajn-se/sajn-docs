@@ -143,7 +143,7 @@ A `404` status has one of two codes:
 
 A `409` status means that the request conflicts with the current state of a resource:
 
-- `INVALID_STATE`: the resource's state doesn't allow the operation, such as editing a document that was already sent, or downloading a file that isn't produced yet. Change the state, or wait for it to change, and then retry.
+- `INVALID_STATE`: the resource's state doesn't allow the operation, such as editing a document that was already sent, or downloading a file that isn't produced yet. Change the state, and then retry. If sajn changes the state, retry when the matching [webhook](/webhooks/overview) arrives, such as `document.completed` before you download the signed file. Don't retry in a loop.
 - `ALREADY_EXISTS`: a resource with the same unique value, such as `externalId`, already exists.
 - `APPROVAL_REQUIRED`: the operation needs an approval first, such as sending a document that the workspace requires an approval for. To ask for one, see [Request approval of a document](/api-reference/request-approval-of-a-document).
 - `IDEMPOTENCY_KEY_IN_USE`: a request with the same `Idempotency-Key` is still running. For more information, see [Idempotency](/api-fundamentals/idempotency).
@@ -159,7 +159,7 @@ When a request with an `Idempotency-Key` replays a stored error, the `requestId`
 Only some errors can succeed when you retry the same request:
 
 - `RATE_LIMITED` and `IDEMPOTENCY_KEY_IN_USE`: wait the number of seconds in the `Retry-After` response header, and then retry. For a sample, see [Retry with backoff](/api-fundamentals/rate-limits#retry-with-backoff).
-- `UPSTREAM_UNAVAILABLE`, `INTERNAL_ERROR`, and network errors: retry with exponential backoff. To make a retried write request safe, send the same `Idempotency-Key` header on every attempt. For more information, see [Idempotency](/api-fundamentals/idempotency).
+- `UPSTREAM_UNAVAILABLE`, `INTERNAL_ERROR`, and network errors: retry with exponential backoff and a maximum number of attempts. To make a retried write request safe, send the same `Idempotency-Key` header on every attempt. For more information, see [Idempotency](/api-fundamentals/idempotency).
 - Every other code: the request fails the same way until you change it, or the state it depends on changes, so don't retry it unchanged.
 
 ## Error codes

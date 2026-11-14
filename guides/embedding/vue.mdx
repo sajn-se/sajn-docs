@@ -219,7 +219,7 @@ import { EmbedSignDocument } from '@sajn/embed-vue';
 const route = useRoute();
 const documentId = route.params.id as string;
 
-// Fetch token from your API
+// Your endpoint returns the token you stored when you sent the document.
 const { data: token } = await useFetch(`/api/sign/${documentId}/token`);
 
 function handleComplete() {

@@ -71,7 +71,7 @@ The list starts empty, and an empty list allows no domains outside sajn. The lis
     const token = new URL(party.signingUrl).searchParams.get("token");
     ```
 
-    Return the token and the document ID to your frontend. The token lets anyone sign as the party, so give it only to that person's session.
+    sajn records every read of the signing URL in the document's audit log. Store the token with the document, and reuse it instead of reading the party on every page load. Return the token and the document ID to your frontend. The token lets anyone sign as the party, so give it only to that person's session.
   </Step>
 
   <Step title="Show the signing page">

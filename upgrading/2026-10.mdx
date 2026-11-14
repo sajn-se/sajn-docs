@@ -474,6 +474,9 @@ WHEN YOU'RE DONE
   *_BEFORE_SIGNING, NONE, DOCUMENT_* event names, PDF box coordinates) or
   code that assumed one response held a whole list, which a person must
   review.
+- Also list every loop that polls a document or a list to wait for a status
+  change. Don't change it: a person replaces it with webhooks, as
+  https://docs.sajn.se/guides/documents/wait-for-signatures.md describes.
 ```
 
 </Accordion>

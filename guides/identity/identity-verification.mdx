@@ -1,6 +1,6 @@
 ---
 title: "Verify identity with sajn ID"
-description: "Send a BankID identity check to a person by email or SMS, and get the result by webhook or by polling"
+description: "Send a BankID identity check to a person by email or SMS, and get the result by webhook"
 ---
 
 In this guide, you verify a person's identity with sajn ID. sajn sends the person a link by email or SMS, the person identifies with Swedish BankID, and you get the result. Use it before you grant access to a service, open an account, or send a contract.
@@ -135,7 +135,9 @@ sajn ID checks the identity in one of two ways:
 
     `markVerified` and `markFailed` stand for your own code. To verify the signature, see [Verify webhook signatures](/webhooks/verify-signatures). For the full event, see [Webhook payloads](/webhooks/payloads).
 
-    To read the check without webhooks, poll it:
+    Don't poll the check to wait for the result. A check stays open until the person identifies or the link expires, by default seven days after creation. If sajn can't reach your server, read `GET /api/v1/events` on a schedule with `type=identity_check.verified,identity_check.failed,identity_check.cancelled`, and pass each event to the same handler. One request returns every check that ended since your last run. For the loop, see [Reconcile on a schedule](/webhooks/replay-and-reconcile#reconcile-on-a-schedule). A check that expires sends no event, so treat a check that's still open after its `expiresAt` as expired.
+
+    To read one check, such as when your user opens their application, get it by ID:
 
     ```bash
     curl https://app.sajn.se/api/v1/identity-checks/CHECK_ID \

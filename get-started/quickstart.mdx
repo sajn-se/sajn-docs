@@ -365,7 +365,7 @@ You need the following:
           }'
         ```
 
-        Replace `WEBHOOK_URL` with your endpoint's HTTPS URL. Store the `secret` from the response, which starts with `whsec_`. sajn returns it only when you create the webhook or rotate its secret, and you use it to [verify signatures](/webhooks/verify-signatures).
+        Replace `WEBHOOK_URL` with your endpoint's HTTPS URL. Create the endpoint once, not once per document. It receives the events of every document in the workspace. Store the `secret` from the response, which starts with `whsec_`. sajn returns it only when you create the webhook or rotate its secret, and you use it to [verify signatures](/webhooks/verify-signatures).
 
         When the document completes, your endpoint receives a `POST` request similar to the following:
 

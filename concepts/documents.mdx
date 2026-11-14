@@ -62,7 +62,7 @@ The following table lists what moves a document from one status to another:
 | `EXPIRED` | `PENDING` | [Change the expiration date](/api-reference/change-a-sent-documents-expiration-date). | `document.expiration_extended` |
 | `PENDING` | `DRAFT` | [Withdraw the document](/api-reference/withdraw-a-sent-document). sajn removes existing signatures and notifies the parties. | `document.withdrawn` |
 
-Sealing runs in the background after the last signature, so a document can stay `PENDING` for a short time after everyone has signed. `document.fully_signed` fires when the last party signs, and `document.completed` fires when the sealed PDF exists. Wait for `document.completed`, or for `status` to be `COMPLETED`, before you download the signed PDF.
+Sealing runs in the background after the last signature, so a document can stay `PENDING` for a short time after everyone has signed. `document.fully_signed` fires when the last party signs, and `document.completed` fires when the sealed PDF exists. Download the signed PDF when `document.completed` arrives, or when a document that you read for another reason has `status` set to `COMPLETED`. Don't poll the document to find out. For the pattern, see [Wait for signatures](/guides/documents/wait-for-signatures).
 
 For the events that fire per party, such as `document.party.signed`, see [Webhook events](/webhooks/events).
 
@@ -130,7 +130,7 @@ The `type` field sets what kind of document it is:
 
 ## Files
 
-A document has up to three files. [`GET /documents/{id}/files/{type}`](/api-reference/get-a-document-file) returns a download URL for one of them, and [`GET /documents/{id}/files`](/api-reference/list-document-files) lists every file that's ready. A file that isn't ready returns `409 INVALID_STATE`:
+A document has up to three files. [`GET /documents/{id}/files/{type}`](/api-reference/get-a-document-file) returns a download URL for one of them, and [`GET /documents/{id}/files`](/api-reference/list-document-files) lists every file that's ready. A file that isn't ready returns `409 INVALID_STATE`. Don't retry it in a loop: request `SIGNED` and `JOURNAL` when `document.completed` arrives. The files are available as follows:
 
 | File type | Contents | Available |
 |-----------|----------|-----------|

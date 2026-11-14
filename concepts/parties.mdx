@@ -188,7 +188,7 @@ Each party has its own signing URL. To get it, call [`GET /documents/{id}/partie
 }
 ```
 
-Only this endpoint returns `signingUrl`. The party list and the document leave it out. sajn records an audit log entry each time you fetch a signing URL.
+Only this endpoint returns `signingUrl`. The party list and the document leave it out. sajn records an audit log entry each time you fetch a signing URL, so fetch it only when you give it to the party. To follow a party's status, use the `document.party.*` [webhook events](/webhooks/events#party-events), not this endpoint.
 
 <Warning>
   A signing URL lets anyone who holds it act as that party. Give it only to that party, and never publish it.

@@ -67,6 +67,7 @@ description: "Concise description for SEO and navigation"
 - Add language tags to all code blocks
 - Use relative paths for internal links (e.g., `/get-started/quickstart` not absolute URLs)
 - Match style and formatting of existing pages
+- Never show or suggest open-ended polling. Poll only a short-lived state with a known end, such as a BankID attempt, and give every loop an interval, a terminal status, and a timeout. For a long-lived state, such as a document waiting for signatures, point to webhooks and `GET /api/v1/events`. Readers and AI assistants copy loops into production unchanged.
 
 ### Mintlify Components
 The site uses Mintlify-specific MDX components:
