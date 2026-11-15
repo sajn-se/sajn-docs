@@ -33,7 +33,7 @@ The session decides what the frame can do: its features, the pages that can show
 
 ## Before you begin
 
-- Embedded signing is part of the Enterprise plan, and sajn turns it on for each organization. Being on Enterprise doesn't turn it on. To get started, contact [hej@sajn.se](mailto:hej@sajn.se). If you build on sajn to send documents to your own customers, you also need a partner license.
+- Embedded signing is part of the Enterprise plan, and sajn turns it on for each organization. Being on Enterprise doesn't turn it on. To get started, contact [dev@sajn.se](mailto:dev@sajn.se). If you build on sajn to send documents to your own customers, you also need a partner license.
 - A [sandbox](/get-started/sandbox) has embedded signing turned on when it's created, so you can build and test there first.
 - Store an API key in the `SAJN_API_KEY` environment variable on your server. The key needs write access to documents. Sessions need an API key: an OAuth app can't create them. To create a key, go to **Inställningar** > **Utvecklare** > **API-nycklar** (Settings > Developer > API keys) in the sajn app.
 - Send API version `2026-10` in the `Sajn-Version` header. The embed session endpoints don't exist in `2026-09`, which returns `404 ROUTE_NOT_FOUND` for them.
