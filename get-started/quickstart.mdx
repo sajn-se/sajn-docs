@@ -15,9 +15,9 @@ You need the following:
 
 <Steps>
   <Step title="Create an API key">
-    In the sajn app, open the workspace you want to work in, and go to **Inställningar > Utvecklare > API-nycklar**. Click **Skapa API-nyckel**, enter a name, choose when the key expires, and copy the key. sajn shows the key only once.
+    In the sajn app, open the workspace you want to work in, and go to **Inställningar > Utvecklare > API-nycklar**. Click **Skapa nyckel**, enter a name, choose when the key expires, and copy the key. sajn shows the key only once.
 
-    A production key starts with `sajn_sk_`, and a sandbox key starts with `sajn_dev_`. Store the key in an environment variable:
+    A production key starts with `sajn_svc_` or `sajn_usr_`, and every sandbox key contains `_dev_`. Store the key in an environment variable:
 
     ```bash
     export SAJN_API_KEY="API_KEY"
