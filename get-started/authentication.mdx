@@ -23,14 +23,18 @@ sajn emails the workspace members who can manage API keys when a key is created.
 
 ### Key prefixes
 
-The prefix tells you which kind of organization a key belongs to:
+The prefix tells you which environment a key belongs to, and whether a service account or a person owns it:
 
-| Prefix | Environment | Example |
-|--------|-------------|---------|
-| `sajn_sk_` | Production | `sajn_sk_` followed by 64 random characters |
-| `sajn_dev_` | [Sandbox](/get-started/sandbox) | `sajn_dev_` followed by 64 random characters |
+| Prefix | Environment | Owner |
+|--------|-------------|-------|
+| `sajn_svc_` | Production | A service account |
+| `sajn_usr_` | Production | A person |
+| `sajn_svc_dev_` | [Sandbox](/get-started/sandbox) | A service account |
+| `sajn_usr_dev_` | [Sandbox](/get-started/sandbox) | A person |
 
-Both kinds use the same base URL. The key decides which environment the request reaches.
+Every sandbox key contains `_dev_`. After the prefix come 46 characters: 40 random characters and a 6-character checksum. Older keys start with `sajn_sk_`, `sajn_dev_`, or `api_`, and they keep working.
+
+Production and sandbox keys use the same base URL. The key decides which environment the request reaches.
 
 ## Send the key
 
