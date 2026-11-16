@@ -1,9 +1,9 @@
 ---
-title: "Wait for signatures"
-description: "Learn when a document is signed from the document.completed webhook, and catch up on missed events with GET /api/v1/events instead of polling"
+title: "Wait for signatures without polling"
+description: "Learn when a document is signed from the document.completed webhook, catch up on missed events with GET /api/v1/events, and recover when sajn pauses your webhook"
 ---
 
-In this guide, you find out when a sent document is signed without polling it. A webhook tells you the moment the sealed PDF is ready, and a scheduled read of `GET /api/v1/events` catches anything the webhook missed.
+In this guide, you find out when a sent document is signed without polling it. A webhook tells you the moment the sealed PDF is ready, a scheduled read of `GET /api/v1/events` catches anything the webhook missed, and the same read keeps you current if sajn pauses your webhook.
 
 ## Before you begin
 
@@ -58,6 +58,28 @@ A loop that calls `GET /api/v1/documents/DOCUMENT_ID` every few seconds until th
     Each event has the same shape as a webhook delivery, and its `id` stays the same, so a handler that skips IDs it has seen processes each event once. The list reaches back 30 days. For the full loop with a watermark and paging, see [Reconcile on a schedule](/webhooks/replay-and-reconcile#reconcile-on-a-schedule).
   </Step>
 </Steps>
+
+## Recover when sajn pauses your webhook
+
+sajn [pauses an endpoint](/webhooks/delivery-and-retries#automatic-pausing) that answers `410 Gone`, or that has failed every attempt for 72 hours. A paused endpoint gets no deliveries until you reactivate it, and reactivating doesn't resend the events from the pause. A paused webhook is a broken endpoint to fix. Don't replace it with polling: the hourly read of `GET /api/v1/events` already keeps your data current while the endpoint is paused.
+
+To find out about a pause, set `failureNotificationEmail` to an address that someone reads:
+
+```bash
+curl -X PATCH https://app.sajn.se/api/v1/webhooks/WEBHOOK_ID \
+  -H "Authorization: Bearer $SAJN_API_KEY" \
+  -H "Sajn-Version: 2026-10" \
+  -H "Content-Type: application/json" \
+  -d '{ "failureNotificationEmail": "ops@example.com" }'
+```
+
+Your hourly catch-up job can also read [`GET /api/v1/webhooks/WEBHOOK_ID`](/api-reference/get-a-webhook-by-id) and raise an alert when `status` is `PAUSED`.
+
+When sajn pauses your endpoint, do the following:
+
+1. Read `pauseReason` and fix the endpoint. `HTTP_410` means that your endpoint answered `410 Gone`. `NETWORK_ERROR` means that sajn got no response.
+2. [Reactivate the endpoint](/webhooks/manage-endpoints#reactivate-a-paused-endpoint) in Konsol, or call `POST /api/v1/webhooks/WEBHOOK_ID/reactivate`.
+3. Request `GET /api/v1/events` with `createdAfter` set to `pausedAt`, and pass each event to your handler. Your handler skips the events that it has already processed, so this step is safe after the hourly job has run.
 
 ## Without a webhook endpoint
 
