@@ -118316,8 +118316,8 @@
 										]
 									},
 									"documentIds": {
-										"description": "Draft documents to add, up to 50. Each one must be a `DRAFT` in the workspace that isn't in another bundle, and each of its parties needs an email address. Its parties become the bundle's parties, one per email address.",
-										"maxItems": 50,
+										"description": "Draft documents to add, up to 100. Each one must be a `DRAFT` in the workspace that isn't in another bundle, and each of its parties needs an email address. Its parties become the bundle's parties, one per email address.",
+										"maxItems": 100,
 										"type": "array",
 										"items": {
 											"type": "string",
@@ -118440,7 +118440,7 @@
 												},
 												"documentIds": {
 													"description": "The documents in the bundle the party is on. Leave it out for every document.",
-													"maxItems": 50,
+													"maxItems": 100,
 													"type": "array",
 													"items": {
 														"type": "string",
@@ -127899,7 +127899,7 @@
 		},
 		"/api/v1/bundles/{id}/documents": {
 			"post": {
-				"description": "Adds draft documents to the bundle, up to 50 in total. A document's parties join the bundle's parties: a party whose email address the bundle already has is matched to it, and a new address becomes a new bundle party. A document without parties gets every bundle party. The bundle's settings are written onto the added documents. A document is refused with 409 when one email address has a different signing method, verification, role or personal number than in the bundle, or when its signing mode or party order differs from the bundle's.\n\nWorks only while the bundle is a `DRAFT`. On a sent bundle it returns `409 INVALID_STATE`; withdraw it first with `POST /api/v1/bundles/{id}/withdraw`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+				"description": "Adds draft documents to the bundle, up to 100 in total. A document's parties join the bundle's parties: a party whose email address the bundle already has is matched to it, and a new address becomes a new bundle party. A document without parties gets every bundle party. The bundle's settings are written onto the added documents. A document is refused with 409 when one email address has a different signing method, verification, role or personal number than in the bundle, or when its signing mode or party order differs from the bundle's.\n\nWorks only while the bundle is a `DRAFT`. On a sent bundle it returns `409 INVALID_STATE`; withdraw it first with `POST /api/v1/bundles/{id}/withdraw`.\n\n**Permission required:** `EDIT_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
 				"summary": "Add documents to a bundle",
 				"parameters": [
 					{
@@ -127955,7 +127955,7 @@
 								"properties": {
 									"documentIds": {
 										"minItems": 1,
-										"maxItems": 50,
+										"maxItems": 100,
 										"type": "array",
 										"items": {
 											"type": "string",
@@ -132802,7 +132802,7 @@
 												},
 												"documentIds": {
 													"description": "The documents in the bundle the party is on. Leave it out for every document.",
-													"maxItems": 50,
+													"maxItems": 100,
 													"type": "array",
 													"items": {
 														"type": "string",
@@ -135141,7 +135141,7 @@
 		},
 		"/api/v1/bundles/{id}/send": {
 			"post": {
-				"description": "Sends a draft bundle of 2 to 50 documents. sajn checks every document first and sends none of them if one fails: `409 INVALID_STATE` lists the reasons in `userMessage`. For example, a document has a blocker such as a missing signature box, needs approval, or has a party without an email address. The monthly limit counts every document.\n\nThe bundle's `status` is `OPEN` from this call. Each party gets one invitation once every document's PDF is ready, and the bundle fires `bundle.sent`.\n\n**Permission required:** `SEND_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
+				"description": "Sends a draft bundle of 2 to 100 documents. sajn checks every document first and sends none of them if one fails: `409 INVALID_STATE` lists the reasons in `userMessage`. For example, a document has a blocker such as a missing signature box, needs approval, or has a party without an email address. The monthly limit counts every document.\n\nThe bundle's `status` is `OPEN` from this call. Each party gets one invitation once every document's PDF is ready, and the bundle fires `bundle.sent`.\n\n**Permission required:** `SEND_DOCUMENT` on the workspace, and access to every document in the bundle. Requires a Team plan.",
 				"summary": "Send a bundle",
 				"parameters": [
 					{
