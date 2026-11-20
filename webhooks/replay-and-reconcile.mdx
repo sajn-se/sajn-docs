@@ -8,6 +8,7 @@ Webhooks are delivered at least once, but only while your endpoint is reachable.
 | Tool | Reaches back | Use it to |
 |------|--------------|-----------|
 | [List events](#read-past-events) | 30 days | Read every event the workspace emitted, whether or not an endpoint subscribed to it, and process the ones you missed. |
+| [List undelivered events](#recover-undelivered-events) | 7 days | Read only the events that an endpoint hasn't received yet, and process them after an outage. |
 | [Retry a delivery](#retry-a-delivery) | 7 days | Have sajn send one logged delivery to your endpoint again. |
 
 ## Read past events
@@ -58,6 +59,7 @@ The endpoint takes the following query parameters:
 | `createdAfter` | Only events created at or after this ISO 8601 date or date-time. |
 | `createdBefore` | Only events created at or before this ISO 8601 date or date-time. |
 | `type` | Only these event types, comma-separated or repeated, such as `type=document.completed,document.rejected`. |
+| `deliverySuccess` | If `false`, only events from the last 7 days that an endpoint of the workspace hasn't received yet. If `true`, only the other events from the last 7 days. See [Recover undelivered events](#recover-undelivered-events). API version `2026-09` ignores it. |
 | `limit` | From 1 to 100. Default: 25. |
 | `cursor` | The `nextCursor` from the previous page. |
 
@@ -211,16 +213,43 @@ To send every event that your endpoint missed, list the endpoint's failed delive
   API version `2026-09` also has `POST /api/v1/events/{id}/replay`, which sends an event to every subscribed endpoint. `2026-10` removes it: to send an event again, retry its delivery to the endpoint that missed it, or process it from `GET /api/v1/events`.
 </Note>
 
-## Recover from an outage
+## Recover undelivered events
+
+After an outage, list only the events that your endpoint missed, and pass them to your webhook handler. With `deliverySuccess=false`, `GET /api/v1/events` returns the events from the last 7 days that an endpoint of the workspace hasn't received yet:
+
+- Events that are waiting for their first attempt or are still retrying.
+- Events that failed every attempt.
+- Events that sajn held back while the endpoint was [paused](/webhooks/delivery-and-retries#automatic-pausing).
+
+A successful [retry](#retry-a-delivery) of an event counts as received. Endpoints that an integration installed don't count.
 
 <Steps>
   <Step title="Fix the endpoint">
     Make sure that your endpoint returns `2xx` for a [signed test request](/webhooks/verify-signatures#send-a-signed-test-request).
   </Step>
   <Step title="Reactivate it if it's paused">
-    If sajn paused the endpoint, [reactivate it](/webhooks/manage-endpoints#reactivate-a-paused-endpoint). Events from the pause aren't sent automatically.
+    If sajn paused the endpoint, [reactivate it](/webhooks/manage-endpoints#reactivate-a-paused-endpoint). Reactivating doesn't resend the events from the pause.
   </Step>
-  <Step title="Fill the gap">
-    Run your [reconcile job](#reconcile-on-a-schedule) with `createdAfter` set to the start of the outage. To have sajn push the events instead, retry the endpoint's `FAILED` deliveries from the last 7 days.
+  <Step title="List the undelivered events">
+    Request events with `deliverySuccess=false`, `createdAfter` set to when the outage started, and `limit` set to `100`. Pass `nextCursor` as `cursor` until `hasMore` is `false`, and collect the events from every page.
+  </Step>
+  <Step title="Process them oldest first">
+    The list is newest first, so reverse the collected events. Pass each event to your webhook handler, which skips any event `id` that it already handled.
   </Step>
 </Steps>
+
+The first request looks like this:
+
+```bash
+curl "https://app.sajn.se/api/v1/events?deliverySuccess=false&createdAfter=2026-10-01T08:00:00Z&limit=100" \
+  -H "Authorization: Bearer API_KEY" \
+  -H "Sajn-Version: 2026-10"
+```
+
+Processing an event from the list doesn't mark it as received, so sajn can still deliver it afterward, for example on its next retry. When your handler gets an event `id` that it already handled, it returns `2xx` and does nothing else. The same check lets you run the recovery again safely.
+
+<Note>
+  sajn keeps delivery records for 7 days and events for 30 days. With `deliverySuccess` set, the list covers only events from the last 7 days, even if `createdAfter` is earlier. If the outage lasted longer, run your [reconcile job](#reconcile-on-a-schedule) with `createdAfter` set to when the outage started. It walks every event, and your handler skips the IDs that it already handled.
+</Note>
+
+To have sajn send the events to your endpoint instead, [retry each failed delivery](#retry-a-delivery) from the last 7 days.

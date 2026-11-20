@@ -123,4 +123,4 @@ One successful attempt ends the streak, so an endpoint that answers some events 
 
 While an endpoint is paused, its `status` is `PAUSED`, `pausedAt` is the time of the pause, and `pauseReason` is the last answer, such as `HTTP_410` or `NETWORK_ERROR`. sajn doesn't send it anything. Each new event appears in the delivery log as a `FAILED` delivery with one attempt numbered `0`, and stays there for 7 days. sajn also [notifies you](/webhooks/manage-endpoints#failure-notifications).
 
-To resume deliveries, fix your endpoint and then [reactivate it](/webhooks/manage-endpoints#reactivate-a-paused-endpoint). Reactivating doesn't resend the events from the pause. To deliver them, [retry each delivery](/webhooks/replay-and-reconcile#retry-a-delivery), or process them from the events API, as [Replay and reconcile events](/webhooks/replay-and-reconcile) describes.
+To resume deliveries, fix your endpoint and then [reactivate it](/webhooks/manage-endpoints#reactivate-a-paused-endpoint). Reactivating doesn't resend the events from the pause. To process them, follow [Recover undelivered events](/webhooks/replay-and-reconcile#recover-undelivered-events).

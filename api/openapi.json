@@ -433972,7 +433972,7 @@
 		},
 		"/api/v1/events": {
 			"get": {
-				"description": "Returns every event the workspace emitted in the last 30 days, newest first, whether or not a webhook was subscribed to it. Each event is the object a webhook delivery on your API version carries as its body.\n\nIf a webhook on API version `2026-10` was subscribed to the event type when the event happened, `data.object` is a snapshot from that moment. Otherwise sajn didn't record the object, and `data.object` is the resource as it is when you read the event. An event whose resource no longer exists is left out, so a page can hold fewer than `limit` events.\n\nPagination is keyset: follow `nextCursor` until it is `null`. New events arriving while you page never shift the window, so a full walk with `createdAfter` set to your last known timestamp is a complete reconcile even though webhooks are delivered at least once.",
+				"description": "Returns every event the workspace emitted in the last 30 days, newest first, whether or not a webhook was subscribed to it. Each event is the object a webhook delivery on your API version carries as its body.\n\nIf a webhook on API version `2026-10` was subscribed to the event type when the event happened, `data.object` is a snapshot from that moment. Otherwise sajn didn't record the object, and `data.object` is the resource as it is when you read the event. An event whose resource no longer exists is left out, so a page can hold fewer than `limit` events.\n\nPagination is keyset: follow `nextCursor` until it is `null`. New events arriving while you page never shift the window, so a full walk with `createdAfter` set to your last known timestamp is a complete reconcile even though webhooks are delivered at least once.\n\n`deliverySuccess=false` lists the events from the last 7 days that a webhook hasn't received yet. To recover after an outage, list them with `createdAfter` set to when the outage started, follow `nextCursor` to the end, and process the events oldest first, skipping any event `id` you already handled.",
 				"summary": "List events",
 				"parameters": [
 					{
@@ -434106,6 +434106,14 @@
 						"description": "Only events created at or before this ISO 8601 date or date-time.",
 						"schema": {
 							"type": "string"
+						}
+					},
+					{
+						"name": "deliverySuccess",
+						"in": "query",
+						"description": "If `false`, returns only events that a webhook of the workspace hasn't received yet: still retrying, failed every attempt, or held back while the webhook was paused. A successful replay counts as received. If `true`, returns only the other events. sajn keeps delivery records for 7 days, so with this filter the list covers only events from the last 7 days.",
+						"schema": {
+							"type": "boolean"
 						}
 					},
 					{
