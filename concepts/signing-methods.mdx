@@ -13,7 +13,7 @@ The eIDAS regulation defines three levels of electronic signature. Each sajn met
 |-------|----------------|--------------|
 | Simple electronic signature (SES) | The signer intended to sign | `CLICK_TO_SIGN`, `DRAWING` |
 | Advanced electronic signature (AES) | A verified person signed, through their national eID | `SE_BANKID`, `DK_MITID`, `DK_MITID_ERHVERV`, `FI_FTN`, `NO_BANKID_BIOMETRIC`, `NO_BANKID_HIGH`, `NL_IDIN` |
-| Qualified electronic signature (QES) | The highest level, equal to a handwritten signature in the EU | `NO_QES` |
+| Qualified electronic signature (QES) | The highest level, equal to a handwritten signature in the EU | `ZEALID_QES`, `NO_QES` |
 
 For most everyday agreements, a simple signature is enough. Use an eID when you need proof of who signed.
 
@@ -29,6 +29,7 @@ For most everyday agreements, a simple signature is enough. Use an eID when you 
 | `FI_FTN` | Finnish Trust Network: Finnish bank credentials or Mobile ID | AES | FTN credentials |
 | `NO_BANKID_BIOMETRIC` | Norwegian BankID | AES | Norwegian BankID |
 | `NO_BANKID_HIGH` | Norwegian BankID, high assurance | AES | Norwegian BankID |
+| `ZEALID_QES` | ZealiD app, qualified signature | QES | The ZealiD app and a verified ZealiD account |
 | `NO_QES` | Norwegian BankID, qualified signature | QES | Norwegian BankID |
 | `NL_IDIN` | Dutch iDIN, through the signer's bank | AES | A Dutch bank that supports iDIN |
 | `MANUAL` | Signed on paper, outside sajn | None in sajn | Nothing. Used for documents imported into the archive. |
@@ -78,6 +79,17 @@ Set `signatureMethod` on each party when you add or update it. Parties on the sa
 ```
 
 If you leave out `signatureMethod`, the party gets your organization's default method.
+
+### ZealiD QES applies to the whole document
+
+`ZEALID_QES` can't be mixed with other methods. If one signing party uses `ZEALID_QES`, every signing party must use it, or the document can't be sent. Parties that review or get a copy are not affected.
+
+When the document is sent, sajn locks the PDF with one signature field for each signing party. After that:
+
+- A `ZEALID_QES` signer can't delegate the signing to someone else.
+- You can't add a signing party. You can still add parties that review or get a copy.
+
+To change who signs, withdraw the document, update the parties, and send it again.
 
 ## Check who signed
 
