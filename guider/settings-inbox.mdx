@@ -1,6 +1,6 @@
 ---
 title: "Skicka in dokument via inbox-e-post"
-description: "Mejla in PDF-bilagor till sajn och få dem automatiskt som arkiverade dokument eller redigerbara utkast"
+description: "Mejla in PDF-bilagor till sajn och få dem automatiskt som arkiverade dokument eller förberedda utkast med titel och parter"
 ---
 
 Med inbox mejlar du och dina kollegor in PDF-filer till sajn, och dokumenten skapas automatiskt – antingen som arkiverade dokument eller som redigerbara utkast. På sidan [Inställningar → Inbox](https://app.sajn.se/~/settings/workspace/inbox) ser du arbetsytans två adresser, vilka avsändare som släpps igenom och vad som hände med varje mejl.
@@ -29,7 +29,27 @@ Med inbox mejlar du och dina kollegor in PDF-filer till sajn, och dokumenten ska
 
     Kopieringsikonen till höger om en adress lägger den i urklipp – behändigt när du ska lägga in den som vidarebefordringsregel i din mejlklient.
 
-    Skicka PDF:en som **bilaga**. Dokumentet får bilagans filnamn som titel; mejlets ämnesrad sparas bara i historiken.
+    Skicka PDF:en som **bilaga**. Ett mejl blir ett dokument: bifogar du flera PDF:er hamnar alla i samma dokument. Dokumentet får den första bilagans filnamn som titel; mejlets ämnesrad sparas bara i historiken.
+
+    Till **Skapa**-adressen kan du också skriva i mejlet vad som ska förberedas, med vanliga ord:
+
+    ```
+    Titel: Konsultavtal Acme 2026
+    Skicka till Anna Svensson anna@acme.se och Maria Ek. Anna signerar först.
+    Johan Berg ska granska. Jag skriver också under.
+    ```
+
+    - **Titel** – skriver du en titel används den i stället för filnamnet.
+    - **Parter** – bara personer som du uttryckligen ber om att lägga till blir parter. Personer i ett vidarebefordrat mejl, i kopia eller i en signatur läggs aldrig till.
+    - **Kontaktuppgifter** – skriv e-postadress eller telefonnummer. Utan det hämtas uppgifterna från arbetsytans kontakter om exakt en kontakt har samma fullständiga namn.
+    - **Ordning och roll** – anger du vem som signerar först numreras alla parter i den ordningen. Den som ska *granska* läggs till som granskare.
+    - **Du själv** – skriv till exempel "jag skriver också under" så läggs du till som part. Det fungerar bara om du är medlem i arbetsytan.
+
+    Dokumentet blir alltid ett utkast; inget skickas förrän du skickar det. Notisen om det nya dokumentet berättar vilka parter som lades till och vilka som inte kunde läggas till.
+
+    <Note>
+      Instruktionerna läses av AI och kräver att AI är påslaget för arbetsytan. Är AI avstängt skapas dokumentet som vanligt, utan titel eller parter från mejlet.
+    </Note>
   </Step>
   <Step title="Tillåtna avsändare – styr vem som får mejla in">
     För att inte vem som helst ska kunna skapa dokument i arbetsytan måste avsändaren finnas i listan. Allt annat avvisas och syns som *Avböjd* i historiken.
