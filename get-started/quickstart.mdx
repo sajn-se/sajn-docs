@@ -9,15 +9,17 @@ In this quickstart, you create a document with one party, send it, sign it yours
 
 You need the following:
 
-- A sajn workspace with API access. API access is included from the Team plan, and in every [sandbox](/get-started/sandbox). We recommend a sandbox for this quickstart: nothing is billed, BankID is mocked, and the signed PDF is watermarked as a test.
+- A sajn [sandbox](/get-started/sandbox). A sandbox is free on every plan, including the free Basic plan: nothing is billed, BankID is mocked, and the signed PDF is watermarked as a test. If you don't have a sajn account, [create a free account](https://app.sajn.se/auth/signup?plan=BASIC). Production API access is included from the Team plan.
 - An email address you can read. sajn sends the signing invitation to it, and rejects addresses on domains that can't receive email.
 - `curl`, Node.js 18 or later, or Python 3 with the `requests` package.
 
 <Steps>
   <Step title="Create an API key">
-    In the sajn app, open the workspace you want to work in, and go to **Inställningar > Utvecklare > API-nycklar**. Click **Skapa nyckel**, enter a name, choose when the key expires, and copy the key. sajn shows the key only once.
+    1. In the sajn app, open the menu with your name in the bottom-left corner, and click **Skapa sandbox**. sajn creates the sandbox and switches you into it. Only users who manage billing see this item. If you already have a sandbox, select it in the same menu instead.
+    1. In the sandbox, go to **Inställningar > Utvecklare > API-nycklar**.
+    1. Click **Skapa nyckel**, enter a name, choose when the key expires, and copy the key. sajn shows the key only once.
 
-    A production key starts with `sajn_svc_` or `sajn_usr_`, and every sandbox key contains `_dev_`. Store the key in an environment variable:
+    Every sandbox key contains `_dev_`. Store the key in an environment variable:
 
     ```bash
     export SAJN_API_KEY="API_KEY"
